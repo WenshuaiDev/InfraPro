@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: InfraPro API
+  version: 0.1.0
+  description: Initial process health contract. No database readiness is implied.
+servers:
+  - url: /
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      summary: Get API process health
+      responses:
+        '200':
+          description: The API process is responding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /healthz:
+    get:
+      operationId: getLiveness
+      summary: Process liveness probe
+      responses:
+        '200':
+          description: The API process is responding
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  schemas:
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status, service, version, time]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+          enum: [infrapro-api]
+        version:
+          type: string
+          minLength: 1
+        time:
+          type: string
+          format: date-time

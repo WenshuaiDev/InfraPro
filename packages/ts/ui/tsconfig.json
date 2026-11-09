@@ -1,0 +1,4 @@
+{
+  "extends": "@infrapro/tsconfig/react.json",
+  "include": ["src"]
+}
