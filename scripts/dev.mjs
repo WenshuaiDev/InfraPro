@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+if (existsSync(join(root, '.env'))) process.loadEnvFile(join(root, '.env'));
 const apiOnly = process.argv.includes('--api-only');
 const preview = process.argv.includes('--preview');
 const children = new Set();
@@ -44,10 +45,8 @@ process.on('SIGTERM', () => stop(0));
 
 try {
   if (preview && !apiOnly) {
-    for (const app of ['console', 'screen']) {
-      if (!existsSync(join(root, 'apps', app, 'dist', 'index.html'))) {
-        throw new Error('Build the applications first with make build.');
-      }
+    if (!existsSync(join(root, 'apps', 'console', 'dist', 'index.html'))) {
+      throw new Error('Build the application first with make build.');
     }
   }
   mkdirSync(join(root, 'build', 'dev'), { recursive: true });
@@ -55,9 +54,7 @@ try {
   execFileSync('go', ['build', '-o', binary, './services/api/cmd/api'], { cwd: root, stdio: 'inherit' });
   start('api', binary, []);
   if (!apiOnly) {
-    for (const app of ['console', 'screen']) {
-      start(app, 'pnpm', ['--filter', `@infrapro/${app}`, preview ? 'preview' : 'dev']);
-    }
+    start('console', 'pnpm', ['--filter', '@infrapro/console', preview ? 'preview' : 'dev']);
   }
   console.log('[dev] Press Ctrl+C to stop all processes started by this command.');
 } catch (error) {

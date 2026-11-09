@@ -1,5 +1,0 @@
-# Optional: INFRAPRO_CONFIG=services/api/configs/config.local.yaml make dev-api
-# Precedence: defaults < this file < INFRAPRO_* environment variables.
-http_addr: 127.0.0.1:8080
-log_level: info
-shutdown_timeout: 5s

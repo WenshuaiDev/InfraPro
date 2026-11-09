@@ -1,5 +1,0 @@
-{
-  "extends": "@infrapro/tsconfig/react.json",
-  "compilerOptions": { "tsBuildInfoFile": "./node_modules/.cache/tsconfig.app.tsbuildinfo", "types": ["vite/client"] },
-  "include": ["src"]
-}

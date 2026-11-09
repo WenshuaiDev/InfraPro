@@ -1,0 +1,26 @@
+// Generated from platform/access/catalog.go. Run pnpm permissions:generate.
+export const Permissions = {
+  AccountProfileRead: 'account.profile.read',
+  AccountProfileUpdate: 'account.profile.update',
+  AccountPasswordUpdate: 'account.password.update',
+  AccountSessionRead: 'account.session.read',
+  AccountSessionRevoke: 'account.session.revoke',
+  AccountSecurityEventRead: 'account.security_event.read',
+  PlatformInvitationRead: 'platform.invitation.read',
+  PlatformInvitationCreate: 'platform.invitation.create',
+  PlatformInvitationRevoke: 'platform.invitation.revoke',
+  PlatformInvitationRegenerate: 'platform.invitation.regenerate',
+  PlatformAccountRead: 'platform.account.read',
+  PlatformAccountAssignRoles: 'platform.account.assign_roles',
+  PlatformAccountDisable: 'platform.account.disable',
+  PlatformAccountEnable: 'platform.account.enable',
+  PlatformRoleRead: 'platform.role.read',
+  PlatformRoleCreate: 'platform.role.create',
+  PlatformRoleUpdate: 'platform.role.update',
+  PlatformRoleSetPermissions: 'platform.role.set_permissions',
+  PlatformRoleSetStatus: 'platform.role.set_status',
+  PlatformRoleDelete: 'platform.role.delete',
+  PlatformPermissionRead: 'platform.permission.read',
+  PlatformAuditRead: 'platform.audit.read',
+} as const;
+export type PermissionCode = typeof Permissions[keyof typeof Permissions];

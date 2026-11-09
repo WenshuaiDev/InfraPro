@@ -1,0 +1,24 @@
+name: infrapro-account-tests
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: infrapro_test
+      POSTGRES_PASSWORD: test-only-local-password
+      POSTGRES_DB: infrapro_test
+    ports: ["127.0.0.1:55432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infrapro_test -d infrapro_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    tmpfs: ["/var/lib/postgresql/data"]
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--requirepass", "test-only-local-password", "--maxmemory", "128mb", "--maxmemory-policy", "noeviction"]
+    ports: ["127.0.0.1:56379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "test-only-local-password", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

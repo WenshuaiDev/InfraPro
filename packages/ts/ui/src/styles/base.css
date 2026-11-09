@@ -1,0 +1,17 @@
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Inter Variable', Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  body { @apply min-h-svh w-full bg-background text-foreground antialiased has-[div[data-variant='inset']]:bg-sidebar; }
+  button:not(:disabled), [role='button']:not(:disabled) { cursor: pointer; }
+  @media (max-width: 767px) { input, select, textarea { font-size: 16px; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}

@@ -2,7 +2,7 @@
 
 help:
 	@echo "install   安装 pnpm 和 Go 依赖"
-	@echo "dev       启动 API、console、screen（Ctrl+C 停止全部）"
+	@echo "dev       启动 API、console（Ctrl+C 停止全部）"
 	@echo "dev-api   单独启动 API"
 	@echo "build     构建 Go 服务及两个应用"
 	@echo "check     格式、Go vet、ESLint、TypeScript、接口类型检查"
@@ -29,7 +29,7 @@ test:
 	pnpm test
 
 test-go:
-	node scripts/go.mjs test
+	pnpm test:identity
 
 test-e2e:
 	pnpm test:e2e

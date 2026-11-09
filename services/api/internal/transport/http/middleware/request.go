@@ -11,13 +11,16 @@ import (
 func RequestLog(logger *slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		started := time.Now()
-		requestID := rand.Text()
+		requestID := c.Writer.Header().Get("X-Request-ID")
+		if requestID == "" {
+			requestID = rand.Text()
+		}
 		c.Header("X-Request-ID", requestID)
 		c.Next()
 		logger.Info("http request",
 			"request_id", requestID,
 			"method", c.Request.Method,
-			"path", c.Request.URL.Path,
+			"route", c.FullPath(),
 			"status", c.Writer.Status(),
 			"duration_ms", time.Since(started).Milliseconds(),
 		)

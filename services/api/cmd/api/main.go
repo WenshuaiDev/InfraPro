@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/logging"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/services/api/internal/bootstrap"
 )
 

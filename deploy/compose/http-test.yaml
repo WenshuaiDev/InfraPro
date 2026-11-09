@@ -1,0 +1,77 @@
+name: infrapro-http-tests
+x-env: &env
+  INFRAPRO_DATABASE_URL: postgres://infrapro_test:test-only-local-password@postgres:5432/infrapro_test
+  INFRAPRO_REDIS_URL: redis://:test-only-local-password@redis:6379/0
+  INFRAPRO_REDIS_KEY_PREFIX: 'infrapro:http-test:identity:v1:'
+  INFRAPRO_CSRF_AUTH_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  INFRAPRO_PUBLIC_CONSOLE_URL: http://${INFRAPRO_HTTP_TEST_HOST:?set LAN IPv4 host}:18088/console/
+  INFRAPRO_TRUSTED_ORIGINS: http://${INFRAPRO_HTTP_TEST_HOST:?set LAN IPv4 host}:18088
+  INFRAPRO_TRUSTED_PROXIES: 172.30.43.0/24
+  INFRAPRO_SUPPORT_CONTACT: HTTP 验收维护员
+  INFRAPRO_HTTP_ADDR: 0.0.0.0:8080
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: infrapro_test
+      POSTGRES_PASSWORD: test-only-local-password
+      POSTGRES_DB: infrapro_test
+    volumes: [postgres_test:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U infrapro_test -d infrapro_test]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7.4-alpine
+    volumes: [redis_test:/data]
+    command: [redis-server, --requirepass, test-only-local-password, --appendonly, 'yes', --maxmemory, 128mb, --maxmemory-policy, noeviction]
+    healthcheck:
+      test: [CMD, redis-cli, -a, test-only-local-password, ping]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  migrate:
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:account-http-test
+    environment: *env
+    command: [database, migrate]
+    depends_on:
+      postgres: {condition: service_healthy}
+  access-sync:
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:account-http-test
+    environment: *env
+    command: [access, sync]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  ops:
+    profiles: [ops]
+    image: infrapro-ops:account-http-test
+    environment: *env
+  api:
+    build: {context: ../.., dockerfile: deploy/docker/api.Dockerfile}
+    image: infrapro-api:account-http-test
+    environment: *env
+    depends_on:
+      access-sync: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1:8080/readyz']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  web:
+    build: {context: ../.., dockerfile: deploy/docker/web.Dockerfile}
+    image: infrapro-web:account-http-test
+    ports: ['${INFRAPRO_HTTP_TEST_HOST:?set LAN IPv4 host}:18088:80']
+    depends_on:
+      api: {condition: service_healthy}
+networks:
+  default:
+    ipam:
+      config: [{subnet: 172.30.43.0/24}]
+
+volumes:
+  postgres_test:
+  redis_test:

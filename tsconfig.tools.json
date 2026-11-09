@@ -1,5 +1,16 @@
 {
   "extends": "@infrapro/tsconfig/base.json",
-  "compilerOptions": { "types": ["node"], "lib": ["ES2022", "DOM"] },
-  "include": ["playwright.config.ts", "tests/e2e/**/*.ts"]
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "playwright*.config.ts",
+    "tests/**/*.ts"
+  ]
 }

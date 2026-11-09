@@ -1,0 +1,8 @@
+@import 'tailwindcss' source(none);
+@import '@infrapro/ui/styles/fonts.css';
+@import '@infrapro/ui/styles/theme.css';
+@import '@infrapro/ui/styles/base.css';
+
+@source '../';
+@source '../../../../packages/ts/ui/src';
+@source '../../../../packages/ts/layouts/src';

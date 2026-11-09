@@ -18,7 +18,8 @@ type Config struct {
 	ShutdownTimeout time.Duration
 }
 
-type fileConfig struct {
+// Input is embeddable in service-specific configuration files.
+type Input struct {
 	HTTPAddr        string `yaml:"http_addr"`
 	LogLevel        string `yaml:"log_level"`
 	ShutdownTimeout string `yaml:"shutdown_timeout"`
@@ -27,11 +28,7 @@ type fileConfig struct {
 // Load applies defaults < YAML < INFRAPRO_* environment variables.
 // An empty path uses defaults and environment only.
 func Load(path string) (Config, error) {
-	raw := fileConfig{
-		HTTPAddr:        "127.0.0.1:8080",
-		LogLevel:        "info",
-		ShutdownTimeout: "5s",
-	}
+	raw := Defaults()
 	if path != "" {
 		file, err := os.Open(path)
 		if err != nil {
@@ -44,6 +41,19 @@ func Load(path string) (Config, error) {
 			return Config{}, fmt.Errorf("decode config: %w", err)
 		}
 	}
+	return Resolve(raw)
+}
+
+func Defaults() Input {
+	return Input{
+		HTTPAddr:        "127.0.0.1:8080",
+		LogLevel:        "info",
+		ShutdownTimeout: "5s",
+	}
+}
+
+// Resolve applies process environment overrides and validates the result.
+func Resolve(raw Input) (Config, error) {
 	for key, target := range map[string]*string{
 		"INFRAPRO_HTTP_ADDR":        &raw.HTTPAddr,
 		"INFRAPRO_LOG_LEVEL":        &raw.LogLevel,

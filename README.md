@@ -1,8 +1,8 @@
 # InfraPro
 
-Go + Gin、React + TypeScript + Vite 工程骨架。根目录同时管理 Go workspace 和 pnpm workspace。
+Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能为账号管理。
 
-工程骨架：**已验收**（用户于 2026-11-09 确认通过）。已提供一个真实 API 健康检查、两个独立应用、共享组件与客户端、开发代理和自动检查。业务模块、数据库及生产部署在后续迭代中实现。
+工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前保留账号管理、PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。功能自验及用户验收分别记录在 [交付记录](docs/verification/account-management.md)。
 
 ## 工具链
 
@@ -24,23 +24,24 @@ Go + Gin、React + TypeScript + Vite 工程骨架。根目录同时管理 Go wor
 
 ```bash
 make install
+pnpm setup:local
+pnpm infrapro account bootstrap
 make dev
 ```
 
-无需复制配置文件或启动数据库即可运行。访问：
+`setup:local` 生成本机随机配置并启动持久化数据库与 Redis；首次通过交互命令创建账号，没有默认密码。访问：
 
 | 入口 | 默认地址 |
 | --- | --- |
 | 管理端 console | http://127.0.0.1:5173 |
-| 展示端 screen | http://127.0.0.1:5174 |
-| API 健康检查 | http://127.0.0.1:8080/api/v1/health |
 | 进程存活检查 | http://127.0.0.1:8080/healthz |
+| 依赖就绪检查 | http://127.0.0.1:8080/readyz |
 
-两个应用均应显示“服务连接正常”、`infrapro-api`、版本和最近响应时间。按 `Ctrl+C` 停止本次命令启动的全部进程。端口冲突会报错并停止本轮启动的进程，不自动切换端口。
+当前只保留 console 一个前端应用。登录后显示当前账号信息，并提供个人资料、账号安全及邀请管理入口。按 `Ctrl+C` 停止本次命令启动的全部应用进程；数据库和 Redis 持续运行。端口冲突会报错并停止本轮启动的进程，不自动切换端口。
 
 React/共享 TS 源码支持 Vite 热更新。Go 源码修改后重新执行启动命令；当前未引入 Go 热重载工具。
 
-单独运行时使用三个终端：
+单独运行时使用两个终端：
 
 ```bash
 # 终端 A：API
@@ -48,9 +49,6 @@ make dev-api
 
 # 终端 B：管理端
 pnpm dev:console
-
-# 终端 C：展示端
-pnpm dev:screen
 ```
 
 ## 命令
@@ -58,15 +56,18 @@ pnpm dev:screen
 | 命令 | 行为 |
 | --- | --- |
 | `make install` | 按 pnpm 锁文件安装依赖，并逐 Go module 下载依赖 |
-| `make dev` | 构建并运行 API，启动两个 Vite 应用 |
-| `make build` | 构建全部 Go module、服务可执行文件与两个应用 |
+| `make dev` | 构建并运行 API，启动 console Vite 应用 |
+| `make build` | 构建全部 Go module、服务可执行文件与 console 应用 |
 | `make check` | gofmt、Go vet、ESLint、TypeScript、OpenAPI 类型同步检查 |
-| `make test-go` | 对 go.work 中每个 module 执行带 race 检测的 Go 测试 |
+| `make test-go` | 自动准备专用 PostgreSQL/Redis，执行带 race 检测的 Go 测试 |
+| `pnpm infrapro --help` | 项目统一运维入口，查看数据库、账号等命令组 |
+| `pnpm test:http` | 完整 Nginx/Compose 的普通 HTTP 与维护 CLI 验收 |
 | `make test-e2e` | 自动启动独立测试环境，运行 Chromium 端到端测试 |
 | `make test` | Go 测试 + 浏览器端到端测试 |
-| `make preview` | 启动 API，并通过 Vite preview 预览已构建的两个应用 |
+| `make preview` | 启动 API，并通过 Vite preview 预览已构建的 console 应用 |
 | `make fmt` | 格式化工作区内的 Go 源文件 |
 | `pnpm contracts:generate` | 根据 OpenAPI 重新生成客户端类型 |
+| `pnpm test:ui` | 共享组件、布局、主题、Zustand 和图表的三视口浏览器检查 |
 | `pnpm test:e2e:preview` | 对已构建应用运行同一套浏览器测试 |
 
 首次运行浏览器测试前安装浏览器：
@@ -79,16 +80,15 @@ make test
 pnpm test:e2e:preview
 ```
 
-E2E 使用独立端口：API `18080`、console `15173`、screen `15174`；不复用已有服务，结束时关闭自己启动的进程。失败时查看 `playwright-report/` 与 `test-results/` 中的报告、截图和 trace。测试会注入 HTTP 503 和无效 JSON，验证页面不会把失败响应显示成健康状态。
+E2E 使用独立端口：API `18080`、console `15173`；不复用已有服务，结束时关闭自己启动的进程。失败时查看 `playwright-report/` 与 `test-results/` 中的报告、截图和 trace。测试覆盖账号流程、多个标签页的共享登录、依赖故障提示及恢复。
 
 单独构建应用：
 
 ```bash
 pnpm --filter @infrapro/console build
-pnpm --filter @infrapro/screen build
 ```
 
-产物：`build/bin/api`、`apps/console/dist/`、`apps/screen/dist/`。`make preview` 使用默认的 8080/5173/5174 端口，与开发服务互斥。Vite preview 用于本地验收构建产物；正式托管需要配置静态服务与 `/api` 反向代理。
+产物：`build/bin/api`、`build/bin/infrapro`、`apps/console/dist/`。`make preview` 使用默认的 8080/5173 端口，与开发服务互斥。正式 HTTP 托管使用提供的 Nginx/Compose，详见 [账号运行手册](docs/operations/account-management.md)。
 
 ## 配置
 
@@ -101,27 +101,36 @@ API 优先级：默认值 < `INFRAPRO_CONFIG` 指定的 YAML < 环境变量。
 | `INFRAPRO_LOG_LEVEL` | `info` | 结构化日志等级 |
 | `INFRAPRO_SHUTDOWN_TIMEOUT` | `5s` | 优雅关闭超时 |
 
-配置示例为 `services/api/configs/config.example.yaml`。需要本地 YAML 时复制为 `config.local.yaml`，并显式设置 `INFRAPRO_CONFIG`。未知配置字段会直接报错。
+账号服务还必须配置 PostgreSQL、Redis、CSRF 持久密钥与维护联系方式。完整列表、恢复命令和备份步骤见 [账号运行手册](docs/operations/account-management.md)。配置示例为 `configs/infrapro.example.yaml`；需要 YAML 时复制为 `config.local.yaml` 并设置 `INFRAPRO_CONFIG`，未知字段直接报错。
 
-每个应用的 `.env.example` 列出默认值；可复制成该应用目录下的 `.env.local` 后修改，并重启 Vite。API 不自动读取应用的 `.env.local`。
+`apps/console/.env.example` 列出默认值；可复制成该应用目录下的 `.env.local` 后修改，并重启 Vite。API 不自动读取应用的 `.env.local`。
 
 | 应用配置 | 作用 |
 | --- | --- |
-| `CONSOLE_PORT` / `SCREEN_PORT` | 各应用的监听端口 |
+| `CONSOLE_PORT` | console 的监听端口，默认 5173 |
 | `API_PROXY_TARGET` | Vite 转发 `/api` 请求的服务地址，仅在开发/本地预览进程使用 |
 | `VITE_API_BASE_URL` | 浏览器中的 API 前缀，默认 `/api/v1` |
-| `VITE_OTHER_APP_URL` | 右上角另一应用的地址 |
+| `VITE_APP_BASE` | 应用部署基础路径，开发默认 `/`，部署为 `/console/` |
 
-例如切换 API 端口，同时让两个应用代理到新地址：
+例如切换 API 端口，同时让 console 代理到新地址：
 
 ```bash
 INFRAPRO_HTTP_ADDR=127.0.0.1:9090 API_PROXY_TARGET=http://127.0.0.1:9090 make dev
 ```
 
-更改应用端口时同步修改另一应用的 `VITE_OTHER_APP_URL`。`VITE_*` 会进入浏览器构建产物，仅用于公开配置。
+更改前端端口时同步更新 `INFRAPRO_PUBLIC_CONSOLE_URL` 和 `INFRAPRO_TRUSTED_ORIGINS`。`VITE_*` 会进入浏览器构建产物，仅用于公开配置。
 
 ## 工程结构
 
 - [目录和依赖边界](docs/architecture.md)
+- [前端共享包与开发约定](docs/frontend-development.md)
+- [前端重构与验收记录](docs/verification/frontend-refactor.md)
+- [统一运维 CLI](tools/infrapro/README.md)
+- [API 与 CLI 模块拆分方案](docs/requirements/backend-organization-plan.md)
+- [角色与权限完整方案（已实施，待人工验收）](docs/requirements/role-permission-plan.md)
+- [账号与授权业务词汇](GLOSSARY.md)
 
 Go 工作区机制参考 [Go 官方文档](https://go.dev/doc/tutorial/workspaces)，应用依赖使用 [pnpm workspace 协议](https://pnpm.io/workspaces)，浏览器环境编排使用 [Playwright webServer](https://playwright.dev/docs/test-webserver)。
+## 角色与权限
+
+角色权限已接入统一 API、CLI 与 console。部署需要迁移 → `access sync` → `access check` → 首次 `account bootstrap`；`pnpm setup:local` 已包含前三步。详见[运行手册](docs/operations/role-permission.md)、[需求方案](docs/requirements/role-permission-plan.md)和[验证记录](docs/verification/role-permission.md)。

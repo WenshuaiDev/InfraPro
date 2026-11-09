@@ -1,0 +1,87 @@
+name: infrapro
+x-infrapro-environment: &infrapro-environment
+  INFRAPRO_DATABASE_URL: postgres://infrapro:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/infrapro
+  INFRAPRO_REDIS_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD}@redis:6379/0
+  INFRAPRO_REDIS_KEY_PREFIX: 'infrapro:production:identity:v1:'
+  INFRAPRO_PUBLIC_CONSOLE_URL: ${PUBLIC_ORIGIN:?set PUBLIC_ORIGIN}/console/
+  INFRAPRO_TRUSTED_ORIGINS: ${PUBLIC_ORIGIN:?set PUBLIC_ORIGIN}
+  INFRAPRO_CSRF_AUTH_KEY: ${CSRF_AUTH_KEY:?set CSRF_AUTH_KEY}
+  INFRAPRO_COOKIE_SECURE: 'false'
+  INFRAPRO_SUPPORT_CONTACT: ${SUPPORT_CONTACT:?set SUPPORT_CONTACT}
+  INFRAPRO_HTTP_ADDR: 0.0.0.0:8080
+  # Only this dedicated Compose subnet may assert the client IP; API ports are never published.
+  INFRAPRO_TRUSTED_PROXIES: 172.30.42.0/24
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: infrapro
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: infrapro
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U infrapro -d infrapro']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  redis:
+    image: redis:7.4-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+    command: [sh, -c, 'exec redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction']
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -q PONG']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:local
+    environment: *infrapro-environment
+    command: [database, migrate]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: 'no'
+  access-sync:
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:local
+    environment: *infrapro-environment
+    command: [access, sync]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: 'no'
+  ops:
+    profiles: [ops]
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:local
+    environment: *infrapro-environment
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    build: {context: ../.., dockerfile: deploy/docker/api.Dockerfile}
+    environment: *infrapro-environment
+    depends_on:
+      access-sync: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1:8080/readyz']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  web:
+    build: {context: ../.., dockerfile: deploy/docker/web.Dockerfile}
+    ports: ['${HTTP_PORT:-8088}:80']
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  redis_data:
+networks:
+  default:
+    ipam:
+      config: [{subnet: 172.30.42.0/24}]

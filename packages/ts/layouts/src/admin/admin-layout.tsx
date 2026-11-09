@@ -1,0 +1,34 @@
+import type { ReactNode } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@infrapro/ui/components/button';
+import { Separator } from '@infrapro/ui/components/separator';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger, useSidebar } from '@infrapro/ui/components/sidebar';
+import { useLayoutStore } from '../state/layout-store';
+import type { Brand, LayoutUser, LinkRenderer, NavigationGroup, NavigationItem } from '../shared/types';
+import { CommandSearch } from './command-search';
+import { ThemeSwitch } from './theme-switch';
+import { UserMenu } from './user-menu';
+
+type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; children: ReactNode };
+
+function AppSidebar({ brand, groups, user, userNavigation, renderLink, onLogout, logoutPending }: Props) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return <Sidebar variant="inset" collapsible="icon">
+    <SidebarHeader><SidebarMenu><SidebarMenuItem><div className="flex items-center"><SidebarMenuButton size="lg" asChild>{renderLink({ href: '/', onClick: () => setOpenMobile(false), children: <><div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground [&>svg]:size-5">{brand.logo}</div><div className="grid flex-1 text-start text-sm leading-tight"><span className="truncate font-semibold">{brand.name}</span><span className="truncate text-xs">{brand.description}</span></div></> })}</SidebarMenuButton>{isMobile && <Button size="icon" variant="ghost" aria-label="关闭导航" onClick={() => setOpenMobile(false)}><X className="size-4" /></Button>}</div></SidebarMenuItem></SidebarMenu></SidebarHeader>
+    <SidebarContent><nav aria-label="主导航">{groups.map((group) => <SidebarGroup key={group.title}><SidebarGroupLabel>{group.title}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>{group.items.map((item) => <SidebarMenuItem key={item.href}><SidebarMenuButton asChild isActive={item.active} tooltip={item.title}>{renderLink({ href: item.href, 'aria-current': item.active ? 'page' : undefined, onClick: () => setOpenMobile(false), children: <>{item.icon && <item.icon className="size-4" />}<span>{item.title}</span></> })}</SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarGroupContent></SidebarGroup>)}</nav></SidebarContent>
+    <SidebarFooter><SidebarMenu><SidebarMenuItem><UserMenu user={user} navigation={userNavigation} renderLink={renderLink} onLogout={onLogout} busy={logoutPending} sidebar /></SidebarMenuItem></SidebarMenu></SidebarFooter><SidebarRail />
+  </Sidebar>;
+}
+
+export function AdminLayout(props: Props) {
+  const sidebarOpen = useLayoutStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
+  return <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+    <a href="#main" className="sr-only fixed start-4 top-4 z-100 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed">跳到主要内容</a>
+    <AppSidebar {...props} />
+    <SidebarInset className="@container/content min-w-0">
+      <header className="sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className="flex h-full items-center gap-3 px-4 sm:gap-4"><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /><div className="ms-auto flex items-center gap-1 sm:gap-2"><CommandSearch groups={props.groups} onNavigate={props.onNavigate} /><ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div></div></header>
+      {props.notice && <div className="px-4 pt-4">{props.notice}</div>}{props.children}
+    </SidebarInset>
+  </SidebarProvider>;
+}

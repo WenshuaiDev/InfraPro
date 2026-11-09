@@ -1,0 +1,11 @@
+.git
+**/node_modules
+**/dist
+build
+.artifacts
+test-results
+playwright-report
+.env
+**/.env
+**/.env.local
+**/*.local.yaml

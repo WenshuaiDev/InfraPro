@@ -1,0 +1,24 @@
+# Defaults < YAML < INFRAPRO_* environment variables. Never commit real secrets.
+http_addr: 127.0.0.1:8080
+log_level: info
+shutdown_timeout: 5s
+database_url: '' # Required; prefer INFRAPRO_DATABASE_URL.
+redis_url: '' # Required; prefer INFRAPRO_REDIS_URL.
+redis_key_prefix: 'infrapro:dev:identity:v1:'
+csrf_auth_key: '' # Required: 32 random bytes encoded as 64 hex characters.
+public_console_url: http://127.0.0.1:5173/
+trusted_origins: 'http://127.0.0.1:5173'
+trusted_proxies: ''
+cookie_secure: 'false'
+support_contact: '' # Required: actual deployment maintenance contact.
+session_idle_timeout: 2h
+session_absolute_timeout: 12h
+session_cache_ttl: 5m
+invitation_ttl: 24h
+password_reset_ttl: 30m
+invitation_rate: '5'
+invitation_limit: '20'
+ip_request_limit: '120'
+credential_request_limit: '20'
+password_failures: '5'
+audit_retention: 2160h

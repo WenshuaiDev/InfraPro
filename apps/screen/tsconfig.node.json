@@ -1,5 +1,0 @@
-{
-  "extends": "@infrapro/tsconfig/base.json",
-  "compilerOptions": { "tsBuildInfoFile": "./node_modules/.cache/tsconfig.node.tsbuildinfo", "types": ["node"] },
-  "include": ["vite.config.ts"]
-}

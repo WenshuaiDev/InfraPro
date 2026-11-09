@@ -2,5 +2,7 @@ go 1.27.0
 
 use (
 	./packages/go/foundation
+	./packages/go/platform
 	./services/api
+	./tools/infrapro
 )

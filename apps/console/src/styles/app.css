@@ -1,2 +1,0 @@
-/* Application-specific styles belong here; shared tokens live in @infrapro/ui. */
-.theme-console .status-details dd { font-variant-numeric: tabular-nums; }
