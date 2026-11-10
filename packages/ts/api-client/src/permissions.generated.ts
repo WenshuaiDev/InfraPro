@@ -1,5 +1,12 @@
 // Generated from platform/access/catalog.go. Run pnpm permissions:generate.
 export const Permissions = {
+  PlatformTenantRead: 'platform.tenant.read',
+  PlatformTenantCreate: 'platform.tenant.create',
+  PlatformTenantUpdate: 'platform.tenant.update',
+  PlatformTenantTransferAdmin: 'platform.tenant.transfer_admin',
+  TenantProfileRead: 'tenant.profile.read',
+  TenantProfileUpdate: 'tenant.profile.update',
+  TenantAuditRead: 'tenant.audit.read',
   AccountProfileRead: 'account.profile.read',
   AccountProfileUpdate: 'account.profile.update',
   AccountPasswordUpdate: 'account.password.update',

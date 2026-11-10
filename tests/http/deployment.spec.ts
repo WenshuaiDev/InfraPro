@@ -35,18 +35,30 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   await recipient.goto(reset.url); await expect(recipient.getByRole('heading', { name: '设置新密码' })).toBeVisible();
   await recipient.getByLabel('新密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByLabel('确认新密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '重置密码', exact: true }).click(); await expect(recipient.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '登录', exact: true }).click(); await expect(recipient.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
+  // Tenant creation must work on plaintext HTTP, where crypto.randomUUID is absent.
+  await navigateTo(page, '租户管理'); await page.getByRole('button', { name: '创建租户', exact: true }).click();
+  await page.getByLabel('租户名称', { exact: true }).fill('HTTP 验收租户'); await page.getByLabel('租户编号', { exact: true }).fill('http-tenant'); await page.getByLabel('搜索接任账号').fill('http_guest');
+  await page.getByRole('dialog').getByRole('button', { name: 'http_guest（http_guest）', exact: true }).click(); await page.getByRole('dialog').getByLabel('变更原因').fill('普通 HTTP 创建'); await page.getByRole('dialog').getByRole('button', { name: '确认提交', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'HTTP 验收租户', exact: true })).toBeVisible(); const tenantID = new URL(page.url()).pathname.split('/').at(-1)!;
+  await recipient.goto(`${base}/t/${tenantID}/profile`); await expect(recipient.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible(); await recipient.reload(); await expect(recipient.getByText('HTTP 验收租户', { exact: true })).toBeVisible();
+  expect(() => compose('run', '--rm', '--no-deps', '-T', 'ops', 'account', 'disable', '--username', 'http_guest', '--reason', '未交接应拒绝')).toThrow();
+  expect((await recipientContext.request.get(`${origin}/api/v1/auth/me`)).status()).toBe(200);
   const getStatus = () => page.evaluate(async () => (await fetch('/api/v1/auth/me', { cache: 'no-store' })).status);
   compose('restart', 'api'); await expect.poll(getStatus, { timeout: 20_000 }).toBe(200);
   // Deleting only this test environment's session cache triggers DB refill without changing the cookie.
   compose('exec', '-T', 'redis', 'sh', '-c', 'redis-cli -a test-only-local-password --scan --pattern "infrapro:http-test:identity:v1:session:*" | xargs -r redis-cli -a test-only-local-password DEL');
   expect(await getStatus()).toBe(200);
-  compose('stop', 'redis'); expect(await getStatus()).toBe(503);
+  compose('stop', 'redis'); expect(await getStatus()).toBe(503); expect((await context.request.get(`${origin}/api/v1/platform/tenants`)).status()).toBe(503);
   compose('start', 'redis'); await expect.poll(getStatus, { timeout: 15_000 }).toBe(200);
-  compose('stop', 'postgres'); expect(await getStatus()).toBe(503);
+  compose('stop', 'postgres'); expect(await getStatus()).toBe(503); expect((await context.request.get(`${origin}/api/v1/platform/tenants`)).status()).toBe(503);
   compose('start', 'postgres'); await expect.poll(getStatus, { timeout: 15_000 }).toBe(200);
   const missing = await page.evaluate(async () => { const r = await fetch('/api/v1/missing'); return { status: r.status, type: r.headers.get('content-type'), body: await r.json() }; });
   expect(missing.status).toBe(404); expect(missing.type).toContain('application/json'); expect(missing.body.code).toBe('not_found');
   await page.screenshot({ path: testInfo.outputPath('ordinary-http.png'), fullPage: true, mask: [page.getByLabel('可手动复制的完整链接')] });
+  compose('run', '--rm', '--no-deps', '-T', 'ops', 'account', 'disable', '--username', 'http_guest', '--emergency', '--reason', 'HTTP 应急停用');
+  expect((await context.request.get(`${origin}/readyz`)).status()).toBe(200); await page.reload(); await expect(page.getByText('管理员不可用，待处理', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '交接管理员', exact: true }).click(); await page.getByLabel('搜索接任账号').fill('e2e_owner'); await page.getByRole('dialog').getByRole('button', { name: 'HTTP 验收（e2e_owner）', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('变更原因').fill('HTTP 应急后交接'); await page.getByRole('dialog').getByRole('button', { name: '确认提交', exact: true }).click(); await expect(page.getByRole('dialog')).toBeHidden();
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'account', 'disable', '--username', 'http_guest', '--reason', 'HTTP account disable acceptance');
   await recipient.reload(); await expect(recipient.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'recover-admin', '--username', 'http_guest', '--reason', 'HTTP recovery acceptance');
@@ -58,7 +70,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'check');
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '登录', exact: true }).click();
   await expect(recipient.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(22);
+  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(26); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
   await logout(page); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await legacy.reload(); await expect(legacy.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await recipientContext.close();
   const logs = compose('logs', '--no-color', 'api', 'web');

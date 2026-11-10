@@ -196,7 +196,7 @@ func (s *Service) ChangeRole(ctx context.Context, a Actor, id string, op Operati
 			}
 			seen := map[Code]bool{}
 			for _, p := range c.Permissions {
-				if !known(p) || seen[p] {
+				if !known(p) || seen[p] || strings.HasPrefix(string(p), "tenant.") {
 					return Validation("permission_codes", "权限未知、已退役或重复。")
 				}
 				seen[p] = true
@@ -274,6 +274,9 @@ func (s *Service) AssignRoles(ctx context.Context, a Actor, id, version string, 
 			if e != nil {
 				return e
 			}
+			if r.BindingScope != "platform" {
+				return Validation("role_ids", "租户角色只能绑定租户成员。")
+			}
 			if !slices.Contains(oldIDs, rid) {
 				if r.Status != "active" {
 					return Validation("role_ids", "不能新增绑定停用角色。")
@@ -311,7 +314,7 @@ func (s *Service) AssignRoles(ctx context.Context, a Actor, id, version string, 
 }
 
 // StatusWriter is supplied by identity so session/reset/invitation semantics have one owner.
-type StatusWriter func(context.Context, pgx.Tx, string, bool, bool) error
+type StatusWriter func(context.Context, pgx.Tx, string, bool, bool, Meta) error
 
 func (s *Service) SetAccountStatus(ctx context.Context, a Actor, id, version string, enabled bool, m Meta, update StatusWriter) (Account, error) {
 	id = strings.ToLower(id)
@@ -339,7 +342,7 @@ func (s *Service) SetAccountStatus(ctx context.Context, a Actor, id, version str
 		if update == nil {
 			return ErrDenied
 		}
-		if e = update(ctx, tx, id, enabled, false); e != nil {
+		if e = update(ctx, tx, id, enabled, false, m); e != nil {
 			return e
 		}
 		result, e = accountTx(ctx, tx, id)

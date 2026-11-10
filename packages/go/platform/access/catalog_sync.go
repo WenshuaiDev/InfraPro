@@ -21,14 +21,25 @@ func Audit(ctx context.Context, tx pgx.Tx, event, objectType, object, account st
 	m.IP = truncate(m.IP, 100)
 	m.UserAgent = truncate(m.UserAgent, 300)
 	m.RequestID = truncate(m.RequestID, 100)
+	if m.ActorScope == "" {
+		m.ActorScope = "platform"
+	}
 	if m.ActorType == "" {
 		m.ActorType = "account"
 	}
-	details, e := json.Marshal(map[string]any{"before": before, "after": after})
+	payload := map[string]any{"before": before, "after": after}
+	if m.TenantID != "" && m.ActorID != "" {
+		var username, display string
+		if e := tx.QueryRow(ctx, "SELECT username,display_name FROM accounts WHERE id=$1", m.ActorID).Scan(&username, &display); e != nil {
+			return e
+		}
+		payload["actor"] = map[string]string{"id": m.ActorID, "username": username, "display_name": display}
+	}
+	details, e := json.Marshal(payload)
 	if e != nil {
 		return e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_id,outcome,reason,source_ip,user_agent,request_id,actor_type,object_type,details) VALUES($1,NULLIF($2,'')::uuid,NULLIF($3,'')::uuid,$4,'success',$5,$6,$7,$8,$9,$10,$11)`, event, m.ActorID, account, object, m.Reason, m.IP, m.UserAgent, m.RequestID, m.ActorType, objectType, details)
+	_, e = tx.Exec(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_id,outcome,reason,source_ip,user_agent,request_id,actor_type,object_type,details,tenant_id,actor_scope) VALUES($1,NULLIF($2,'')::uuid,NULLIF($3,'')::uuid,$4,'success',$5,$6,$7,$8,$9,$10,$11,NULLIF($12,'')::uuid,$13)`, event, m.ActorID, account, object, m.Reason, m.IP, m.UserAgent, m.RequestID, m.ActorType, objectType, details, m.TenantID, m.ActorScope)
 	return e
 }
 func BindBuiltin(ctx context.Context, tx pgx.Tx, account, key string, m Meta) error {
@@ -83,11 +94,11 @@ func checkProjection(ctx context.Context, tx pgx.Tx) error {
 		}
 		a := slices.Clone(b.Permissions)
 		slices.Sort(a)
-		if r.Name != b.Name || r.Description != b.Description || r.Status != "active" || !slices.Equal(r.Permissions, a) {
+		if r.BindingScope != b.BindingScope || r.Name != b.Name || r.Description != b.Description || r.Status != "active" || !slices.Equal(r.Permissions, a) {
 			return ErrCatalog
 		}
 	}
-	return nil
+	return CheckTenantStructure(ctx, tx)
 }
 func (s *Service) Sync(ctx context.Context) error {
 	return s.Transact(ctx, func(tx pgx.Tx) error {
@@ -125,7 +136,7 @@ func (s *Service) Sync(ctx context.Context) error {
 		}
 		for _, b := range Builtins() {
 			var id string
-			e = tx.QueryRow(ctx, `INSERT INTO roles(name,name_normalized,description,builtin_key) VALUES($1,$2,$3,$4) ON CONFLICT(builtin_key) DO UPDATE SET name=$1,name_normalized=$2,description=$3,status='active',deleted_at=NULL,version=roles.version+1,updated_at=now() RETURNING id::text`, b.Name, strings.ToLower(b.Name), b.Description, b.Key).Scan(&id)
+			e = tx.QueryRow(ctx, `INSERT INTO roles(name,name_normalized,description,builtin_key,binding_scope) VALUES($1,$2,$3,$4,$5) ON CONFLICT(builtin_key) DO UPDATE SET name=$1,name_normalized=$2,description=$3,binding_scope=$5,status='active',deleted_at=NULL,version=roles.version+1,updated_at=now() RETURNING id::text`, b.Name, strings.ToLower(b.Name), b.Description, b.Key, b.BindingScope).Scan(&id)
 			if e != nil {
 				return e
 			}
@@ -133,7 +144,7 @@ func (s *Service) Sync(ctx context.Context) error {
 				return e
 			}
 			for _, c := range b.Permissions {
-				if _, e = tx.Exec(ctx, "INSERT INTO role_permissions(role_id,permission_code) VALUES($1,$2)", id, c); e != nil {
+				if _, e = tx.Exec(ctx, "INSERT INTO role_permissions(role_id,permission_code,binding_scope) VALUES($1,$2,$3)", id, c, b.BindingScope); e != nil {
 					return e
 				}
 			}

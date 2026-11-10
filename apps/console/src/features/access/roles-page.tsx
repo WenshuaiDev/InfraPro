@@ -31,13 +31,14 @@ function PermissionEditor({ role, catalog }: { role: Role; catalog: Permission[]
   const { client, can } = useIdentity();
   const [selected, setSelected] = useState<PermissionCode[]>(role.permission_codes);
   const [search, setSearch] = useState('');
-  const visible = catalog.filter((p) => p.lifecycle === 'active' && `${p.name} ${p.code} ${p.description}`.toLowerCase().includes(search.toLowerCase()));
+  const visible = catalog.filter((p) => p.scope !== 'tenant' && p.lifecycle === 'active' && `${p.name} ${p.code} ${p.description}`.toLowerCase().includes(search.toLowerCase()));
   const add = selected.filter((p) => !role.permission_codes.includes(p)); const remove = role.permission_codes.filter((p) => !selected.includes(p));
   const names = (codes: PermissionCode[]) => codes.map((c) => catalog.find((p) => p.code === c)?.name ?? c).join('、') || '无';
   const unmatched = [
     { writes: [P.AccountProfileUpdate], read: P.AccountProfileRead },
     { writes: [P.PlatformAccountAssignRoles, P.PlatformAccountDisable, P.PlatformAccountEnable], read: P.PlatformAccountRead },
     { writes: [P.PlatformRoleCreate, P.PlatformRoleUpdate, P.PlatformRoleSetPermissions, P.PlatformRoleSetStatus, P.PlatformRoleDelete], read: P.PlatformRoleRead },
+    { writes: [P.PlatformTenantCreate, P.PlatformTenantUpdate, P.PlatformTenantTransferAdmin], read: P.PlatformTenantRead },
     { writes: [P.PlatformInvitationCreate, P.PlatformInvitationRevoke, P.PlatformInvitationRegenerate], read: P.PlatformInvitationRead },
   ].some(({ writes, read }) => writes.some((p) => selected.includes(p)) && !selected.includes(read));
   const outOfScope = role.permission_codes.some((p) => catalog.some((c) => c.code === p && c.lifecycle === 'active') && !can(p));

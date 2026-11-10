@@ -1,0 +1,1 @@
+export const tenantActions: Record<string, string> = { 'tenant.created': '创建租户', 'tenant.profile.updated': '修改租户资料', 'tenant.administrator.transferred': '交接管理员', 'tenant.administrator.unavailable': '管理员不可用', 'tenant.administrator.available': '管理员恢复可用' };

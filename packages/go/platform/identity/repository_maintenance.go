@@ -81,10 +81,15 @@ func (r *Repository) CompleteReset(ctx context.Context, tokenHash, passwordHash 
 }
 
 // SetStatusTx is shared by maintenance and browser operations. Callers hold the authorization lock first.
-func (r *Repository) SetStatusTx(ctx context.Context, tx pgx.Tx, id string, enabled, emergency bool) error {
+func (r *Repository) SetStatusTx(ctx context.Context, tx pgx.Tx, id string, enabled, emergency bool, m access.Meta) error {
 	a, e := scanAccount(tx.QueryRow(ctx, "SELECT "+accountColumns+" FROM accounts WHERE id=$1 FOR UPDATE", id))
 	if e != nil {
 		return e
+	}
+	if !enabled && !emergency {
+		if e = access.ProtectTenantAdministrator(ctx, tx, id); e != nil {
+			return e
+		}
 	}
 	status := "active"
 	if !enabled {
@@ -108,6 +113,11 @@ func (r *Repository) SetStatusTx(ctx context.Context, tx pgx.Tx, id string, enab
 			return e
 		}
 	}
+	if a.Status != status {
+		if e = access.AuditTenantAvailability(ctx, tx, id, enabled, m); e != nil {
+			return e
+		}
+	}
 	_, e = tx.Exec(ctx, "UPDATE accounts SET status=$2,auth_version=auth_version+1,management_version=management_version+1,updated_at=now() WHERE id=$1", id, status)
 	return e
 }
@@ -123,7 +133,7 @@ func (r *Repository) SetStatus(ctx context.Context, username string, enabled, em
 		if e != nil {
 			return e
 		}
-		if e = r.SetStatusTx(ctx, tx, a.ID, enabled, emergency); e != nil {
+		if e = r.SetStatusTx(ctx, tx, a.ID, enabled, emergency, access.Meta{ActorType: "maintenance", Reason: m.Reason, UserAgent: m.UserAgent, RequestID: m.RequestID}); e != nil {
 			return e
 		}
 		if !emergency {

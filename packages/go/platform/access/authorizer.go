@@ -74,12 +74,20 @@ func effective(ctx context.Context, tx pgx.Tx, id string, configured bool) ([]Co
 }
 func RequireTx(ctx context.Context, tx pgx.Tx, id string, op Operation) error {
 	policy, ok := PolicyFor(op)
-	if !ok || policy.Class != "permission" || len(policy.Permissions) == 0 {
+	if !ok || (policy.Class != "permission" && policy.Class != "permission_any") || len(policy.Permissions) == 0 {
 		return ErrDenied
 	}
 	have, e := effective(ctx, tx, id, false)
 	if e != nil {
 		return e
+	}
+	if policy.Class == "permission_any" {
+		for _, p := range policy.Permissions {
+			if slices.Contains(have, p) {
+				return nil
+			}
+		}
+		return ErrDenied
 	}
 	for _, p := range policy.Permissions {
 		if !slices.Contains(have, p) {

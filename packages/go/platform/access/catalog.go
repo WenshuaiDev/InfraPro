@@ -32,6 +32,13 @@ const (
 	RoleDelete           Code = "platform.role.delete"
 	PermissionRead       Code = "platform.permission.read"
 	AuditRead            Code = "platform.audit.read"
+	TenantRead           Code = "platform.tenant.read"
+	TenantCreate         Code = "platform.tenant.create"
+	TenantUpdate         Code = "platform.tenant.update"
+	TenantTransfer       Code = "platform.tenant.transfer_admin"
+	TenantProfileRead    Code = "tenant.profile.read"
+	TenantProfileUpdate  Code = "tenant.profile.update"
+	TenantAuditRead      Code = "tenant.audit.read"
 )
 
 type Permission struct {
@@ -46,6 +53,13 @@ type Permission struct {
 
 func Catalog() []Permission {
 	return []Permission{
+		{TenantRead, "查看租户档案", "租户治理", "platform", "查看平台租户档案及管理员任职。", "normal", "active"},
+		{TenantCreate, "创建租户", "租户治理", "platform", "创建租户并指定固定初始管理员。", "high", "active"},
+		{TenantUpdate, "修改租户档案", "租户治理", "platform", "修改租户名称、编号和说明。", "high", "active"},
+		{TenantTransfer, "交接租户管理员", "租户治理", "platform", "指定新管理员并立即结束原成员关系。", "high", "active"},
+		{TenantProfileRead, "查看租户资料", "当前租户", "tenant", "查看本人有效成员关系所属租户的资料。", "normal", "active"},
+		{TenantProfileUpdate, "修改租户资料", "当前租户", "tenant", "修改该租户的名称、编号和说明。", "high", "active"},
+		{TenantAuditRead, "查看租户操作记录", "当前租户", "tenant", "查看该租户档案和管理员治理记录。", "normal", "active"},
 		{ProfileRead, "查看本人资料", "个人账号", "self", "查看本人完整资料、角色及权限来源。", "normal", "active"},
 		{ProfileUpdate, "修改本人资料", "个人账号", "self", "修改本人显示名称。", "normal", "active"},
 		{PasswordUpdate, "修改本人密码", "个人账号", "self", "验证当前密码后修改本人密码。", "high", "active"},

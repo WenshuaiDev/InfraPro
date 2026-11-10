@@ -91,7 +91,7 @@ pnpm infrapro account disable --username <用户名> --emergency --reason '已�
 pnpm infrapro account reset-link --username <用户名> --reason '已核验本人身份'
 ```
 
-应急停用允许暂时失去全部管理账号；后续必须显式恢复角色、凭据及账号状态。网页和常规 CLI 停用继续保护最后正常账号与最后完整管理账号。管理员密码也不能通过网页代改。
+应急停用允许暂时失去全部管理账号；后续必须显式恢复角色、凭据及账号状态。网页和常规 CLI 停用继续保护最后正常账号与最后完整管理账号；当前租户管理员还必须先交接其全部租户。应急影响及恢复规则见[租户运行手册](tenant-foundation.md)。管理员密码也不能通过网页代改。
 
 ## 日常操作和故障
 

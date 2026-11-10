@@ -4,7 +4,9 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
+	tenancyhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/tenancy"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -64,8 +66,8 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 			return
 		}
 		identityhttp.SetPrincipal(c, p)
-		if policy.Class == "permission" {
-			rev, e := service.Access().Authorize(c.Request.Context(), p.Account.ID, policy.Operation)
+		if policy.Class == "permission" || policy.Class == "permission_any" || policy.Class == "tenant" {
+			rev, e := service.Access().AuthorizeScoped(c.Request.Context(), p.Account.ID, policy.Operation, c.Param("tenant_id"))
 			if e != nil {
 				identityhttp.RespondError(c, e)
 				return
@@ -91,6 +93,7 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 	if service != nil {
 		handler.Register(r)
 		accesshttp.Register(r, service)
+		tenancyhttp.Register(r, service, tenancy.New(service.Access()))
 		for _, route := range r.Routes() {
 			if _, ok := access.RoutePolicy(route.Method, route.Path); !ok {
 				panic("route lacks authorization policy: " + route.Method + " " + route.Path)

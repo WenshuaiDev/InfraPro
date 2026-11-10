@@ -41,6 +41,7 @@ func ValidID(id string) bool { return uuidPattern.MatchString(id) }
 
 type Role struct {
 	ID           string    `json:"id"`
+	BindingScope string    `json:"binding_scope"`
 	Name         string    `json:"name"`
 	Description  string    `json:"description"`
 	BuiltinKey   string    `json:"builtin_key"`
@@ -69,9 +70,11 @@ type Page[T any] struct {
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }
-type Meta struct{ ActorID, ActorType, IP, UserAgent, RequestID, Reason string }
+type Meta struct{ ActorID, ActorType, IP, UserAgent, RequestID, Reason, TenantID, ActorScope string }
 type AuditEvent struct {
 	ID         string         `json:"id"`
+	TenantID   string         `json:"tenant_id"`
+	ActorScope string         `json:"actor_scope"`
 	EventType  string         `json:"event_type"`
 	ActorType  string         `json:"actor_type"`
 	ActorID    string         `json:"actor_id"`

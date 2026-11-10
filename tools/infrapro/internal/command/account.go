@@ -41,7 +41,7 @@ func (a *App) account(ctx context.Context, args []string) error {
 		fs.StringVar(&reason, "reason", "", "维护操作原因（必填）")
 	}
 	if cmd == "disable" {
-		fs.BoolVar(&emergency, "emergency", false, "应急停用最后一个正常账号")
+		fs.BoolVar(&emergency, "emergency", false, "应急停用（允许暂时失去平台或租户管理员）")
 	}
 	if cmd == "audit" {
 		fs.StringVar(&cursor, "cursor", "", "审计分页位置")

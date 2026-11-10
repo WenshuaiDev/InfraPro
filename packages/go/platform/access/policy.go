@@ -10,6 +10,18 @@ type Policy struct {
 }
 
 const (
+	OpTenantList           Operation = "TenantList"
+	OpTenantCreate         Operation = "TenantCreate"
+	OpTenantRead           Operation = "TenantRead"
+	OpTenantUpdate         Operation = "TenantUpdate"
+	OpTenantTransfer       Operation = "TenantTransfer"
+	OpTenantCandidates     Operation = "TenantCandidates"
+	OpMyTenants            Operation = "MyTenants"
+	OpTenantContext        Operation = "TenantContext"
+	OpTenantProfileRead    Operation = "TenantProfileRead"
+	OpTenantProfileUpdate  Operation = "TenantProfileUpdate"
+	OpTenantAudit          Operation = "TenantAudit"
+	OpAccountTenants       Operation = "AccountTenants"
 	OpHealth               Operation = "Health"
 	OpReady                Operation = "Ready"
 	OpHelp                 Operation = "Help"
@@ -53,6 +65,18 @@ const (
 
 func Policies() []Policy {
 	return []Policy{
+		{OpTenantList, "GET", "/api/v1/platform/tenants", "permission", []Code{TenantRead}, false, false},
+		{OpTenantCreate, "POST", "/api/v1/platform/tenants", "permission", []Code{TenantCreate}, true, true},
+		{OpTenantRead, "GET", "/api/v1/platform/tenants/:tenant_id", "permission", []Code{TenantRead}, false, false},
+		{OpTenantUpdate, "PATCH", "/api/v1/platform/tenants/:tenant_id", "permission", []Code{TenantUpdate}, true, false},
+		{OpTenantTransfer, "POST", "/api/v1/platform/tenants/:tenant_id/administrator-transfer", "permission", []Code{TenantTransfer}, true, true},
+		{OpTenantCandidates, "GET", "/api/v1/platform/tenant-admin-candidates", "permission_any", []Code{TenantCreate, TenantTransfer}, false, false},
+		{OpMyTenants, "GET", "/api/v1/account/tenants", "authenticated", nil, false, false},
+		{OpTenantContext, "GET", "/api/v1/tenants/:tenant_id/context", "tenant", nil, false, false},
+		{OpTenantProfileRead, "GET", "/api/v1/tenants/:tenant_id/profile", "tenant", []Code{TenantProfileRead}, false, false},
+		{OpTenantProfileUpdate, "PATCH", "/api/v1/tenants/:tenant_id/profile", "tenant", []Code{TenantProfileUpdate}, true, false},
+		{OpTenantAudit, "GET", "/api/v1/tenants/:tenant_id/audit-events", "tenant", []Code{TenantAuditRead}, false, false},
+		{OpAccountTenants, "GET", "/api/v1/access/accounts/:id/tenant-memberships", "permission", []Code{AccountRead, TenantRead}, false, false},
 		{OpHealth, "GET", "/healthz", "public", nil, false, false},
 		{OpReady, "GET", "/readyz", "public", nil, false, false},
 		{OpHelp, "GET", "/api/v1/public/account-help", "public", nil, false, false},

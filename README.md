@@ -1,6 +1,6 @@
 # InfraPro
 
-Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能为账号管理。
+Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能包括账号、平台角色权限与租户基础管理。
 
 工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前保留账号管理、PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。功能自验及用户验收分别记录在 [交付记录](docs/verification/account-management.md)。
 
@@ -128,9 +128,19 @@ INFRAPRO_HTTP_ADDR=127.0.0.1:9090 API_PROXY_TARGET=http://127.0.0.1:9090 make de
 - [统一运维 CLI](tools/infrapro/README.md)
 - [API 与 CLI 模块拆分方案](docs/requirements/backend-organization-plan.md)
 - [角色与权限完整方案（已实施，待人工验收）](docs/requirements/role-permission-plan.md)
+- [租户基础管理首轮方案（已实施，待人工验收）](docs/requirements/tenant-foundation-plan.md)
 - [账号与授权业务词汇](GLOSSARY.md)
 
 Go 工作区机制参考 [Go 官方文档](https://go.dev/doc/tutorial/workspaces)，应用依赖使用 [pnpm workspace 协议](https://pnpm.io/workspaces)，浏览器环境编排使用 [Playwright webServer](https://playwright.dev/docs/test-webserver)。
 ## 角色与权限
 
 角色权限已接入统一 API、CLI 与 console。部署需要迁移 → `access sync` → `access check` → 首次 `account bootstrap`；`pnpm setup:local` 已包含前三步。详见[运行手册](docs/operations/role-permission.md)、[需求方案](docs/requirements/role-permission-plan.md)和[验证记录](docs/verification/role-permission.md)。
+
+
+## 租户基础管理
+
+平台可创建租户、指定或交接管理员；租户管理员从“我的租户”进入独立工作空间，维护档案并查看本租户操作记录。平台和租户角色分别授权，当前管理员必须先交接全部租户才能常规停用。
+
+已有环境升级：备份并停止旧 API → `pnpm infrapro database migrate` → `pnpm infrapro access sync` → `pnpm infrapro access check` → `make dev`。本机已完成增量升级，保留原有账号，不重复 bootstrap。访问 `/platform/tenants` 或 `/tenants`。
+
+详见[启动、恢复与人工验收手册](docs/operations/tenant-foundation.md)、[50 项自验证据](docs/verification/tenant-foundation.md)和[已确认方案](docs/requirements/tenant-foundation-plan.md)。功能状态为 Awaiting acceptance，人工验收待用户确认。

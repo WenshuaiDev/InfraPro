@@ -167,7 +167,7 @@ func (r *Repository) Events(ctx context.Context, tx pgx.Tx, id, cursor string) (
 		}
 		before = v
 	}
-	rows, e := tx.Query(ctx, `SELECT id,event_type,outcome,source_ip,user_agent,created_at FROM account_security_events WHERE account_id=$1 AND id<$2 ORDER BY id DESC LIMIT 51`, id, before)
+	rows, e := tx.Query(ctx, `SELECT id,event_type,outcome,source_ip,user_agent,created_at FROM account_security_events WHERE tenant_id IS NULL AND account_id=$1 AND id<$2 ORDER BY id DESC LIMIT 51`, id, before)
 	if e != nil {
 		return page, e
 	}

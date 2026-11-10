@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedTenantsRouteImport } from './routes/_authenticated/tenants'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
@@ -19,10 +20,15 @@ import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-pass
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthInviteRouteImport } from './routes/_auth/invite'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t/$tenantId'
 import { Route as AuthenticatedAccessRolesRouteImport } from './routes/_authenticated/access/roles'
 import { Route as AuthenticatedAccessPermissionsRouteImport } from './routes/_authenticated/access/permissions'
 import { Route as AuthenticatedAccessAuditRouteImport } from './routes/_authenticated/access/audit'
 import { Route as AuthenticatedAccessAccountsRouteImport } from './routes/_authenticated/access/accounts'
+import { Route as AuthenticatedPlatformTenantsIndexRouteImport } from './routes/_authenticated/platform/tenants/index'
+import { Route as AuthenticatedTTenantIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/profile'
+import { Route as AuthenticatedTTenantIdAuditRouteImport } from './routes/_authenticated/t/$tenantId/audit'
+import { Route as AuthenticatedPlatformTenantsTenantIdRouteImport } from './routes/_authenticated/platform/tenants/$tenantId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -35,6 +41,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTenantsRoute = AuthenticatedTenantsRouteImport.update({
+  id: '/tenants',
+  path: '/tenants',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
@@ -73,6 +84,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
+  id: '/t/$tenantId',
+  path: '/t/$tenantId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAccessRolesRoute =
   AuthenticatedAccessRolesRouteImport.update({
     id: '/access/roles',
@@ -97,6 +113,30 @@ const AuthenticatedAccessAccountsRoute =
     path: '/access/accounts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlatformTenantsIndexRoute =
+  AuthenticatedPlatformTenantsIndexRouteImport.update({
+    id: '/platform/tenants/',
+    path: '/platform/tenants/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTTenantIdProfileRoute =
+  AuthenticatedTTenantIdProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdAuditRoute =
+  AuthenticatedTTenantIdAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedPlatformTenantsTenantIdRoute =
+  AuthenticatedPlatformTenantsTenantIdRouteImport.update({
+    id: '/platform/tenants/$tenantId',
+    path: '/platform/tenants/$tenantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -107,10 +147,16 @@ export interface FileRoutesByFullPath {
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/security': typeof AuthenticatedSecurityRoute
+  '/tenants': typeof AuthenticatedTenantsRoute
   '/access/accounts': typeof AuthenticatedAccessAccountsRoute
   '/access/audit': typeof AuthenticatedAccessAuditRoute
   '/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/access/roles': typeof AuthenticatedAccessRolesRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
+  '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
+  '/platform/tenants/': typeof AuthenticatedPlatformTenantsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
@@ -121,10 +167,16 @@ export interface FileRoutesByTo {
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/security': typeof AuthenticatedSecurityRoute
+  '/tenants': typeof AuthenticatedTenantsRoute
   '/access/accounts': typeof AuthenticatedAccessAccountsRoute
   '/access/audit': typeof AuthenticatedAccessAuditRoute
   '/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/access/roles': typeof AuthenticatedAccessRolesRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
+  '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
+  '/platform/tenants': typeof AuthenticatedPlatformTenantsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -137,11 +189,17 @@ export interface FileRoutesById {
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
+  '/_authenticated/tenants': typeof AuthenticatedTenantsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/access/accounts': typeof AuthenticatedAccessAccountsRoute
   '/_authenticated/access/audit': typeof AuthenticatedAccessAuditRoute
   '/_authenticated/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/_authenticated/access/roles': typeof AuthenticatedAccessRolesRoute
+  '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/_authenticated/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
+  '/_authenticated/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/_authenticated/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
+  '/_authenticated/platform/tenants/': typeof AuthenticatedPlatformTenantsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,10 +212,16 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/profile'
     | '/security'
+    | '/tenants'
     | '/access/accounts'
     | '/access/audit'
     | '/access/permissions'
     | '/access/roles'
+    | '/t/$tenantId'
+    | '/platform/tenants/$tenantId'
+    | '/t/$tenantId/audit'
+    | '/t/$tenantId/profile'
+    | '/platform/tenants/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -168,10 +232,16 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/profile'
     | '/security'
+    | '/tenants'
     | '/access/accounts'
     | '/access/audit'
     | '/access/permissions'
     | '/access/roles'
+    | '/t/$tenantId'
+    | '/platform/tenants/$tenantId'
+    | '/t/$tenantId/audit'
+    | '/t/$tenantId/profile'
+    | '/platform/tenants'
   id:
     | '__root__'
     | '/_auth'
@@ -183,11 +253,17 @@ export interface FileRouteTypes {
     | '/_authenticated/invitations'
     | '/_authenticated/profile'
     | '/_authenticated/security'
+    | '/_authenticated/tenants'
     | '/_authenticated/'
     | '/_authenticated/access/accounts'
     | '/_authenticated/access/audit'
     | '/_authenticated/access/permissions'
     | '/_authenticated/access/roles'
+    | '/_authenticated/t/$tenantId'
+    | '/_authenticated/platform/tenants/$tenantId'
+    | '/_authenticated/t/$tenantId/audit'
+    | '/_authenticated/t/$tenantId/profile'
+    | '/_authenticated/platform/tenants/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,6 +292,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenants': {
+      id: '/_authenticated/tenants'
+      path: '/tenants'
+      fullPath: '/tenants'
+      preLoaderRoute: typeof AuthenticatedTenantsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/security': {
@@ -267,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_authenticated/t/$tenantId': {
+      id: '/_authenticated/t/$tenantId'
+      path: '/t/$tenantId'
+      fullPath: '/t/$tenantId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/access/roles': {
       id: '/_authenticated/access/roles'
       path: '/access/roles'
@@ -295,6 +385,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccessAccountsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/platform/tenants/': {
+      id: '/_authenticated/platform/tenants/'
+      path: '/platform/tenants'
+      fullPath: '/platform/tenants/'
+      preLoaderRoute: typeof AuthenticatedPlatformTenantsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/t/$tenantId/profile': {
+      id: '/_authenticated/t/$tenantId/profile'
+      path: '/profile'
+      fullPath: '/t/$tenantId/profile'
+      preLoaderRoute: typeof AuthenticatedTTenantIdProfileRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/audit': {
+      id: '/_authenticated/t/$tenantId/audit'
+      path: '/audit'
+      fullPath: '/t/$tenantId/audit'
+      preLoaderRoute: typeof AuthenticatedTTenantIdAuditRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/platform/tenants/$tenantId': {
+      id: '/_authenticated/platform/tenants/$tenantId'
+      path: '/platform/tenants/$tenantId'
+      fullPath: '/platform/tenants/$tenantId'
+      preLoaderRoute: typeof AuthenticatedPlatformTenantsTenantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -316,26 +434,52 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface AuthenticatedTTenantIdRouteChildren {
+  AuthenticatedTTenantIdAuditRoute: typeof AuthenticatedTTenantIdAuditRoute
+  AuthenticatedTTenantIdProfileRoute: typeof AuthenticatedTTenantIdProfileRoute
+}
+
+const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
+  {
+    AuthenticatedTTenantIdAuditRoute: AuthenticatedTTenantIdAuditRoute,
+    AuthenticatedTTenantIdProfileRoute: AuthenticatedTTenantIdProfileRoute,
+  }
+
+const AuthenticatedTTenantIdRouteWithChildren =
+  AuthenticatedTTenantIdRoute._addFileChildren(
+    AuthenticatedTTenantIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
+  AuthenticatedTenantsRoute: typeof AuthenticatedTenantsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAccessAccountsRoute: typeof AuthenticatedAccessAccountsRoute
   AuthenticatedAccessAuditRoute: typeof AuthenticatedAccessAuditRoute
   AuthenticatedAccessPermissionsRoute: typeof AuthenticatedAccessPermissionsRoute
   AuthenticatedAccessRolesRoute: typeof AuthenticatedAccessRolesRoute
+  AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
+  AuthenticatedPlatformTenantsTenantIdRoute: typeof AuthenticatedPlatformTenantsTenantIdRoute
+  AuthenticatedPlatformTenantsIndexRoute: typeof AuthenticatedPlatformTenantsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
+  AuthenticatedTenantsRoute: AuthenticatedTenantsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAccessAccountsRoute: AuthenticatedAccessAccountsRoute,
   AuthenticatedAccessAuditRoute: AuthenticatedAccessAuditRoute,
   AuthenticatedAccessPermissionsRoute: AuthenticatedAccessPermissionsRoute,
   AuthenticatedAccessRolesRoute: AuthenticatedAccessRolesRoute,
+  AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
+  AuthenticatedPlatformTenantsTenantIdRoute:
+    AuthenticatedPlatformTenantsTenantIdRoute,
+  AuthenticatedPlatformTenantsIndexRoute:
+    AuthenticatedPlatformTenantsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

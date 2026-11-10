@@ -100,12 +100,12 @@ func TestCatalogPolicy(t *testing.T) {
 		}
 		codes[p.Code] = true
 	}
-	if len(codes) != 22 {
+	if len(codes) != 29 {
 		t.Fatal(len(codes))
 	}
 	routes := map[string]bool{}
 	for _, p := range access.Policies() {
-		if !slices.Contains([]string{"public", "credential", "authenticated", "permission"}, p.Class) {
+		if !slices.Contains([]string{"public", "credential", "authenticated", "permission", "permission_any", "tenant"}, p.Class) {
 			t.Fatal("unknown policy class", p.Class)
 		}
 		key := p.Method + " " + p.Path
@@ -131,7 +131,7 @@ func TestIntegrationAuthorizationLifecycle(t *testing.T) {
 	actor := e.Service.AccessActor(p)
 	snap, err := s.Snapshot(ctx, p.Account.ID)
 	must(t, err)
-	if len(snap.Permissions) != 22 {
+	if len(snap.Permissions) != 26 {
 		t.Fatal(snap)
 	}
 	snap, err = s.Snapshot(ctx, b.Account.ID)
@@ -440,7 +440,7 @@ func TestIntegrationCatalogPreflightPreservesCustomRoles(t *testing.T) {
 	code(t, s.Sync(ctx), "last_platform_manager")
 	var n int
 	must(t, e.Pool.QueryRow(ctx, "SELECT count(*) FROM role_permissions WHERE role_id=$1", r.ID).Scan(&n))
-	if n != 21 {
+	if n != len(access.ManagementCodes())-1 {
 		t.Fatal("sync silently expanded custom role")
 	}
 	var bindings int
@@ -452,7 +452,7 @@ func TestIntegrationCatalogPreflightPreservesCustomRoles(t *testing.T) {
 	must(t, s.Sync(ctx))
 	must(t, s.Check(ctx))
 	must(t, e.Pool.QueryRow(ctx, "SELECT count(*) FROM role_permissions WHERE role_id=$1", r.ID).Scan(&n))
-	if n != 21 {
+	if n != len(access.ManagementCodes())-1 {
 		t.Fatal("custom configuration overwritten")
 	}
 }

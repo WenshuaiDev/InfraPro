@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Permissions as P, type ManagedAccount, type Role } from '@infrapro/api-client';
@@ -26,6 +27,7 @@ function AccountDetail({ id, close }: { id: string; close: () => void }) {
   const { client, can, canAll } = useIdentity();
   const detail = useQuery({ queryKey: ['access', 'account', id], queryFn: ({ signal }) => client.account(id, signal) });
   const auth = useQuery({ queryKey: ['access', 'authorization', id], queryFn: ({ signal }) => client.authorization(id, signal) });
+  const memberships = useInfiniteQuery({ queryKey: ['access', 'tenant-memberships', id], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.accountTenants(id, { cursor: pageParam }, signal), getNextPageParam: (p) => p.next_cursor || undefined, enabled: canAll(P.PlatformAccountRead, P.PlatformTenantRead) });
   const roles = useInfiniteQuery({ queryKey: ['access', 'role-options'], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.roles({ cursor: pageParam, limit: 100 }, signal), getNextPageParam: (p) => p.next_cursor || undefined, enabled: can(P.PlatformRoleRead) });
   const account = detail.data;
   if (detail.error) return <ErrorState message={detail.error.message} onRetry={() => void detail.refetch()} />;
@@ -33,6 +35,7 @@ function AccountDetail({ id, close }: { id: string; close: () => void }) {
   const enabled = account.status === 'active';
   return <section className="space-y-6 rounded-lg border p-4 sm:p-6" aria-label="账号授权详情"><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl font-semibold">{account.display_name}</h2><p className="mt-1 text-sm text-muted-foreground">{account.username} · {enabled ? '正常' : '停用'}</p></div><Button variant="ghost" onClick={close}>关闭详情</Button></div>
     {can(enabled ? P.PlatformAccountDisable : P.PlatformAccountEnable) && <MutationDialog title={enabled ? '停用账号' : '恢复账号'} description={enabled ? '将撤销该账号的会话和未使用链接。最后完整管理账号受保护。' : '恢复登录资格，历史会话和链接不会恢复。'} trigger={<Button variant="outline">{enabled ? '停用账号' : '恢复账号'}</Button>} submit={(reason) => client.setAccountStatus(account.id, !enabled, { expected_version: account.management_version, reason })} />}
+    {canAll(P.PlatformAccountRead, P.PlatformTenantRead) && <section className="space-y-3"><h3 className="font-medium">当前租户任职</h3>{memberships.isPending && <p>正在读取任职…</p>}{memberships.error && <FormNotice error>{memberships.error.message}</FormNotice>}{memberships.data?.pages.flatMap((p) => p.items).map((t) => <p key={t.id}><Link className="underline" to="/platform/tenants/$tenantId" params={{ tenantId: t.id }}>{t.name}（{t.code}）</Link> · {t.roles.map((r) => r.name).join('、')}</p>)}{memberships.data && !memberships.data.pages[0]?.items.length && <p>没有当前租户任职。</p>}{memberships.hasNextPage && <Button variant="outline" onClick={() => void memberships.fetchNextPage()}>加载更多任职</Button>}</section>}
     {canAll(P.PlatformAccountRead, P.PlatformRoleRead, P.PlatformAccountAssignRoles) && roles.data && <><RolePicker key={account.id} account={account} roles={roles.data.pages.flatMap((p) => p.items)} />{roles.hasNextPage && <Button variant="outline" disabled={roles.isFetchingNextPage} onClick={() => void roles.fetchNextPage()}>加载更多可选角色</Button>}</>}
     {can(P.PlatformAccountAssignRoles) && !can(P.PlatformRoleRead) && <FormNotice>角色分配表单还需要角色查看权限。</FormNotice>}{roles.error && <FormNotice error>{roles.error.message}</FormNotice>}{auth.error && <FormNotice error>{auth.error.message}</FormNotice>}{auth.data && <AuthorizationView value={auth.data} />}
   </section>;

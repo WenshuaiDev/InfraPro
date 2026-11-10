@@ -107,3 +107,10 @@ OpenAPI 契约生成 `api-client/src/schema.d.ts`，`pnpm contracts:check` 检�
 platform/config 组合 foundation 的基础配置，提供同一项目配置来源。platform/runtime 装配 pgxpool、Redis 和账号业务，API 的 bootstrap 负责可取消后台任务与 HTTP 生命周期。platform/migrations 的 Goose SQL 由统一 CLI 执行，API 仅检查迁移版本。会话每次鉴权关联 PostgreSQL 当前状态，缓存不能恢复撤销访问。维护操作的缓存失效记录持久保存在队列表。
 
 浏览器账号页面统一在 console 内实现，旧 screen 入口只保留 Nginx 固定跳转。共享 UI 不访问 API；OpenAPI 是类型契约源。部署使用 Nginx 单主机路径；测试使用专用 PostgreSQL schema 与 Redis 命名空间，不连接正式环境。操作说明见 [账号运行手册](operations/account-management.md)。
+
+
+## 租户基础治理
+
+`platform/tenancy` 负责档案、编号归属、初始管理员和交接；通过 `access.Actor` 的可信会话复验与 `RequireScopedTx` 在同一事务重新授权，不导入 identity 或 Gin。HTTP tenancy 适配器从 identity 建立 Actor，调用完整业务操作，不拼接多个独立写事务。`access` 按明确租户读取成员和角色；identity 的共享启停事务调用 access 的管理员保护及治理事件写入，依赖方向不成环。
+
+授权状态锁 → 相关账号按 UUID 排序 → 会话复验 → 租户及成员 → 编号及审计。创建、交接、账号启停使用排他授权锁；资料修改使用共享授权锁。租户成员和角色变化只影响对应租户；平台角色不产生租户成员关系。前端以 URL、账号、租户与成员关系划分查询，传递 AbortSignal，页面卸载废弃写请求完成回调；确认失权清理内容，短暂故障保留草稿并阻止提交。
