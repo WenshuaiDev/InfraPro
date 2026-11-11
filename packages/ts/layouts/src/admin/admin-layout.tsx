@@ -9,7 +9,7 @@ import { CommandSearch } from './command-search';
 import { ThemeSwitch } from './theme-switch';
 import { UserMenu } from './user-menu';
 
-type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; workspaceSwitcher?: ReactNode; children: ReactNode };
+type Props = { sidebarControl?: { open: boolean; onOpenChange: (open: boolean) => void }; brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; workspaceSwitcher?: ReactNode; children: ReactNode };
 
 function AppSidebar({ brand, groups, user, userNavigation, renderLink, onLogout, logoutPending, workspaceSwitcher }: Props) {
   const { isMobile, setOpenMobile } = useSidebar();
@@ -40,7 +40,7 @@ export function AdminLayout(props: Props) {
   const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
   const accountItems = props.userNavigation.filter((item) => !props.groups.some((group) => group.items.some((entry) => entry.href === item.href)));
   const searchGroups = accountItems.length ? [...props.groups, { title: '账号快捷入口', items: accountItems }] : props.groups;
-  return <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+  return <SidebarProvider open={props.sidebarControl?.open ?? sidebarOpen} onOpenChange={props.sidebarControl?.onOpenChange ?? setSidebarOpen}>
     <a href="#main" className="sr-only fixed start-4 top-4 z-100 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed">跳到主要内容</a>
     <AppSidebar {...props} />
     <SidebarInset className="@container/content min-w-0">

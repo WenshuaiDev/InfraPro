@@ -1,60 +1,120 @@
-// THROWAWAY: one searchable entry for workspaces. Uses existing read APIs only.
-import { useState, type ComponentType } from 'react';
+// THROWAWAY: keep the existing sidebar switcher and dropdown presentation.
+import { useEffect, useState, type ComponentType } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from '@tanstack/react-router';
-import { Building2, Check, ChevronsUpDown, FolderKanban, House, Layers3 } from 'lucide-react';
-import { useIdentity } from '@infrapro/api-client/react';
+import { Building2, Check, ChevronsUpDown, FolderKanban, Layers3, House } from 'lucide-react';
 import type { MyTenant, ProjectContext, TenantContext } from '@infrapro/api-client';
-import { Button } from '@infrapro/ui/components/button';
-import { Input } from '@infrapro/ui/components/input';
+import { useIdentity } from '@infrapro/api-client/react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@infrapro/ui/components/dropdown-menu';
+import { SidebarMenuButton, useSidebar } from '@infrapro/ui/components/sidebar';
+import { Input } from '@infrapro/ui/components/input';
+import { brand } from '../config/brand';
 import { platformNavigation, safeReturn, workspaceScope } from '../config/navigation';
 
-type Group = { id: string; name: string; tenant?: MyTenant; projects: ProjectContext[] };
-function Item({ name, description, icon: Icon, current, disabled, onSelect }: { name: string; description: string; icon: ComponentType<{ className?: string }>; current?: boolean; disabled?: boolean; onSelect: () => void }) {
-  return <DropdownMenuItem onSelect={onSelect} disabled={disabled} aria-current={current ? 'true' : undefined} className="min-h-14 cursor-pointer gap-3 rounded-lg px-3 py-2"><Icon className="size-4 shrink-0" /><span className="grid min-w-0 flex-1 gap-1"><span className="break-words font-medium">{name}</span><span className="text-xs text-muted-foreground">{description}</span></span>{current && <Check className="size-4 shrink-0" />}</DropdownMenuItem>;
+type WorkspaceItemProps = {
+  name: string;
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+  current?: boolean;
+  disabled?: boolean;
+  onSelect: () => void;
+};
+type TenantGroup = { id: string; name: string; tenant?: MyTenant; projects: ProjectContext[] };
+
+function WorkspaceItem({ name, description, icon: Icon, current, disabled, onSelect }: WorkspaceItemProps) {
+  return <DropdownMenuItem disabled={disabled} onSelect={onSelect} aria-current={current ? 'true' : undefined} className={`min-h-12 cursor-pointer gap-3 rounded-md p-2 ${current ? 'bg-accent' : ''}`}>
+    <span className="flex size-8 shrink-0 items-center justify-center rounded-md border bg-background"><Icon className="size-4" aria-hidden="true" /></span>
+    <span className="grid min-w-0 flex-1 gap-0.5"><span className="truncate font-medium" title={name}>{name}</span><span className="truncate text-xs text-muted-foreground" title={description}>{description}</span></span>
+    {current && <><Check className="size-4 text-foreground" aria-hidden="true" /><span className="sr-only">当前工作空间</span></>}
+  </DropdownMenuItem>;
 }
 
 export function WorkspaceSwitcherPrototype({ path, tenant, project }: { path: string; tenant?: TenantContext; project?: ProjectContext }) {
   const { account, client, can } = useIdentity();
-  const search = useLocation({ select: (location) => location.search });
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
+  const search = useLocation({ select: (location) => location.search });
   const [localOpen, setLocalOpen] = useState(false);
   const [q, setQ] = useState('');
-  const [filter, setFilter] = useState<'all' | 'tenant' | 'project'>('all');
-  const open = localOpen || Boolean(search.picker);
-  const mode = search.picker ?? filter;
+  // On mobile, reveal the existing sidebar first; its trigger opens the dropdown.
+  const open = localOpen || (Boolean(search.picker) && !isMobile);
+  const setOpen = (next: boolean) => {
+    setLocalOpen(next);
+    if (!next) {
+      setQ('');
+      if (search.picker) void navigate({ to: path, search: { variant: 'A' }, replace: true });
+    }
+  };
   const scope = workspaceScope(path);
-  const platform = platformNavigation(path, can)[0]?.items[0];
-  const tenants = useInfiniteQuery({ queryKey: ['account', account?.id, 'my-tenants', 'navigation-prototype', q], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.myTenants({ cursor: pageParam, limit: 50, q }, signal), getNextPageParam: (page) => page.next_cursor || undefined, enabled: open, staleTime: 0 });
-  const projects = useInfiniteQuery({ queryKey: ['account', account?.id, 'my-projects', 'navigation-prototype', q], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.myProjects({ cursor: pageParam, limit: 50, status: 'all', q }, signal), getNextPageParam: (page) => page.next_cursor || undefined, enabled: open, staleTime: 0 });
+  const platformEntry = platformNavigation(path, can)[0]?.items[0];
+  const tenants = useInfiniteQuery({
+    queryKey: ['account', account?.id, 'my-tenants', 'workspace-switcher-prototype', q],
+    initialPageParam: '',
+    queryFn: ({ pageParam, signal }) => client.myTenants({ cursor: pageParam, limit: 50, q }, signal),
+    getNextPageParam: (page) => page.next_cursor || undefined,
+    enabled: open, staleTime: 0, refetchOnWindowFocus: true,
+  });
+  const projects = useInfiniteQuery({
+    queryKey: ['account', account?.id, 'my-projects', 'workspace-switcher-prototype', q],
+    initialPageParam: '',
+    queryFn: ({ pageParam, signal }) => client.myProjects({ cursor: pageParam, limit: 50, status: 'all', q }, signal),
+    getNextPageParam: (page) => page.next_cursor || undefined,
+    enabled: open, staleTime: 0, refetchOnWindowFocus: true,
+  });
   const tenantItems = tenants.isError ? [] : tenants.data?.pages.flatMap((page) => page.items) ?? [];
   const projectItems = projects.isError ? [] : projects.data?.pages.flatMap((page) => page.items) ?? [];
-  const groups = new Map<string, Group>(tenantItems.map((item) => [item.id, { id: item.id, name: item.name, tenant: item, projects: [] }]));
-  for (const item of projectItems) { const group = groups.get(item.project.tenant_id) ?? { id: item.project.tenant_id, name: item.project.tenant_name, projects: [] }; group.projects.push(item); groups.set(group.id, group); }
-  const visible = [...groups.values()].filter((group) => mode === 'project' ? group.projects.length : mode === 'tenant' ? group.tenant : true);
-  const name = scope.kind === 'project' ? project?.project.name ?? '项目工作空间' : scope.kind === 'tenant' ? tenant?.tenant.name ?? '租户工作空间' : scope.kind === 'platform' ? '平台工作空间' : '选择工作空间';
-  const detail = scope.kind === 'project' ? project?.project.tenant_name ?? '项目' : scope.kind === 'tenant' ? '租户' : scope.kind === 'platform' ? '平台' : '租户 / 项目 / 平台';
-  const Icon = scope.kind === 'project' ? FolderKanban : scope.kind === 'tenant' ? Building2 : Layers3;
-  const go = (href: string) => { setLocalOpen(false); setQ(''); void navigate({ to: safeReturn(href), search: { variant: search.variant ?? 'A' } }); };
-  const changeOpen = (next: boolean) => { setLocalOpen(next); if (!next) { setQ(''); if (search.picker) void navigate({ to: path, search: { variant: search.variant ?? 'A' }, replace: true }); } };
-  return <DropdownMenu open={open} onOpenChange={changeOpen}>
-    <DropdownMenuTrigger asChild><Button variant="ghost" aria-label={`切换工作空间：${name}`} className="h-14 w-full min-w-0 justify-start gap-2 px-2 text-start"><span className="hidden size-8 shrink-0 items-center justify-center rounded-md border bg-muted/40 sm:flex"><Icon className="size-4" /></span><span className="grid min-w-0 flex-1 gap-0.5"><span className="truncate text-sm font-medium" title={name}>{name}</span><span className="truncate text-xs font-normal text-muted-foreground" title={detail}>{detail}</span></span><ChevronsUpDown className="size-4 shrink-0" /></Button></DropdownMenuTrigger>
-    <DropdownMenuContent align="start" side="bottom" sideOffset={8} collisionPadding={12} aria-label="选择工作空间" className="w-[420px] max-w-[calc(100vw-24px)] rounded-xl p-2">
-      <DropdownMenuLabel className="px-3 py-2">切换工作空间</DropdownMenuLabel>
-      <div className="space-y-3 px-2 pb-3"><label htmlFor="prototype-workspace-query" className="sr-only">搜索租户或项目名称、编号</label><Input id="prototype-workspace-query" placeholder="搜索名称或编号…" value={q} onChange={(event) => setQ(event.target.value)} onKeyDown={(event) => { if (event.key === 'ArrowDown') { event.preventDefault(); event.currentTarget.closest('[role="menu"]')?.querySelector<HTMLElement>('[role="menuitem"]:not([data-disabled])')?.focus(); } if (event.key !== 'Escape') event.stopPropagation(); }} /><div className="flex gap-1" aria-label="工作空间类型">{(['all', 'tenant', 'project'] as const).map((value) => <Button key={value} size="sm" variant={mode === value ? 'secondary' : 'ghost'} aria-pressed={mode === value} onClick={() => { setFilter(value); if (search.picker) { setLocalOpen(true); void navigate({ to: path, search: { variant: search.variant ?? 'A' }, replace: true }); } }}>{value === 'all' ? '全部' : value === 'tenant' ? '租户' : '项目'}</Button>)}</div></div>
-      <div className="max-h-[min(55vh,480px)] overflow-y-auto">
-        {!q && mode === 'all' && <><Item name="首页" description="返回个人账号首页" icon={House} current={path === '/'} onSelect={() => go('/')} />{platform && <Item name="平台工作空间" description="平台管理与运营" icon={Layers3} current={scope.kind === 'platform'} onSelect={() => go(platform.href)} />}<DropdownMenuSeparator /></>}
-        {(tenants.isPending || projects.isPending) && <p role="status" className="p-3 text-sm text-muted-foreground">正在加载工作空间…</p>}
-        {(tenants.isError || projects.isError) && <DropdownMenuItem onSelect={(event) => { event.preventDefault(); void tenants.refetch(); void projects.refetch(); }}>加载失败，点击重试</DropdownMenuItem>}
-        {visible.map((group) => <DropdownMenuGroup key={group.id} aria-label={group.name} className="border-b py-1 last:border-0">
-          {mode !== 'project' ? <Item name={group.name} description={group.tenant ? group.tenant.status === 'disabled' ? '已停用 · 查看状态' : group.tenant.can_enter ? `租户 · ${group.tenant.code}` : '租户暂不可进入' : '所属租户 · 无租户入口'} icon={Building2} current={scope.kind === 'tenant' && scope.tenantId === group.id} disabled={!group.tenant || (!group.tenant.can_enter && group.tenant.status !== 'disabled')} onSelect={() => go(`/t/${group.id}/profile`)} /> : <DropdownMenuLabel className="break-words text-xs font-normal text-muted-foreground">{group.name}</DropdownMenuLabel>}
-          {mode !== 'tenant' && <div className={mode === 'all' ? 'ms-5 border-s ps-2' : ''}>{group.projects.map((item) => <Item key={item.project.id} name={item.project.name} description={`${item.project.status === 'archived' ? '已归档' : '项目'} · ${item.project.code}${item.can_enter ? '' : ' · 暂不可进入'}`} icon={FolderKanban} current={scope.projectId === item.project.id} disabled={!item.can_enter} onSelect={() => go(`/t/${group.id}/p/${item.project.id}/profile`)} />)}</div>}
+  // Project membership can exist without tenant business permissions. Its parent
+  // remains a grouping label unless the tenant list independently permits entry.
+  const groups = new Map<string, TenantGroup>(tenantItems.map((item) => [item.id, { id: item.id, name: item.name, tenant: item, projects: [] }]));
+  for (const item of projectItems) {
+    const group: TenantGroup = groups.get(item.project.tenant_id) ?? { id: item.project.tenant_id, name: item.project.tenant_name, projects: [] };
+    group.projects.push(item);
+    groups.set(group.id, group);
+  }
+  const name = scope.kind === 'project' ? project?.project.name ?? '项目工作空间' : scope.kind === 'tenant' ? tenant?.tenant.name ?? '租户工作台' : scope.kind === 'platform' ? '平台工作空间' : brand.name;
+  const description = scope.kind === 'project' ? `项目 · ${project?.project.tenant_name ?? tenant?.tenant.name ?? '所属租户'}` : scope.kind === 'tenant' ? '租户工作台' : scope.kind === 'platform' ? brand.name : '选择工作空间';
+  const Icon = scope.kind === 'project' ? FolderKanban : scope.kind === 'tenant' ? Building2 : scope.kind === 'platform' ? Layers3 : null;
+  const go = (href: string) => {
+    setLocalOpen(false);
+    setQ('');
+    setOpenMobile(false);
+    void navigate({ to: safeReturn(href), search: { variant: 'A' } });
+  };
+  // The mobile sidebar is already a modal Sheet. A second modal would retain
+  // its pointer lock when selecting a workspace closes both layers together.
+  return <DropdownMenu modal={!isMobile} open={open} onOpenChange={setOpen}>
+    <DropdownMenuTrigger asChild>
+      <SidebarMenuButton size="lg" aria-label={`切换工作空间：${name}`} tooltip={`切换工作空间：${name}`} className="min-w-0 data-[state=open]:bg-sidebar-accent">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground [&>svg]:size-5">{Icon ? <Icon aria-hidden="true" /> : brand.logo}</span>
+        <span className="grid min-w-0 flex-1 text-start text-sm leading-tight"><span className="truncate font-semibold" title={name}>{name}</span><span className="truncate text-xs text-muted-foreground" title={description}>{description}</span></span>
+        <ChevronsUpDown className="ms-auto size-4 shrink-0" aria-hidden="true" />
+      </SidebarMenuButton>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent aria-label="切换工作空间" align="start" side={isMobile ? 'bottom' : 'right'} sideOffset={8} collisionPadding={12} className="w-80 max-w-[calc(100vw-1.5rem)] rounded-lg p-1.5">
+      <DropdownMenuLabel className="text-xs text-muted-foreground">切换工作空间</DropdownMenuLabel>
+      <div className="px-2 pb-2"><label className="sr-only" htmlFor="prototype-workspace-query">搜索工作空间名称或编号</label><Input id="prototype-workspace-query" placeholder="搜索名称或编号…" value={q} onChange={(event) => setQ(event.target.value)} onKeyDown={(event) => { if (event.key === 'ArrowDown') { event.preventDefault(); event.currentTarget.closest('[role="menu"]')?.querySelector<HTMLElement>('[role="menuitem"]:not([data-disabled])')?.focus(); } if (event.key !== 'Escape') event.stopPropagation(); }} /></div>
+      {!q && <WorkspaceItem name="账号首页" description="返回账号首页" icon={House} current={path === '/'} onSelect={() => go('/')} />}
+      {platformEntry && <><DropdownMenuGroup aria-label="平台"><DropdownMenuLabel className="text-xs text-muted-foreground">平台</DropdownMenuLabel><WorkspaceItem name="平台工作空间" description="平台管理与运营" icon={Layers3} current={scope.kind === 'platform'} onSelect={() => go(platformEntry.href)} /></DropdownMenuGroup><DropdownMenuSeparator /></>}
+      <DropdownMenuGroup aria-label="租户与项目">
+        <DropdownMenuLabel className="text-xs text-muted-foreground">租户与项目</DropdownMenuLabel>
+        {(tenants.isPending || projects.isPending) && <p role="status" className="px-2 py-3 text-sm text-muted-foreground">正在加载工作空间…</p>}
+        {tenants.isError && <DropdownMenuItem className="min-h-11 cursor-pointer" disabled={tenants.isFetching} onSelect={(event) => { event.preventDefault(); void tenants.refetch(); }}>租户加载失败，点击重试</DropdownMenuItem>}
+        {projects.isError && <DropdownMenuItem className="min-h-11 cursor-pointer" disabled={projects.isFetching} onSelect={(event) => { event.preventDefault(); void projects.refetch(); }}>项目加载失败，点击重试</DropdownMenuItem>}
+        {[...groups.values()].filter((group) => search.picker !== 'project' || group.projects.length > 0).map((group) => <DropdownMenuGroup key={group.id} aria-label={group.name} className="border-b border-border py-1.5 last:border-b-0">
+          <WorkspaceItem name={group.name} description={group.tenant ? group.tenant.status === 'disabled' ? '租户已停用 · 查看状态' : group.tenant.can_enter ? `租户 · ${group.tenant.code}` : '租户暂不可进入' : '所属租户'} icon={Building2} current={scope.kind === 'tenant' && scope.tenantId === group.id} disabled={!group.tenant || (!group.tenant.can_enter && group.tenant.status !== 'disabled')} onSelect={() => go(`/t/${group.id}/profile`)} />
+          {search.picker !== 'tenant' && group.projects.length > 0 && <div className="ms-6 mt-1 space-y-1 border-s ps-2">{group.projects.map((item) => <WorkspaceItem key={item.project.id} name={item.project.name} description={!item.can_enter ? '项目暂不可进入' : `${item.project.status === 'archived' ? '已归档 · ' : '项目 · '}${item.project.code}`} icon={FolderKanban} disabled={!item.can_enter} current={scope.kind === 'project' && scope.tenantId === group.id && scope.projectId === item.project.id} onSelect={() => go(`/t/${group.id}/p/${item.project.id}/profile`)} />)}</div>}
         </DropdownMenuGroup>)}
-        {tenants.isSuccess && projects.isSuccess && !visible.length && <p className="p-4 text-sm text-muted-foreground">{q ? '没有匹配的工作空间。' : '尚未加入租户或项目。'}</p>}
-        {tenants.hasNextPage && mode !== 'project' && <DropdownMenuItem disabled={tenants.isFetchingNextPage} onSelect={(event) => { event.preventDefault(); void tenants.fetchNextPage(); }}>加载更多租户</DropdownMenuItem>}
-        {projects.hasNextPage && mode !== 'tenant' && <DropdownMenuItem disabled={projects.isFetchingNextPage} onSelect={(event) => { event.preventDefault(); void projects.fetchNextPage(); }}>加载更多项目</DropdownMenuItem>}
-      </div>
+        {tenants.isSuccess && projects.isSuccess && !groups.size && <p className="px-2 py-4 text-sm text-muted-foreground">尚未加入租户或项目。</p>}
+        {tenants.hasNextPage && <DropdownMenuItem disabled={tenants.isFetchingNextPage} className="min-h-11 cursor-pointer" onSelect={(event) => { event.preventDefault(); void tenants.fetchNextPage(); }}>{tenants.isFetchingNextPage ? '正在加载租户…' : '加载更多租户'}</DropdownMenuItem>}
+        {projects.hasNextPage && <DropdownMenuItem disabled={projects.isFetchingNextPage} className="min-h-11 cursor-pointer" onSelect={(event) => { event.preventDefault(); void projects.fetchNextPage(); }}>{projects.isFetchingNextPage ? '正在加载项目…' : '加载更多项目'}</DropdownMenuItem>}
+      </DropdownMenuGroup>
     </DropdownMenuContent>
   </DropdownMenu>;
+}
+
+// Opens the existing mobile sidebar when a legacy link asks for its switcher.
+export function PrototypePickerAutoOpen({ requested }: { requested: boolean }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  useEffect(() => { if (requested && isMobile) setOpenMobile(true); }, [requested, isMobile, setOpenMobile]);
+  return null;
 }
