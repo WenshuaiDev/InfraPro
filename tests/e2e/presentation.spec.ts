@@ -20,7 +20,7 @@ test('real pages share responsive layouts, keyboard navigation and themes', asyn
     await navigateTo(page, title);
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
     if (title === '账号安全') await expect(page.getByRole('button', { name: '退出当前会话' })).toBeVisible();
-    if (title === '账号开户邀请') await expect(page.getByText('还没有邀请。生成链接后会在这里显示状态。')).toBeVisible();
+    if (title === '账号开户邀请') await expect(page.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`${title}-dark.png`), fullPage: true });

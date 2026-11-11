@@ -234,7 +234,11 @@ func (h *Handler) Register(r *gin.Engine) {
 		reply(c, v, e)
 	})
 	auth.GET("/invitations", func(c *gin.Context) {
-		v, e := h.service.Invitations(c.Request.Context(), Principal(c), c.Query("cursor"))
+		v, e := h.service.Invitations(c.Request.Context(), Principal(c), identity.InvitationFilter{Cursor: c.Query("cursor"), Query: c.Query("q"), Status: c.Query("status")})
+		reply(c, v, e)
+	})
+	auth.GET("/invitations/:id", func(c *gin.Context) {
+		v, e := h.service.Invitation(c.Request.Context(), Principal(c), c.Param("id"))
 		reply(c, v, e)
 	})
 	auth.POST("/invitations", func(c *gin.Context) {

@@ -83,6 +83,7 @@ const (
 	OpLogoutAll             Operation = "LogoutAll"
 	OpSecurityEventRead     Operation = "SecurityEventRead"
 	OpInvitationRead        Operation = "InvitationRead"
+	OpInvitationDetail      Operation = "InvitationDetail"
 	OpInvitationCreate      Operation = "InvitationCreate"
 	OpInvitationRevoke      Operation = "InvitationRevoke"
 	OpInvitationRegenerate  Operation = "InvitationRegenerate"
@@ -178,6 +179,7 @@ func basePolicies() []Policy {
 		{OpLogoutAll, "POST", "/api/v1/auth/logout-all", "permission", []Code{SessionRevoke}, false, false},
 		{OpSecurityEventRead, "GET", "/api/v1/account/security-events", "permission", []Code{SecurityEventRead}, false, false},
 		{OpInvitationRead, "GET", "/api/v1/invitations", "permission", []Code{InvitationRead}, false, false},
+		{OpInvitationDetail, "GET", "/api/v1/invitations/:id", "permission", []Code{InvitationRead}, false, false},
 		{OpInvitationCreate, "POST", "/api/v1/invitations", "permission", []Code{InvitationCreate}, true, false},
 		{OpInvitationRevoke, "POST", "/api/v1/invitations/:id/revoke", "permission", []Code{InvitationRevoke}, false, false},
 		{OpInvitationRegenerate, "POST", "/api/v1/invitations/:id/regenerate", "permission", []Code{InvitationRegenerate, InvitationCreate}, true, false},

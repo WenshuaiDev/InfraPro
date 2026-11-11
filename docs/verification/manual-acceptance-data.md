@@ -1,6 +1,17 @@
 # 全功能人工验收数据交付记录
 
-日期：2026-11-10。状态：**Awaiting acceptance**。用户要求的账号和样例数据已准备，开发自验通过；用户人工验收尚未进行。
+更新日期：2026-11-11。状态：**Awaiting acceptance**。按用户修正，当前只交付 `accept_admin` 一个登录账号；单账号配置和自验通过，用户人工验收待确认。
+
+## 2026-11-11 单账号调整
+
+- 沿用 `accept_admin` 及原密码，显示名称改为“验收管理员”，入口文件只保留这一个账号和五个常用入口。
+- 通过现有 API 增加平台管理员角色，接任租户 B 管理员，并接任三个项目管理员；原本已任管理员的 A/C/D 保持。停用租户 C、归档项目及全部工程数据保留。
+- 其他账号作为成员样例和历史操作者保留，用户无需切换登录；操作手册已改为八项查看顺序，README 与数据准备脚本同步更新。
+- `node scripts/acceptance/verify.mjs` 自动使用单账号检查，94 项通过：平台和租户/项目接口、两个租户私有模板与资源、一次浏览器登录内的四次工作空间切换及 22 个页面访问，页面无运行时异常。
+- 报告：`.artifacts/manual-acceptance/verification-single.json`；截图：`screenshots/single-account-resource.png`、`screenshots/single-account-workspaces.png`。
+- 验收脚本 ESLint 和语法检查通过。没有修改应用授权代码、重置密码、删除业务数据或要求用户执行跨账号隔离测试。
+
+以下为 2026-11-10 初始多账号准备的历史记录；其中的权限分工和 120 项检查反映调整前状态，当前以本节的单账号检查为准。
 
 ## 交付范围
 
@@ -43,7 +54,7 @@
 
 ## 用户人工验收
 
-打开本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`，使用提供的账号与精确数据链接，按照[27 步验收手册](../operations/manual-acceptance.md)操作。建议依次使用 `accept_admin`、`accept_platform`、`accept_project`；个人改密先使用 `accept_personal`。
+打开本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`，使用提供的账号与精确数据链接，按照[单账号验收手册](../operations/manual-acceptance.md)查看。只需使用 `accept_admin`，保持登录并切换工作空间。
 
 - 数据准备、自验：完成。
 - 用户人工验收：待确认。

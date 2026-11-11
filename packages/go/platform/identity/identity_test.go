@@ -420,7 +420,7 @@ func TestIntegrationIsolationExpiryAndFailures(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	invitations, e := s.Invitations(ctx, a, "")
+	invitations, e := s.Invitations(ctx, a, InvitationFilter{})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -608,7 +608,7 @@ func TestIntegrationLimitsAuditCleanupAndRollback(t *testing.T) {
 	}
 	_, e = s.CreateInvitation(ctx, p, "", "over limit", Meta{})
 	requireCode(t, e, "invitation_limit")
-	items, e := s.Invitations(ctx, p, "")
+	items, e := s.Invitations(ctx, p, InvitationFilter{})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -620,7 +620,7 @@ func TestIntegrationLimitsAuditCleanupAndRollback(t *testing.T) {
 	_, e = s.Inspect(ctx, linkToken(link), false, Meta{})
 	requireCode(t, e, "invalid_link")
 	// Revoked invitations are retained with their original history.
-	items, e = s.Invitations(ctx, p, "")
+	items, e = s.Invitations(ctx, p, InvitationFilter{})
 	if e != nil || len(items.Items) != 2 {
 		t.Fatal("regeneration overwrote history", e)
 	}

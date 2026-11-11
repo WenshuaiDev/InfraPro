@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5"
 )
 
-const invitationColumns = `id::text,note,created_at,expires_at,CASE WHEN used_at IS NOT NULL THEN 'used' WHEN revoked_at IS NOT NULL THEN 'revoked' WHEN expires_at<=now() THEN 'expired' ELSE 'pending' END`
+const invitationColumns = `id::text,note,created_at,expires_at,CASE WHEN used_at IS NOT NULL THEN 'used' WHEN revoked_at IS NOT NULL THEN 'revoked' WHEN expires_at<=now() THEN 'expired' ELSE 'pending' END AS status`
 
 func (r *Repository) CreateInvitation(ctx context.Context, p Principal, oldID, note, hash string, ttl, idle time.Duration, max int, m Meta) (time.Time, error) {
 	var expires time.Time
@@ -80,38 +82,64 @@ func (r *Repository) RevokeInvitation(ctx context.Context, p Principal, id strin
 }
 
 type invitationCursor struct {
-	At time.Time `json:"at"`
-	ID string    `json:"id"`
+	At     time.Time `json:"at"`
+	ID     string    `json:"id"`
+	Query  string    `json:"q,omitempty"`
+	Status string    `json:"status,omitempty"`
 }
 
-func (r *Repository) Invitations(ctx context.Context, tx pgx.Tx, id, cursor string) (Page[Invitation], error) {
-	page := Page[Invitation]{Items: []Invitation{}}
+func (r *Repository) Invitations(ctx context.Context, tx pgx.Tx, id string, filter InvitationFilter) (InvitationsPage, error) {
+	page := InvitationsPage{Page: Page[Invitation]{Items: []Invitation{}}}
+	filter.Query = strings.TrimSpace(filter.Query)
+	if !utf8.ValidString(filter.Query) || utf8.RuneCountInString(filter.Query) > 200 {
+		return page, FieldError("q", "搜索内容不能超过 200 个字符。")
+	}
+	switch filter.Status {
+	case "", "pending", "used", "expired", "revoked":
+	default:
+		return page, FieldError("status", "邀请状态无效。")
+	}
 	pos := invitationCursor{At: time.Now().Add(time.Hour), ID: "ffffffff-ffff-ffff-ffff-ffffffffffff"}
-	if cursor != "" {
-		b, e := base64.RawURLEncoding.DecodeString(cursor)
-		if e != nil || json.Unmarshal(b, &pos) != nil || !uuidPattern.MatchString(pos.ID) || pos.At.IsZero() {
+	if filter.Cursor != "" {
+		b, e := base64.RawURLEncoding.DecodeString(filter.Cursor)
+		if e != nil || json.Unmarshal(b, &pos) != nil || !uuidPattern.MatchString(pos.ID) || pos.At.IsZero() || pos.Query != filter.Query || pos.Status != filter.Status {
 			return page, FieldError("cursor", "分页位置无效。")
 		}
 	}
-	rows, e := tx.Query(ctx, "SELECT "+invitationColumns+" FROM account_invitations WHERE inviter_id=$1 AND (created_at,id)<($2,$3::uuid) ORDER BY created_at DESC,id DESC LIMIT 51", id, pos.At, pos.ID)
+	// One statement gives the page, matching total and unfiltered owner counts the
+	// same snapshot. Literal substring search treats % and _ as ordinary text.
+	e := tx.QueryRow(ctx, `WITH owned AS MATERIALIZED (
+		SELECT `+invitationColumns+` FROM account_invitations WHERE inviter_id=$1
+	), matched AS (
+		SELECT * FROM owned WHERE ($4='' OR strpos(lower(note),lower($4))>0) AND ($5='' OR status=$5)
+	), selected AS (
+		SELECT * FROM matched WHERE (created_at,id::uuid)<($2,$3::uuid) ORDER BY created_at DESC,id::uuid DESC LIMIT 51
+	)
+	SELECT COALESCE((SELECT jsonb_agg(selected ORDER BY created_at DESC,id::uuid DESC) FROM selected),'[]'::jsonb),
+		(SELECT count(*) FROM matched),count(*),count(*) FILTER (WHERE status='pending'),count(*) FILTER (WHERE status='used'),
+		count(*) FILTER (WHERE status='expired'),count(*) FILTER (WHERE status='revoked') FROM owned`,
+		id, pos.At, pos.ID, filter.Query, filter.Status).Scan(&page.Items, &page.Total, &page.Counts.All, &page.Counts.Pending, &page.Counts.Used, &page.Counts.Expired, &page.Counts.Revoked)
 	if e != nil {
 		return page, e
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var v Invitation
-		if e = rows.Scan(&v.ID, &v.Note, &v.CreatedAt, &v.ExpiresAt, &v.Status); e != nil {
-			return page, e
-		}
-		page.Items = append(page.Items, v)
 	}
 	if len(page.Items) > 50 {
 		page.Items = page.Items[:50]
 		v := page.Items[49]
-		b, _ := json.Marshal(invitationCursor{At: v.CreatedAt, ID: v.ID})
+		b, _ := json.Marshal(invitationCursor{At: v.CreatedAt, ID: v.ID, Query: filter.Query, Status: filter.Status})
 		page.NextCursor = base64.RawURLEncoding.EncodeToString(b)
 	}
-	return page, rows.Err()
+	return page, nil
+}
+func (r *Repository) Invitation(ctx context.Context, tx pgx.Tx, owner, id string) (Invitation, error) {
+	var v Invitation
+	if !uuidPattern.MatchString(id) {
+		return v, ErrNotFound
+	}
+	e := tx.QueryRow(ctx, "SELECT "+invitationColumns+" FROM account_invitations WHERE inviter_id=$1 AND id=$2", owner, id).Scan(&v.ID, &v.Note, &v.CreatedAt, &v.ExpiresAt, &v.Status)
+	if errors.Is(e, pgx.ErrNoRows) {
+		e = ErrNotFound
+	}
+	return v, e
 }
 func (r *Repository) InspectInvitation(ctx context.Context, hash string) (Inspection, error) {
 	var result Inspection

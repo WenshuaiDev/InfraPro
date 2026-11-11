@@ -38,6 +38,7 @@ test('protected routes, safe return, profile, cookie and shared tab logout', asy
 test('invitation creation, manual copy, recipient validation, one-use and member-only capability', async ({ page, account, browser }, testInfo) => {
   await login(page, account); await navigateTo(page, '账号开户邀请');
   await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true }));
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click();
   await page.getByLabel('用途备注').fill('受邀同事'); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const output = page.getByLabel('可手动复制的完整链接'); await expect(output).toBeVisible(); const link = await output.inputValue();
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
@@ -56,7 +57,7 @@ test('invitation creation, manual copy, recipient validation, one-use and member
   await recipient.goto(`${consoleURL}/invitations`); await expect(recipient.getByRole('heading', { name: '403 · 无权限' })).toBeVisible();
   expect((await recipientContext.request.get(`${new URL(consoleURL).origin}/api/v1/invitations`)).status()).toBe(403);
   await logout(recipient); await expect(recipient.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await recipient.goto(link); await expect(recipient.getByRole('heading', { name: '暂时无法使用此链接' })).toBeVisible();
-  await page.getByRole('button', { name: '刷新列表', exact: true }).click(); await expect(page.getByText('已使用', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '完成', exact: true }).click(); await page.getByRole('button', { name: '刷新列表', exact: true }).click(); await expect(page.getByRole('table').getByText('已使用', { exact: true })).toBeVisible();
   await recipientContext.close();
 });
 
@@ -104,14 +105,20 @@ test('password confirmation and CSRF failure never silently resubmit a write', a
     if (creates === 1) await route.fulfill({ status: 403, json: { code: 'reauthentication_required', message: '请先确认当前密码。', request_id: 'test' } });
     else await route.continue();
   });
-  await page.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(page.getByRole('heading', { name: '确认当前密码' })).toBeVisible();
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(page.getByRole('heading', { name: '确认当前密码' })).toBeVisible();
   await page.getByLabel('当前密码', { exact: true }).fill(account.password); await page.getByRole('button', { name: '确认密码', exact: true }).click();
   await expect(page.getByText('密码已确认，请再次提交生成请求。')).toBeVisible(); expect(creates).toBe(1);
   await page.getByRole('button', { name: '重新提交生成' }).click();
   await expect(page.getByLabel('可手动复制的完整链接')).toBeVisible(); expect(creates).toBe(2);
   const firstLink = await page.getByLabel('可手动复制的完整链接').inputValue();
-  await page.getByRole('button', { name: '重新生成', exact: true }).click(); await expect(page.getByLabel('可手动复制的完整链接')).not.toHaveValue(firstLink);
-  await page.getByRole('button', { name: '撤销', exact: true }).click(); await expect(page.getByLabel('可手动复制的完整链接')).toHaveCount(0); await expect(page.getByText('已撤销', { exact: true })).toHaveCount(2);
+  await page.getByRole('button', { name: '完成', exact: true }).click();
+  await page.getByRole('button', { name: '未填写备注的操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '重新生成链接', exact: true }).click();
+  await page.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(page.getByLabel('可手动复制的完整链接')).not.toHaveValue(firstLink);
+  await page.getByRole('button', { name: '完成', exact: true }).click();
+  const pendingRow = page.getByRole('row').filter({ hasText: '待使用' });
+  await pendingRow.getByRole('button', { name: '未填写备注的操作', exact: true }).click(); await page.getByRole('menuitem', { name: '撤销邀请', exact: true }).click(); await page.getByRole('button', { name: '确认撤销', exact: true }).click();
+  await expect(page.getByLabel('可手动复制的完整链接')).toHaveCount(0); await expect(page.getByRole('table').getByText('已撤销', { exact: true })).toHaveCount(2);
   await navigateTo(page, '个人资料'); await page.getByLabel('显示名称', { exact: true }).fill('保留未保存内容');
   let saves = 0;
   await page.route('**/api/v1/account/profile', async (route) => { if (route.request().method() !== 'PATCH') { await route.continue(); return; } saves++; await route.fulfill({ status: 403, json: { code: 'csrf_invalid', message: '页面验证已过期，请重新提交。', request_id: 'test' } }); });

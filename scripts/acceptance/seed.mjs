@@ -1,16 +1,18 @@
 import { request } from '@playwright/test';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { existsSync, writeFileSync, chmodSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { setTimeout as pause } from 'node:timers/promises';
 import { directory, environment, origin, readPrivate, savePrivate } from './environment.mjs';
+import { configureSingleAccount } from './single-account.mjs';
 
 environment(); // Validate the dedicated environment before making any request.
 const api = `${origin}/api/v1`;
 const accounts = readPrivate('accounts.local.json');
 const state = existsSync(resolve(directory, 'seed-state.local.json')) ? readPrivate('seed-state.local.json') : { actions: {}, data: {}, started: new Date().toISOString() };
 if (state.complete) {
-  console.log('Acceptance data already prepared. Existing manual changes and credentials are retained.');
+  if (!existsSync(resolve(directory, 'single-account.local.json'))) await configureSingleAccount();
+  console.log('Acceptance data already prepared. Use accept_admin for all workspaces; existing manual changes and credentials are retained.');
   process.exit(0);
 }
 const sessions = {};
@@ -368,17 +370,15 @@ try {
   const { invitations, ...manifest } = data;
   savePrivate('manifest.json', { origin, created: new Date().toISOString(), ...manifest });
   savePrivate('invitations.local.json', invitations);
-  const linkNames = { login: '登录入口', platform: '平台租户管理', tenantA: 'A：华东交通租户资料', tenantB: 'B：西部公路租户资料', tenantC: 'C：停用恢复练习', tenantD: 'D：管理员交接练习', resources: 'A：设施列表', bridge: '青澜大桥、主梁及跨中测点', otherResources: 'B：隔离设施列表', project: '青澜大桥健康监测项目', archive: '已归档的北山隧道一期', definitions: '公共设施类型定义', publicTemplate: '公共监测模板', privateTemplate: 'A：私有监测模板' };
-  const lines = ['# 全功能人工验收账号与入口', '', `入口：${origin}/login`, '', '这是仅供本机使用的虚构验收环境。密码只在此文件及 accounts.local.json 中保存，未写入 Git。', '', '| 用户名 | 密码 | 用途 |', '| --- | --- | --- |', ...Object.values(accounts).map((a) => `| ${a.username} | \`${a.password}\` | ${a.purpose} |`), '', '建议先用 accept_admin 查看租户业务，用 accept_platform 查看平台功能，用 accept_project 查看项目；先用 accept_personal 练习改密码，避免影响其他验收步骤。', '', '## 数据入口', '', ...Object.entries(data.urls).map(([key, url]) => `- [${key}](${url})`), '', '## 一次性邀请（通常 24 小时有效）', '', `- [成员邀请：先登录 accept_invitee，再确认加入](${invitations.member.link})`, `- [开户邀请：退出当前账号或新开隐私窗口，再创建 accept_newuser](${invitations.signup.url})`, '', '邀请过期时：成员邀请由 accept_admin 在租户 A 的“成员邀请”重新生成；开户邀请由 accept_platform 在“开户邀请”重新生成。链接不要发布到聊天、Git 或共享文档。', '', '启动：在仓库根目录运行 node scripts/acceptance/start.mjs。重启只启动服务，不重新生成账号、不重置数据。', ''];
-  const localGuide = resolve(directory, '账号与验收入口.local.md');
-  writeFileSync(localGuide, lines.join('\n').replace(/^- \[([^\]]+)\]/gm, (whole, key) => linkNames[key] ? `- [${linkNames[key]}]` : whole), { mode: 0o600 });
-  chmodSync(localGuide, 0o600);
+  // The user-facing guide is produced by the single-account finalizer below.
   state.complete = true;
   state.completed = new Date().toISOString();
   persist();
   // Clear setup sessions, retaining no seed process credentials in browser state files.
   for (const [key, session] of Object.entries(sessions)) if (key !== 'disabled') await call(session, 'post', '/auth/logout');
-  console.log(`Prepared ${Object.keys(accounts).length} accounts, ${Object.keys(data.tenants).length} tenants and ${Object.keys(data.projects).length} projects. Credentials are in the private local guide.`);
+  console.log(`Prepared sample memberships, ${Object.keys(data.tenants).length} tenants and ${Object.keys(data.projects).length} projects.`);
 } finally {
   await Promise.all(contexts.map((ctx) => ctx.dispose()));
 }
+
+await configureSingleAccount();

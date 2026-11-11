@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import { chromium, expect, request } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { directory, environment, origin, readPrivate, savePrivate } from './environment.mjs';
 
 environment();
+if (existsSync(resolve(directory, 'single-account.local.json'))) {
+  await import('./verify-single.mjs');
+  process.exit(0);
+}
 const accounts = readPrivate('accounts.local.json');
 const f = readPrivate('manifest.json');
 const api = `${origin}/api/v1`;

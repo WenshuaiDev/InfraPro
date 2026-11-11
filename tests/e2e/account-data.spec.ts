@@ -35,6 +35,11 @@ test('cursor tables retain rows on failure and append real invitation and event 
   const notes = await rows.locator('td:first-child').allTextContents();
   expect(new Set(notes).size).toBe(51);
   await expect(page.getByRole('button', { name: '加载更多邀请', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: '已撤销 51', exact: true })).toBeVisible();
+  await page.getByLabel('搜索用途备注').fill('游标验收-0');
+  await expect(rows).toHaveCount(1);
+  await expect(rows).toContainText('游标验收-0');
+  await expect(page.getByRole('tab', { name: '全部邀请 51', exact: true })).toBeVisible();
   await navigateTo(page, '账号安全');
   const records = page.getByRole('table', { name: '近期安全记录', exact: true }).locator('tbody tr');
   await expect(records).toHaveCount(50);
@@ -74,12 +79,12 @@ test('a late invitation query cannot populate the next account cache', async ({ 
     await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await refreshed;
     await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await expectIdentity(page, nextAccount.username, '浏览器验收');
-    await expect(page.getByText('还没有邀请。生成链接后会在这里显示状态。')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
     release();
     await completed;
     await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await expect(page.getByText('只能属于前一账号的延迟列表')).toHaveCount(0);
-    await expect(page.getByText('还没有邀请。生成链接后会在这里显示状态。')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
   } finally {
     release();
     await page.unrouteAll({ behavior: 'wait' });

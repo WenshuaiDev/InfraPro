@@ -34,9 +34,10 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   expect(await page.evaluate(() => Reflect.get(window, 'policyViolations'))).toEqual([]);
   expect(browserErrors).toEqual([]);
   const legacy = await context.newPage(); await legacy.goto(`${origin}/screen/`); await expect(legacy).toHaveURL(`${base}/`); await expect(legacy.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  await navigateTo(page, '账号开户邀请'); await page.reload(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await navigateTo(page, '账号开户邀请'); await page.reload(); await page.getByRole('button', { name: '创建邀请', exact: true }).click(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const link = await page.getByLabel('可手动复制的完整链接').inputValue(); expect(link.startsWith(`${base}/invite#token=`)).toBe(true);
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: '完成', exact: true }).click();
   const recipientContext = await browser.newContext(); const recipient = await recipientContext.newPage(); await recipient.goto(link);
   await expect(recipient.getByRole('heading', { name: '创建你的账号' })).toBeVisible(); expect(new URL(recipient.url()).hash).toBe('');
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('新密码', { exact: true }).fill(password); await recipient.getByLabel('确认新密码', { exact: true }).fill(password); await recipient.getByRole('button', { name: '创建账号', exact: true }).click(); await expect(recipient.getByRole('heading', { name: '欢迎回来' })).toBeVisible();

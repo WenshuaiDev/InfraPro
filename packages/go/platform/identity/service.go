@@ -78,9 +78,14 @@ func (s *Service) SecurityEvents(ctx context.Context, p Principal, cursor string
 	e := s.readAuthorized(ctx, p, access.OpSecurityEventRead, func(tx pgx.Tx) error { var e error; v, e = s.repo.Events(ctx, tx, p.Account.ID, cursor); return e })
 	return v, e
 }
-func (s *Service) Invitations(ctx context.Context, p Principal, cursor string) (Page[Invitation], error) {
-	var v Page[Invitation]
-	e := s.readAuthorized(ctx, p, access.OpInvitationRead, func(tx pgx.Tx) error { var e error; v, e = s.repo.Invitations(ctx, tx, p.Account.ID, cursor); return e })
+func (s *Service) Invitations(ctx context.Context, p Principal, filter InvitationFilter) (InvitationsPage, error) {
+	var v InvitationsPage
+	e := s.readAuthorized(ctx, p, access.OpInvitationRead, func(tx pgx.Tx) error { var e error; v, e = s.repo.Invitations(ctx, tx, p.Account.ID, filter); return e })
+	return v, e
+}
+func (s *Service) Invitation(ctx context.Context, p Principal, id string) (Invitation, error) {
+	var v Invitation
+	e := s.readAuthorized(ctx, p, access.OpInvitationDetail, func(tx pgx.Tx) error { var e error; v, e = s.repo.Invitation(ctx, tx, p.Account.ID, id); return e })
 	return v, e
 }
 func (s *Service) Rate(ctx context.Context, scope, ip, key string) error {

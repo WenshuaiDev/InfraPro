@@ -247,6 +247,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Owner-scoped cursor pagination. total counts all matches for q and status, before cursor. counts covers all invitations owned by this account regardless of q/status/cursor. Expired status is computed at read time. A cursor must be reused with the same filters. */
         get: operations["getInvitations"];
         put?: never;
         post: operations["createInvitation"];
@@ -3687,6 +3688,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invitations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read one invitation owned by the current account. Requires platform.invitation.read. Unknown and foreign invitation IDs return 404. Never returns link credentials. */
+        get: operations["getInvitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities": {
         parameters: {
             query?: never;
@@ -4472,6 +4490,8 @@ export interface components {
         Invitations: {
             items: components["schemas"]["Invitation"][];
             next_cursor: string;
+            total: number;
+            counts: components["schemas"]["InvitationCounts"];
         };
         SecurityEvents: {
             items: components["schemas"]["SecurityEvent"][];
@@ -6216,6 +6236,13 @@ export interface components {
             dependencies?: {
                 [key: string]: number;
             };
+        };
+        InvitationCounts: {
+            all: number;
+            pending: number;
+            used: number;
+            expired: number;
+            revoked: number;
         };
         ResourceContext: {
             /** Format: uuid */
@@ -8362,6 +8389,9 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string;
+                /** @description Literal case-insensitive substring of the invitation note, trimmed; searches all invitations owned by the current account. */
+                q?: string;
+                status?: "" | "pending" | "used" | "expired" | "revoked";
             };
             header?: never;
             path?: never;
@@ -26160,6 +26190,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    getInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invitation"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

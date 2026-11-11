@@ -14,9 +14,9 @@ Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack 
 
 本节保留原迭代入口；本次项目资源重构使用上方 35173 专用环境。
 
-已按当前功能准备独立、持久化的本机验收账号和业务数据，入口为 <http://localhost:25173/login>。账号密码及精确数据链接保存在本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`；建议先使用 `accept_admin`、`accept_platform`、`accept_project`。无需自行创建账号或录入初始资料。
+已按当前功能准备独立、持久化的本机验收账号和业务数据，入口为 <http://localhost:25173/login>。账号密码及精确数据链接保存在本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`；只需使用 `accept_admin`，通过左上角切换工作空间即可查看平台、全部验收租户和项目。无需自行创建账号或录入初始资料。
 
-完整数据清单、27 步人工验收及重启方式见[全功能人工验收手册](docs/operations/manual-acceptance.md)，自验结果见[交付记录](docs/verification/manual-acceptance-data.md)。普通开发库及原有账号保留；状态为 Awaiting acceptance，自验通过，等待用户人工验收。
+数据清单、单账号查看顺序及重启方式见[全功能人工验收手册](docs/operations/manual-acceptance.md)，自验结果见[交付记录](docs/verification/manual-acceptance-data.md)。普通开发库及原有账号保留；状态为 Awaiting acceptance，自验通过，等待用户人工验收。
 
 ## 工具链
 
@@ -139,6 +139,7 @@ INFRAPRO_HTTP_ADDR=127.0.0.1:9090 API_PROXY_TARGET=http://127.0.0.1:9090 make de
 - [目录和依赖边界](docs/architecture.md)
 - [前端共享包与开发约定](docs/frontend-development.md)
 - [前端重构与验收记录](docs/verification/frontend-refactor.md)
+- [工作空间导航与账号布局重构实施方案（已实施，待人工验收）](docs/requirements/workspace-navigation-refactor-plan.md)
 - [统一运维 CLI](tools/infrapro/README.md)
 - [API 与 CLI 模块拆分方案](docs/requirements/backend-organization-plan.md)
 - [角色与权限完整方案（已实施，待人工验收）](docs/requirements/role-permission-plan.md)

@@ -1712,8 +1712,32 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Literal case-insensitive substring of the invitation note, trimmed; searches all invitations owned by the current account.",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "",
+                "pending",
+                "used",
+                "expired",
+                "revoked"
+              ]
+            }
           }
-        ]
+        ],
+        "description": "Owner-scoped cursor pagination. total counts all matches for q and status, before cursor. counts covers all invitations owned by this account regardless of q/status/cursor. Expired status is computed at read time. A cursor must be reused with the same filters."
       },
       "post": {
         "operationId": "createInvitation",
@@ -26529,6 +26553,110 @@
         }
       }
     },
+    "/api/v1/invitations/{id}": {
+      "get": {
+        "operationId": "getInvitation",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invitation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "description": "Read one invitation owned by the current account. Requires platform.invitation.read. Unknown and foreign invitation IDs return 404. Never returns link credentials."
+      }
+    },
     "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities": {
       "get": {
         "operationId": "ProjectResource:facility:list",
@@ -34251,7 +34379,9 @@
         "additionalProperties": false,
         "required": [
           "items",
-          "next_cursor"
+          "next_cursor",
+          "total",
+          "counts"
         ],
         "properties": {
           "items": {
@@ -34262,6 +34392,13 @@
           },
           "next_cursor": {
             "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "counts": {
+            "$ref": "#/components/schemas/InvitationCounts"
           }
         }
       },
@@ -41318,6 +41455,39 @@
           "code",
           "message"
         ]
+      },
+      "InvitationCounts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "all",
+          "pending",
+          "used",
+          "expired",
+          "revoked"
+        ],
+        "properties": {
+          "all": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pending": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "used": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expired": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "revoked": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
       },
       "ResourceContext": {
         "type": "object",

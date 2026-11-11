@@ -80,6 +80,23 @@ type Invitation struct {
 	ExpiresAt time.Time `json:"expires_at"`
 	Status    string    `json:"status"`
 }
+type InvitationFilter struct {
+	Cursor string
+	Query  string
+	Status string
+}
+type InvitationCounts struct {
+	All     int `json:"all"`
+	Pending int `json:"pending"`
+	Used    int `json:"used"`
+	Expired int `json:"expired"`
+	Revoked int `json:"revoked"`
+}
+type InvitationsPage struct {
+	Page[Invitation]
+	Total  int              `json:"total"`
+	Counts InvitationCounts `json:"counts"`
+}
 type SecurityEvent struct {
 	ID        int64     `json:"id"`
 	EventType string    `json:"event_type"`

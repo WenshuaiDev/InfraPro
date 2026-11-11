@@ -10,6 +10,9 @@ export function useCursorList<T>({ queryKey, load, enabled = true }: {
   const current = useRef(key);
   useEffect(() => { current.current = key; return () => { current.current = ''; }; }, [key]);
   const [position, setPosition] = useState({ key, page: 0 });
+  // Visiting another filter must also forget the old position when returning to
+  // its cached query. A computed fallback alone would resurrect the old page.
+  if (position.key !== key) setPosition({ key, page: 0 });
   const query = useInfiniteQuery({ queryKey, initialPageParam: '', queryFn: ({ pageParam, signal }) => load(pageParam, signal), getNextPageParam: (page) => page.next_cursor || undefined, enabled });
   const pages = query.data?.pages ?? [];
   let page = position.key === key ? Math.min(position.page, Math.max(0, pages.length - 1)) : 0;

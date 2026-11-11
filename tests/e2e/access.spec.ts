@@ -14,7 +14,7 @@ async function refresh(page: Page) {
   const response = page.waitForResponse((r) => r.url().endsWith('/auth/me'));
   await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await response;
 }
-async function submitReason(page: Page, reason: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill(reason); await dialog.getByRole('button', { name: '确认提交变更' }).click(); await expect(dialog).toBeHidden(); }
+async function submitReason(page: Page, reason: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill(reason); await dialog.getByRole('button', { name: '保存角色绑定' }).click(); await expect(dialog.getByLabel('变更原因')).toHaveCount(0); await closeRolePanel(page); }
 
 test('role UI grants and withdraws invitation capability without logging in again', async ({ page, request, browser }, testInfo) => {
   const member = await createAccount(request, false);
@@ -55,8 +55,8 @@ test('role UI grants and withdraws invitation capability without logging in agai
     await expect(invitationGroup).toContainText('创建基础成员邀请');
     await closeRolePanel(page);
     await navigateTo(page, '账号管理'); await page.getByLabel('搜索用户名或显示名称').fill(member.username); await page.getByRole('button', { name: '浏览器验收', exact: true }).click();
-    await page.getByRole('checkbox', { name: new RegExp(name) }).check(); await page.getByRole('button', { name: '保存角色绑定' }).click(); await submitReason(page, reason);
-    await refresh(guest); await guest.goto(`${consoleURL}/invitations`); await guest.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(guest.getByLabel('可手动复制的完整链接')).toBeVisible();
+    await page.getByRole('button', { name: '配置角色', exact: true }).click(); await page.getByRole('checkbox', { name: new RegExp(name) }).check(); await submitReason(page, reason);
+    await refresh(guest); await guest.goto(`${consoleURL}/invitations`); await guest.getByRole('button', { name: '创建邀请', exact: true }).click(); await guest.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(guest.getByLabel('可手动复制的完整链接')).toBeVisible();
     const link = await guest.getByLabel('可手动复制的完整链接').inputValue();
     await navigateTo(page, '角色管理'); await page.getByLabel('搜索角色名称').fill(name); await page.getByRole('button', { name, exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -65,8 +65,8 @@ test('role UI grants and withdraws invitation capability without logging in agai
     // Existing cookies fail immediately, independently of the UI refresh interval.
     expect((await guestContext.request.get(`${api}/invitations`)).status()).toBe(403);
     await refresh(guest); await expect(guest.getByRole('heading', { name: '403 · 无权限' })).toBeVisible(); await expect(guest.getByLabel('可手动复制的完整链接')).toHaveCount(0);
-    await roleAction(page, '启用角色'); await submitPlatformRole(page, reason, '确认启用角色'); await refresh(guest); await expect(guest.getByRole('button', { name: '生成邀请链接', exact: true })).toBeVisible();
-    await expect(guest.getByText('已撤销', { exact: true })).toBeVisible();
+    await roleAction(page, '启用角色'); await submitPlatformRole(page, reason, '确认启用角色'); await refresh(guest); await expect(guest.getByRole('button', { name: '创建邀请', exact: true })).toBeVisible();
+    await expect(guest.getByRole('table', { name: '我的邀请', exact: true }).getByText('已撤销', { exact: true })).toBeVisible();
     const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
     const old = await request.post(`${api}/public/invitations/inspect`, { headers, data: { token: new URLSearchParams(new URL(link).hash.slice(1)).get('token') } }); expect(old.status()).toBe(404);
     await page.goto(`${consoleURL}/access/permissions`); await expect(page).toHaveURL(`${consoleURL}/access/roles`); await expect(page.getByRole('heading', { name: '角色管理', exact: true })).toBeVisible();
@@ -109,7 +109,7 @@ test('authorization refresh preserves unrelated drafts and rejects late lost-pag
   const held = new Promise<void>((resolve) => { release = resolve; }); const ready = new Promise<void>((resolve) => { fetched = resolve; });
   await tab.route('**/api/v1/invitations', async (route) => { if (route.request().method() !== 'POST') { await route.continue(); return; } const response = await route.fetch(); fetched(); await held; await route.fulfill({ response }); });
   try {
-    await tab.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await ready;
+    await tab.getByRole('button', { name: '创建邀请', exact: true }).click(); await tab.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await ready;
     response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [], reason: '撤权验证' } }); expect(response.status()).toBe(200);
     await refresh(tab); await expect(tab.getByRole('heading', { name: '403 · 无权限' })).toBeVisible(); release();
     await refresh(page); await expect(page.getByRole('heading', { name: '403 · 无权限' })).toBeVisible();

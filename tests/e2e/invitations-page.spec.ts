@@ -1,0 +1,117 @@
+import { test, expect, login, consoleURL, csrf, password } from './fixtures';
+import { navigateTo } from '../helpers/navigation';
+import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
+
+test('list-first invitations validate notes, clear credentials, show details and confirm revocation', async ({ page, account }, info) => {
+  await login(page, account); await navigateTo(page, '账号开户邀请');
+  await expect(page.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
+  await expect(page.getByLabel('用途备注')).toHaveCount(0);
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByLabel('用途备注')).toBeFocused();
+  await dialog.getByLabel('用途备注').fill('🙂'.repeat(201));
+  await dialog.getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toContainText('200 个字符');
+  await dialog.getByLabel('用途备注').fill('桥梁监测 · 新同事');
+  await dialog.getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  const output = dialog.getByLabel('可手动复制的完整链接');
+  await expect(output).toBeVisible();
+  await page.screenshot({ path: info.outputPath('invitation-result.png'), fullPage: true, mask: [output] });
+  await dialog.getByRole('button', { name: '完成', exact: true }).click();
+  await expect(output).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '创建邀请', exact: true })).toBeFocused();
+  await expect(page.getByRole('tab', { name: '待使用 1', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click();
+  await expect(dialog.getByLabel('用途备注')).toHaveValue('');
+  await expect(output).toHaveCount(0);
+  await dialog.getByRole('button', { name: '取消', exact: true }).click();
+  await page.getByRole('button', { name: '桥梁监测 · 新同事', exact: true }).click();
+  await expect(dialog.getByRole('heading', { name: '邀请详情', exact: true })).toBeVisible();
+  await expect(dialog).toContainText('等待对方完成开户');
+  await expect(output).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('invitation-detail.png'), fullPage: true });
+  await dialog.getByRole('button', { name: '撤销邀请', exact: true }).click();
+  const confirmation = page.getByRole('alertdialog');
+  await confirmation.getByRole('button', { name: '保留邀请', exact: true }).click();
+  await expect(page.getByRole('tab', { name: '待使用 1', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '桥梁监测 · 新同事的操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '撤销邀请', exact: true }).click();
+  let fail = true;
+  await page.route('**/api/v1/invitations/*/revoke', async (route) => {
+    if (fail) { fail = false; await route.fulfill({ status: 503, json: { code: 'unavailable', message: '撤销暂时不可用，请重试。' } }); }
+    else await route.continue();
+  });
+  await confirmation.getByRole('button', { name: '确认撤销', exact: true }).click();
+  await expect(confirmation.getByRole('alert')).toContainText('撤销暂时不可用');
+  await confirmation.getByRole('button', { name: '确认撤销', exact: true }).click();
+  await expect(confirmation).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: '已撤销 1', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '待使用 0', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '没有符合条件的邀请' })).toBeVisible();
+  await page.getByRole('button', { name: '清除筛选', exact: true }).click();
+  await expect(page.getByRole('table', { name: '我的邀请', exact: true }).getByText('已撤销', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: info.outputPath('invitations-list-a.png'), fullPage: true });
+});
+
+test('server search treats percent and underscore literally and detail access is owner-scoped', async ({ page, account, context, browser }) => {
+  await login(page, account);
+  const api = new URL('/api/v1', consoleURL).href;
+  const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
+  for (const note of ['Bridge 100%_汉字🙂', 'Bridge other']) expect((await context.request.post(`${api}/invitations`, { headers, data: { note } })).status()).toBe(200);
+  await navigateTo(page, '账号开户邀请');
+  await page.getByLabel('搜索用途备注').fill('%_');
+  const table = page.getByRole('table', { name: '我的邀请', exact: true });
+  await expect(table.locator('tbody tr')).toHaveCount(1);
+  await expect(table).toContainText('Bridge 100%_汉字🙂');
+  await expect(page.getByRole('tab', { name: '全部邀请 2', exact: true })).toBeVisible();
+  await page.getByLabel('搜索用途备注').fill('BRIDGE');
+  await expect(table.locator('tbody tr')).toHaveCount(2);
+  await page.getByLabel('搜索用途备注').fill('不存在');
+  await expect(page.getByRole('heading', { name: '没有符合条件的邀请' })).toBeVisible();
+  await page.getByRole('button', { name: '清除筛选', exact: true }).click();
+  await expect(table.locator('tbody tr')).toHaveCount(2);
+  const list = await (await context.request.get(`${api}/invitations`)).json();
+  const response = await context.request.get(`${api}/invitations/${list.items[0].id}`);
+  expect(response.status()).toBe(200);
+  expect(Object.keys(await response.json()).sort()).toEqual(['created_at', 'expires_at', 'id', 'note', 'status']);
+  expect((await context.request.get(`${api}/invitations/00000000-0000-0000-0000-000000000000`)).status()).toBe(404);
+  expect((await context.request.get(`${api}/invitations?status=unknown`)).status()).toBe(400);
+  const anonymous = await browser.newContext();
+  try { expect((await anonymous.request.get(`${api}/invitations/${list.items[0].id}`)).status()).toBe(401); }
+  finally { await anonymous.close(); }
+  await page.getByRole('tab', { name: '已撤销 0', exact: true }).click();
+  await page.getByLabel('搜索用途备注').fill('不会匹配新邀请');
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('用途备注').fill('筛选期间创建');
+  await page.getByRole('dialog').getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: '完成', exact: true }).click();
+  await expect(page.getByLabel('搜索用途备注')).toHaveValue('');
+  await expect(page.getByRole('tab', { name: '全部邀请 3', exact: true })).toHaveAttribute('data-state', 'active');
+  await expect(table).toContainText('筛选期间创建');
+});
+
+test('withdrawing write permissions clears the open link while preserving read-only invitation access', async ({ page, account, request, context }) => {
+  await login(page, account); await navigateTo(page, '账号开户邀请');
+  await page.getByRole('button', { name: '创建邀请', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('用途备注').fill('只读保留的记录');
+  await page.getByRole('dialog').getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await expect(page.getByLabel('可手动复制的完整链接')).toBeVisible();
+  const api = new URL('/api/v1', consoleURL).href;
+  const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  const role = (await (await request.get(`${api}/access/roles?q=${encodeURIComponent(`邀请回归_${account.username}`)}`)).json()).items[0];
+  expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead], reason: '验证只读权限与凭证清理' } })).status()).toBe(200);
+  const refreshed = page.waitForResponse((response) => response.url().endsWith('/auth/me'));
+  await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await refreshed;
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByLabel('可手动复制的完整链接')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '创建邀请', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: '只读保留的记录', exact: true }).click();
+  const detail = page.getByRole('dialog');
+  await expect(detail.getByRole('heading', { name: '邀请详情', exact: true })).toBeVisible();
+  await expect(detail.getByRole('button', { name: '重新生成链接', exact: true })).toHaveCount(0);
+  await expect(detail.getByRole('button', { name: '撤销邀请', exact: true })).toHaveCount(0);
+  const guestHeaders = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
+  expect((await context.request.post(`${api}/invitations`, { headers: guestHeaders, data: { note: '禁止创建' } })).status()).toBe(403);
+});

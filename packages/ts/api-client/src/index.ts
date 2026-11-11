@@ -55,6 +55,8 @@ export type Account = components['schemas']['Account'];
 export type AccountHelp = components['schemas']['AccountHelp'];
 export type Session = components['schemas']['Session'];
 export type Invitation = components['schemas']['Invitation'];
+export type InvitationFilter = { cursor?: string; q?: string; status?: Invitation['status'] | '' };
+export type InvitationCounts = components['schemas']['InvitationCounts'];
 export type SecurityEvent = components['schemas']['SecurityEvent'];
 export type LinkResult = components['schemas']['Link'];
 
@@ -229,7 +231,8 @@ function accountMethods(base: string, timeoutMs: number) {
     sessions: (signal?: AbortSignal) => request<Schema<'Sessions'>>('/account/sessions', 'GET', undefined, true, signal),
     revokeSession: (id: string) => request<void>(`/account/sessions/${encodeURIComponent(id)}`, 'DELETE'),
     securityEvents: (cursor = '', signal?: AbortSignal) => request<Schema<'SecurityEvents'>>(`/account/security-events?cursor=${encodeURIComponent(cursor)}`, 'GET', undefined, true, signal),
-    invitations: (cursor = '', signal?: AbortSignal) => request<Schema<'Invitations'>>(`/invitations?cursor=${encodeURIComponent(cursor)}`, 'GET', undefined, true, signal),
+    invitations: (filter: InvitationFilter = {}, signal?: AbortSignal) => request<Schema<'Invitations'>>(`/invitations?${new URLSearchParams({ cursor: filter.cursor ?? '', q: filter.q ?? '', status: filter.status ?? '' })}`, 'GET', undefined, true, signal),
+    invitation: (id: string, signal?: AbortSignal) => request<Invitation>(`/invitations/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
     createInvitation: (note: string) => request<LinkResult>('/invitations', 'POST', { note } satisfies Schema<'InvitationInput'>),
     revokeInvitation: (id: string) => request<void>(`/invitations/${encodeURIComponent(id)}/revoke`, 'POST'),
     regenerateInvitation: (id: string) => request<LinkResult>(`/invitations/${encodeURIComponent(id)}/regenerate`, 'POST'),
