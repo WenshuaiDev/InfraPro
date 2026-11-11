@@ -1,6 +1,6 @@
 # 主分支整合与验收记录
 
-日期：2026-11-11。功能状态：**Awaiting acceptance**。本轮代码整合与自验通过；用户授权自验后推送远端并清理其他工作树和分支，远端同步及清理结果另行记录。自验不代替用户人工验收。
+日期：2026-11-11。功能状态：**Awaiting acceptance**。本轮源码整合、自验、远端推送及其他工作树/分支清理已完成；原有功能的最终人工验收仍待用户确认，自验不代替用户人工验收。
 
 ## 整合方案
 
@@ -55,6 +55,20 @@
 首轮两个桌面失败均发生在旧用例的 `getByLabel('用途备注')`：它同时命中邀请表单与新增的“搜索用途备注”。失败 trace 和最小实际页面探针均复现严格匹配错误（模糊匹配 2 个，精确匹配 1 个）。已将三处测试定位收敛到当前 dialog 内的精确标签，保留账号切换、凭证清理与邀请领取的全部业务断言，没有修改产品行为或放宽测试超时。产品构建未变化，因此复跑全部受影响的账号文件；其余已通过场景不重复运行。
 
 唯一跳过项为手机项目内重复的 `768px breakpoint` 用例；桌面项目中的该用例已实际检查 768/1024/1440px 和明暗主题，手机其余场景全部执行。另人工查看了桌面邀请列表、768px 深色选择器、375px 首页及权限抽屉截图，无裁切或整页横向溢出。
+
+## 远端同步与清理结果
+
+通过验证的代码提交为 `68a68c0`，已正常推送到 `origin/main`，没有强制改写主分支历史。推送后独立查询远端主分支，提交 ID 与本地一致，再执行清理；后续收尾仅修改本文档。
+
+- 已删除三个其他工作树：`1864/InfraPro`、`5695/InfraPro`、`InfraPro-navigation-prototype`，核验原目录均已不存在。`e49a/InfraPro` 已在原资源会话中清理，不重复计数。
+- 已删除六个本地分支：`codex/account-management-redesign`、`codex/project-resource-management`、`codex/workspace-navigation-refactor`、`feature/account-access-console`、`feature/prototype-workspace-navigation`、`feature/tenant-project-engineering`。删除前逐个确认提交已包含于 `main`，使用正常合并分支删除。
+- 已原子删除两个远端功能分支：`feature/account-access-console`、`feature/tenant-project-engineering`。删除时校验其原提交，避免删掉并发推进的新内容；`git ls-remote --heads origin` 仅剩 `main`。
+- 已停止旧导航工作树的独立预览进程，主目录已有开发/验收服务、数据库和账号数据保留。
+- 清理后 `git worktree list` 仅一个主工作树；本地仅 `main`，远端跟踪仅 `origin/main` 和 `origin/HEAD` 别名，源码工作区无未提交改动。
+
+GitHub 将 PR #1 标记为 Merged；原依赖 PR #2 在分支删除后显示 Closed，其源提交 `4e92f95` 及后续全部有效实现已通过本次主分支提交链保留。此处区分 PR 状态和代码包含关系，不把 Closed 写成 Merged。
+
+本机恢复目录包含 `refs-before.bundle`、`pre-cleanup.bundle`、各工作树源码及本机产物归档、SHA-256 清单、分支包含关系、会话索引和 `cleanup.json`。这些恢复材料被 Git 忽略，不形成额外分支或工作树；最终同步结果可用下方 Git 命令独立复核。
 
 ## 人工验收
 
