@@ -8,6 +8,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var ErrTenantDisabled = &Error{Code: "tenant_disabled", Message: "该租户已停用，暂时无法使用。请查看租户状态或联系维护人员。", Status: 403}
+
 var ErrTenantNotFound = &Error{Code: "tenant_not_found", Message: "当前租户不可访问。", Status: 404}
 
 // TenantSnapshotTx deliberately never consults account_roles. Caller holds the authorization lock.
@@ -24,31 +26,14 @@ func TenantSnapshotTx(ctx context.Context, tx pgx.Tx, account, tenant, revision 
 	if e != nil {
 		return "", v, e
 	}
-	rows, e := tx.Query(ctx, `SELECT r.id::text FROM tenant_member_roles mr JOIN roles r ON r.id=mr.role_id WHERE mr.tenant_id=$1 AND mr.membership_id=$2 AND mr.revoked_at IS NULL AND r.binding_scope='tenant' AND r.status='active' AND r.deleted_at IS NULL ORDER BY r.id`, tenant, member)
+	auth, e := TenantAuthorizationTx(ctx, tx, tenant, member, revision)
 	if e != nil {
 		return "", v, e
 	}
-	ids, e := readIDs(rows)
-	if e != nil {
-		return "", v, e
+	if auth.TenantStatus != "active" {
+		return "", v, ErrTenantDisabled
 	}
-	for _, id := range ids {
-		r, e := roleTx(ctx, tx, id)
-		if e != nil {
-			return "", v, e
-		}
-		v.Roles = append(v.Roles, r)
-		for _, p := range r.Permissions {
-			if known(p) {
-				if !slices.Contains(v.Permissions, p) {
-					v.Permissions = append(v.Permissions, p)
-				}
-				v.Sources[p] = append(v.Sources[p], id)
-			}
-		}
-	}
-	slices.Sort(v.Permissions)
-	return member, v, nil
+	return member, auth.Snapshot, nil
 }
 func RequireScopedTx(ctx context.Context, tx pgx.Tx, account string, op Operation, tenant string) error {
 	p, ok := PolicyFor(op)
@@ -67,7 +52,7 @@ func RequireScopedTx(ctx context.Context, tx pgx.Tx, account string, op Operatio
 		}
 		return nil
 	}
-	if op == OpMyTenants {
+	if op == OpTenantAvailability || op == OpMyTenants || op == OpTenantInvitationInspect || op == OpTenantInvitationAccept {
 		return nil
 	}
 	return RequireTx(ctx, tx, account, op)
@@ -86,6 +71,9 @@ func (s *Service) AuthorizeScoped(ctx context.Context, id string, op Operation, 
 	return rev, e
 }
 func ProtectTenantAdministrator(ctx context.Context, tx pgx.Tx, id string) error {
+	if e := ProtectProjectAdministrator(ctx, tx, id, ""); e != nil {
+		return e
+	}
 	var n int
 	e := tx.QueryRow(ctx, `SELECT count(*) FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id AND m.tenant_id=t.id WHERE m.account_id=$1 AND m.status='active' AND EXISTS(SELECT 1 FROM tenant_member_roles mr JOIN roles r ON r.id=mr.role_id JOIN role_permissions rp ON rp.role_id=r.id WHERE mr.membership_id=m.id AND mr.tenant_id=t.id AND mr.revoked_at IS NULL AND r.status='active' AND r.deleted_at IS NULL AND rp.permission_code=$2)`, id, TenantProfileUpdate).Scan(&n)
 	if e != nil {
@@ -97,6 +85,9 @@ func ProtectTenantAdministrator(ctx context.Context, tx pgx.Tx, id string) error
 	return nil
 }
 func AuditTenantAvailability(ctx context.Context, tx pgx.Tx, id string, enabled bool, m Meta) error {
+	if e := AuditProjectAvailability(ctx, tx, id, enabled, m); e != nil {
+		return e
+	}
 	rows, e := tx.Query(ctx, `SELECT t.id::text FROM tenants t JOIN tenant_memberships tm ON tm.id=t.administrator_membership_id WHERE tm.account_id=$1 AND tm.status='active' ORDER BY t.id`, id)
 	if e != nil {
 		return e
@@ -124,7 +115,7 @@ func AuditTenantAvailability(ctx context.Context, tx pgx.Tx, id string, enabled 
 }
 func CheckTenantStructure(ctx context.Context, tx pgx.Tx) error {
 	var broken bool
-	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM tenants t WHERE (SELECT count(*) FROM tenant_memberships m WHERE m.tenant_id=t.id AND m.status='active')<>1 OR NOT EXISTS(SELECT 1 FROM tenant_memberships m JOIN tenant_member_roles mr ON mr.tenant_id=m.tenant_id AND mr.membership_id=m.id JOIN roles r ON r.id=mr.role_id WHERE m.tenant_id=t.id AND m.id=t.administrator_membership_id AND m.status='active' AND mr.revoked_at IS NULL AND r.builtin_key=$1 AND r.status='active' AND r.deleted_at IS NULL))`, TenantAdminKey).Scan(&broken)
+	e := tx.QueryRow(ctx, `SELECT NOT tenant_roles_valid()`).Scan(&broken)
 	if e != nil {
 		return e
 	}

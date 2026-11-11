@@ -57,7 +57,7 @@ func filter(c *gin.Context) access.Filter {
 			limit = n
 		}
 	}
-	return access.Filter{Cursor: c.Query("cursor"), Query: c.Query("q"), Status: c.Query("status"), RoleID: c.Query("role_id"), ObjectID: c.Query("object_id"), ObjectType: c.Query("object_type"), TenantID: c.Query("tenant_id"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), Limit: limit}
+	return access.Filter{Cursor: c.Query("cursor"), Query: c.Query("q"), Status: c.Query("status"), RoleID: c.Query("role_id"), ObjectID: c.Query("object_id"), ObjectType: c.Query("object_type"), TenantID: c.Query("tenant_id"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), Limit: limit, Category: c.Query("category"), Outcome: c.Query("outcome")}
 }
 func Register(r *gin.Engine, s *identity.Service) {
 	a := s.Access()

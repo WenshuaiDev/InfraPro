@@ -100,12 +100,12 @@ func TestCatalogPolicy(t *testing.T) {
 		}
 		codes[p.Code] = true
 	}
-	if len(codes) != 29 {
+	if len(codes) != 90 {
 		t.Fatal(len(codes))
 	}
 	routes := map[string]bool{}
 	for _, p := range access.Policies() {
-		if !slices.Contains([]string{"public", "credential", "authenticated", "permission", "permission_any", "tenant"}, p.Class) {
+		if !slices.Contains([]string{"public", "credential", "authenticated", "permission", "permission_any", "tenant", "project", "project_context"}, p.Class) {
 			t.Fatal("unknown policy class", p.Class)
 		}
 		key := p.Method + " " + p.Path
@@ -131,7 +131,7 @@ func TestIntegrationAuthorizationLifecycle(t *testing.T) {
 	actor := e.Service.AccessActor(p)
 	snap, err := s.Snapshot(ctx, p.Account.ID)
 	must(t, err)
-	if len(snap.Permissions) != 26 {
+	if len(snap.Permissions) != len(access.ManagementCodes()) {
 		t.Fatal(snap)
 	}
 	snap, err = s.Snapshot(ctx, b.Account.ID)

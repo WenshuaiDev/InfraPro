@@ -1,0 +1,3 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { EngineeringPage } from '../../../../features/engineering/page';
+export const Route = createFileRoute('/_authenticated/platform/engineering/$kind')({ validateSearch: (search: Record<string, unknown>): { definition?: string } => ({ definition: typeof search.definition === 'string' && /^[0-9a-f-]{36}$/i.test(search.definition) ? search.definition : undefined }), component: function Page() { const {kind}=Route.useParams(); const { definition } = Route.useSearch(); const navigate = Route.useNavigate(); return <EngineeringPage kind={kind} selected={definition} onSelect={(definition) => void navigate({ search: { definition } })} />; } });

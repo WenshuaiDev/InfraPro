@@ -40,16 +40,21 @@ var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]
 func ValidID(id string) bool { return uuidPattern.MatchString(id) }
 
 type Role struct {
-	ID           string    `json:"id"`
-	BindingScope string    `json:"binding_scope"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	BuiltinKey   string    `json:"builtin_key"`
-	Status       string    `json:"status"`
-	Version      string    `json:"version"`
-	Permissions  []Code    `json:"permission_codes"`
-	AccountCount int       `json:"account_count"`
-	CreatedAt    time.Time `json:"created_at"`
+	OwnerProjectID    string    `json:"owner_project_id"`
+	OwnerTenantID     string    `json:"owner_tenant_id"`
+	SourceRoleID      string    `json:"source_role_id"`
+	SourceRoleVersion string    `json:"source_role_version"`
+	AssignmentPolicy  string    `json:"assignment_policy"`
+	ID                string    `json:"id"`
+	BindingScope      string    `json:"binding_scope"`
+	Name              string    `json:"name"`
+	Description       string    `json:"description"`
+	BuiltinKey        string    `json:"builtin_key"`
+	Status            string    `json:"status"`
+	Version           string    `json:"version"`
+	Permissions       []Code    `json:"permission_codes"`
+	AccountCount      int       `json:"account_count"`
+	CreatedAt         time.Time `json:"created_at"`
 }
 type Snapshot struct {
 	Revision    string            `json:"authorization_revision"`
@@ -70,9 +75,10 @@ type Page[T any] struct {
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }
-type Meta struct{ ActorID, ActorType, IP, UserAgent, RequestID, Reason, TenantID, ActorScope string }
+type Meta struct{ ActorID, ActorType, IP, UserAgent, RequestID, Reason, TenantID, ProjectID, ActorScope string }
 type AuditEvent struct {
 	ID         string         `json:"id"`
+	ProjectID  string         `json:"project_id"`
 	TenantID   string         `json:"tenant_id"`
 	ActorScope string         `json:"actor_scope"`
 	EventType  string         `json:"event_type"`
@@ -85,6 +91,25 @@ type AuditEvent struct {
 	RequestID  string         `json:"request_id"`
 	CreatedAt  time.Time      `json:"created_at"`
 	Details    map[string]any `json:"details"`
+	Display    *AuditDisplay  `json:"display,omitempty"`
+}
+
+// AuditDisplay is a read projection, never a replacement for the persisted event.
+// Historical names take precedence; current-name fallbacks are explicitly marked.
+type AuditDisplay struct {
+	Category         string            `json:"category"`
+	Outcome          string            `json:"outcome"`
+	ActorName        string            `json:"actor_name"`
+	ActorUsername    string            `json:"actor_username"`
+	ActorNameSource  string            `json:"actor_name_source"`
+	TargetName       string            `json:"target_name"`
+	TargetUsername   string            `json:"target_username"`
+	TargetNameSource string            `json:"target_name_source"`
+	TenantName       string            `json:"tenant_name"`
+	SourceIP         string            `json:"source_ip"`
+	UserAgent        string            `json:"user_agent"`
+	PermissionNames  map[string]string `json:"permission_names"`
+	RoleNames        map[string]string `json:"role_names"`
 }
 
 func denied(err error) bool { return errors.Is(err, ErrDenied) || errors.Is(err, ErrScope) }

@@ -13,9 +13,23 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type Service struct{ access *access.Service }
+type Options struct {
+	ConsoleURL      string
+	Limit           func(context.Context, string, string, int) error
+	CredentialLimit func(context.Context, string, string, string) error
+}
+type Service struct {
+	access  *access.Service
+	options Options
+}
 
-func New(a *access.Service) *Service { return &Service{access: a} }
+func New(a *access.Service, options ...Options) *Service {
+	s := &Service{access: a}
+	if len(options) > 0 {
+		s.options = options[0]
+	}
+	return s
+}
 
 // All entry points revalidate the operation and the live session in the business transaction.
 func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operation, tenant, target string, fn func(pgx.Tx, string) error) error {
@@ -28,19 +42,20 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 		if e != nil {
 			return e
 		}
-		if e = access.RequireScopedTx(ctx, tx, a.ID, op, tenant); e != nil {
-			return e
-		}
-		if target != "" && !access.ValidID(target) {
+		credential := op == access.OpTenantInvitationInspect || op == access.OpTenantInvitationAccept
+		if target != "" && !credential && !access.ValidID(target) {
 			return errAdmin
 		}
 		// Graph writers discover the old account only after obtaining the exclusive graph lock.
-		rows, e := tx.Query(ctx, `SELECT id::text FROM accounts WHERE id::text=$1 OR id::text=$2 OR ($3<>'' AND id IN(SELECT m.account_id FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id WHERE t.id::text=$3)) ORDER BY id FOR UPDATE`, a.ID, target, func() string {
+		rows, e := tx.Query(ctx, `SELECT id::text FROM accounts WHERE id::text=$1 OR id::text=$2
+ OR id IN(SELECT account_id FROM tenant_memberships WHERE tenant_id::text=$3 AND id::text=$2)
+ OR id IN(SELECT unnest(ARRAY[target_account_id,inviter_account_id]) FROM tenant_invitations WHERE (tenant_id::text=$3 AND id::text=$2) OR ($4 AND token_hash=$2))
+ OR ($3<>'' AND id IN(SELECT m.account_id FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id WHERE t.id::text=$3)) ORDER BY id FOR UPDATE`, a.ID, target, func() string {
 			if p.ChangesGraph {
 				return tenant
 			}
 			return ""
-		}())
+		}(), credential)
 		if e != nil {
 			return e
 		}
@@ -54,6 +69,9 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 		if e = a.Check(ctx, tx, p.Recent); e != nil {
 			return e
 		}
+		if e = access.RequireScopedTx(ctx, tx, a.ID, op, tenant); e != nil {
+			return e
+		}
 		return fn(tx, rev)
 	})
 	s.access.LogDenial(op, a.ID, e)
@@ -61,7 +79,16 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 	if errors.As(e, &pe) {
 		switch pe.Code {
 		case "23505":
-			return errCode
+			switch pe.ConstraintName {
+			case "tenants_code_key", "tenant_codes_pkey":
+				return errCode
+			case "tenant_one_current_member":
+				return problem("member_already_exists", "该账号已有当前成员关系。", 409)
+			case "tenant_invitation_pending":
+				return errPending
+			default:
+				return access.ErrConflict
+			}
 		case "55P03", "57014", "40P01":
 			return problem("operation_busy", "操作繁忙，请稍后核实结果后重试。", 503)
 		default:
@@ -94,7 +121,7 @@ func activeAccount(ctx context.Context, tx pgx.Tx, id string) error {
 	return e
 }
 func bind(ctx context.Context, tx pgx.Tx, tenant, member, account, actor string) error {
-	if _, e := tx.Exec(ctx, `INSERT INTO tenant_memberships(id,tenant_id,account_id,joined_by) VALUES($1,$2,$3,$4)`, member, tenant, account, actor); e != nil {
+	if _, e := tx.Exec(ctx, `INSERT INTO tenant_memberships(id,tenant_id,account_id,joined_by,status_changed_by) VALUES($1,$2,$3,$4,$4)`, member, tenant, account, actor); e != nil {
 		return e
 	}
 	var role string
@@ -255,17 +282,43 @@ func (s *Service) Transfer(ctx context.Context, a access.Actor, id string, in Tr
 		if e = activeAccount(ctx, tx, in.AdministratorID); e != nil {
 			return e
 		}
-		if _, e = tx.Exec(ctx, `UPDATE tenant_member_roles SET revoked_at=now(),revoked_by=$2 WHERE membership_id=$1 AND revoked_at IS NULL`, old.MembershipID, a.ID); e != nil {
+		var member, status string
+		e = tx.QueryRow(ctx, `SELECT id::text,status FROM tenant_memberships WHERE tenant_id=$1 AND account_id=$2 AND status IN ('active','suspended')`, id, in.AdministratorID).Scan(&member, &status)
+		if e != nil && e != pgx.ErrNoRows {
 			return e
 		}
-		if _, e = tx.Exec(ctx, `UPDATE tenant_memberships SET status='ended',ended_at=now(),ended_by=$2,end_reason=$3 WHERE id=$1`, old.MembershipID, a.ID, strings.TrimSpace(in.Reason)); e != nil {
+		if status == "suspended" {
+			return problem("administrator_membership_suspended", "接任成员已暂停，请先恢复或另选账号。", 409)
+		}
+		reused := member != ""
+		if e = access.RepairProjectParentTx(ctx, tx, old.MembershipID, in.ProjectPreviewHash, in.ConfirmProjectImpact, meta(a, m, id, in.Reason, "platform")); e != nil {
 			return e
 		}
-		var member string
-		if e = tx.QueryRow(ctx, `SELECT gen_random_uuid()::text`).Scan(&member); e != nil {
+		if e = changeMemberTx(ctx, tx, id, old.MembershipID, "ended", a.ID, strings.TrimSpace(in.Reason)); e != nil {
 			return e
 		}
-		if e = bind(ctx, tx, id, member, in.AdministratorID, a.ID); e != nil {
+		if e = access.InvalidateTenantInvitations(ctx, tx, access.InvitationRevocation{InviterMembershipID: old.MembershipID}, meta(a, m, id, "administrator_transferred", "platform")); e != nil {
+			return e
+		}
+		if reused {
+			if _, e = tx.Exec(ctx, `UPDATE tenant_member_roles SET revoked_at=clock_timestamp(),revoked_by=$2 WHERE membership_id=$1 AND revoked_at IS NULL`, member, a.ID); e != nil {
+				return e
+			}
+			if _, e = tx.Exec(ctx, `INSERT INTO tenant_member_roles(tenant_id,membership_id,role_id,assigned_by) SELECT $1,$2,id,$3 FROM roles WHERE builtin_key=$4`, id, member, a.ID, access.TenantAdminKey); e != nil {
+				return e
+			}
+			if e = changeMemberTx(ctx, tx, id, member, "active", a.ID, strings.TrimSpace(in.Reason)); e != nil {
+				return e
+			}
+		} else {
+			if e = tx.QueryRow(ctx, `SELECT gen_random_uuid()::text`).Scan(&member); e != nil {
+				return e
+			}
+			if e = bind(ctx, tx, id, member, in.AdministratorID, a.ID); e != nil {
+				return e
+			}
+		}
+		if e = access.InvalidateTenantInvitations(ctx, tx, access.InvitationRevocation{AccountID: in.AdministratorID, AppointedTenantID: id}, meta(a, m, id, "administrator_appointed", "platform")); e != nil {
 			return e
 		}
 		if _, e = tx.Exec(ctx, `UPDATE tenants SET administrator_membership_id=$2,version=version+1,updated_by=$3,updated_at=now() WHERE id=$1`, id, member, a.ID); e != nil {
@@ -278,11 +331,33 @@ func (s *Service) Transfer(ctx context.Context, a access.Actor, id string, in Tr
 		if e != nil {
 			return e
 		}
-		if e = access.Audit(ctx, tx, "tenant.administrator.transferred", "tenant", id, "", old, v, meta(a, m, id, in.Reason, "platform")); e != nil {
+		if e = access.Audit(ctx, tx, "tenant.administrator.transferred", "tenant", id, "", old, map[string]any{"tenant": v, "membership_reused": reused}, meta(a, m, id, in.Reason, "platform")); e != nil {
 			return e
 		}
 		out, e = result(ctx, tx, id, false)
 		return e
+	})
+	return out, e
+}
+
+// PreviewTransfer exposes only the governance impact of ending the old tenant relation.
+func (s *Service) PreviewTransfer(ctx context.Context, a access.Actor, id string) (map[string]any, error) {
+	var out map[string]any
+	e := s.transact(ctx, a, access.OpTenantTransferPreview, id, "", func(tx pgx.Tx, _ string) error {
+		old, e := tenantTx(ctx, tx, id, false)
+		if e != nil {
+			return e
+		}
+		impacts, hash, e := access.ProjectParentImpactTx(ctx, tx, old.MembershipID)
+		if e != nil {
+			return e
+		}
+		var disabled bool
+		if e = tx.QueryRow(ctx, `SELECT status='disabled' FROM accounts WHERE id=$1`, old.Administrator.ID).Scan(&disabled); e != nil {
+			return e
+		}
+		out = map[string]any{"projects": impacts, "project_preview_hash": hash, "requires_confirmation": disabled && len(impacts) > 0, "expected_version": old.Version, "administrator_disabled": disabled}
+		return nil
 	})
 	return out, e
 }

@@ -14,8 +14,10 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTenantsRouteImport } from './routes/_authenticated/tenants'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
+import { Route as AuthTenantInviteRouteImport } from './routes/_auth/tenant-invite'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthInviteRouteImport } from './routes/_auth/invite'
@@ -26,9 +28,34 @@ import { Route as AuthenticatedAccessPermissionsRouteImport } from './routes/_au
 import { Route as AuthenticatedAccessAuditRouteImport } from './routes/_authenticated/access/audit'
 import { Route as AuthenticatedAccessAccountsRouteImport } from './routes/_authenticated/access/accounts'
 import { Route as AuthenticatedPlatformTenantsIndexRouteImport } from './routes/_authenticated/platform/tenants/index'
+import { Route as AuthenticatedTTenantIdRolesRouteImport } from './routes/_authenticated/t/$tenantId/roles'
 import { Route as AuthenticatedTTenantIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/profile'
+import { Route as AuthenticatedTTenantIdPermissionsRouteImport } from './routes/_authenticated/t/$tenantId/permissions'
 import { Route as AuthenticatedTTenantIdAuditRouteImport } from './routes/_authenticated/t/$tenantId/audit'
 import { Route as AuthenticatedPlatformTenantsTenantIdRouteImport } from './routes/_authenticated/platform/tenants/$tenantId'
+import { Route as AuthenticatedPlatformEngineeringKindRouteImport } from './routes/_authenticated/platform/engineering/$kind'
+import { Route as AuthenticatedTTenantIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/roles/index'
+import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './routes/_authenticated/t/$tenantId/projects/index'
+import { Route as AuthenticatedTTenantIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/members/index'
+import { Route as AuthenticatedTTenantIdInvitationsIndexRouteImport } from './routes/_authenticated/t/$tenantId/invitations/index'
+import { Route as AuthenticatedTTenantIdRolesRoleIdRouteImport } from './routes/_authenticated/t/$tenantId/roles/$roleId'
+import { Route as AuthenticatedTTenantIdProjectsNewRouteImport } from './routes/_authenticated/t/$tenantId/projects/new'
+import { Route as AuthenticatedTTenantIdProjectsProjectIdRouteImport } from './routes/_authenticated/t/$tenantId/projects/$projectId'
+import { Route as AuthenticatedTTenantIdPProjectIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId'
+import { Route as AuthenticatedTTenantIdMembersMembershipIdRouteImport } from './routes/_authenticated/t/$tenantId/members/$membershipId'
+import { Route as AuthenticatedTTenantIdInvitationsInvitationIdRouteImport } from './routes/_authenticated/t/$tenantId/invitations/$invitationId'
+import { Route as AuthenticatedTTenantIdEngineeringTemplatesRouteImport } from './routes/_authenticated/t/$tenantId/engineering/templates'
+import { Route as AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/index'
+import { Route as AuthenticatedTTenantIdPProjectIdIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/index'
+import { Route as AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/$facilityId'
+import { Route as AuthenticatedTTenantIdPProjectIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/profile'
+import { Route as AuthenticatedTTenantIdPProjectIdPermissionsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/permissions'
+import { Route as AuthenticatedTTenantIdPProjectIdAuditRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/audit'
+import { Route as AuthenticatedTTenantIdEngineeringCatalogKindRouteImport } from './routes/_authenticated/t/$tenantId/engineering/catalog/$kind'
+import { Route as AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/index'
+import { Route as AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/index'
+import { Route as AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+import { Route as AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -53,6 +80,11 @@ const AuthenticatedSecurityRoute = AuthenticatedSecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -64,6 +96,11 @@ const AuthenticatedInvitationsRoute =
     path: '/invitations',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthTenantInviteRoute = AuthTenantInviteRouteImport.update({
+  id: '/tenant-invite',
+  path: '/tenant-invite',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -119,10 +156,22 @@ const AuthenticatedPlatformTenantsIndexRoute =
     path: '/platform/tenants/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTTenantIdRolesRoute =
+  AuthenticatedTTenantIdRolesRouteImport.update({
+    id: '/roles',
+    path: '/roles',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdProfileRoute =
   AuthenticatedTTenantIdProfileRouteImport.update({
     id: '/profile',
     path: '/profile',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPermissionsRoute =
+  AuthenticatedTTenantIdPermissionsRouteImport.update({
+    id: '/permissions',
+    path: '/permissions',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
 const AuthenticatedTTenantIdAuditRoute =
@@ -137,6 +186,144 @@ const AuthenticatedPlatformTenantsTenantIdRoute =
     path: '/platform/tenants/$tenantId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlatformEngineeringKindRoute =
+  AuthenticatedPlatformEngineeringKindRouteImport.update({
+    id: '/platform/engineering/$kind',
+    path: '/platform/engineering/$kind',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTTenantIdRolesIndexRoute =
+  AuthenticatedTTenantIdRolesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTTenantIdRolesRoute,
+  } as any)
+const AuthenticatedTTenantIdProjectsIndexRoute =
+  AuthenticatedTTenantIdProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdMembersIndexRoute =
+  AuthenticatedTTenantIdMembersIndexRouteImport.update({
+    id: '/members/',
+    path: '/members/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdInvitationsIndexRoute =
+  AuthenticatedTTenantIdInvitationsIndexRouteImport.update({
+    id: '/invitations/',
+    path: '/invitations/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdRolesRoleIdRoute =
+  AuthenticatedTTenantIdRolesRoleIdRouteImport.update({
+    id: '/$roleId',
+    path: '/$roleId',
+    getParentRoute: () => AuthenticatedTTenantIdRolesRoute,
+  } as any)
+const AuthenticatedTTenantIdProjectsNewRoute =
+  AuthenticatedTTenantIdProjectsNewRouteImport.update({
+    id: '/projects/new',
+    path: '/projects/new',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdProjectsProjectIdRoute =
+  AuthenticatedTTenantIdProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdRoute =
+  AuthenticatedTTenantIdPProjectIdRouteImport.update({
+    id: '/p/$projectId',
+    path: '/p/$projectId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdMembersMembershipIdRoute =
+  AuthenticatedTTenantIdMembersMembershipIdRouteImport.update({
+    id: '/members/$membershipId',
+    path: '/members/$membershipId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdInvitationsInvitationIdRoute =
+  AuthenticatedTTenantIdInvitationsInvitationIdRouteImport.update({
+    id: '/invitations/$invitationId',
+    path: '/invitations/$invitationId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdEngineeringTemplatesRoute =
+  AuthenticatedTTenantIdEngineeringTemplatesRouteImport.update({
+    id: '/engineering/templates',
+    path: '/engineering/templates',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdResourcesFacilitiesIndexRoute =
+  AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport.update({
+    id: '/resources/facilities/',
+    path: '/resources/facilities/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdIndexRoute =
+  AuthenticatedTTenantIdPProjectIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute =
+  AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport.update({
+    id: '/resources/facilities/$facilityId',
+    path: '/resources/facilities/$facilityId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdProfileRoute =
+  AuthenticatedTTenantIdPProjectIdProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdPermissionsRoute =
+  AuthenticatedTTenantIdPProjectIdPermissionsRouteImport.update({
+    id: '/permissions',
+    path: '/permissions',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdAuditRoute =
+  AuthenticatedTTenantIdPProjectIdAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdEngineeringCatalogKindRoute =
+  AuthenticatedTTenantIdEngineeringCatalogKindRouteImport.update({
+    id: '/engineering/catalog/$kind',
+    path: '/engineering/catalog/$kind',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdRolesIndexRoute =
+  AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport.update({
+    id: '/roles/',
+    path: '/roles/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdMembersIndexRoute =
+  AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport.update({
+    id: '/members/',
+    path: '/members/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute =
+  AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport.update({
+    id: '/roles/$roleId',
+    path: '/roles/$roleId',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute =
+  AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport.update({
+    id: '/members/$membershipId',
+    path: '/members/$membershipId',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -144,8 +331,10 @@ export interface FileRoutesByFullPath {
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/tenant-invite': typeof AuthTenantInviteRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/projects': typeof AuthenticatedProjectsRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/tenants': typeof AuthenticatedTenantsRoute
   '/access/accounts': typeof AuthenticatedAccessAccountsRoute
@@ -153,10 +342,35 @@ export interface FileRoutesByFullPath {
   '/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/platform/engineering/$kind': typeof AuthenticatedPlatformEngineeringKindRoute
   '/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
   '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
+  '/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesRouteWithChildren
   '/platform/tenants/': typeof AuthenticatedPlatformTenantsIndexRoute
+  '/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
+  '/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
+  '/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
+  '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
+  '/t/$tenantId/roles/$roleId': typeof AuthenticatedTTenantIdRolesRoleIdRoute
+  '/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
+  '/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
+  '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
+  '/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
+  '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
+  '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
+  '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
@@ -164,8 +378,10 @@ export interface FileRoutesByTo {
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
   '/reset-password': typeof AuthResetPasswordRoute
+  '/tenant-invite': typeof AuthTenantInviteRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/projects': typeof AuthenticatedProjectsRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/tenants': typeof AuthenticatedTenantsRoute
   '/access/accounts': typeof AuthenticatedAccessAccountsRoute
@@ -173,10 +389,33 @@ export interface FileRoutesByTo {
   '/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/platform/engineering/$kind': typeof AuthenticatedPlatformEngineeringKindRoute
   '/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
   '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
   '/platform/tenants': typeof AuthenticatedPlatformTenantsIndexRoute
+  '/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
+  '/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
+  '/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
+  '/t/$tenantId/roles/$roleId': typeof AuthenticatedTTenantIdRolesRoleIdRoute
+  '/t/$tenantId/invitations': typeof AuthenticatedTTenantIdInvitationsIndexRoute
+  '/t/$tenantId/members': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/t/$tenantId/projects': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesIndexRoute
+  '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
+  '/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
+  '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
+  '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/t/$tenantId/resources/facilities': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
+  '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/t/$tenantId/p/$projectId/members': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/t/$tenantId/p/$projectId/roles': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,8 +425,10 @@ export interface FileRoutesById {
   '/_auth/invite': typeof AuthInviteRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
+  '/_auth/tenant-invite': typeof AuthTenantInviteRoute
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/tenants': typeof AuthenticatedTenantsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -196,10 +437,35 @@ export interface FileRoutesById {
   '/_authenticated/access/permissions': typeof AuthenticatedAccessPermissionsRoute
   '/_authenticated/access/roles': typeof AuthenticatedAccessRolesRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/_authenticated/platform/engineering/$kind': typeof AuthenticatedPlatformEngineeringKindRoute
   '/_authenticated/platform/tenants/$tenantId': typeof AuthenticatedPlatformTenantsTenantIdRoute
   '/_authenticated/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
+  '/_authenticated/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/_authenticated/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
+  '/_authenticated/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesRouteWithChildren
   '/_authenticated/platform/tenants/': typeof AuthenticatedPlatformTenantsIndexRoute
+  '/_authenticated/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
+  '/_authenticated/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
+  '/_authenticated/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
+  '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/_authenticated/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
+  '/_authenticated/t/$tenantId/roles/$roleId': typeof AuthenticatedTTenantIdRolesRoleIdRoute
+  '/_authenticated/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
+  '/_authenticated/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/_authenticated/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/_authenticated/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
+  '/_authenticated/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/_authenticated/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
+  '/_authenticated/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
+  '/_authenticated/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
+  '/_authenticated/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/_authenticated/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
+  '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/_authenticated/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,8 +475,10 @@ export interface FileRouteTypes {
     | '/invite'
     | '/login'
     | '/reset-password'
+    | '/tenant-invite'
     | '/invitations'
     | '/profile'
+    | '/projects'
     | '/security'
     | '/tenants'
     | '/access/accounts'
@@ -218,10 +486,35 @@ export interface FileRouteTypes {
     | '/access/permissions'
     | '/access/roles'
     | '/t/$tenantId'
+    | '/platform/engineering/$kind'
     | '/platform/tenants/$tenantId'
     | '/t/$tenantId/audit'
+    | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
+    | '/t/$tenantId/roles'
     | '/platform/tenants/'
+    | '/t/$tenantId/engineering/templates'
+    | '/t/$tenantId/invitations/$invitationId'
+    | '/t/$tenantId/members/$membershipId'
+    | '/t/$tenantId/p/$projectId'
+    | '/t/$tenantId/projects/$projectId'
+    | '/t/$tenantId/projects/new'
+    | '/t/$tenantId/roles/$roleId'
+    | '/t/$tenantId/invitations/'
+    | '/t/$tenantId/members/'
+    | '/t/$tenantId/projects/'
+    | '/t/$tenantId/roles/'
+    | '/t/$tenantId/engineering/catalog/$kind'
+    | '/t/$tenantId/p/$projectId/audit'
+    | '/t/$tenantId/p/$projectId/permissions'
+    | '/t/$tenantId/p/$projectId/profile'
+    | '/t/$tenantId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId/'
+    | '/t/$tenantId/resources/facilities/'
+    | '/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/t/$tenantId/p/$projectId/members/'
+    | '/t/$tenantId/p/$projectId/roles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -229,8 +522,10 @@ export interface FileRouteTypes {
     | '/invite'
     | '/login'
     | '/reset-password'
+    | '/tenant-invite'
     | '/invitations'
     | '/profile'
+    | '/projects'
     | '/security'
     | '/tenants'
     | '/access/accounts'
@@ -238,10 +533,33 @@ export interface FileRouteTypes {
     | '/access/permissions'
     | '/access/roles'
     | '/t/$tenantId'
+    | '/platform/engineering/$kind'
     | '/platform/tenants/$tenantId'
     | '/t/$tenantId/audit'
+    | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
     | '/platform/tenants'
+    | '/t/$tenantId/engineering/templates'
+    | '/t/$tenantId/invitations/$invitationId'
+    | '/t/$tenantId/members/$membershipId'
+    | '/t/$tenantId/projects/$projectId'
+    | '/t/$tenantId/projects/new'
+    | '/t/$tenantId/roles/$roleId'
+    | '/t/$tenantId/invitations'
+    | '/t/$tenantId/members'
+    | '/t/$tenantId/projects'
+    | '/t/$tenantId/roles'
+    | '/t/$tenantId/engineering/catalog/$kind'
+    | '/t/$tenantId/p/$projectId/audit'
+    | '/t/$tenantId/p/$projectId/permissions'
+    | '/t/$tenantId/p/$projectId/profile'
+    | '/t/$tenantId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId'
+    | '/t/$tenantId/resources/facilities'
+    | '/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/t/$tenantId/p/$projectId/members'
+    | '/t/$tenantId/p/$projectId/roles'
   id:
     | '__root__'
     | '/_auth'
@@ -250,8 +568,10 @@ export interface FileRouteTypes {
     | '/_auth/invite'
     | '/_auth/login'
     | '/_auth/reset-password'
+    | '/_auth/tenant-invite'
     | '/_authenticated/invitations'
     | '/_authenticated/profile'
+    | '/_authenticated/projects'
     | '/_authenticated/security'
     | '/_authenticated/tenants'
     | '/_authenticated/'
@@ -260,10 +580,35 @@ export interface FileRouteTypes {
     | '/_authenticated/access/permissions'
     | '/_authenticated/access/roles'
     | '/_authenticated/t/$tenantId'
+    | '/_authenticated/platform/engineering/$kind'
     | '/_authenticated/platform/tenants/$tenantId'
     | '/_authenticated/t/$tenantId/audit'
+    | '/_authenticated/t/$tenantId/permissions'
     | '/_authenticated/t/$tenantId/profile'
+    | '/_authenticated/t/$tenantId/roles'
     | '/_authenticated/platform/tenants/'
+    | '/_authenticated/t/$tenantId/engineering/templates'
+    | '/_authenticated/t/$tenantId/invitations/$invitationId'
+    | '/_authenticated/t/$tenantId/members/$membershipId'
+    | '/_authenticated/t/$tenantId/p/$projectId'
+    | '/_authenticated/t/$tenantId/projects/$projectId'
+    | '/_authenticated/t/$tenantId/projects/new'
+    | '/_authenticated/t/$tenantId/roles/$roleId'
+    | '/_authenticated/t/$tenantId/invitations/'
+    | '/_authenticated/t/$tenantId/members/'
+    | '/_authenticated/t/$tenantId/projects/'
+    | '/_authenticated/t/$tenantId/roles/'
+    | '/_authenticated/t/$tenantId/engineering/catalog/$kind'
+    | '/_authenticated/t/$tenantId/p/$projectId/audit'
+    | '/_authenticated/t/$tenantId/p/$projectId/permissions'
+    | '/_authenticated/t/$tenantId/p/$projectId/profile'
+    | '/_authenticated/t/$tenantId/resources/facilities/$facilityId'
+    | '/_authenticated/t/$tenantId/p/$projectId/'
+    | '/_authenticated/t/$tenantId/resources/facilities/'
+    | '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/_authenticated/t/$tenantId/p/$projectId/members/'
+    | '/_authenticated/t/$tenantId/p/$projectId/roles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSecurityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -321,6 +673,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/invitations'
       preLoaderRoute: typeof AuthenticatedInvitationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_auth/tenant-invite': {
+      id: '/_auth/tenant-invite'
+      path: '/tenant-invite'
+      fullPath: '/tenant-invite'
+      preLoaderRoute: typeof AuthTenantInviteRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_auth/reset-password': {
       id: '/_auth/reset-password'
@@ -392,11 +751,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlatformTenantsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/t/$tenantId/roles': {
+      id: '/_authenticated/t/$tenantId/roles'
+      path: '/roles'
+      fullPath: '/t/$tenantId/roles'
+      preLoaderRoute: typeof AuthenticatedTTenantIdRolesRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/profile': {
       id: '/_authenticated/t/$tenantId/profile'
       path: '/profile'
       fullPath: '/t/$tenantId/profile'
       preLoaderRoute: typeof AuthenticatedTTenantIdProfileRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/permissions': {
+      id: '/_authenticated/t/$tenantId/permissions'
+      path: '/permissions'
+      fullPath: '/t/$tenantId/permissions'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPermissionsRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
     '/_authenticated/t/$tenantId/audit': {
@@ -413,6 +786,167 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlatformTenantsTenantIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/platform/engineering/$kind': {
+      id: '/_authenticated/platform/engineering/$kind'
+      path: '/platform/engineering/$kind'
+      fullPath: '/platform/engineering/$kind'
+      preLoaderRoute: typeof AuthenticatedPlatformEngineeringKindRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/t/$tenantId/roles/': {
+      id: '/_authenticated/t/$tenantId/roles/'
+      path: '/'
+      fullPath: '/t/$tenantId/roles/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRolesRoute
+    }
+    '/_authenticated/t/$tenantId/projects/': {
+      id: '/_authenticated/t/$tenantId/projects/'
+      path: '/projects'
+      fullPath: '/t/$tenantId/projects/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/members/': {
+      id: '/_authenticated/t/$tenantId/members/'
+      path: '/members'
+      fullPath: '/t/$tenantId/members/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMembersIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/invitations/': {
+      id: '/_authenticated/t/$tenantId/invitations/'
+      path: '/invitations'
+      fullPath: '/t/$tenantId/invitations/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdInvitationsIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/roles/$roleId': {
+      id: '/_authenticated/t/$tenantId/roles/$roleId'
+      path: '/$roleId'
+      fullPath: '/t/$tenantId/roles/$roleId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdRolesRoleIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRolesRoute
+    }
+    '/_authenticated/t/$tenantId/projects/new': {
+      id: '/_authenticated/t/$tenantId/projects/new'
+      path: '/projects/new'
+      fullPath: '/t/$tenantId/projects/new'
+      preLoaderRoute: typeof AuthenticatedTTenantIdProjectsNewRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/projects/$projectId': {
+      id: '/_authenticated/t/$tenantId/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/t/$tenantId/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId'
+      path: '/p/$projectId'
+      fullPath: '/t/$tenantId/p/$projectId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/members/$membershipId': {
+      id: '/_authenticated/t/$tenantId/members/$membershipId'
+      path: '/members/$membershipId'
+      fullPath: '/t/$tenantId/members/$membershipId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMembersMembershipIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/invitations/$invitationId': {
+      id: '/_authenticated/t/$tenantId/invitations/$invitationId'
+      path: '/invitations/$invitationId'
+      fullPath: '/t/$tenantId/invitations/$invitationId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdInvitationsInvitationIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/engineering/templates': {
+      id: '/_authenticated/t/$tenantId/engineering/templates'
+      path: '/engineering/templates'
+      fullPath: '/t/$tenantId/engineering/templates'
+      preLoaderRoute: typeof AuthenticatedTTenantIdEngineeringTemplatesRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/resources/facilities/': {
+      id: '/_authenticated/t/$tenantId/resources/facilities/'
+      path: '/resources/facilities'
+      fullPath: '/t/$tenantId/resources/facilities/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/'
+      path: '/'
+      fullPath: '/t/$tenantId/p/$projectId/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/resources/facilities/$facilityId': {
+      id: '/_authenticated/t/$tenantId/resources/facilities/$facilityId'
+      path: '/resources/facilities/$facilityId'
+      fullPath: '/t/$tenantId/resources/facilities/$facilityId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/profile': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/profile'
+      path: '/profile'
+      fullPath: '/t/$tenantId/p/$projectId/profile'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdProfileRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/permissions': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/permissions'
+      path: '/permissions'
+      fullPath: '/t/$tenantId/p/$projectId/permissions'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdPermissionsRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/audit': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/audit'
+      path: '/audit'
+      fullPath: '/t/$tenantId/p/$projectId/audit'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdAuditRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/engineering/catalog/$kind': {
+      id: '/_authenticated/t/$tenantId/engineering/catalog/$kind'
+      path: '/engineering/catalog/$kind'
+      fullPath: '/t/$tenantId/engineering/catalog/$kind'
+      preLoaderRoute: typeof AuthenticatedTTenantIdEngineeringCatalogKindRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/roles/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/roles/'
+      path: '/roles'
+      fullPath: '/t/$tenantId/p/$projectId/roles/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/members/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/members/'
+      path: '/members'
+      fullPath: '/t/$tenantId/p/$projectId/members/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+      path: '/roles/$roleId'
+      fullPath: '/t/$tenantId/p/$projectId/roles/$roleId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
+      path: '/members/$membershipId'
+      fullPath: '/t/$tenantId/p/$projectId/members/$membershipId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
   }
 }
 
@@ -421,6 +955,7 @@ interface AuthRouteRouteChildren {
   AuthInviteRoute: typeof AuthInviteRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthTenantInviteRoute: typeof AuthTenantInviteRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -428,21 +963,118 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthInviteRoute: AuthInviteRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthTenantInviteRoute: AuthTenantInviteRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface AuthenticatedTTenantIdRolesRouteChildren {
+  AuthenticatedTTenantIdRolesRoleIdRoute: typeof AuthenticatedTTenantIdRolesRoleIdRoute
+  AuthenticatedTTenantIdRolesIndexRoute: typeof AuthenticatedTTenantIdRolesIndexRoute
+}
+
+const AuthenticatedTTenantIdRolesRouteChildren: AuthenticatedTTenantIdRolesRouteChildren =
+  {
+    AuthenticatedTTenantIdRolesRoleIdRoute:
+      AuthenticatedTTenantIdRolesRoleIdRoute,
+    AuthenticatedTTenantIdRolesIndexRoute:
+      AuthenticatedTTenantIdRolesIndexRoute,
+  }
+
+const AuthenticatedTTenantIdRolesRouteWithChildren =
+  AuthenticatedTTenantIdRolesRoute._addFileChildren(
+    AuthenticatedTTenantIdRolesRouteChildren,
+  )
+
+interface AuthenticatedTTenantIdPProjectIdRouteChildren {
+  AuthenticatedTTenantIdPProjectIdAuditRoute: typeof AuthenticatedTTenantIdPProjectIdAuditRoute
+  AuthenticatedTTenantIdPProjectIdPermissionsRoute: typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
+  AuthenticatedTTenantIdPProjectIdProfileRoute: typeof AuthenticatedTTenantIdPProjectIdProfileRoute
+  AuthenticatedTTenantIdPProjectIdIndexRoute: typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute: typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  AuthenticatedTTenantIdPProjectIdMembersIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  AuthenticatedTTenantIdPProjectIdRolesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+}
+
+const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProjectIdRouteChildren =
+  {
+    AuthenticatedTTenantIdPProjectIdAuditRoute:
+      AuthenticatedTTenantIdPProjectIdAuditRoute,
+    AuthenticatedTTenantIdPProjectIdPermissionsRoute:
+      AuthenticatedTTenantIdPProjectIdPermissionsRoute,
+    AuthenticatedTTenantIdPProjectIdProfileRoute:
+      AuthenticatedTTenantIdPProjectIdProfileRoute,
+    AuthenticatedTTenantIdPProjectIdIndexRoute:
+      AuthenticatedTTenantIdPProjectIdIndexRoute,
+    AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute:
+      AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute,
+    AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute:
+      AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute,
+    AuthenticatedTTenantIdPProjectIdMembersIndexRoute:
+      AuthenticatedTTenantIdPProjectIdMembersIndexRoute,
+    AuthenticatedTTenantIdPProjectIdRolesIndexRoute:
+      AuthenticatedTTenantIdPProjectIdRolesIndexRoute,
+  }
+
+const AuthenticatedTTenantIdPProjectIdRouteWithChildren =
+  AuthenticatedTTenantIdPProjectIdRoute._addFileChildren(
+    AuthenticatedTTenantIdPProjectIdRouteChildren,
+  )
+
 interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdAuditRoute: typeof AuthenticatedTTenantIdAuditRoute
+  AuthenticatedTTenantIdPermissionsRoute: typeof AuthenticatedTTenantIdPermissionsRoute
   AuthenticatedTTenantIdProfileRoute: typeof AuthenticatedTTenantIdProfileRoute
+  AuthenticatedTTenantIdRolesRoute: typeof AuthenticatedTTenantIdRolesRouteWithChildren
+  AuthenticatedTTenantIdEngineeringTemplatesRoute: typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
+  AuthenticatedTTenantIdInvitationsInvitationIdRoute: typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
+  AuthenticatedTTenantIdMembersMembershipIdRoute: typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  AuthenticatedTTenantIdPProjectIdRoute: typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
+  AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  AuthenticatedTTenantIdProjectsNewRoute: typeof AuthenticatedTTenantIdProjectsNewRoute
+  AuthenticatedTTenantIdInvitationsIndexRoute: typeof AuthenticatedTTenantIdInvitationsIndexRoute
+  AuthenticatedTTenantIdMembersIndexRoute: typeof AuthenticatedTTenantIdMembersIndexRoute
+  AuthenticatedTTenantIdProjectsIndexRoute: typeof AuthenticatedTTenantIdProjectsIndexRoute
+  AuthenticatedTTenantIdEngineeringCatalogKindRoute: typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
 }
 
 const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
   {
     AuthenticatedTTenantIdAuditRoute: AuthenticatedTTenantIdAuditRoute,
+    AuthenticatedTTenantIdPermissionsRoute:
+      AuthenticatedTTenantIdPermissionsRoute,
     AuthenticatedTTenantIdProfileRoute: AuthenticatedTTenantIdProfileRoute,
+    AuthenticatedTTenantIdRolesRoute:
+      AuthenticatedTTenantIdRolesRouteWithChildren,
+    AuthenticatedTTenantIdEngineeringTemplatesRoute:
+      AuthenticatedTTenantIdEngineeringTemplatesRoute,
+    AuthenticatedTTenantIdInvitationsInvitationIdRoute:
+      AuthenticatedTTenantIdInvitationsInvitationIdRoute,
+    AuthenticatedTTenantIdMembersMembershipIdRoute:
+      AuthenticatedTTenantIdMembersMembershipIdRoute,
+    AuthenticatedTTenantIdPProjectIdRoute:
+      AuthenticatedTTenantIdPProjectIdRouteWithChildren,
+    AuthenticatedTTenantIdProjectsProjectIdRoute:
+      AuthenticatedTTenantIdProjectsProjectIdRoute,
+    AuthenticatedTTenantIdProjectsNewRoute:
+      AuthenticatedTTenantIdProjectsNewRoute,
+    AuthenticatedTTenantIdInvitationsIndexRoute:
+      AuthenticatedTTenantIdInvitationsIndexRoute,
+    AuthenticatedTTenantIdMembersIndexRoute:
+      AuthenticatedTTenantIdMembersIndexRoute,
+    AuthenticatedTTenantIdProjectsIndexRoute:
+      AuthenticatedTTenantIdProjectsIndexRoute,
+    AuthenticatedTTenantIdEngineeringCatalogKindRoute:
+      AuthenticatedTTenantIdEngineeringCatalogKindRoute,
+    AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute:
+      AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdResourcesFacilitiesIndexRoute:
+      AuthenticatedTTenantIdResourcesFacilitiesIndexRoute,
   }
 
 const AuthenticatedTTenantIdRouteWithChildren =
@@ -453,6 +1085,7 @@ const AuthenticatedTTenantIdRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedInvitationsRoute: typeof AuthenticatedInvitationsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
   AuthenticatedTenantsRoute: typeof AuthenticatedTenantsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -461,6 +1094,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccessPermissionsRoute: typeof AuthenticatedAccessPermissionsRoute
   AuthenticatedAccessRolesRoute: typeof AuthenticatedAccessRolesRoute
   AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
+  AuthenticatedPlatformEngineeringKindRoute: typeof AuthenticatedPlatformEngineeringKindRoute
   AuthenticatedPlatformTenantsTenantIdRoute: typeof AuthenticatedPlatformTenantsTenantIdRoute
   AuthenticatedPlatformTenantsIndexRoute: typeof AuthenticatedPlatformTenantsIndexRoute
 }
@@ -468,6 +1102,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInvitationsRoute: AuthenticatedInvitationsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
   AuthenticatedTenantsRoute: AuthenticatedTenantsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
@@ -476,6 +1111,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccessPermissionsRoute: AuthenticatedAccessPermissionsRoute,
   AuthenticatedAccessRolesRoute: AuthenticatedAccessRolesRoute,
   AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
+  AuthenticatedPlatformEngineeringKindRoute:
+    AuthenticatedPlatformEngineeringKindRoute,
   AuthenticatedPlatformTenantsTenantIdRoute:
     AuthenticatedPlatformTenantsTenantIdRoute,
   AuthenticatedPlatformTenantsIndexRoute:

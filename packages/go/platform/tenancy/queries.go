@@ -19,7 +19,7 @@ func tenantTx(ctx context.Context, tx pgx.Tx, id string, lock bool) (Tenant, err
 	if lock {
 		suffix = " FOR UPDATE OF t"
 	}
-	e := tx.QueryRow(ctx, `SELECT t.id::text,t.name,t.code,t.description,t.version::text,t.created_at,t.updated_at,t.created_by::text,t.updated_by::text,m.id::text,a.id::text,a.username,a.display_name,a.status='active' FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id JOIN accounts a ON a.id=m.account_id WHERE t.id=$1`+suffix, id).Scan(&v.ID, &v.Name, &v.Code, &v.Description, &v.Version, &v.CreatedAt, &v.UpdatedAt, &v.CreatedBy, &v.UpdatedBy, &v.MembershipID, &v.Administrator.ID, &v.Administrator.Username, &v.Administrator.DisplayName, &v.AdministratorAvailable)
+	e := tx.QueryRow(ctx, `SELECT t.id::text,t.name,t.code,t.description,t.version::text,t.created_at,t.updated_at,t.created_by::text,t.updated_by::text,m.id::text,a.id::text,a.username,a.display_name,a.status='active',t.status,t.status_changed_at,t.status_changed_by::text,t.status_change_reason,t.status_notice FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id JOIN accounts a ON a.id=m.account_id WHERE t.id=$1`+suffix, id).Scan(&v.ID, &v.Name, &v.Code, &v.Description, &v.Version, &v.CreatedAt, &v.UpdatedAt, &v.CreatedBy, &v.UpdatedBy, &v.MembershipID, &v.Administrator.ID, &v.Administrator.Username, &v.Administrator.DisplayName, &v.AdministratorAvailable, &v.Status, &v.StatusChangedAt, &v.StatusChangedBy, &v.StatusChangeReason, &v.StatusNotice)
 	if e == pgx.ErrNoRows {
 		e = access.ErrTenantNotFound
 	}
@@ -32,6 +32,10 @@ func (s *Service) Get(ctx context.Context, a access.Actor, id string, platform b
 		op = access.OpTenantRead
 	}
 	e := s.transact(ctx, a, op, id, "", func(tx pgx.Tx, _ string) error { var e error; v, e = tenantTx(ctx, tx, id, false); return e })
+	if !platform {
+		v.StatusChangeReason = nil
+		v.StatusChangedBy = nil
+	}
 	return v, e
 }
 func (s *Service) Context(ctx context.Context, a access.Actor, id string) (Context, error) {
@@ -45,7 +49,11 @@ func (s *Service) Context(ctx context.Context, a access.Actor, id string) (Conte
 		for _, r := range snap.Roles {
 			roles = append(roles, TenantRole{ID: r.ID, Name: r.Name, BindingScope: r.BindingScope})
 		}
-		v = Context{MembershipID: mid, Roles: roles, Permissions: snap.Permissions, Sources: snap.Sources, Revision: rev}
+		auth, e := access.TenantAuthorizationTx(ctx, tx, id, mid, rev)
+		if e != nil {
+			return e
+		}
+		v = Context{Authorization: auth, MembershipID: mid, Roles: roles, Permissions: snap.Permissions, Sources: snap.Sources, Revision: rev}
 		return tx.QueryRow(ctx, `SELECT id::text,name,code FROM tenants WHERE id=$1`, id).Scan(&v.Tenant.ID, &v.Tenant.Name, &v.Tenant.Code)
 	})
 	return v, e
@@ -68,7 +76,10 @@ func (s *Service) List(ctx context.Context, a access.Actor, f Filter) (access.Pa
 		if e := f.validate(false); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT t.id::text FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id JOIN accounts a ON a.id=m.account_id WHERE ($1='' OR t.name ILIKE '%'||$1||'%' OR EXISTS(SELECT 1 FROM tenant_codes c WHERE c.tenant_id=t.id AND c.code ILIKE '%'||$1||'%')) AND ($2='' OR t.id::text>$2) AND (NOT $3 OR a.status<>'active') ORDER BY t.id LIMIT $4`, f.Query, f.Cursor, f.Unavailable, f.Limit+1)
+		if f.Status != "" && f.Status != "active" && f.Status != "disabled" {
+			return access.Validation("status", "租户状态筛选无效。")
+		}
+		rows, e := tx.Query(ctx, `SELECT t.id::text FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id JOIN accounts a ON a.id=m.account_id WHERE ($1='' OR t.name ILIKE '%'||$1||'%' OR EXISTS(SELECT 1 FROM tenant_codes c WHERE c.tenant_id=t.id AND c.code ILIKE '%'||$1||'%')) AND ($2='' OR t.id::text>$2) AND (NOT $3 OR a.status<>'active') AND ($5='' OR t.status=$5) ORDER BY t.id LIMIT $4`, f.Query, f.Cursor, f.Unavailable, f.Limit+1, f.Status)
 		if e != nil {
 			return e
 		}
@@ -106,13 +117,13 @@ func (s *Service) Memberships(ctx context.Context, a access.Actor, account strin
 		if e := f.validate(false); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT t.id::text,t.name,t.code,m.id::text FROM tenant_memberships m JOIN tenants t ON t.id=m.tenant_id WHERE m.account_id=$1 AND m.status='active' AND ($2='' OR t.name ILIKE '%'||$2||'%' OR t.code ILIKE '%'||$2||'%') AND ($3='' OR t.id::text>$3) ORDER BY t.id LIMIT $4`, account, f.Query, f.Cursor, f.Limit+1)
+		rows, e := tx.Query(ctx, `SELECT t.id::text,t.name,t.code,m.id::text,t.status FROM tenant_memberships m JOIN tenants t ON t.id=m.tenant_id WHERE m.account_id=$1 AND m.status='active' AND ($2='' OR t.name ILIKE '%'||$2||'%' OR t.code ILIKE '%'||$2||'%') AND ($3='' OR t.id::text>$3) ORDER BY t.id LIMIT $4`, account, f.Query, f.Cursor, f.Limit+1)
 		if e != nil {
 			return e
 		}
 		for rows.Next() {
 			var t MyTenant
-			if e = rows.Scan(&t.ID, &t.Name, &t.Code, &t.MembershipID); e != nil {
+			if e = rows.Scan(&t.ID, &t.Name, &t.Code, &t.MembershipID, &t.Status); e != nil {
 				rows.Close()
 				return e
 			}
@@ -128,6 +139,14 @@ func (s *Service) Memberships(ctx context.Context, a access.Actor, account strin
 			v.NextCursor = v.Items[f.Limit-1].ID
 		}
 		for i := range v.Items {
+			v.Items[i].CanEnter = v.Items[i].Status == "active"
+			if !v.Items[i].CanEnter {
+				v.Items[i].Restriction = "tenant_disabled"
+				v.Items[i].Roles = []TenantRole{}
+				if op == access.OpMyTenants {
+					continue
+				}
+			}
 			// Governance summaries also explain preserved roles when the account is disabled.
 			rows, e := tx.Query(ctx, `SELECT r.id::text,r.name,r.binding_scope FROM tenant_member_roles mr JOIN roles r ON r.id=mr.role_id WHERE mr.membership_id=$1 AND mr.revoked_at IS NULL AND r.status='active' AND r.deleted_at IS NULL ORDER BY r.id`, v.Items[i].MembershipID)
 			if e != nil {
@@ -152,20 +171,28 @@ func (s *Service) Memberships(ctx context.Context, a access.Actor, account strin
 	})
 	return v, e
 }
-func (s *Service) Candidates(ctx context.Context, a access.Actor, f Filter) (access.Page[Account], error) {
-	v := access.Page[Account]{Items: []Account{}}
+func (s *Service) Candidates(ctx context.Context, a access.Actor, f Filter) (access.Page[AdministratorCandidate], error) {
+	v := access.Page[AdministratorCandidate]{Items: []AdministratorCandidate{}}
 	e := s.transact(ctx, a, access.OpTenantCandidates, "", "", func(tx pgx.Tx, _ string) error {
 		if e := f.validate(true); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text,username,display_name FROM accounts WHERE status='active' AND (username ILIKE '%'||$1||'%' OR display_name ILIKE '%'||$1||'%') AND ($2='' OR id::text>$2) ORDER BY id LIMIT $3`, f.Query, f.Cursor, f.Limit+1)
+		if f.TenantID != "" {
+			if !access.ValidID(f.TenantID) {
+				return access.Validation("tenant_id", "租户编号无效。")
+			}
+			if e := access.RequireTx(ctx, tx, a.ID, access.OpTenantTransfer); e != nil {
+				return e
+			}
+		}
+		rows, e := tx.Query(ctx, `SELECT a.id::text,a.username,a.display_name,COALESCE(m.status,''),CASE WHEN $4='' THEN '' WHEN m.status='suspended' THEN 'resume_required' WHEN m.status='active' THEN 'reuse' ELSE 'new' END,COALESCE((SELECT jsonb_agg(r.name ORDER BY r.name) FROM tenant_member_roles mr JOIN roles r ON r.id=mr.role_id WHERE mr.membership_id=m.id AND mr.revoked_at IS NULL),'[]'::jsonb) FROM accounts a LEFT JOIN tenant_memberships m ON m.account_id=a.id AND m.tenant_id::text=$4 AND m.status IN ('active','suspended') WHERE a.status='active' AND (a.username ILIKE '%'||$1||'%' OR a.display_name ILIKE '%'||$1||'%') AND ($2='' OR a.id::text>$2) ORDER BY a.id LIMIT $3`, f.Query, f.Cursor, f.Limit+1, f.TenantID)
 		if e != nil {
 			return e
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var a Account
-			if e = rows.Scan(&a.ID, &a.Username, &a.DisplayName); e != nil {
+			var a AdministratorCandidate
+			if e = rows.Scan(&a.ID, &a.Username, &a.DisplayName, &a.MembershipStatus, &a.TransferMode, &a.ReplacedRoles); e != nil {
 				return e
 			}
 			v.Items = append(v.Items, a)
@@ -210,8 +237,24 @@ func (s *Service) Audit(ctx context.Context, a access.Actor, id string, f Filter
 		if from != nil && to != nil && from.After(*to) {
 			return access.Validation("time", "起始时间不得晚于结束时间。")
 		}
-		events := []string{"tenant.created", "tenant.profile.updated", "tenant.administrator.transferred", "tenant.administrator.unavailable", "tenant.administrator.available"}
-		rows, e := tx.Query(ctx, `SELECT id::text,tenant_id::text,event_type,COALESCE(actor_id::text,''),actor_type,actor_scope,reason,request_id,created_at,details FROM account_security_events WHERE tenant_id=$1 AND id<$2 AND event_type=ANY($3::text[]) AND ($4='' OR event_type=$4) AND ($5::timestamptz IS NULL OR created_at>=$5) AND ($6::timestamptz IS NULL OR created_at<=$6) AND ($7='' OR reason ILIKE '%'||$7||'%' OR event_type ILIKE '%'||$7||'%') ORDER BY id DESC LIMIT $8`, id, before, events, f.Event, from, to, strings.TrimSpace(f.Query), f.Limit+1)
+		events := []string{"resource.create", "resource.update", "resource.retire", "resource.restore", "resource.delete", "engineering.create", "engineering.copy", "engineering.save", "engineering.publish", "engineering.state", "engineering.new-draft", "engineering.delete-draft", "tenant.disabled", "tenant.enabled", "tenant.role.created", "tenant.role.copied", "tenant.role.updated", "tenant.role.permissions_changed", "tenant.role.status_changed", "tenant.role.deleted", "tenant.member.roles_changed", "tenant.member.authorization_changed", "tenant.authorization.preset_synced", "tenant.invitation.created", "tenant.invitation.expired", "tenant.invitation.revoked", "tenant.invitation.regenerated", "tenant.invitation.invalidated", "tenant.invitation.accepted", "tenant.member.joined", "tenant.member.suspended", "tenant.member.resumed", "tenant.member.removed", "tenant.created", "tenant.profile.updated", "tenant.administrator.transferred", "tenant.administrator.unavailable", "tenant.administrator.available"}
+		_, own, err := access.TenantSnapshotTx(ctx, tx, a.ID, id, "")
+		if err != nil {
+			return err
+		}
+		for _, c := range own.Permissions {
+			if c == access.TenantProjectRead {
+				events = append(events, "tenant.project.governance")
+				break
+			}
+		}
+		rows, e := tx.Query(ctx, `SELECT id::text,tenant_id::text,event_type,
+ CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN '' ELSE COALESCE(actor_id::text,'') END,
+ CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN 'platform' ELSE actor_type END,actor_scope,
+ CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public'->>'tenant_notice','') ELSE reason END,
+ CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN '' ELSE request_id END,created_at,
+ CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public','{}'::jsonb) ELSE details END
+ FROM account_security_events WHERE project_id IS NULL AND tenant_id=$1 AND id<$2 AND event_type=ANY($3::text[]) AND ($4='' OR event_type=$4) AND ($5::timestamptz IS NULL OR created_at>=$5) AND ($6::timestamptz IS NULL OR created_at<=$6) AND ($7='' OR (CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public'->>'tenant_notice','') ELSE reason END) ILIKE '%'||$7||'%' OR event_type ILIKE '%'||$7||'%') AND ($9='' OR object_type=$9) AND ($10='' OR object_id=$10) ORDER BY id DESC LIMIT $8`, id, before, events, f.Event, from, to, strings.TrimSpace(f.Query), f.Limit+1, f.ObjectType, f.ObjectID)
 		if e != nil {
 			return e
 		}
@@ -221,6 +264,7 @@ func (s *Service) Audit(ctx context.Context, a access.Actor, id string, f Filter
 			if e = rows.Scan(&ev.ID, &ev.TenantID, &ev.Event, &ev.ActorID, &ev.ActorType, &ev.ActorScope, &ev.Reason, &ev.RequestID, &ev.CreatedAt, &ev.Details); e != nil {
 				return e
 			}
+			redactStatusMetadata(ev.Details)
 			v.Items = append(v.Items, ev)
 		}
 		if len(v.Items) > f.Limit {
@@ -230,4 +274,20 @@ func (s *Service) Audit(ctx context.Context, a access.Actor, id string, f Filter
 		return rows.Err()
 	})
 	return v, e
+}
+
+// Older profile/transfer snapshots can include governance fields. Redact at every nesting level.
+func redactStatusMetadata(v any) {
+	switch v := v.(type) {
+	case map[string]any:
+		delete(v, "status_change_reason")
+		delete(v, "status_changed_by")
+		for _, child := range v {
+			redactStatusMetadata(child)
+		}
+	case []any:
+		for _, child := range v {
+			redactStatusMetadata(child)
+		}
+	}
 }

@@ -46,17 +46,17 @@ export function InvitationsPage() {
   const busy = generate.isPending || revoke.isPending || confirmPassword.isPending;
   const needsConfirmation = generate.error instanceof ApiError && generate.error.code === 'reauthentication_required';
   const columns: ColumnDef<Invitation>[] = [
-    { accessorKey: 'note', header: '用途备注', cell: ({ row }) => <span className="block min-w-32 max-w-xs whitespace-normal break-words font-medium">{row.original.note || '未填写备注'}</span> },
-    { accessorKey: 'status', header: '状态', cell: ({ row }) => <Badge variant={row.original.status === 'pending' ? 'secondary' : 'outline'}>{statuses[row.original.status]}</Badge> },
-    { accessorKey: 'created_at', header: '创建时间', cell: ({ row }) => date(row.original.created_at) },
-    { accessorKey: 'expires_at', header: '有效期至', cell: ({ row }) => date(row.original.expires_at) },
-    { id: 'actions', header: '操作', cell: ({ row: { original: item } }) => <div className="flex gap-2">
+    { accessorKey: 'note', size: 240, header: '用途备注', cell: ({ row }) => <span className="block min-w-32 max-w-xs whitespace-normal break-words font-medium">{row.original.note || '未填写备注'}</span> },
+    { accessorKey: 'status', size: 104, header: '状态', cell: ({ row }) => <Badge variant={row.original.status === 'pending' ? 'secondary' : 'outline'}>{statuses[row.original.status]}</Badge> },
+    { accessorKey: 'created_at', size: 184, header: '创建时间', cell: ({ row }) => date(row.original.created_at) },
+    { accessorKey: 'expires_at', size: 184, header: '有效期至', cell: ({ row }) => date(row.original.expires_at) },
+    { id: 'actions', size: 200, header: '操作', cell: ({ row: { original: item } }) => <div className="flex flex-wrap justify-end gap-2">
       {item.status !== 'used' && canAll(P.PlatformInvitationCreate, P.PlatformInvitationRegenerate) && <Button variant="outline" size="sm" disabled={busy} onClick={() => { generate.reset(); generate.mutate({ id: item.id }); }}>重新生成</Button>}
       {item.status === 'pending' && can(P.PlatformInvitationRevoke) && <Button variant="ghost" size="sm" className="text-destructive" disabled={busy} onClick={() => revoke.mutate(item.id)}>撤销</Button>}
       {item.status === 'used' && <span className="text-muted-foreground">已完成开户</span>}
     </div> },
   ];
-  return <><PageHeader title="邀请管理" description="邀请同事加入，并查看自己发出的邀请。" />
+  return <><PageHeader title="账号开户邀请" description="邀请同事加入，并查看自己发出的邀请。" />
     {can(P.PlatformInvitationCreate) && <Card className="mb-6 max-w-3xl"><CardHeader><CardTitle>邀请同事加入</CardTitle><CardDescription>每条链接仅能创建一个基础成员账号，不继承邀请人的角色。持有链接的人可以认领，请妥善保管；疑似泄露时立即撤销。</CardDescription></CardHeader><CardContent className="space-y-6">
       <Form {...form}><form className="space-y-4" noValidate aria-busy={generate.isPending} onSubmit={form.handleSubmit(async () => { try { await generate.mutateAsync({ id: '' }); } catch (error) { if (!(error instanceof ApiError && error.code === 'reauthentication_required')) setFormError(form, error); } })}>
         <FormInput control={form.control} name="note" label="用途备注" placeholder="例如：桥梁监测项目同事" hint="可选，最多 200 个字符。备注不绑定收件人身份。" />

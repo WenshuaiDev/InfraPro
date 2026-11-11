@@ -1,0 +1,598 @@
+[
+  {
+    "name": "zero integer",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "integer",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": 0
+    },
+    "valid": true
+  },
+  {
+    "name": "negative decimal",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "decimal",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "minimum": -2,
+        "maximum": 0
+      }
+    ],
+    "values": {
+      "value": -1.25
+    },
+    "valid": true
+  },
+  {
+    "name": "safe integer boundary",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "integer",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": 9007199254740991
+    },
+    "valid": true
+  },
+  {
+    "name": "unsafe integer",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "integer",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": 9007199254740992
+    },
+    "valid": false
+  },
+  {
+    "name": "decimal integer type",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "integer",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": 1.5
+    },
+    "valid": false
+  },
+  {
+    "name": "numeric string",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "decimal",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "0"
+    },
+    "valid": false
+  },
+  {
+    "name": "null is not missing",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "boolean",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": null
+    },
+    "valid": false
+  },
+  {
+    "name": "false is present",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "boolean",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": false
+    },
+    "valid": true
+  },
+  {
+    "name": "unicode code point",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "min_length": 1,
+        "max_length": 1
+      }
+    ],
+    "values": {
+      "value": "😀"
+    },
+    "valid": true
+  },
+  {
+    "name": "unicode too long",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "max_length": 1
+      }
+    ],
+    "values": {
+      "value": "😀中"
+    },
+    "valid": false
+  },
+  {
+    "name": "required empty text",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": ""
+    },
+    "valid": false
+  },
+  {
+    "name": "empty optional text",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": false,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": ""
+    },
+    "valid": true
+  },
+  {
+    "name": "leap year",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "date",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2024-02-29"
+    },
+    "valid": true
+  },
+  {
+    "name": "non leap date",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "date",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2025-02-29"
+    },
+    "valid": false
+  },
+  {
+    "name": "month zero",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "date",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-00-01"
+    },
+    "valid": false
+  },
+  {
+    "name": "timezone UTC",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "datetime",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-11-10T00:30:00Z"
+    },
+    "valid": true
+  },
+  {
+    "name": "timezone offset",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "datetime",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-11-10T08:30:00.123+08:00"
+    },
+    "valid": true
+  },
+  {
+    "name": "timezone missing",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "datetime",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-11-10T08:30:00"
+    },
+    "valid": false
+  },
+  {
+    "name": "invalid timezone",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "datetime",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-11-10T08:30:00+24:00"
+    },
+    "valid": false
+  },
+  {
+    "name": "leap second excluded",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "datetime",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {
+      "value": "2026-12-31T23:59:60Z"
+    },
+    "valid": false
+  },
+  {
+    "name": "enum present",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "enum",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "options": [
+          {
+            "key": "ok",
+            "name": "正常"
+          },
+          {
+            "key": "bad",
+            "name": "异常"
+          }
+        ]
+      }
+    ],
+    "values": {
+      "value": "ok"
+    },
+    "valid": true
+  },
+  {
+    "name": "enum unknown",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "enum",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "options": [
+          {
+            "key": "ok",
+            "name": "正常"
+          },
+          {
+            "key": "bad",
+            "name": "异常"
+          }
+        ]
+      }
+    ],
+    "values": {
+      "value": "unknown"
+    },
+    "valid": false
+  },
+  {
+    "name": "multi valid",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "multi_enum",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "options": [
+          {
+            "key": "ok",
+            "name": "正常"
+          },
+          {
+            "key": "bad",
+            "name": "异常"
+          }
+        ]
+      }
+    ],
+    "values": {
+      "value": [
+        "ok",
+        "bad"
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "multi duplicate",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "multi_enum",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "options": [
+          {
+            "key": "ok",
+            "name": "正常"
+          },
+          {
+            "key": "bad",
+            "name": "异常"
+          }
+        ]
+      }
+    ],
+    "values": {
+      "value": [
+        "ok",
+        "ok"
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "required multi empty",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "multi_enum",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "options": [
+          {
+            "key": "ok",
+            "name": "正常"
+          },
+          {
+            "key": "bad",
+            "name": "异常"
+          }
+        ]
+      }
+    ],
+    "values": {
+      "value": []
+    },
+    "valid": false
+  },
+  {
+    "name": "missing required",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {},
+    "valid": false
+  },
+  {
+    "name": "missing optional",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": false,
+        "group": "",
+        "order": 0,
+        "multiline": false
+      }
+    ],
+    "values": {},
+    "valid": true
+  },
+  {
+    "name": "default does not fill required",
+    "fields": [
+      {
+        "key": "value",
+        "name": "值",
+        "description": "",
+        "shape": "text",
+        "required": true,
+        "group": "",
+        "order": 0,
+        "multiline": false,
+        "default": "x"
+      }
+    ],
+    "values": {},
+    "valid": false
+  },
+  {
+    "name": "unknown property",
+    "fields": [],
+    "values": {
+      "other": 1
+    },
+    "valid": false
+  }
+]

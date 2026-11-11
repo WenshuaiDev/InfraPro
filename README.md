@@ -1,8 +1,14 @@
 # InfraPro
 
-Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能包括账号、平台角色权限与租户基础管理。
+Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能包括账号、平台角色权限、租户基础管理、成员与角色授权、租户启停恢复、项目管理，以及数据驱动的设施类型定义和监测模板。
 
-工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前保留账号管理、PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。功能自验及用户验收分别记录在 [交付记录](docs/verification/account-management.md)。
+工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前功能包括账号、租户、项目、工程定义及租户工程资源，使用 PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。最新提交范围和统一复验见 [2026-11-11 PR 交付记录](docs/verification/pr-delivery-20261111.md)，各功能的自验与人工验收仍分别记录。
+
+## 全功能人工验收环境
+
+已按当前功能准备独立、持久化的本机验收账号和业务数据，入口为 <http://localhost:25173/login>。账号密码及精确数据链接保存在本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`；建议先使用 `accept_admin`、`accept_platform`、`accept_project`。无需自行创建账号或录入初始资料。
+
+完整数据清单、27 步人工验收及重启方式见[全功能人工验收手册](docs/operations/manual-acceptance.md)，自验结果见[交付记录](docs/verification/manual-acceptance-data.md)。普通开发库及原有账号保留；状态为 Awaiting acceptance，自验通过，等待用户人工验收。
 
 ## 工具链
 
@@ -37,7 +43,7 @@ make dev
 | 进程存活检查 | http://127.0.0.1:8080/healthz |
 | 依赖就绪检查 | http://127.0.0.1:8080/readyz |
 
-当前只保留 console 一个前端应用。登录后显示当前账号信息，并提供个人资料、账号安全及邀请管理入口。按 `Ctrl+C` 停止本次命令启动的全部应用进程；数据库和 Redis 持续运行。端口冲突会报错并停止本轮启动的进程，不自动切换端口。
+当前只保留 console 一个前端应用。登录后显示当前账号信息，并提供个人资料、账号安全及账号开户邀请入口；“我的租户”进入各自租户工作空间。按 `Ctrl+C` 停止本次命令启动的全部应用进程；数据库和 Redis 持续运行。端口冲突会报错并停止本轮启动的进程，不自动切换端口。
 
 React/共享 TS 源码支持 Vite 热更新。Go 源码修改后重新执行启动命令；当前未引入 Go 热重载工具。
 
@@ -129,7 +135,11 @@ INFRAPRO_HTTP_ADDR=127.0.0.1:9090 API_PROXY_TARGET=http://127.0.0.1:9090 make de
 - [API 与 CLI 模块拆分方案](docs/requirements/backend-organization-plan.md)
 - [角色与权限完整方案（已实施，待人工验收）](docs/requirements/role-permission-plan.md)
 - [租户基础管理首轮方案（已实施，待人工验收）](docs/requirements/tenant-foundation-plan.md)
+- [租户成员管理首轮方案（已实施，待人工验收）](docs/requirements/tenant-membership-plan.md)
 - [账号与授权业务词汇](GLOSSARY.md)
+- [设施实例、构件、测点与业务监测通道开发方案](docs/requirements/engineering-resource-management-plan.md)
+- [租户角色与成员授权方案（已实施，待人工验收）](docs/requirements/tenant-role-authorization-plan.md)
+- [租户启停与恢复方案（已实施，待人工验收）](docs/requirements/tenant-lifecycle-plan.md)
 
 Go 工作区机制参考 [Go 官方文档](https://go.dev/doc/tutorial/workspaces)，应用依赖使用 [pnpm workspace 协议](https://pnpm.io/workspaces)，浏览器环境编排使用 [Playwright webServer](https://playwright.dev/docs/test-webserver)。
 ## 角色与权限
@@ -144,3 +154,49 @@ Go 工作区机制参考 [Go 官方文档](https://go.dev/doc/tutorial/workspace
 已有环境升级：备份并停止旧 API → `pnpm infrapro database migrate` → `pnpm infrapro access sync` → `pnpm infrapro access check` → `make dev`。本机已完成增量升级，保留原有账号，不重复 bootstrap。访问 `/platform/tenants` 或 `/tenants`。
 
 详见[启动、恢复与人工验收手册](docs/operations/tenant-foundation.md)、[50 项自验证据](docs/verification/tenant-foundation.md)和[已确认方案](docs/requirements/tenant-foundation-plan.md)。功能状态为 Awaiting acceptance，人工验收待用户确认。
+
+## 租户成员管理
+
+租户管理员可定向邀请已有账号，由本人登录并明确确认加入；新成员默认只读租户资料，后续可由租户管理员配置角色。支持成员历史、暂停/恢复、移除后以新关系再次加入、邀请撤销/替换、账号与管理员交接联动，以及范围隔离和审计。
+
+本机已完成增量升级并保留现有账号，从仓库根目录 `make dev` 启动即可。成员功能位于“我的租户”→“成员管理 / 成员邀请”。账号开户邀请仍与成员邀请分别使用。
+
+详见[启动及人工验收步骤](docs/operations/tenant-membership.md)和[52 项验收证据映射](docs/verification/tenant-membership.md)。功能状态为 Awaiting acceptance；未部署生产，人工验收待用户确认。
+
+## 租户角色与成员授权
+
+租户管理员可直接分配预置角色、复制或创建本租户角色，并配置成员多角色或清空授权。该轮统一目录区分 11 项可配置业务权限与 8 项管理员保留能力（本轮项目治理扩展后为 13/9）；变更前预览实际权限及邀请影响，提交后按最新权限生效。权限来源、角色历史和租户审计可查。
+
+该轮本机已从 v4 增量升级到 v5，备份实际恢复核对通过，原账号、密码记录、会话和租户关系保留。运行 `make dev` 后访问 `http://127.0.0.1:5173/`，从工作空间切换器进入对应租户的“租户角色 / 成员管理”；权限目录已整合到角色页面。不重复 bootstrap。
+
+详见[启动、升级和 13 步人工验收](docs/operations/tenant-role-authorization.md)及[验证结果与 57 项证据映射](docs/verification/tenant-role-authorization.md)。状态为 Awaiting acceptance；未部署生产，人工验收待用户确认。
+
+## 租户启停与恢复
+
+平台可预览影响、填写原因后停用或恢复租户。停用关闭租户业务读写，保留平台治理、本人最小状态和原身份历史；其他租户与个人账号功能继续可用。邀请暂时受限但不延期，真实失权及终态不因恢复而复活。
+
+该轮本机已增量升级到 v6（当前已升级到 v8），备份在独立库恢复核对通过，原账号密码、会话及业务关系保留。使用原账号访问 `http://127.0.0.1:5173/platform/tenants`；重启运行 `make dev`，不重复 bootstrap。
+
+详见[运行与 16 步人工验收](docs/operations/tenant-lifecycle.md)及[55 项验证映射与当前状态](docs/verification/tenant-lifecycle.md)。状态为 Awaiting acceptance；人工验收待用户确认，未部署生产。
+
+## 项目基础管理、成员授权与归档恢复
+
+租户有权人员可创建项目并指定负责人及管理员；项目管理员可组织成员、配置多角色、查看权限来源与操作记录，进行管理交接、归档和恢复。创建者、负责人和上层管理员不因此取得项目业务访问。归档保留读取及合法撤权，禁止常规扩权；上层成员结束会同步结束旧项目关系，重新加入不会复活历史授权。
+
+本机已从 v6 增量升级到 v7，完成实际备份恢复核对，原账号、密码和数据保留。使用原账号；仓库根目录运行 `make dev`，访问 <http://127.0.0.1:5173/projects>，或“我的租户”→“项目治理”。不重复 bootstrap。
+
+[完整方案](docs/requirements/project-management-plan.md) · [启动、升级与 17 步人工验收](docs/operations/project-management.md) · [自验及 80 项证据映射](docs/verification/project-management.md)。状态为 **Awaiting acceptance**，完整自验通过，人工验收待用户确认；未部署生产。
+
+## 设施类型定义与监测模板
+
+平台通过统一元模型编制设施类型、工程属性、构件规则、指标、单位和公共监测模板；租户可独立复制、修改和发布私有模板。支持固定版本依赖、动态样例表单和构件树、历史差异、启停影响、权限隔离与审计。新增设施类型只增加配置数据。
+
+该迭代引入数据库 v8（本机当前已升级 v9）；平台入口 `/platform/engineering/type-definitions`，租户入口从工作空间的工程配置菜单进入。详见[操作、升级与人工验收手册](docs/operations/infrastructure-type-definition.md)、[自验记录](docs/verification/infrastructure-type-definition.md)及[已确认方案](docs/requirements/infrastructure-type-definition-plan.md)。
+
+状态为 **Awaiting acceptance**；该迭代完整浏览器回归 97 项、HTTP 部署检查 7 项全部通过；后续统一复验见本文顶部交付记录，人工验收待用户确认。未部署生产。
+
+## 设施、构件、测点与业务通道
+
+租户通过“工程资源 → 设施管理”直接管理设施、构件树、设施整体或构件测点及业务监测通道。已有定义版本固定引用；最少构件数量仅作参考，最多数量仍校验；位置可留空，坐标基准与真实零值保留。包含退役/恢复、软删除保护、独立变更历史、并发修订与幂等收据。本轮不增加监测方案、完成度、地图、图纸/模型绑定或采集运行功能。
+
+本机数据库已从 v8 升级至 v9，权限目录为 90 项；原账号继续使用，开发入口 [本地 console](http://127.0.0.1:5173/)。工程资源自动检查及人工验收状态见[自验记录](docs/verification/engineering-resources.md)，准备好的隔离验收环境与 13 步操作见[操作手册](docs/operations/engineering-resources.md)。

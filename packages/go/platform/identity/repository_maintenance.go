@@ -42,6 +42,9 @@ func (r *Repository) InspectReset(ctx context.Context, hash string) (Inspection,
 }
 func (r *Repository) CompleteReset(ctx context.Context, tokenHash, passwordHash string, m Meta) error {
 	return r.transact(ctx, func(tx pgx.Tx) error {
+		if _, e := access.Lock(ctx, tx, true); e != nil {
+			return e
+		}
 		var id, account string
 		e := tx.QueryRow(ctx, `SELECT a.id::text FROM accounts a JOIN account_password_resets r ON r.account_id=a.id WHERE r.token_hash=$1 FOR UPDATE OF a`, tokenHash).Scan(&account)
 		if errors.Is(e, pgx.ErrNoRows) {
@@ -70,6 +73,9 @@ func (r *Repository) CompleteReset(ctx context.Context, tokenHash, passwordHash 
 			return e
 		}
 		if _, e = tx.Exec(ctx, "UPDATE account_invitations SET revoked_at=now() WHERE inviter_id=$1 AND used_at IS NULL AND revoked_at IS NULL", account); e != nil {
+			return e
+		}
+		if e = access.InvalidateTenantInvitations(ctx, tx, access.InvitationRevocation{AccountID: account, InviterOnly: true}, access.Meta{ActorType: "account", ActorID: account, Reason: "controlled_password_reset", RequestID: m.RequestID}); e != nil {
 			return e
 		}
 		// A reset is also the recovery from persistent password failure cooldown.
@@ -110,6 +116,11 @@ func (r *Repository) SetStatusTx(ctx context.Context, tx pgx.Tx, id string, enab
 			return e
 		}
 		if _, e = tx.Exec(ctx, "UPDATE account_password_resets SET revoked_at=now() WHERE account_id=$1 AND used_at IS NULL AND revoked_at IS NULL", id); e != nil {
+			return e
+		}
+		im := m
+		im.Reason = "account_unavailable"
+		if e = access.InvalidateTenantInvitations(ctx, tx, access.InvitationRevocation{AccountID: id}, im); e != nil {
 			return e
 		}
 	}
@@ -156,6 +167,9 @@ func (r *Repository) SetStatus(ctx context.Context, username string, enabled, em
 }
 func (r *Repository) RevokeAfterRestore(ctx context.Context, m Meta) error {
 	return r.transact(ctx, func(tx pgx.Tx) error {
+		if _, e := access.Lock(ctx, tx, true); e != nil {
+			return e
+		}
 		// Exclusive maintenance transaction; callers must stop API traffic during backup restoration.
 		if _, e := tx.Exec(ctx, "LOCK TABLE accounts IN EXCLUSIVE MODE"); e != nil {
 			return e
@@ -170,6 +184,9 @@ func (r *Repository) RevokeAfterRestore(ctx context.Context, m Meta) error {
 			if _, e := tx.Exec(ctx, q); e != nil {
 				return e
 			}
+		}
+		if e := access.InvalidateTenantInvitations(ctx, tx, access.InvitationRevocation{All: true}, access.Meta{ActorType: "maintenance", Reason: "backup_restore", RequestID: m.RequestID}); e != nil {
+			return e
 		}
 		return audit(ctx, tx, "backup_access_revoked", "", "", "", "success", m)
 	})
@@ -208,7 +225,7 @@ func (r *Repository) Cleanup(ctx context.Context, retention time.Duration) error
 		"DELETE FROM account_sessions WHERE id IN (SELECT id FROM account_sessions WHERE expires_at<now()-$1::interval LIMIT 500)",
 		"DELETE FROM account_invitations WHERE id IN (SELECT id FROM account_invitations WHERE expires_at<now()-$1::interval LIMIT 500)",
 		"DELETE FROM account_password_resets WHERE id IN (SELECT id FROM account_password_resets WHERE expires_at<now()-$1::interval LIMIT 500)",
-		"DELETE FROM account_security_events WHERE id IN (SELECT id FROM account_security_events WHERE created_at<now()-$1::interval LIMIT 500)",
+		"DELETE FROM account_security_events WHERE id IN (SELECT id FROM account_security_events WHERE project_id IS NULL AND created_at<now()-$1::interval LIMIT 500)",
 	} {
 		if _, e := r.pool.Exec(ctx, q, interval(retention)); e != nil {
 			return e

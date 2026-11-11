@@ -36,6 +36,20 @@ func reply(c *gin.Context, v any, e error) {
 	if out, ok := v.(tenancy.Context); ok {
 		c.Header("X-Authorization-Revision", out.Revision)
 	}
+	if out, ok := v.(tenancy.MembershipResult); ok {
+		c.Header("X-Authorization-Revision", out.Revision)
+	}
+	if out, ok := v.(tenancy.AcceptanceResult); ok {
+		c.Header("X-Authorization-Revision", out.Revision)
+	}
+	if out, ok := v.(tenancy.InvitationCreated); ok {
+		status := 201
+		if out.Replayed {
+			status = 200
+		}
+		c.JSON(status, v)
+		return
+	}
 	c.JSON(200, v)
 }
 func filter(c *gin.Context) tenancy.Filter {
@@ -47,7 +61,7 @@ func filter(c *gin.Context) tenancy.Filter {
 			n = -1
 		}
 	}
-	return tenancy.Filter{Query: c.Query("q"), Cursor: c.Query("cursor"), Limit: n, Unavailable: c.Query("administrator_unavailable") == "true", Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to")}
+	return tenancy.Filter{Query: c.Query("q"), Cursor: c.Query("cursor"), Limit: n, Unavailable: c.Query("administrator_unavailable") == "true", Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), Status: c.Query("status"), Role: c.Query("role"), ObjectType: c.Query("object_type"), ObjectID: c.Query("object_id")}
 }
 func query(allowed ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -65,7 +79,7 @@ func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
 	}
-	r.GET("/api/v1/platform/tenants", query("q", "cursor", "limit", "administrator_unavailable"), func(c *gin.Context) {
+	r.GET("/api/v1/platform/tenants", query("q", "cursor", "limit", "administrator_unavailable", "status"), func(c *gin.Context) {
 		if v := c.Query("administrator_unavailable"); v != "" && v != "true" && v != "false" {
 			identityhttp.RespondError(c, access.Validation("administrator_unavailable", "筛选值无效。"))
 			return
@@ -90,7 +104,12 @@ func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
 		c.Header("X-Authorization-Revision", v.Revision)
 		c.JSON(status, v)
 	})
-	r.GET("/api/v1/platform/tenant-admin-candidates", query("q", "cursor", "limit"), func(c *gin.Context) { v, e := s.Candidates(c.Request.Context(), actor(c), filter(c)); reply(c, v, e) })
+	r.GET("/api/v1/platform/tenant-admin-candidates", query("q", "cursor", "limit", "tenant_id"), func(c *gin.Context) {
+		f := filter(c)
+		f.TenantID = c.Query("tenant_id")
+		v, e := s.Candidates(c.Request.Context(), actor(c), f)
+		reply(c, v, e)
+	})
 	r.GET("/api/v1/account/tenants", query("q", "cursor", "limit"), func(c *gin.Context) {
 		v, e := s.Memberships(c.Request.Context(), actor(c), "", filter(c))
 		reply(c, v, e)
@@ -110,6 +129,10 @@ func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
 		}
 		r.GET(path, query(), func(c *gin.Context) {
 			v, e := s.Get(c.Request.Context(), actor(c), c.Param("tenant_id"), platform)
+			if !platform {
+				reply(c, v.Profile(), e)
+				return
+			}
 			reply(c, v, e)
 		})
 		r.PATCH(path, query(), func(c *gin.Context) {
@@ -121,6 +144,13 @@ func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
 			reply(c, v, e)
 		})
 	}
+	r.POST("/api/v1/platform/tenants/:tenant_id/administrator-transfer/preview", query(), func(c *gin.Context) {
+		if _, ok := decode[struct{}](c); !ok {
+			return
+		}
+		v, e := s.PreviewTransfer(c.Request.Context(), actor(c), c.Param("tenant_id"))
+		reply(c, v, e)
+	})
 	r.POST("/api/v1/platform/tenants/:tenant_id/administrator-transfer", query(), func(c *gin.Context) {
 		in, ok := decode[tenancy.TransferInput](c)
 		if !ok {
@@ -129,8 +159,11 @@ func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
 		v, e := s.Transfer(c.Request.Context(), actor(c), c.Param("tenant_id"), in, meta(c))
 		reply(c, v, e)
 	})
-	r.GET("/api/v1/tenants/:tenant_id/audit-events", query("q", "cursor", "limit", "event_type", "from", "to"), func(c *gin.Context) {
+	r.GET("/api/v1/tenants/:tenant_id/audit-events", query("q", "cursor", "limit", "event_type", "from", "to", "object_type", "object_id"), func(c *gin.Context) {
 		v, e := s.Audit(c.Request.Context(), actor(c), c.Param("tenant_id"), filter(c))
 		reply(c, v, e)
 	})
+	registerLifecycle(r, i, s)
+	registerMembership(r, i, s)
+	registerRoles(r, i)
 }

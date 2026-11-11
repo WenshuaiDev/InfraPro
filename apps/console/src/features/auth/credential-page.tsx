@@ -14,7 +14,7 @@ import { forgetCredential, getCredential, subscribeCredential } from './credenti
 import { date, passwordSchema, setFormError } from './forms';
 
 export function CredentialPage({ reset = false }: { reset?: boolean }) {
-  const token = useSyncExternalStore(subscribeCredential, getCredential);
+  const token = useSyncExternalStore(subscribeCredential, () => getCredential(reset ? 'reset' : 'invitation'));
   return <CredentialForm key={token} token={token} reset={reset} />;
 }
 
@@ -29,7 +29,7 @@ function CredentialForm({ token, reset }: { token: string; reset: boolean }) {
   const form = useForm({ resolver: zodResolver(schema), defaultValues: { username: '', display_name: '', password: '', confirm: '' } });
   const password = useWatch({ control: form.control, name: 'password' });
   const submit = useOperation({ mutationFn: async (values: z.infer<typeof schema>) => { if (reset) await client.completeReset({ token, password: values.password }); else await client.acceptInvitation({ token, username: values.username, display_name: values.display_name, password: values.password }); }, onSuccess: () => {
-    forgetCredential(); form.reset(); if (reset) signedOut(); void navigate({ to: '/login', search: { notice: reset ? 'password' : 'created' }, replace: true });
+    forgetCredential(reset ? 'reset' : 'invitation'); form.reset(); if (reset) signedOut(); void navigate({ to: '/login', search: { notice: reset ? 'password' : 'created' }, replace: true });
   } });
   const logout = useOperation({ mutationFn: () => client.logout(), onSuccess: signedOut });
   useEffect(() => {

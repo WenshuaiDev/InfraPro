@@ -25,7 +25,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   expect(await page.evaluate(() => Reflect.get(window, 'policyViolations'))).toEqual([]);
   expect(browserErrors).toEqual([]);
   const legacy = await context.newPage(); await legacy.goto(`${origin}/screen/`); await expect(legacy).toHaveURL(`${base}/`); await expect(legacy.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  await navigateTo(page, '邀请管理'); await page.reload(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await navigateTo(page, '账号开户邀请'); await page.reload(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const link = await page.getByLabel('可手动复制的完整链接').inputValue(); expect(link.startsWith(`${base}/invite#token=`)).toBe(true);
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
   const recipientContext = await browser.newContext(); const recipient = await recipientContext.newPage(); await recipient.goto(link);
@@ -40,7 +40,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   await page.getByLabel('租户名称', { exact: true }).fill('HTTP 验收租户'); await page.getByLabel('租户编号', { exact: true }).fill('http-tenant'); await page.getByLabel('搜索接任账号').fill('http_guest');
   await page.getByRole('dialog').getByRole('button', { name: 'http_guest（http_guest）', exact: true }).click(); await page.getByRole('dialog').getByLabel('变更原因').fill('普通 HTTP 创建'); await page.getByRole('dialog').getByRole('button', { name: '确认提交', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'HTTP 验收租户', exact: true })).toBeVisible(); const tenantID = new URL(page.url()).pathname.split('/').at(-1)!;
-  await recipient.goto(`${base}/t/${tenantID}/profile`); await expect(recipient.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible(); await recipient.reload(); await expect(recipient.getByText('HTTP 验收租户', { exact: true })).toBeVisible();
+  await recipient.goto(`${base}/t/${tenantID}/profile`); await expect(recipient.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible(); await recipient.reload(); await expect(recipient.getByRole('main').getByText('HTTP 验收租户', { exact: true })).toBeVisible();
   expect(() => compose('run', '--rm', '--no-deps', '-T', 'ops', 'account', 'disable', '--username', 'http_guest', '--reason', '未交接应拒绝')).toThrow();
   expect((await recipientContext.request.get(`${origin}/api/v1/auth/me`)).status()).toBe(200);
   const getStatus = () => page.evaluate(async () => (await fetch('/api/v1/auth/me', { cache: 'no-store' })).status);
@@ -70,7 +70,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'check');
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '登录', exact: true }).click();
   await expect(recipient.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(26); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
+  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(40); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
   await logout(page); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await legacy.reload(); await expect(legacy.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await recipientContext.close();
   const logs = compose('logs', '--no-color', 'api', 'web');

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useBlocker, useNavigate } from '@tanstack/react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ApiError, Permissions as P, type Tenant, type TenantAccount, type TenantResult } from '@infrapro/api-client';
+import { ApiError, Permissions as P, type TenantProfile, type TenantAdministratorCandidate, type TenantResult } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
 import { Button } from '@infrapro/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@infrapro/ui/components/dialog';
@@ -27,18 +27,20 @@ const fields = z.object({
 function requestUUID() { const b = crypto.getRandomValues(new Uint8Array(16)); b[6] = (b[6]! & 15) | 64; b[8] = (b[8]! & 63) | 128; const h = Array.from(b, (v) => v.toString(16).padStart(2, '0')).join(''); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; }
 type Mode = 'create' | 'edit' | 'transfer';
 const titles = { create: '创建租户', edit: '编辑租户资料', transfer: '交接管理员' };
-export function TenantEditor({ mode, tenant, platform = true, trigger }: { mode: Mode; tenant?: Tenant; platform?: boolean; trigger: ReactElement }) {
+export function TenantEditor({ mode, tenant, platform = true, trigger, blocked = false, retry }: { mode: Mode; tenant?: TenantProfile; platform?: boolean; trigger: ReactElement; blocked?: boolean; retry?: () => void }) {
   const [open, setOpen] = useState(false); const [notice, setNotice] = useState(''); const canCloseRef = useRef(() => true);
   return <><Dialog open={open} onOpenChange={(v) => { if (!v && !canCloseRef.current()) return; setOpen(v); }}><DialogTrigger asChild>{trigger}</DialogTrigger><DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>{titles[mode]}</DialogTitle><DialogDescription>{mode === 'transfer' ? '原管理员将失去本租户访问与管理能力；其账号及其他租户权限不受影响。' : '名称、编号和说明将保存为租户档案；编号修改后永久保留原归属。'}</DialogDescription></DialogHeader>
-    {open && <Editor mode={mode} tenant={tenant} platform={platform} canCloseRef={canCloseRef} done={(message) => { setOpen(false); setNotice(message); }} />}
+    {open && <TenantEditorForm mode={mode} tenant={tenant} platform={platform} blocked={blocked} retry={retry} canCloseRef={canCloseRef} done={(message) => { setOpen(false); setNotice(message); }} />}
   </DialogContent></Dialog>{notice && <p className="text-sm" role="status">{notice}</p>}</>;
 }
-function Editor({ mode, tenant, platform, done, canCloseRef }: { mode: Mode; tenant?: Tenant; platform: boolean; done: (message: string) => void; canCloseRef: React.RefObject<() => boolean> }) {
-  const { client, account, can, phase } = useIdentity(); const tenantContext = useOptionalTenant(); const available = phase === 'authenticated' && (platform || tenantContext?.available === true); const cache = useQueryClient(); const navigate = useNavigate();
+export function TenantEditorForm({ mode, tenant, platform, done, canCloseRef, cancel, blocked = false, retry }: { mode: Mode; tenant?: TenantProfile; platform: boolean; done: (message: string) => void; canCloseRef: React.RefObject<() => boolean>; cancel?: () => void; blocked?: boolean; retry?: () => void }) {
+  const { client, account, can, phase } = useIdentity(); const tenantContext = useOptionalTenant(); const available = !blocked && phase === 'authenticated' && (platform || tenantContext?.available === true); const cache = useQueryClient(); const navigate = useNavigate();
   const form = useForm({ resolver: zodResolver(fields), defaultValues: { name: tenant?.name ?? '', code: tenant?.code ?? '', description: tenant?.description ?? '', reason: '' } });
-  const [candidate, setCandidate] = useState<TenantAccount>(); const [requestId, setRequestId] = useState(() => requestUUID()); const [currentVersion, setCurrentVersion] = useState(tenant?.version ?? '');
-  const [latest, setLatest] = useState<Tenant>(); const [password, setPassword] = useState(''); const [confirmed, setConfirmed] = useState(false); const completed = useRef(false);
+  const [candidate, setCandidate] = useState<TenantAdministratorCandidate>(); const [requestId, setRequestId] = useState(() => requestUUID()); const [currentVersion, setCurrentVersion] = useState(tenant?.version ?? '');
+  const [latest, setLatest] = useState<TenantProfile>(); const [password, setPassword] = useState(''); const [confirmed, setConfirmed] = useState(false); const completed = useRef(false);
   const contextStamp = [account?.id, tenant?.id, tenantContext?.membership_id, tenantContext?.epoch].join(':');
+  const [confirmProjects,setConfirmProjects] = useState(false);
+  const projectImpact = useQuery({queryKey:['platform',account?.id,tenant?.id,'transfer-project-impact'],queryFn:({signal})=>client.previewTenantTransfer(tenant!.id,signal),enabled:mode==='transfer' && !!tenant,staleTime:0});
   const change = useOperation({ mutationFn: async () => {
     if (!available) throw new Error('租户状态暂不可确认，请等待服务恢复；输入已保留。');
     if (mode !== 'transfer' && !await form.trigger()) throw new Error('请检查表单中标记的字段。');
@@ -51,7 +53,7 @@ function Editor({ mode, tenant, platform, done, canCloseRef }: { mode: Mode; ten
     else {
       if (!tenant) throw new Error('租户信息不可用。');
       result = mode === 'transfer'
-        ? await client.transferTenant(tenant.id, { expected_version: currentVersion, new_administrator_account_id: candidate!.id, reason })
+        ? await client.transferTenant(tenant.id, { expected_version: currentVersion, new_administrator_account_id: candidate!.id, reason, project_preview_hash: projectImpact.data?.project_preview_hash, confirm_project_impact: confirmProjects })
         : await client.updateTenant(tenant.id, platform, { ...values, reason, expected_version: currentVersion });
     }
     return { result, submitted, stamp: contextStamp };
@@ -68,22 +70,24 @@ function Editor({ mode, tenant, platform, done, canCloseRef }: { mode: Mode; ten
   useEffect(() => { canCloseRef.current = () => completed.current || !(dirty || pending) || window.confirm(leaveText); }, [canCloseRef, dirty, pending, leaveText]);
   const blocker = useBlocker({ shouldBlockFn: () => !completed.current && (dirty || pending), withResolver: true, enableBeforeUnload: dirty || pending });
   const reauth = change.error instanceof ApiError && change.error.code === 'reauthentication_required';
-  const conflict = change.error instanceof ApiError && change.error.code === 'version_conflict';
+  const conflict = change.error instanceof ApiError && ['version_conflict','preview_stale'].includes(change.error.code ?? '');
   const unknown = change.error instanceof ApiError && !change.error.status;
-  const confirm = useOperation({ mutationFn: () => client.reauthenticate(password), onSuccess: () => { setPassword(''); setConfirmed(true); change.reset(); } });
-  const refresh = useOperation({ mutationFn: async () => { if (!tenant) return; const v = await client.tenant(tenant.id, platform); setLatest(v); setCurrentVersion(v.version); change.reset(); } });
+  const confirm = useOperation({ mutationFn: async () => { await client.reauthenticate(password); if (mode === 'transfer') { setConfirmProjects(false); const latest = await projectImpact.refetch(); if (latest.error) throw latest.error; } }, onSuccess: () => { setPassword(''); setConfirmed(true); change.reset(); } });
+  const refresh = useOperation({ mutationFn: async () => { if (!tenant) return; const v = await client.tenant(tenant.id, platform); setLatest(v); setCurrentVersion(v.version); if (mode === 'transfer') { await projectImpact.refetch(); setConfirmProjects(false); } change.reset(); } });
   return <><Form {...form}><form className="space-y-4" onSubmit={(e) => { e.preventDefault(); void change.mutateAsync().catch((error: unknown) => setFormError(form, error)); }}>
     {!available && <FormNotice error>租户状态暂不可确认，输入已保留，恢复后可继续提交。</FormNotice>}
+    {blocked && retry && <Button type="button" variant="outline" onClick={retry}>重新读取租户资料</Button>}
     <fieldset disabled={pending} className="space-y-4">{mode !== 'transfer' && <><FormInput control={form.control} name="name" label="租户名称" /><FormInput control={form.control} name="code" label="租户编号" hint="3–32 位，大小写视为同一编号。" /><FormInput control={form.control} name="description" label="租户说明" /></>}
     {mode === 'transfer' && tenant && <p className="rounded-md bg-muted p-3 text-sm">当前管理员：{tenant.administrator.display_name}（{tenant.administrator.username}）</p>}
-    {mode !== 'edit' && <CandidatePicker value={candidate} onChange={setCandidate} />}
+    {mode !== 'edit' && <CandidatePicker value={candidate} onChange={setCandidate} tenantId={mode === 'transfer' ? tenant?.id : undefined} />}
+    {mode === 'transfer' && projectImpact.data && projectImpact.data.projects.length > 0 && <section className="space-y-3 rounded-md border p-3 text-sm"><h3 className="font-medium">项目关系影响</h3><p>原管理员的 {projectImpact.data.projects.length} 个当前项目关系将结束。</p>{projectImpact.data.projects.map((p)=><p key={p.membership_id}>{p.name} · {p.administrator ? '管理员职责将形成待修复空缺' : '普通成员关系将结束'}</p>)}{projectImpact.data.requires_confirmation ? <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={confirmProjects} onChange={(e)=>setConfirmProjects(e.target.checked)} />确认结束这些关系，并由新任租户管理员逐项目修复管理空缺</label> : projectImpact.data.projects.some((p)=>p.administrator) && <FormNotice error>现任账号正常，请先交接项目管理职责，再交接租户。</FormNotice>}</section>}{mode === 'transfer' && <FormNotice error>{projectImpact.error?.message}</FormNotice>}
     <FormInput control={form.control} name="reason" label="变更原因" hint="本次操作及原因将记入审计。" />
     </fieldset><FormNotice error>{change.error?.message ?? refresh.error?.message}</FormNotice>{confirmed && <FormNotice>密码已确认，请核对表单后再次提交。</FormNotice>}
     {unknown && <FormNotice>提交结果尚未确认。{mode === 'create' ? '再次提交将沿用原请求编号，请保持内容不变；也可在平台列表查验。' : '请先加载最新内容，核实此前操作是否生效，再确认提交。'}</FormNotice>}
     {(conflict || unknown) && mode !== 'create' && <Button type="button" variant="outline" disabled={refresh.isPending} onClick={() => refresh.mutate()}>加载最新内容并比较</Button>}
     {latest && <section className="space-y-2 rounded-md border p-3 text-sm"><h3 className="font-medium">服务器最新内容（本地输入已保留）</h3><p>{latest.name} · {latest.code}</p><p>{latest.description || '暂无说明'}</p><p>当前管理员：{latest.administrator.display_name}（{latest.administrator.username}）</p><p>请比较后再次确认提交。</p></section>}
     {mode === 'create' && change.error instanceof ApiError && change.error.code === 'idempotency_conflict' && <Button type="button" variant="outline" onClick={() => { setRequestId(requestUUID()); change.reset(); }}>使用新请求编号重新创建</Button>}
-    <Button disabled={!available || pending || reauth || conflict || (unknown && mode !== 'create')}>{pending ? '正在提交，请稍候…' : '确认提交'}</Button>
+    <div className="flex flex-wrap gap-2"><Button disabled={!available || (mode === 'transfer' && (!projectImpact.data || !!projectImpact.error || (projectImpact.data.requires_confirmation && !confirmProjects))) || pending || reauth || conflict || (unknown && mode !== 'create')}>{pending ? '正在提交，请稍候…' : '确认提交'}</Button>{cancel && <Button type="button" variant="outline" disabled={pending} onClick={cancel}>取消</Button>}</div>
   </form></Form>
     {reauth && <form className="mt-4 space-y-3 rounded-lg border p-4" onSubmit={(e) => { e.preventDefault(); confirm.mutate(); }}><label className="block text-sm font-medium" htmlFor="tenant-password">当前密码</label><input id="tenant-password" className="h-11 w-full rounded-md border bg-background px-3" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /><FormNotice error>{confirm.error?.message}</FormNotice><Button disabled={confirm.isPending}>确认密码</Button></form>}
     <Dialog open={blocker.status === 'blocked'} onOpenChange={(v) => { if (!v && blocker.status === 'blocked') blocker.reset(); }}><DialogContent><DialogHeader><DialogTitle>{pending ? '操作仍在处理中' : '放弃未保存的输入？'}</DialogTitle><DialogDescription>{leaveText}</DialogDescription></DialogHeader><div className="flex flex-wrap gap-3"><Button onClick={() => { if (blocker.status === 'blocked') blocker.reset(); }}>继续编辑</Button><Button variant="outline" onClick={() => { if (blocker.status === 'blocked') blocker.proceed(); }}>放弃后离开</Button></div></DialogContent></Dialog>

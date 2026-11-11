@@ -4,6 +4,7 @@ go 1.27.0
 
 require (
 	github.com/WenshuaiDev/InfraPro/packages/go/platform v0.0.0
+	github.com/jackc/pgx/v5 v5.12.0
 	golang.org/x/term v0.47.0
 )
 
@@ -12,7 +13,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.12.0 // indirect
 	github.com/jackc/puddle/v2 v2.2.3 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/pressly/goose/v3 v3.29.0 // indirect

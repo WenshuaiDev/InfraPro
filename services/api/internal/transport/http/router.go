@@ -4,8 +4,14 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/projects"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
+	engineeringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/engineering"
+	projectshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/projects"
+	resourceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/resources"
 	tenancyhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/tenancy"
 	"log/slog"
 	"net/http"
@@ -93,7 +99,11 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 	if service != nil {
 		handler.Register(r)
 		accesshttp.Register(r, service)
-		tenancyhttp.Register(r, service, tenancy.New(service.Access()))
+		projectshttp.Register(r, service, projects.New(service.Access()))
+		resourceService := resources.New(service.Access())
+		resourceshttp.Register(r, service, resourceService)
+		engineeringhttp.Register(r, service, engineering.New(service.Access()).WithUsageReader(resourceService))
+		tenancyhttp.Register(r, service, tenancy.New(service.Access(), tenancy.Options{ConsoleURL: cfg.PublicConsoleURL, Limit: service.Limit, CredentialLimit: service.Rate}))
 		for _, route := range r.Routes() {
 			if _, ok := access.RoutePolicy(route.Method, route.Path); !ok {
 				panic("route lacks authorization policy: " + route.Method + " " + route.Path)

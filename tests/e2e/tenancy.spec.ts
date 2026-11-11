@@ -11,6 +11,58 @@ async function refresh(page: Page) { const response = page.waitForResponse((r) =
 async function save(page: Page) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill('租户浏览器验收原因'); await dialog.getByLabel('变更原因').press('Enter'); await expect(dialog).toBeHidden(); }
 async function select(page: Page, username: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('搜索接任账号').fill(username); await dialog.getByRole('button', { name: `浏览器验收（${username}）`, exact: true }).focus(); await page.keyboard.press('Enter'); }
 
+for (const surface of ['page', 'panel']) test(`platform tenant detail outage preserves draft and blocks writes until recovery (${surface})`, async ({ page, request }) => {
+  const headers = await owner(request);
+  const admin = await accountID(request, 'e2e_owner');
+  const tenant = await create(request, headers, admin.id, '平台故障草稿回归');
+  await page.clock.install();
+  await login(page, { username: 'e2e_owner', password });
+  const openEditor = async () => {
+    if (surface === 'page') {
+      await page.goto(`${consoleURL}/platform/tenants/${tenant.tenant_id}`);
+      await page.getByRole('button', { name: '编辑资料', exact: true }).click();
+    } else {
+      await page.goto(`${consoleURL}/platform/tenants`);
+      await page.getByRole('textbox', { name: '搜索名称或当前 / 历史编号', exact: true }).fill(tenant.code);
+      await page.getByRole('table', { name: '平台租户列表', exact: true }).getByRole('button', { name: /的操作$/ }).click();
+      await page.getByRole('menuitem', { name: '编辑资料', exact: true }).click();
+    }
+  };
+  await openEditor();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('租户名称', { exact: true }).fill('故障恢复后主动保存');
+  await dialog.getByLabel('变更原因').fill('保留尚未提交的输入');
+  let unavailable = true;
+  await page.route(`**/api/v1/platform/tenants/${tenant.tenant_id}`, async (route) => {
+    if (route.request().method() === 'GET' && unavailable) return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'unavailable', message: '临时读取故障' }) });
+    return route.continue();
+  });
+  await page.clock.fastForward(16_000);
+  const failure = page.waitForResponse((r) => r.url().endsWith(`/platform/tenants/${tenant.tenant_id}`) && r.status() === 503);
+  await page.evaluate(() => window.dispatchEvent(new Event('visibilitychange')));
+  await failure;
+  await expect(dialog.getByLabel('租户名称', { exact: true })).toHaveValue('故障恢复后主动保存');
+  await expect(dialog.getByRole('button', { name: '确认提交', exact: true })).toBeDisabled();
+  expect((await (await request.get(`${api}/platform/tenants/${tenant.tenant_id}`)).json()).name).toBe('平台故障草稿回归');
+  unavailable = false;
+  await dialog.getByRole('button', { name: '重新读取租户资料', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: '确认提交', exact: true })).toBeEnabled();
+  await expect(dialog.getByLabel('租户名称', { exact: true })).toHaveValue('故障恢复后主动保存');
+  await dialog.getByRole('button', { name: '确认提交', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  expect((await (await request.get(`${api}/platform/tenants/${tenant.tenant_id}`)).json()).name).toBe('故障恢复后主动保存');
+  await openEditor();
+  await dialog.getByLabel('租户名称', { exact: true }).fill('失权后应清理的草稿');
+  await page.unroute(`**/api/v1/platform/tenants/${tenant.tenant_id}`);
+  await page.route(`**/api/v1/platform/tenants/${tenant.tenant_id}`, (route) => route.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ code: 'tenant_not_found', message: '租户不可访问' }) }));
+  await page.clock.fastForward(16_000);
+  const denied = page.waitForResponse((r) => r.url().endsWith(`/platform/tenants/${tenant.tenant_id}`) && r.status() === 404);
+  await page.evaluate(() => window.dispatchEvent(new Event('visibilitychange')));
+  await denied;
+  await expect(page.getByLabel('租户名称', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('租户不可访问', { exact: true }).first()).toBeVisible();
+});
+
 test('tenant UI creates, edits, transfers with old sessions and protects account disable', async ({ page, request, browser }, info) => {
   const alice = await createAccount(request, false); const bob = await createAccount(request, false); const headers = await owner(request); const a = await accountID(request, alice.username); const b = await accountID(request, bob.username);
   const guestContext = await browser.newContext({ viewport: info.project.use.viewport }); const bobContext = await browser.newContext({ viewport: info.project.use.viewport });
@@ -24,7 +76,7 @@ test('tenant UI creates, edits, transfers with old sessions and protects account
     await guest.reload(); await guest.getByRole('link', { name: '进入租户', exact: true }).click(); await expect(guest.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     await guest.getByText('当前租户权限', { exact: true }).click(); await expect(guest.getByText('角色：租户管理员（租户范围）')).toBeVisible();
     expect((await guestContext.request.get(`${api}/tenants/${beta.tenant_id}/profile`)).status()).toBe(404); expect((await request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404);
-    await guest.getByRole('button', { name: '编辑资料', exact: true }).click(); await guest.getByLabel('租户名称', { exact: true }).fill(`${name}已改`); await save(guest); await guest.reload(); await expect(guest.getByText(`${name}已改`, { exact: true })).toBeVisible();
+    await guest.getByRole('button', { name: '编辑资料', exact: true }).click(); await guest.getByLabel('租户名称', { exact: true }).fill(`${name}已改`); await save(guest); await guest.reload(); await expect(guest.getByRole('main').getByText(`${name}已改`, { exact: true })).toBeVisible();
     await guest.screenshot({ path: info.outputPath('tenant-profile.png'), fullPage: true }); expect(await guest.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.reload(); await page.getByRole('button', { name: '交接管理员', exact: true }).click(); await select(page, bob.username); await save(page);
     expect((await guestContext.request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404); await refresh(guest); await expect(guest.getByRole('heading', { name: '当前租户不可访问' })).toBeVisible();
@@ -44,9 +96,9 @@ test('tenant navigation rejects late reads and writes and keeps tabs independent
   await page.route(`**/api/v1/tenants/${a.tenant_id}/profile`, async (route) => { const response = await route.fetch(); ready(); await held; await route.fulfill({ response }).catch(() => undefined); });
   try {
     await page.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await fetched; await navigateTo(page, '切换租户'); await page.getByRole('article').filter({ hasText: '隔离租户 B' }).getByRole('link', { name: '进入租户' }).click();
-    await expect(page.getByText('隔离租户 B', { exact: true })).toBeVisible(); release(); await expect(page.getByText('隔离租户 A', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible(); release(); await expect(page.getByRole('main').getByText('隔离租户 A', { exact: true })).toHaveCount(0);
   } finally { release(); await page.unrouteAll({ behavior: 'wait' }); }
-  const tab = await context.newPage(); await tab.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await expect(tab.getByText('隔离租户 A', { exact: true })).toBeVisible(); await expect(page.getByText('隔离租户 B', { exact: true })).toBeVisible();
+  const tab = await context.newPage(); await tab.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await expect(tab.getByRole('main').getByText('隔离租户 A', { exact: true })).toBeVisible(); await expect(page.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible();
   await tab.getByRole('button', { name: '编辑资料', exact: true }).click(); await tab.getByLabel('租户名称', { exact: true }).fill('A 未保存输入');
   tab.once('dialog', (dialog) => dialog.dismiss()); await tab.keyboard.press('Escape'); await expect(tab.getByLabel('租户名称', { exact: true })).toHaveValue('A 未保存输入');
   // Unrelated graph revisions and focus refresh preserve this tenant's draft.
@@ -56,7 +108,7 @@ test('tenant navigation rejects late reads and writes and keeps tabs independent
   try {
     await tab.getByLabel('变更原因').fill('迟到写响应'); await tab.getByRole('button', { name: '确认提交', exact: true }).click(); await committed;
     tab.once('dialog', (dialog) => dialog.accept()); await tab.keyboard.press('Escape'); await navigateTo(tab, '切换租户'); await tab.getByRole('article').filter({ hasText: '隔离租户 B' }).getByRole('link', { name: '进入租户' }).click(); writeRelease();
-    await expect(tab.getByText('隔离租户 B', { exact: true })).toBeVisible(); await expect(tab.getByText('变更已保存。')).toHaveCount(0); await expect(tab.getByText('A 未保存输入', { exact: true })).toHaveCount(0);
+    await expect(tab.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible(); await expect(tab.getByText('变更已保存。')).toHaveCount(0); await expect(tab.getByText('A 未保存输入', { exact: true })).toHaveCount(0);
     const actual = await (await context.request.get(`${api}/tenants/${a.tenant_id}/profile`)).json(); expect(actual.name).toBe('A 未保存输入');
     expect(await tab.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await tab.screenshot({ path: info.outputPath('tenant-switch.png'), fullPage: true });
   } finally { writeRelease(); await tab.unrouteAll({ behavior: 'wait' }); await tab.close(); }
@@ -71,7 +123,7 @@ test('tenant HTTP contracts enforce scoped permissions, narrow candidates and st
   try {
     const r = isolated.request; const h = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(r) }; expect((await r.post(`${api}/auth/login`, { headers: h, data: member })).status()).toBe(200);
     for (const path of ['/platform/tenants', '/access/accounts', '/access/audit-events']) expect((await r.get(api + path)).status()).toBe(403);
-    response = await r.get(`${api}/platform/tenant-admin-candidates?q=${member.username}`); expect(response.status()).toBe(200); const candidates = (await response.json()).items; expect(Object.keys(candidates[0]).sort()).toEqual(['display_name', 'id', 'username']);
+    response = await r.get(`${api}/platform/tenant-admin-candidates?q=${member.username}`); expect(response.status()).toBe(200); const candidates = (await response.json()).items; expect(Object.keys(candidates[0]).sort()).toEqual(['display_name', 'id', 'replaced_roles', 'username']); expect(candidates[0].replaced_roles).toEqual([]);
     expect((await r.get(`${api}/platform/tenant-admin-candidates?q=x`)).status()).toBe(400);
     const input = { name: '无平台查看权限建档', code: `n-${randomBytes(4).toString('hex')}`, description: '', reason: '最小授权', administrator_account_id: target.id, client_request_id: randomUUID() };
     for (const extra of [{ status: 'active' }, { roles: [] }, { tenant_id: randomUUID() }]) expect((await r.post(`${api}/platform/tenants`, { headers: h, data: { ...input, ...extra } })).status()).toBe(400);

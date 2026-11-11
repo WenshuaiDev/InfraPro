@@ -18,7 +18,7 @@ export function HomePage() {
       { href: '/tenants' as const, title: '我的租户', description: '进入自己的租户，维护资料与操作记录。', icon: Building2 },
       { href: '/profile' as const, title: '个人资料', description: '查看账号信息，更新显示名称。', icon: UserRound },
       { href: '/security' as const, title: '账号安全', description: '修改密码，管理会话和安全记录。', icon: ShieldCheck },
-      { href: '/invitations' as const, title: '邀请管理', description: '邀请同事加入，查看链接使用状态。', icon: MailPlus },
+      { href: '/invitations' as const, title: '账号开户邀请', description: '邀请同事加入，查看链接使用状态。', icon: MailPlus },
     ].filter((item) => allowedPath(item.href, can)).map((item) => <Link key={item.href} to={item.href} className="group rounded-xl border bg-card p-5 shadow-sm transition-colors hover:bg-accent/40 focus-visible:outline-2 focus-visible:outline-ring"><div className="mb-4 flex items-center justify-between"><item.icon className="size-5 text-muted-foreground" /><ArrowUpRight className="size-4 text-muted-foreground" /></div><h2 className="font-semibold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{item.description}</p></Link>)}</div>
   </>;
 }

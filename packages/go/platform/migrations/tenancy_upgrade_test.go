@@ -62,7 +62,7 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 	exec(`INSERT INTO account_security_events(event_type,account_id,outcome,reason) VALUES('legacy.event',$1,'success','旧审计')`, account)
 	codes := []access.Code{}
 	for _, p := range access.Catalog() {
-		if p.Scope == "tenant" || strings.HasPrefix(string(p.Code), "platform.tenant.") {
+		if p.Scope == "tenant" || p.Scope == "project" || strings.HasPrefix(string(p.Code), "engineering.") || strings.HasPrefix(string(p.Code), "platform.tenant.") {
 			continue
 		}
 		codes = append(codes, p.Code)
@@ -75,7 +75,7 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 		var rid string
 		must(pool.QueryRow(ctx, `INSERT INTO roles(name,name_normalized,description,builtin_key) VALUES($1,$1,$2,$3) RETURNING id::text`, b.Name, b.Description, b.Key).Scan(&rid))
 		for _, c := range b.Permissions {
-			if strings.HasPrefix(string(c), "platform.tenant.") {
+			if strings.HasPrefix(string(c), "platform.tenant.") || strings.HasPrefix(string(c), "engineering.") {
 				continue
 			}
 			exec(`INSERT INTO role_permissions(role_id,permission_code) VALUES($1,$2)`, rid, c)

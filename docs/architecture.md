@@ -2,7 +2,7 @@
 
 ## 当前范围
 
-Go workspace 包含四个独立 module：HTTP API、项目统一运维 CLI、项目共享 platform 和通用 foundation；前端保留一个 React 应用与五个 TS 共享包。当前业务功能为账号管理，账号、会话、邀请和审计持久化到 PostgreSQL，Redis 提供共享缓存与限流。工程目录基线中的演示内容已移除。
+Go workspace 包含四个独立 module：HTTP API、项目统一运维 CLI、项目共享 platform 和通用 foundation；前端保留一个 React 应用与五个 TS 共享包。当前业务功能覆盖账号、租户、项目管理、工程定义编制及租户工程资源；业务数据持久化到 PostgreSQL，Redis 提供共享缓存与限流。工程目录基线中的演示内容已移除。
 
 ```text
 InfraPro/
@@ -24,6 +24,11 @@ InfraPro/
 │   │   ├── foundation/          通用 config、logging，独立 Go module
 │   │   └── platform/            项目共享能力，独立 Go module
 │   │       ├── config/          项目配置与按命令读取的数据库配置
+│   │       ├── access/          权限目录、明确范围策略与授权状态
+│   │       ├── tenancy/         租户资料、成员、邀请及生命周期
+│   │       ├── projects/        项目、成员、角色、管理交接和归档事务
+│   │       ├── engineering/     元模型、草稿、不可变版本、依赖、校验与样例预览
+│   │       ├── resources/       设施、构件、测点、业务通道、历史与幂等收据
 │   │       ├── identity/        账号规则、事务、密码与会话缓存
 │   │       ├── migrations/      嵌入式 Goose 项目数据库迁移
 │   │       ├── runtime/         数据库、Redis 与业务装配
@@ -34,7 +39,7 @@ InfraPro/
 │       ├── api-client/           Fetch 客户端、生成类型、可选 React 适配入口
 │       ├── tsconfig/             统一严格 TS 配置
 │       └── eslint-config/        统一 ESLint 配置
-├── contracts/openapi/            账号接口与运行探针的契约源
+├── contracts/openapi/            账号、租户、项目、工程定义、实际资源与运行探针契约源
 ├── configs/                      项目共用 YAML 配置示例
 ├── deploy/{docker,compose,nginx}/ HTTP 镜像、持久化依赖与代理部署
 ├── scripts/                      workspace 检查、进程管理、类型生成
@@ -114,3 +119,38 @@ platform/config 组合 foundation 的基础配置，提供同一项目配置来�
 `platform/tenancy` 负责档案、编号归属、初始管理员和交接；通过 `access.Actor` 的可信会话复验与 `RequireScopedTx` 在同一事务重新授权，不导入 identity 或 Gin。HTTP tenancy 适配器从 identity 建立 Actor，调用完整业务操作，不拼接多个独立写事务。`access` 按明确租户读取成员和角色；identity 的共享启停事务调用 access 的管理员保护及治理事件写入，依赖方向不成环。
 
 授权状态锁 → 相关账号按 UUID 排序 → 会话复验 → 租户及成员 → 编号及审计。创建、交接、账号启停使用排他授权锁；资料修改使用共享授权锁。租户成员和角色变化只影响对应租户；平台角色不产生租户成员关系。前端以 URL、账号、租户与成员关系划分查询，传递 AbortSignal，页面卸载废弃写请求完成回调；确认失权清理内容，短暂故障保留草稿并阻止提交。
+
+
+## 项目业务与上下层联动
+
+`platform/projects` 拥有完整项目命令：在同一事务内完成范围检查、资格复验、版本与预览校验、成员和角色更新、编号保留、幂等收据及审计。`platform/access` 提供项目目录、策略、真实授权解释和上层保护/级联辅助；`tenancy`、`identity` 调用这些辅助处理父关系结束及应急停用。依赖保持为 projects/tenancy/identity → access，无反向依赖，HTTP 只解码各操作的严格输入并调用服务。
+
+项目写入先取排他授权状态锁（包括资料 PATCH，避免写入审计/修订时由共享锁升级），读取取共享锁；随后按账号 UUID、会话、租户成员、项目、项目成员/角色顺序校验。上层操作、目录同步采用同一锁顺序。权限真相是 PostgreSQL 当前关系和角色，不依赖浏览器按钮或 Redis TTL。
+
+项目成员绑定具体 tenant_membership；项目角色只绑定具体 project_membership。租户角色清空不结束关系，也不影响独立项目授权；父关系结束会在原事务中结束全部旧项目关系并撤销绑定。项目管理员不可通过普通角色分配增删。停用账号允许应急不可用；不可用租户管理员的明确修复交接可产生带原因的管理空缺，随后由新租户管理员逐项目修复。
+
+前端区分个人 `/projects`、租户治理 `/t/$tenantId/projects` 与业务 `/t/$tenantId/p/$projectId`。查询按账号、租户成员关系、项目成员关系及授权状态划分；客户端代次校验、AbortSignal 和卸载回调保护共同防止旧结果回填。短暂故障保留草稿且停止提交，真实失权清理内容；取消确认框不会执行成功回调。非危险只读请求仅在范围取消导致 AbortError 且仍被观察时重试一次，写入从不自动重放。
+
+项目完整事件在 `account_security_events.project_id` 下隔离；租户治理只保存允许的摘要，平台审计排除项目内容，包括目录发布的逐成员影响。账号历史清理跳过项目事件。迁移 v7 新增项目实体、永久编号归属、成员、绑定和操作收据，并以外键、唯一性和延迟约束保护完整管理结构。运行与验收见[项目管理手册](operations/project-management.md)。
+
+## 工程定义与通用预览
+
+`platform/engineering` 定义四种元模型职责：设施类型、指标、单位、监测模板。具体桥梁、边坡、路基路面是内容数据。依赖保持 engineering → access；HTTP 从 identity 建立可信 Actor，执行严格 JSON 解码，调用单个业务事务。接口输入不得指定作用范围、发布者或版本号。
+
+锁顺序为共享授权状态 → 当前账号 → 会话及当前范围权限复验 → 工程目录状态 → 定义。发布、复制、创建和状态维护使用排他工程目录锁；保存草稿使用共享目录锁与独立定义行锁。发布版本、编译 Schema、单位类别快照、固定依赖与内容摘要不可变，启停状态单表维护；成功业务结果、幂等收据与审计一次提交。单位类别被引用后不可改义，删除草稿保留身份编号。
+
+JSON Schema 2020-12 由内部有限字段模型生成，Go 使用 `santhosh-tekuri/jsonschema/v6` v6.0.3 显式执行 format 校验并关闭外部资源加载。编译缓存仅缓存内容摘要对应的规则，最多 1024 项；权限和完整依赖链可用性每次查询当前数据库。前端 React Hook Form 保存编制表单，Zod 使用无动态代码生成入口，通用解释器绘制属性、样例树和待绑定要求。共享语义样例位于 `tests/fixtures/engineering-values.json`。
+
+公共版本和租户私有模板分别授权。租户公共目录不暴露草稿和不可新采用版本；已授权历史模板只解析其固定公共依赖，不开放全局历史搜索。复制来源摘要仅供追溯，实际依赖决定新采用资格。平台审计明确排除租户私有工程事件。前端查询按账号、租户、成员关系隔离，写入不自动重放；临时样例无持久化。实际资源通过下述 resources 模块接入固定版本，不创建独立监测方案或运行模块空壳。
+
+迁移 v8 和操作入口见[设施类型定义手册](operations/infrastructure-type-definition.md)。
+
+## 租户工程资源
+
+`platform/resources` 拥有实际设施、构件树、测点和业务通道；`engineering` 继续拥有定义。资源服务通过 `engineering.ResolvePublicTx` 在当前事务解析公共发布版本及其固定依赖，不复制定义解析 SQL。定义影响接口注入 `UsageReader`，仅返回“存在资源引用”的布尔值，不暴露租户、对象名称、ID 或数量。
+
+资源写入锁顺序为授权共享锁 → 当前账号/会话及范围复验 → 工程目录共享锁 → 设施行锁。构件结构变更另验 `structure_revision`；同请求以账号、租户和请求 ID 去重，业务变更、独立历史、审计摘要和收据一次提交。四类资源分别建表，以组合外键、唯一编号和触发器约束同租户同设施引用、允许关系、循环及最大正常数量。删除保留身份和编号；历史不随账号安全事件清理。
+
+HTTP 使用显式资源策略、严格字段与 256 KiB 请求限制；read/manage 为租户权限，采用新类型或新指标另需目录读取权。React 页面复用 `engineering-fields` 控件与字段校验，位置使用共享 Go/Zod 语义样例；查询按账号、租户和成员关系隔离。构件树按直接子项分页，表单写入不自动重放，响应不确定时由用户查询收据。平台审计在筛选和游标前排除真实资源事件。
+
+运行、迁移 v9 及验收见[工程资源手册](operations/engineering-resources.md)。

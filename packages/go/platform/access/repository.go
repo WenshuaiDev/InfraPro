@@ -2,16 +2,13 @@ package access
 
 import (
 	"context"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 )
 
 func roleTx(ctx context.Context, tx pgx.Tx, id string) (Role, error) {
 	r := Role{Permissions: []Code{}}
-	e := tx.QueryRow(ctx, `SELECT id::text,name,description,COALESCE(builtin_key,''),binding_scope,status,version::text,created_at,(SELECT count(*) FROM account_roles WHERE role_id=roles.id) FROM roles WHERE id=$1 AND deleted_at IS NULL`, id).Scan(&r.ID, &r.Name, &r.Description, &r.BuiltinKey, &r.BindingScope, &r.Status, &r.Version, &r.CreatedAt, &r.AccountCount)
+	e := tx.QueryRow(ctx, `SELECT id::text,name,description,COALESCE(builtin_key,''),binding_scope,status,version::text,created_at,COALESCE(owner_tenant_id::text,''),COALESCE(owner_project_id::text,''),COALESCE(source_role_id::text,''),COALESCE(source_role_version::text,''),assignment_policy,(SELECT count(*) FROM account_roles WHERE role_id=roles.id) FROM roles WHERE id=$1 AND deleted_at IS NULL`, id).Scan(&r.ID, &r.Name, &r.Description, &r.BuiltinKey, &r.BindingScope, &r.Status, &r.Version, &r.CreatedAt, &r.OwnerTenantID, &r.OwnerProjectID, &r.SourceRoleID, &r.SourceRoleVersion, &r.AssignmentPolicy, &r.AccountCount)
 	if e != nil {
 		return r, notFound(e)
 	}
@@ -43,6 +40,7 @@ func accountTx(ctx context.Context, tx pgx.Tx, id string) (Account, error) {
 type Filter struct {
 	Cursor, Query, Status, RoleID, ObjectID, ObjectType, From, To, TenantID, Event string
 	Limit                                                                          int
+	Category, Outcome                                                              string
 }
 
 func (f Filter) validate() (int, error) {
@@ -184,68 +182,6 @@ func (s *Service) Authorization(ctx context.Context, a Actor, id string) (Snapsh
 		var e error
 		v, e = snapshotTx(ctx, tx, id, rev)
 		return e
-	})
-	return v, e
-}
-func (s *Service) AuditEvents(ctx context.Context, a Actor, f Filter) (Page[AuditEvent], error) {
-	v := Page[AuditEvent]{Items: []AuditEvent{}}
-	e := s.read(ctx, a, OpAuditRead, func(tx pgx.Tx, _ string) error {
-		limit, e := f.validate()
-		if e != nil {
-			return e
-		}
-		canTenant, e := HasTx(ctx, tx, a.ID, TenantRead)
-		if e != nil {
-			return e
-		}
-		if f.TenantID != "" {
-			if !canTenant {
-				return ErrDenied
-			}
-			if !ValidID(f.TenantID) {
-				return Validation("tenant_id", "租户 ID 无效。")
-			}
-		}
-		before := int64(9223372036854775807)
-		if f.Cursor != "" {
-			before, e = strconv.ParseInt(f.Cursor, 10, 64)
-			if e != nil || before < 1 {
-				return Validation("cursor", "分页位置无效。")
-			}
-		}
-		var from, to *time.Time
-		for _, x := range []struct {
-			raw  string
-			dest **time.Time
-		}{{f.From, &from}, {f.To, &to}} {
-			if x.raw != "" {
-				t, e := time.Parse(time.RFC3339, x.raw)
-				if e != nil {
-					return Validation("time", "时间需为 RFC3339 格式。")
-				}
-				*x.dest = &t
-			}
-		}
-		if from != nil && to != nil && from.After(*to) {
-			return Validation("time", "起始时间不得晚于结束时间。")
-		}
-		rows, e := tx.Query(ctx, `SELECT id::text,event_type,actor_type,COALESCE(actor_id::text,''),COALESCE(account_id::text,''),object_type,object_id,reason,request_id,created_at,details,COALESCE(tenant_id::text,''),actor_scope FROM account_security_events WHERE id<$1 AND ($2='' OR object_id=$2 OR account_id::text=$2) AND ($3='' OR object_type=$3) AND ($4::timestamptz IS NULL OR created_at>=$4) AND ($5::timestamptz IS NULL OR created_at<=$5) AND ($7 OR tenant_id IS NULL) AND ($8='' OR tenant_id::text=$8) AND ($9='' OR event_type=$9) AND ($10='' OR reason ILIKE '%'||$10||'%' OR event_type ILIKE '%'||$10||'%') ORDER BY id DESC LIMIT $6`, before, strings.TrimSpace(f.ObjectID), f.ObjectType, from, to, limit+1, canTenant, f.TenantID, f.Event, f.Query)
-		if e != nil {
-			return e
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var ev AuditEvent
-			if e = rows.Scan(&ev.ID, &ev.EventType, &ev.ActorType, &ev.ActorID, &ev.AccountID, &ev.ObjectType, &ev.ObjectID, &ev.Reason, &ev.RequestID, &ev.CreatedAt, &ev.Details, &ev.TenantID, &ev.ActorScope); e != nil {
-				return e
-			}
-			v.Items = append(v.Items, ev)
-		}
-		if len(v.Items) > limit {
-			v.Items = v.Items[:limit]
-			v.NextCursor = v.Items[limit-1].ID
-		}
-		return rows.Err()
 	})
 	return v, e
 }

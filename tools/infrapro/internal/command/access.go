@@ -15,7 +15,7 @@ import (
 )
 
 const accessHelp = `权限维护：infrapro access <子命令>
-  sync            同步当前发布的权限目录与内置角色（不修改自定义角色或账号绑定）
+  sync [--dry-run] 同步当前发布的权限目录与内置角色；--dry-run 只读预览差异及影响
   check           只读检查目录一致性
   recover-admin   --username <已有用户名> --reason <原因>，添加管理员角色，不恢复账号或会话
   catalog         输出代码目录，供构建生成器使用；不连接数据库
@@ -32,6 +32,10 @@ func (a *App) access(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet(cmd, flag.ContinueOnError)
 	fs.SetOutput(a.errOut)
 	var username, reason string
+	var dryRun bool
+	if cmd == "sync" {
+		fs.BoolVar(&dryRun, "dry-run", false, "只读预览目录、角色及租户影响")
+	}
 	if cmd == "recover-admin" {
 		fs.StringVar(&username, "username", "", "已有账号用户名")
 		fs.StringVar(&reason, "reason", "", "恢复原因")
@@ -71,6 +75,13 @@ func (a *App) access(ctx context.Context, args []string) error {
 	s := access.New(pool, slog.Default())
 	switch cmd {
 	case "sync":
+		if dryRun {
+			v, err := s.SyncPreview(ctx)
+			if err != nil {
+				return err
+			}
+			return json.NewEncoder(a.out).Encode(v)
+		}
 		e = s.Sync(ctx)
 	case "check":
 		e = s.Check(ctx)
@@ -82,7 +93,7 @@ func (a *App) access(ctx context.Context, args []string) error {
 		if errors.As(e, &ae) {
 			return ae
 		}
-		return fmt.Errorf("权限维护失败，请检查数据库、目录版本及内置角色状态")
+		return fmt.Errorf("权限维护失败：%w", e)
 	}
 	_, e = fmt.Fprintln(a.out, "权限维护完成。")
 	return e

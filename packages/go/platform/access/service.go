@@ -171,6 +171,9 @@ func (s *Service) ChangeRole(ctx context.Context, a Actor, id string, op Operati
 		if e != nil {
 			return e
 		}
+		if old.BindingScope != "platform" || old.OwnerTenantID != "" {
+			return ErrNotFound
+		}
 		if old.BuiltinKey != "" {
 			return Validation("role", "内置角色由系统维护，不可修改。")
 		}

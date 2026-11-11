@@ -8,6 +8,7 @@ import { ThemeProvider } from '@infrapro/ui/theme';
 import { Toaster } from '@infrapro/ui/components/sonner';
 import { brand } from '../config/brand';
 import { makeRouter } from './router';
+import { observeCredentialIdentity } from '../features/auth/credential';
 
 function Unavailable() {
   const { reload } = useIdentity();
@@ -26,7 +27,8 @@ function Runtime() {
 }
 
 function Bootstrap() {
-  const { help, phase } = useIdentity();
+  const { help, phase, account } = useIdentity();
+  useEffect(() => { if (phase === 'authenticated' || phase === 'anonymous') observeCredentialIdentity(account?.id); }, [phase, account?.id]);
   if (!help) return phase === 'unavailable' ? <Unavailable /> : <AuthLayout brand={brand}><LoadingState label="正在确认登录状态…" /></AuthLayout>;
   return <Runtime />;
 }

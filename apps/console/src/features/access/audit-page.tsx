@@ -1,18 +1,82 @@
-import { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import type { ColumnDef } from '@tanstack/react-table';
+import { useRef, useState, type RefObject } from 'react';
+import { RefreshCw, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Permissions as P, type AccessAuditEvent } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
 import { PageHeader } from '@infrapro/layouts';
+import { Badge } from '@infrapro/ui/components/badge';
+import { Button } from '@infrapro/ui/components/button';
 import { Input } from '@infrapro/ui/components/input';
 import { Label } from '@infrapro/ui/components/label';
-import { DataTable } from '@infrapro/ui/patterns/data-table';
-import { date } from '../auth/forms';
-import { tenantActions } from '../tenancy/labels';
-const actions: Record<string, string> = { ...tenantActions, role_created: '创建角色', RoleUpdate: '编辑角色资料', RoleSetPermissions: '配置角色权限', RoleSetStatus: '启停角色', RoleDelete: '删除角色', account_roles_changed: '配置账号角色', AccountDisable: '停用账号', AccountEnable: '恢复账号', catalog_synced: '同步目录', initial_role_bound: '开户绑定角色', admin_recovered: '恢复管理员角色', account_disabled: '维护停用账号', account_enabled: '维护恢复账号', account_emergency_disabled: '应急停用账号' };
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@infrapro/ui/components/tabs';
+import { FormNotice } from '@infrapro/ui/patterns/feedback';
+import { ListFilter, ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
+import { AuditPanel } from './audit-panel';
+import { auditActions, auditCategories, auditOutcomes, eventCategory } from './audit-presentation';
+import { AuditTable } from './audit-table';
+import { useCursorList } from './use-role-list';
+
+type ExtraFilters = { from: string; to: string; target: string; tenant: string; range: string };
+const emptyFilters: ExtraFilters = { from: '', to: '', target: '', tenant: '', range: '' };
+const ranges = [{ value: '', label: '全部时间' }, { value: 'today', label: '今天' }, { value: 'week', label: '最近 7 天' }, { value: 'month', label: '最近 30 天' }, { value: 'custom', label: '自定义时间' }];
+const iso = (value: string) => value ? new Date(value).toISOString() : '';
+function localDateTime(date: Date) { const pad = (value: number) => String(value).padStart(2, '0'); return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
+
 export function AuditPage() {
-  const { client, can } = useIdentity(); const [tenant, setTenant] = useState(''); const [event, setEvent] = useState(''); const [q, setQ] = useState(''); const [target, setTarget] = useState(''); const [from, setFrom] = useState(''); const [to, setTo] = useState('');
-  const list = useInfiniteQuery({ queryKey: ['access', 'audit', target, from, to, tenant, event, q], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.accessAudit({ tenant_id: tenant, event_type: event, q, object_id: target, from: from ? new Date(from).toISOString() : '', to: to ? new Date(to).toISOString() : '', cursor: pageParam }, signal), getNextPageParam: (p) => p.next_cursor || undefined });
-  const columns: ColumnDef<AccessAuditEvent>[] = [{ id: 'action', header: '操作', cell: ({ row }) => <div><p>{actions[row.original.event_type] ?? row.original.event_type}</p><p className="mt-1 text-xs text-muted-foreground">{date(row.original.created_at)}</p></div> }, { id: 'actor', header: '操作者 / 目标', cell: ({ row }) => <div className="max-w-sm break-all whitespace-normal text-xs"><p>{row.original.actor_type === 'maintenance' ? '主机维护' : row.original.actor_type === 'release' ? '发布同步' : '账号'} {row.original.actor_id}</p><p className="mt-2 text-muted-foreground">{row.original.object_type} · {row.original.object_id}</p></div> }, { accessorKey: 'reason', header: '原因', cell: ({ row }) => <p className="max-w-sm whitespace-normal break-words">{row.original.reason || '—'}</p> }, { id: 'details', header: '变更差异', cell: ({ row }) => <details className="max-w-lg"><summary className="cursor-pointer text-sm">查看前后内容</summary><pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-all rounded-md bg-muted/40 p-3 text-xs">{JSON.stringify(row.original.details, null, 2)}</pre><p className="mt-1 text-xs text-muted-foreground">请求 ID：{row.original.request_id || '维护操作'}</p></details> }];
-  return <><PageHeader title="平台审计" description="查看账号和授权变更的操作者、原因及前后差异。" /><div className="mb-4 flex flex-wrap gap-4"><div className="space-y-2"><Label htmlFor="audit-q">搜索操作或原因</Label><Input id="audit-q" value={q} onChange={(e) => setQ(e.target.value)} /></div>{can(P.PlatformTenantRead) && <div className="space-y-2"><Label htmlFor="audit-tenant">租户 ID</Label><Input id="audit-tenant" value={tenant} onChange={(e) => setTenant(e.target.value)} /></div>}<div className="space-y-2"><Label htmlFor="audit-event">事件类型</Label><select id="audit-event" className="h-10 rounded-md border bg-background px-3" value={event} onChange={(e) => setEvent(e.target.value)}><option value="">全部</option>{Object.entries(actions).filter(([key]) => can(P.PlatformTenantRead) || !key.startsWith('tenant.')).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></div><div className="space-y-2"><Label htmlFor="audit-target">目标账号或角色 ID</Label><Input id="audit-target" value={target} onChange={(e) => setTarget(e.target.value)} /></div><div className="space-y-2"><Label htmlFor="audit-from">开始时间</Label><Input id="audit-from" type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} /></div><div className="space-y-2"><Label htmlFor="audit-to">结束时间</Label><Input id="audit-to" type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} /></div></div><DataTable label="平台审计记录" data={list.data?.pages.flatMap((p) => p.items) ?? []} columns={columns} getRowId={(r) => r.id} loading={list.isPending} error={list.error?.message} onRetry={() => void list.refetch()} hasMore={list.hasNextPage} loadingMore={list.isFetchingNextPage} onLoadMore={() => void list.fetchNextPage()} /></>;
+  const { client, account, can } = useIdentity(), canTenant = can(P.PlatformTenantRead);
+  const [category, setCategory] = useState(''), [event, setEvent] = useState(''), [q, setQ] = useState(''), [outcome, setOutcome] = useState('');
+  const [filters, setFilters] = useState(emptyFilters), [pageSize, setPageSize] = useState(10), [filterOpen, setFilterOpen] = useState(false);
+  const viewerKey = `${account?.id}:${canTenant}`;
+  const [selected, setSelected] = useState<{ event: AccessAuditEvent; tab: string; viewerKey: string }>();
+  const returnFocus = useRef<HTMLElement | null>(null), filterTrigger = useRef<HTMLElement | null>(null);
+  const tenant = canTenant ? filters.tenant : '';
+  const list = useCursorList({ queryKey: ['access', 'audit', viewerKey, category, event, q, outcome, filters.from, filters.to, filters.target, tenant, pageSize], load: (cursor, signal) => client.accessAudit({ category, event_type: event, q, outcome, from: iso(filters.from), to: iso(filters.to), object_id: filters.target, tenant_id: tenant, cursor, limit: pageSize }, signal) });
+  const open = (value: AccessAuditEvent, trigger: HTMLElement | null, tab = 'details') => { returnFocus.current = trigger; setSelected({ event: value, tab, viewerKey }); };
+  const reset = () => { setQ(''); setEvent(''); setOutcome(''); setCategory(''); setFilters(emptyFilters); };
+  const setRange = (range: string) => {
+    if (range === 'custom') { filterTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setFilterOpen(true); return; }
+    const start = new Date();
+    if (range === 'today') start.setHours(0, 0, 0, 0);
+    else start.setDate(start.getDate() - (range === 'week' ? 7 : 30));
+    setFilters({ ...filters, range, from: range ? localDateTime(start) : '', to: '' });
+  };
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return <>
+    <PageHeader title="平台审计" description="追溯谁在什么时候，对什么做了什么，以及操作结果。" actions={<Button variant="outline" disabled={list.isFetching} onClick={() => void list.refetch()}><RefreshCw className={list.isFetching ? 'animate-spin' : undefined} aria-hidden="true" />刷新记录</Button>} />
+    <Tabs value={category || 'all'} onValueChange={(value) => { setCategory(value === 'all' ? '' : value); setEvent(''); }} className="gap-5">
+      <TabsList className="grid h-auto w-full grid-cols-2 sm:flex sm:w-fit">{auditCategories.map((item) => <TabsTrigger key={item.value} value={item.value || 'all'} className="max-sm:min-h-11">{item.label}</TabsTrigger>)}</TabsList>
+      <TabsContent value={category || 'all'} className="space-y-4">
+        <AuditTable items={list.items} open={open} loading={list.isPending} fetching={list.isFetching} error={list.error} retry={() => void list.refetch()} toolbar={<>
+          <div className="relative w-full sm:w-64"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input data-audit-search aria-label="搜索名称或原因" placeholder="搜索名称、用户名或原因…" value={q} maxLength={200} className="h-9 pl-9 max-sm:h-11" onChange={(e) => setQ(e.target.value)} /></div>
+          <ListFilter label="操作结果" caption="结果" value={outcome} onChange={setOutcome} options={auditOutcomes} />
+          <ListFilter label="操作类型" caption="操作" value={event} onChange={setEvent} options={[{ value: '', label: '全部操作' }, ...Object.entries(auditActions).filter(([key]) => (!category || eventCategory(key) === category) && (canTenant || !key.startsWith('tenant.'))).map(([value, label]) => ({ value, label }))]} />
+          <ListFilter label="时间范围" caption="时间" value={filters.range} onChange={setRange} options={ranges} />
+          <Button variant="outline" className="h-9 max-sm:h-11" onClick={(e) => { filterTrigger.current = e.currentTarget; setFilterOpen(true); }}><SlidersHorizontal aria-hidden="true" />更多筛选{(filters.target || tenant) && <Badge variant="secondary">{Number(Boolean(filters.target)) + Number(Boolean(tenant))}</Badge>}</Button>
+          {(q || event || outcome || category || filters.from || filters.to || filters.target || tenant) && <Button variant="ghost" className="h-9 max-sm:h-11" onClick={reset}>重置<X aria-hidden="true" /></Button>}
+        </>} />
+        <ListPagination label="平台审计记录" count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+        <p className="text-xs leading-5 text-muted-foreground">按发生时间从新到旧排列 · 时间按 {timezone} 显示{filters.range === 'custom' && ` · ${filters.from.replace('T', ' ') || '不限起始'} 至 ${filters.to.replace('T', ' ') || '不限结束'}`}</p>
+      </TabsContent>
+    </Tabs>
+    {selected?.viewerKey === viewerKey && <AuditPanel key={`${selected.event.id}:${selected.tab}`} event={selected.event} initialTab={selected.tab} close={() => setSelected(undefined)} returnFocus={returnFocus} />}
+    {filterOpen && <AuditFilters key={viewerKey} initial={filters} canTenant={canTenant} close={() => setFilterOpen(false)} apply={(next) => { setFilters(next); setFilterOpen(false); }} returnFocus={filterTrigger} />}
+  </>;
+}
+
+function AuditFilters({ initial, canTenant, close, apply, returnFocus }: { initial: ExtraFilters; canTenant: boolean; close: () => void; apply: (filters: ExtraFilters) => void; returnFocus: RefObject<HTMLElement | null> }) {
+  const [draft, setDraft] = useState(initial), [error, setError] = useState('');
+  return <ResponsivePanel open onOpenChange={(open) => { if (!open) close(); }} title="更多筛选" description="按时间缩小范围，或用已知 ID 精确定位记录。" returnFocus={returnFocus} fallbackFocusSelector="[data-audit-search]">
+    <form className="space-y-6" onSubmit={(e) => {
+      e.preventDefault();
+      if ([draft.from, draft.to].some((value) => value && !Number.isFinite(new Date(value).getTime()))) { setError('请填写有效的日期和时间。'); return; }
+      if (draft.from && draft.to && new Date(draft.from) > new Date(draft.to)) { setError('开始时间不能晚于结束时间。'); return; }
+      if (canTenant && draft.tenant.trim() && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(draft.tenant.trim())) { setError('请输入完整的租户 ID，或使用列表搜索租户名称。'); return; }
+      apply({ ...draft, target: draft.target.trim(), tenant: canTenant ? draft.tenant.trim() : '', range: draft.from || draft.to ? (draft.from === initial.from && draft.to === initial.to ? initial.range : 'custom') : '' });
+    }}>
+      <div className="space-y-4"><h3 className="text-sm font-semibold">发生时间</h3><div className="space-y-2"><Label htmlFor="audit-from">开始时间</Label><Input id="audit-from" type="datetime-local" value={draft.from} onChange={(e) => { setError(''); setDraft({ ...draft, from: e.target.value }); }} /></div><div className="space-y-2"><Label htmlFor="audit-to">结束时间</Label><Input id="audit-to" type="datetime-local" value={draft.to} onChange={(e) => { setError(''); setDraft({ ...draft, to: e.target.value }); }} /></div></div>
+      <div className="space-y-4 border-t pt-5"><h3 className="text-sm font-semibold">精确定位</h3><p className="text-sm text-muted-foreground">通常直接搜索名称即可。排查问题时，可从记录的技术信息复制 ID。</p><div className="space-y-2"><Label htmlFor="audit-target">对象或关联账号 ID</Label><Input id="audit-target" value={draft.target} maxLength={200} onChange={(e) => setDraft({ ...draft, target: e.target.value })} /></div>{canTenant && <div className="space-y-2"><Label htmlFor="audit-tenant">租户 ID</Label><Input id="audit-tenant" value={draft.tenant} maxLength={36} onChange={(e) => { setError(''); setDraft({ ...draft, tenant: e.target.value }); }} /></div>}</div>
+      <FormNotice error>{error}</FormNotice>
+      <div className="flex flex-wrap gap-2"><Button type="submit">应用筛选</Button><Button type="button" variant="outline" onClick={() => { setDraft(emptyFilters); setError(''); }}>清空条件</Button><Button type="button" variant="ghost" onClick={close}>取消</Button></div>
+    </form>
+  </ResponsivePanel>;
 }

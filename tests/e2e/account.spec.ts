@@ -36,7 +36,7 @@ test('protected routes, safe return, profile, cookie and shared tab logout', asy
 });
 
 test('invitation creation, manual copy, recipient validation, one-use and member-only capability', async ({ page, account, browser }, testInfo) => {
-  await login(page, account); await navigateTo(page, '邀请管理');
+  await login(page, account); await navigateTo(page, '账号开户邀请');
   await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true }));
   await page.getByLabel('用途备注').fill('受邀同事'); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const output = page.getByLabel('可手动复制的完整链接'); await expect(output).toBeVisible(); const link = await output.inputValue();
@@ -96,7 +96,7 @@ test('account service outage is not mistaken for logout and retry recovers', asy
 });
 
 test('password confirmation and CSRF failure never silently resubmit a write', async ({ page, account }) => {
-  await login(page, account); await navigateTo(page, '邀请管理');
+  await login(page, account); await navigateTo(page, '账号开户邀请');
   let creates = 0;
   await page.route('**/api/v1/invitations', async (route) => {
     if (route.request().method() !== 'POST') { await route.continue(); return; }
@@ -118,8 +118,11 @@ test('password confirmation and CSRF failure never silently resubmit a write', a
   await page.getByRole('button', { name: '保存资料' }).click(); await expect(page.getByRole('alert')).toContainText('重新提交'); expect(saves).toBe(1);
   await expect(page.getByLabel('显示名称', { exact: true })).toHaveValue('保留未保存内容');
   await page.unroute('**/api/v1/account/profile');
-  await page.route('**/api/v1/auth/me', (route) => route.fulfill({ status: 503, json: { code: 'unavailable', message: '故障', request_id: 'test' } }));
-  await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await expect(page.getByRole('heading', { name: '服务暂时不可用' })).toBeVisible();
+  let outageReads = 0;
+  await page.route('**/api/v1/auth/me', (route) => { outageReads++; return route.fulfill({ status: 503, json: { code: 'unavailable', message: '故障', request_id: 'test' } }); });
+  // Focus reloads coalesce with an existing identity check; wait until the injected fault is actually read.
+  await expect.poll(async () => { await page.evaluate(() => window.dispatchEvent(new Event('focus'))); return outageReads; }).toBeGreaterThan(0);
+  await expect(page.getByRole('heading', { name: '服务暂时不可用' })).toBeVisible();
   await page.unroute('**/api/v1/auth/me'); await page.getByRole('button', { name: '重新连接账号服务' }).click();
   await expect(page.getByLabel('显示名称', { exact: true })).toHaveValue('保留未保存内容'); await page.getByRole('button', { name: '保存资料' }).click(); await expect(page.getByText('个人资料已保存。')).toBeVisible();
 });

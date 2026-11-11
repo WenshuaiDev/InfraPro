@@ -92,6 +92,11 @@ func (s *Service) Rate(ctx context.Context, scope, ip, key string) error {
 	}
 	return nil
 }
+
+// Limit shares the existing atomic Redis limiter with tenant workflows.
+func (s *Service) Limit(ctx context.Context, scope, key string, max int) error {
+	return s.cache.Rate(ctx, scope, key, max, time.Minute)
+}
 func (s *Service) Login(ctx context.Context, username, password string, m Meta) (Account, string, time.Time, error) {
 	if e := s.Rate(ctx, "login", m.IP, strings.ToLower(username)); e != nil {
 		return Account{}, "", time.Time{}, e

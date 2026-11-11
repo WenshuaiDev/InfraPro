@@ -69,15 +69,15 @@ export function SecurityPage() {
     onError: async () => { await queryClient.invalidateQueries({ queryKey: sessionsKey }); },
   });
   const sessionColumns: ColumnDef<Session>[] = [
-    { id: 'device', header: '会话', cell: ({ row: { original: session } }) => <div className="min-w-48 max-w-sm space-y-2 whitespace-normal break-words"><Badge variant={session.current ? 'secondary' : 'outline'}>{session.current ? '当前会话' : '其他会话'}</Badge><p className="text-sm">{session.user_agent || '未知浏览器'}</p><p className="text-xs text-muted-foreground">IP：{session.ip}</p></div> },
-    { id: 'time', header: '活动时间', cell: ({ row: { original: session } }) => <dl className="space-y-1 text-xs"><div><dt className="inline text-muted-foreground">创建：</dt><dd className="inline">{date(session.created_at)}</dd></div><div><dt className="inline text-muted-foreground">最近活动：</dt><dd className="inline">{date(session.last_activity_at)}</dd></div><div><dt className="inline text-muted-foreground">最晚到期：</dt><dd className="inline">{date(session.expires_at)}</dd></div></dl> },
-    { id: 'action', header: '操作', cell: ({ row: { original: session } }) => (session.current || can(P.AccountSessionRevoke)) ? <Button variant="outline" size="sm" className="text-destructive" disabled={action.isPending} onClick={() => action.mutate(session.current ? { kind: 'current' } : { kind: 'revoke', id: session.id })}>{session.current ? '退出当前会话' : '撤销会话'}</Button> : null },
+    { id: 'device', size: 320, header: '会话', cell: ({ row: { original: session } }) => <div className="min-w-48 max-w-sm space-y-2 whitespace-normal break-words"><Badge variant={session.current ? 'secondary' : 'outline'}>{session.current ? '当前会话' : '其他会话'}</Badge><p className="text-sm">{session.user_agent || '未知浏览器'}</p><p className="text-xs text-muted-foreground">IP：{session.ip}</p></div> },
+    { id: 'time', size: 272, header: '活动时间', cell: ({ row: { original: session } }) => <dl className="space-y-1 text-xs"><div><dt className="inline text-muted-foreground">创建：</dt><dd className="inline">{date(session.created_at)}</dd></div><div><dt className="inline text-muted-foreground">最近活动：</dt><dd className="inline">{date(session.last_activity_at)}</dd></div><div><dt className="inline text-muted-foreground">最晚到期：</dt><dd className="inline">{date(session.expires_at)}</dd></div></dl> },
+    { id: 'actions', size: 176, header: '操作', cell: ({ row: { original: session } }) => (session.current || can(P.AccountSessionRevoke)) ? <Button variant="outline" size="sm" className="text-destructive" disabled={action.isPending} onClick={() => action.mutate(session.current ? { kind: 'current' } : { kind: 'revoke', id: session.id })}>{session.current ? '退出当前会话' : '撤销会话'}</Button> : null },
   ];
   const eventColumns: ColumnDef<SecurityEvent>[] = [
-    { accessorKey: 'event_type', header: '操作', cell: ({ row }) => events[row.original.event_type] || row.original.event_type },
-    { accessorKey: 'outcome', header: '结果', cell: ({ row }) => <Badge variant={row.original.outcome === 'success' ? 'outline' : 'destructive'}>{outcomes[row.original.outcome] || row.original.outcome}</Badge> },
-    { accessorKey: 'created_at', header: '时间', cell: ({ row }) => date(row.original.created_at) },
-    { id: 'source', header: '来源', cell: ({ row }) => <div className="min-w-56 max-w-sm whitespace-normal break-words"><p>{row.original.source_ip || '服务器维护操作'}</p><p className="mt-1 text-xs text-muted-foreground">{row.original.user_agent}</p></div> },
+    { accessorKey: 'event_type', size: 184, header: '操作', cell: ({ row }) => events[row.original.event_type] || row.original.event_type },
+    { accessorKey: 'outcome', size: 104, header: '结果', cell: ({ row }) => <Badge variant={row.original.outcome === 'success' ? 'outline' : 'destructive'}>{outcomes[row.original.outcome] || row.original.outcome}</Badge> },
+    { accessorKey: 'created_at', size: 184, header: '时间', cell: ({ row }) => date(row.original.created_at) },
+    { id: 'source', size: 320, header: '来源', cell: ({ row }) => <div className="min-w-56 max-w-sm whitespace-normal break-words"><p>{row.original.source_ip || '服务器维护操作'}</p><p className="mt-1 text-xs text-muted-foreground">{row.original.user_agent}</p></div> },
   ];
   return <><PageHeader title="账号安全" description="管理密码、登录会话与近期安全记录。" /><AccountSettings>
     {can(P.AccountPasswordUpdate) && <><PasswordForm /><Separator /></>}

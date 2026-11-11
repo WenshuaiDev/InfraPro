@@ -1,0 +1,273 @@
+[
+  {
+    "name": "empty",
+    "position": {},
+    "valid": true
+  },
+  {
+    "name": "zero-coordinate",
+    "position": {
+      "geographic": {
+        "crs": "EPSG:4326",
+        "longitude": 0,
+        "latitude": 0
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "missing-crs",
+    "position": {
+      "geographic": {
+        "crs": "",
+        "longitude": 0,
+        "latitude": 0
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "longitude-range",
+    "position": {
+      "geographic": {
+        "crs": "EPSG:4326",
+        "longitude": 181,
+        "latitude": 0
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "partial-projected",
+    "position": {
+      "projected": {
+        "crs": "local",
+        "x": 0,
+        "y": 0,
+        "unit": "m"
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "projected",
+    "position": {
+      "projected": {
+        "crs": "local",
+        "x": 0,
+        "y": 0,
+        "unit": "mm",
+        "axis_description": "东、北"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "elevation-no-datum",
+    "position": {
+      "elevation": {
+        "value_m": 0,
+        "datum": ""
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "elevation-zero",
+    "position": {
+      "elevation": {
+        "value_m": 0,
+        "datum": "当地高程"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "local-no-reference",
+    "position": {
+      "local": {
+        "x": 0,
+        "y": 0,
+        "unit": "m",
+        "axes_description": "东、北",
+        "reference_description": ""
+      }
+    },
+    "valid": false
+  },
+  {
+    "name": "local-zero",
+    "position": {
+      "local": {
+        "x": 0,
+        "y": 0,
+        "unit": "m",
+        "axes_description": "东、北",
+        "reference_description": "主梁原点"
+      }
+    },
+    "valid": true
+  },
+  {
+    "name": "station-end-only",
+    "position": {
+      "linear_references": [
+        {
+          "route_code": "G109",
+          "end_station": "K1+200"
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "station-label",
+    "position": {
+      "linear_references": [
+        {
+          "route_code": "G109",
+          "start_station": "K1+200",
+          "end_station": "K2+000"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "section-no-context",
+    "position": {
+      "sections": [
+        {
+          "kind": "route_cross_section",
+          "code": "DM01",
+          "reference_description": ""
+        }
+      ]
+    },
+    "valid": false
+  },
+  {
+    "name": "two-sections",
+    "position": {
+      "sections": [
+        {
+          "kind": "route_cross_section",
+          "code": "DM01",
+          "reference_description": "路线断面图"
+        },
+        {
+          "kind": "facility_monitoring_section",
+          "code": "DM01",
+          "reference_description": "设施监测断面图"
+        }
+      ]
+    },
+    "valid": true
+  },
+  {
+    "name": "unsafe-number",
+    "position": {
+      "accuracy_m": 1e+30
+    },
+    "valid": false
+  },
+  {
+    "name": "negative-accuracy",
+    "position": {
+      "accuracy_m": -1
+    },
+    "valid": false
+  },
+  {
+    "name": "zero-accuracy",
+    "position": {
+      "accuracy_m": 0
+    },
+    "valid": true
+  },
+  {
+    "name": "real-date",
+    "position": {
+      "source_date": "2024-02-29"
+    },
+    "valid": true
+  },
+  {
+    "name": "invalid-date",
+    "position": {
+      "source_date": "2026-02-29"
+    },
+    "valid": false
+  },
+  {
+    "name": "array-boundary",
+    "position": {
+      "linear_references": [
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        },
+        {
+          "route_code": "G109"
+        }
+      ]
+    },
+    "valid": false
+  }
+]

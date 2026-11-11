@@ -17,6 +17,12 @@ type Account struct {
 	Username    string `json:"username"`
 	DisplayName string `json:"display_name"`
 }
+type AdministratorCandidate struct {
+	Account
+	MembershipStatus string   `json:"membership_status,omitempty"`
+	TransferMode     string   `json:"transfer_mode,omitempty"`
+	ReplacedRoles    []string `json:"replaced_roles"`
+}
 type Summary struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -24,15 +30,20 @@ type Summary struct {
 }
 type Tenant struct {
 	Summary
-	Description            string    `json:"description"`
-	Administrator          Account   `json:"administrator"`
-	AdministratorAvailable bool      `json:"administrator_available"`
-	MembershipID           string    `json:"administrator_membership_id"`
-	Version                string    `json:"version"`
-	CreatedAt              time.Time `json:"created_at"`
-	UpdatedAt              time.Time `json:"updated_at"`
-	CreatedBy              string    `json:"created_by"`
-	UpdatedBy              string    `json:"updated_by"`
+	Status                 string     `json:"status"`
+	StatusChangedAt        *time.Time `json:"status_changed_at"`
+	StatusChangedBy        *string    `json:"status_changed_by"`
+	StatusChangeReason     *string    `json:"status_change_reason"`
+	StatusNotice           string     `json:"status_notice"`
+	Description            string     `json:"description"`
+	Administrator          Account    `json:"administrator"`
+	AdministratorAvailable bool       `json:"administrator_available"`
+	MembershipID           string     `json:"administrator_membership_id"`
+	Version                string     `json:"version"`
+	CreatedAt              time.Time  `json:"created_at"`
+	UpdatedAt              time.Time  `json:"updated_at"`
+	CreatedBy              string     `json:"created_by"`
+	UpdatedBy              string     `json:"updated_by"`
 }
 type TenantRole struct {
 	ID           string `json:"id"`
@@ -40,15 +51,19 @@ type TenantRole struct {
 	BindingScope string `json:"binding_scope"`
 }
 type Context struct {
-	Tenant       Summary                  `json:"tenant"`
-	MembershipID string                   `json:"membership_id"`
-	Roles        []TenantRole             `json:"roles"`
-	Permissions  []access.Code            `json:"permissions"`
-	Sources      map[access.Code][]string `json:"permission_sources"`
-	Revision     string                   `json:"authorization_revision"`
+	Authorization access.TenantAuthorization `json:"authorization"`
+	Tenant        Summary                    `json:"tenant"`
+	MembershipID  string                     `json:"membership_id"`
+	Roles         []TenantRole               `json:"roles"`
+	Permissions   []access.Code              `json:"permissions"`
+	Sources       map[access.Code][]string   `json:"permission_sources"`
+	Revision      string                     `json:"authorization_revision"`
 }
 type MyTenant struct {
 	Summary
+	Status       string       `json:"status"`
+	CanEnter     bool         `json:"can_enter"`
+	Restriction  string       `json:"restriction_code"`
 	MembershipID string       `json:"membership_id"`
 	Roles        []TenantRole `json:"roles"`
 }
@@ -71,9 +86,11 @@ type UpdateInput struct {
 	Reason      string  `json:"reason"`
 }
 type TransferInput struct {
-	AdministratorID string `json:"new_administrator_account_id"`
-	Version         string `json:"expected_version"`
-	Reason          string `json:"reason"`
+	ProjectPreviewHash   string `json:"project_preview_hash"`
+	ConfirmProjectImpact bool   `json:"confirm_project_impact"`
+	AdministratorID      string `json:"new_administrator_account_id"`
+	Version              string `json:"expected_version"`
+	Reason               string `json:"reason"`
 }
 type Result struct {
 	TenantID string `json:"tenant_id"`
@@ -82,9 +99,11 @@ type Result struct {
 	Replayed bool   `json:"replayed"`
 }
 type Filter struct {
-	Query, Cursor, Event, From, To string
-	Limit                          int
-	Unavailable                    bool
+	Query, Cursor, Event, From, To     string
+	Status, Role, ObjectType, ObjectID string
+	TenantID                           string
+	Limit                              int
+	Unavailable                        bool
 }
 type AuditEvent struct {
 	ID         string         `json:"id"`
