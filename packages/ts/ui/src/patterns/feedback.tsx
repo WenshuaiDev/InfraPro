@@ -17,5 +17,5 @@ export function EmptyState({ title = '暂无数据', description, children }: { 
 }
 
 export function ErrorState({ title = '加载失败', message, onRetry, retryLabel = '重新加载' }: { title?: string; message: string; onRetry?: () => void; retryLabel?: string }) {
-  return <div className="flex min-h-40 flex-col items-center justify-center gap-3 p-6 text-center" role="alert"><CircleAlert className="size-7 text-destructive" aria-hidden="true" /><h2 className="font-semibold">{title}</h2><p className="max-w-md text-sm text-muted-foreground">{message}</p>{onRetry && <Button variant="outline" onClick={onRetry}>{retryLabel}</Button>}</div>;
+  return <div className="flex min-h-40 flex-col items-center justify-center gap-3 p-6 text-center" role="alert"><CircleAlert className="size-7 text-destructive" aria-hidden="true" /><h2 className="font-semibold">{title}</h2><p className="max-w-md text-sm text-muted-foreground">{message}</p>{onRetry && <Button type="button" variant="outline" onClick={onRetry}>{retryLabel}</Button>}</div>;
 }

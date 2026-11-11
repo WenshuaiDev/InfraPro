@@ -14,7 +14,7 @@ async function refresh(page: Page) {
   const response = page.waitForResponse((r) => r.url().endsWith('/auth/me'));
   await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await response;
 }
-async function submitReason(page: Page, reason: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill(reason); await dialog.getByRole('button', { name: '确认提交变更' }).click(); await expect(dialog).toBeHidden(); }
+async function submitReason(page: Page, reason: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill(reason); await dialog.getByRole('button', { name: '保存角色绑定' }).click(); await expect(dialog.getByLabel('变更原因')).toHaveCount(0); await closeRolePanel(page); }
 
 test('role UI grants and withdraws invitation capability without logging in again', async ({ page, request, browser }, testInfo) => {
   const member = await createAccount(request, false);
@@ -55,7 +55,7 @@ test('role UI grants and withdraws invitation capability without logging in agai
     await expect(invitationGroup).toContainText('创建基础成员邀请');
     await closeRolePanel(page);
     await navigateTo(page, '账号管理'); await page.getByLabel('搜索用户名或显示名称').fill(member.username); await page.getByRole('button', { name: '浏览器验收', exact: true }).click();
-    await page.getByRole('checkbox', { name: new RegExp(name) }).check(); await page.getByRole('button', { name: '保存角色绑定' }).click(); await submitReason(page, reason);
+    await page.getByRole('button', { name: '配置角色', exact: true }).click(); await page.getByRole('checkbox', { name: new RegExp(name) }).check(); await submitReason(page, reason);
     await refresh(guest); await guest.goto(`${consoleURL}/invitations`); await guest.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(guest.getByLabel('可手动复制的完整链接')).toBeVisible();
     const link = await guest.getByLabel('可手动复制的完整链接').inputValue();
     await navigateTo(page, '角色管理'); await page.getByLabel('搜索角色名称').fill(name); await page.getByRole('button', { name, exact: true }).click();

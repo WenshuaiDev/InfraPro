@@ -82,8 +82,8 @@ test('tenant UI creates, edits, transfers with old sessions and protects account
     expect((await guestContext.request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404); await refresh(guest); await expect(guest.getByRole('heading', { name: '当前租户不可访问' })).toBeVisible();
     expect((await bobContext.request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(200); await successor.goto(`${consoleURL}/t/${tenantId}/profile`); await expect(successor.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     await navigateTo(successor, '租户操作记录'); await expect(successor.getByRole('heading', { name: '交接管理员', exact: true })).toBeVisible(); await successor.getByLabel('搜索操作或原因').fill('租户浏览器验收原因'); await expect(successor.getByRole('heading', { name: '交接管理员', exact: true })).toBeVisible();
-    await navigateTo(page, '账号管理'); await page.getByLabel('搜索用户名或显示名称').fill(bob.username); await page.getByRole('button', { name: '浏览器验收', exact: true }).click(); await expect(page.getByRole('heading', { name: '当前租户任职' })).toBeVisible();
-    await page.getByRole('button', { name: '停用账号', exact: true }).click(); await page.getByRole('dialog').getByLabel('变更原因').fill('必须先交接'); await page.getByRole('button', { name: '确认提交变更' }).click(); await expect(page.getByRole('dialog').getByText(/请先交接该账号负责的 2 个租户/)).toBeVisible();
+    await navigateTo(page, '账号管理'); await page.getByLabel('搜索用户名或显示名称').fill(bob.username); await page.getByRole('button', { name: '浏览器验收', exact: true }).click(); await page.getByRole('tab', { name: '租户任职', exact: true }).click(); await expect(page.getByRole('heading', { name: '当前租户任职' })).toBeVisible();
+    await page.getByRole('button', { name: '停用账号', exact: true }).click(); await page.getByRole('dialog').getByLabel('变更原因').fill('必须先交接'); await page.getByRole('button', { name: '确认停用账号' }).click(); await expect(page.getByRole('dialog').getByText(/请先交接该账号负责的 2 个租户/)).toBeVisible();
     expect((await guestContext.request.get(`${api}/auth/me`)).status()).toBe(200);
     expect(a.id).not.toBe(b.id);
   } finally { await guestContext.close(); await bobContext.close(); }
