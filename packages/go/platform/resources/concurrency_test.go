@@ -18,7 +18,7 @@ func TestConcurrentAuthorizationChangesPreventResourceCommit(t *testing.T) {
 			actor, role, member := f.reader(t)
 			_, e := f.env.Pool.Exec(ctx, `INSERT INTO role_permissions(role_id,permission_code,binding_scope) VALUES($1,$2,'tenant')`, role, access.TenantEngineeringResourceManage)
 			must(t, e)
-			target := res.Target{Tenant: f.tenant, Kind: res.Facility, ID: facility.ID}
+			target := res.Target{Kind: res.Facility, ID: facility.ID}
 			requestID := f.wm(t).RequestID
 			raw, _ := json.Marshal(map[string]any{"request_id": requestID, "expected_revision": 1, "name": "失权后不得提交"})
 			tx, e := f.env.Pool.Begin(ctx)
@@ -41,7 +41,10 @@ func TestConcurrentAuthorizationChangesPreventResourceCommit(t *testing.T) {
 			}
 			must(t, e)
 			done := make(chan error, 1)
-			go func() { _, err := f.srv.Mutate(ctx, actor, target, "update", raw, access.Meta{}); done <- err }()
+			go func() {
+				_, err := f.srv.Mutate(ctx, actor, res.TenantScope(f.tenant), target, "update", raw, access.Meta{})
+				done <- err
+			}()
 			select {
 			case e := <-done:
 				t.Fatalf("write bypassed authorization lock: %v", e)
@@ -62,13 +65,13 @@ func TestConcurrentIdenticalCreateAndDeleteAgainstChildCreate(t *testing.T) {
 	f := resourcesSetup(t)
 	requestID := f.wm(t).RequestID
 	raw, _ := json.Marshal(map[string]any{"request_id": requestID, "code": "ONCE", "name": "同一次创建", "type_version_id": f.typ, "values": map[string]any{"length": 0}})
-	target := res.Target{Tenant: f.tenant, Kind: res.Facility}
+	target := res.Target{Kind: res.Facility}
 	var wg sync.WaitGroup
 	results := make(chan res.Result, 2)
 	errors := make(chan error, 2)
 	for range 2 {
 		wg.Go(func() {
-			r, e := f.srv.Mutate(ctx, f.actor, target, "create", raw, access.Meta{})
+			r, e := f.srv.Mutate(ctx, f.actor, res.TenantScope(f.tenant), target, "create", raw, access.Meta{})
 			results <- r
 			errors <- e
 		})
@@ -107,11 +110,11 @@ func TestConcurrentIdenticalCreateAndDeleteAgainstChildCreate(t *testing.T) {
 	childRaw, _ := json.Marshal(map[string]any{"request_id": f.wm(t).RequestID, "code": "P", "name": "新增测点"})
 	errors = make(chan error, 2)
 	wg.Go(func() {
-		_, err := f.srv.Mutate(ctx, f.actor, res.Target{Tenant: f.tenant, Kind: res.Facility, ID: facility.ID}, "delete", deleteRaw, access.Meta{})
+		_, err := f.srv.Mutate(ctx, f.actor, res.TenantScope(f.tenant), res.Target{Kind: res.Facility, ID: facility.ID}, "delete", deleteRaw, access.Meta{})
 		errors <- err
 	})
 	wg.Go(func() {
-		_, err := f.srv.Mutate(ctx, actor, res.Target{Tenant: f.tenant, Kind: res.Point, Facility: facility.ID}, "create", childRaw, access.Meta{})
+		_, err := f.srv.Mutate(ctx, actor, res.TenantScope(f.tenant), res.Target{Kind: res.Point, Facility: facility.ID}, "create", childRaw, access.Meta{})
 		errors <- err
 	})
 	wg.Wait()

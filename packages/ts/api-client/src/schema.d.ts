@@ -3687,6 +3687,677 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** facility list */
+        get: operations["ProjectResource:facility:list"];
+        put?: never;
+        /** facility create */
+        post: operations["ProjectResource:facility:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** facility detail */
+        get: operations["ProjectResource:facility:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** facility update */
+        patch: operations["ProjectResource:facility:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resource:facility:preview */
+        post: operations["Resource:facility:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResource:facility:preview */
+        post: operations["ProjectResource:facility:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** component list */
+        get: operations["ProjectResource:component:list"];
+        put?: never;
+        /** component create */
+        post: operations["ProjectResource:component:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/components/{component_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** component detail */
+        get: operations["ProjectResource:component:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** component update */
+        patch: operations["ProjectResource:component:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/components/{component_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resource:component:preview */
+        post: operations["Resource:component:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/components/{component_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResource:component:preview */
+        post: operations["ProjectResource:component:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/components/{component_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** component retire */
+        post: operations["ProjectResource:component:retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/components/{component_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** component restore */
+        post: operations["ProjectResource:component:restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** point list */
+        get: operations["ProjectResource:point:list"];
+        put?: never;
+        /** point create */
+        post: operations["ProjectResource:point:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** point detail */
+        get: operations["ProjectResource:point:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** point update */
+        patch: operations["ProjectResource:point:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resource:point:preview */
+        post: operations["Resource:point:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResource:point:preview */
+        post: operations["ProjectResource:point:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** point retire */
+        post: operations["ProjectResource:point:retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** point restore */
+        post: operations["ProjectResource:point:restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channel list */
+        get: operations["ProjectResource:channel:list"];
+        put?: never;
+        /** channel create */
+        post: operations["ProjectResource:channel:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channel detail */
+        get: operations["ProjectResource:channel:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** channel update */
+        patch: operations["ProjectResource:channel:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resource:channel:preview */
+        post: operations["Resource:channel:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResource:channel:preview */
+        post: operations["ProjectResource:channel:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel retire */
+        post: operations["ProjectResource:channel:retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel restore */
+        post: operations["ProjectResource:channel:restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** facility changes */
+        get: operations["ProjectResource:facility:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** request detail */
+        get: operations["ProjectResource:request:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResourceAccess:access:detail */
+        get: operations["ProjectResourceAccess:access:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResourceAccess:access:changes */
+        get: operations["ProjectResourceAccess:access:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/policy/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResourceAccess:policy:preview */
+        post: operations["ProjectResourceAccess:policy:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResourceAccess:policy:change */
+        post: operations["ProjectResourceAccess:policy:change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/facilities/{facility_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResourceAccess:facility:detail */
+        get: operations["ProjectResourceAccess:facility:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/facilities/{facility_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResourceAccess:facility:preview */
+        post: operations["ProjectResourceAccess:facility:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/facilities/{facility_id}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResourceAccess:facility:change */
+        post: operations["ProjectResourceAccess:facility:change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/resource-access/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResourceAccess:request:detail */
+        get: operations["ProjectResourceAccess:request:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/type-definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:type-definitions:list */
+        get: operations["ProjectResource:type-definitions:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/type-definitions/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:type-definitions:version */
+        get: operations["ProjectResource:type-definitions:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:metrics:list */
+        get: operations["ProjectResource:metrics:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/metrics/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:metrics:version */
+        get: operations["ProjectResource:metrics:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:units:list */
+        get: operations["ProjectResource:units:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/catalog/units/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:units:version */
+        get: operations["ProjectResource:units:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/project-usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List projects currently using a tenant facility, including archived projects */
+        get: operations["ProjectResourceAccess:usage:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3811,7 +4482,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage";
+        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read";
         Permission: {
             name: string;
             group: string;
@@ -4564,6 +5235,8 @@ export interface components {
             project: components["schemas"]["ProjectSummary"];
             authorization: components["schemas"]["ProjectAuthorization"];
             can_enter: boolean;
+            resource_access_revision: string;
+            can_create_facility: boolean;
         };
         ProjectMember: {
             id: string;
@@ -5190,12 +5863,15 @@ export interface components {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
         };
         ResourceFacilityState: {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
             reason: string;
+            preview_hash?: string;
         };
         ResourceComponentCreate: {
             name: string;
@@ -5227,6 +5903,8 @@ export interface components {
             request_id: string;
             expected_structure_revision?: number;
             expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
         };
         ResourceComponentState: {
             /** Format: uuid */
@@ -5234,6 +5912,7 @@ export interface components {
             expected_structure_revision: number;
             expected_revision: number;
             reason: string;
+            preview_hash?: string;
         };
         ResourcePointCreate: {
             name: string;
@@ -5260,12 +5939,15 @@ export interface components {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
         };
         ResourcePointState: {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
             reason: string;
+            preview_hash?: string;
         };
         ResourceChannelCreate: {
             name: string;
@@ -5291,12 +5973,15 @@ export interface components {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
         };
         ResourceChannelState: {
             /** Format: uuid */
             request_id: string;
             expected_revision: number;
             reason: string;
+            preview_hash?: string;
         };
         Resource: {
             name: string;
@@ -5347,11 +6032,16 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             /** Format: uuid */
-            created_by: string;
+            created_by?: string;
             /** Format: uuid */
-            updated_by: string;
+            updated_by?: string;
             /** Format: date-time */
             deleted_at: string | null;
+            /** Format: uuid */
+            created_project_id?: string;
+            /** @constant */
+            visibility?: "full";
+            historical_context_hidden?: boolean;
         };
         ResourceActions: {
             edit: boolean;
@@ -5360,6 +6050,10 @@ export interface components {
             restore: boolean;
             delete: boolean;
             reason: string;
+            read: boolean;
+            create_component: boolean;
+            create_point: boolean;
+            create_channel: boolean;
         };
         ResourceDetail: {
             name: string;
@@ -5410,16 +6104,141 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             /** Format: uuid */
-            created_by: string;
+            created_by?: string;
             /** Format: uuid */
-            updated_by: string;
+            updated_by?: string;
             /** Format: date-time */
             deleted_at: string | null;
-            ancestors: components["schemas"]["Resource"][];
+            ancestors: (components["schemas"]["Resource"] | components["schemas"]["ResourceContext"])[];
             definitions: components["schemas"]["EngineeringVersion"][];
             actions: components["schemas"]["ResourceActions"];
+            /** Format: uuid */
+            created_project_id?: string;
+            /** @constant */
+            visibility?: "full";
+            historical_context_hidden?: boolean;
+            access_revision?: string;
+            link_revision?: string;
+            /** Format: uuid */
+            link_id?: string;
+            shared: boolean;
         };
-        ResourceItem: {
+        ResourceItem: components["schemas"]["ResourceFullItem"] | components["schemas"]["ResourceContextItem"];
+        ResourcePage: {
+            items: components["schemas"]["ResourceItem"][];
+            next_cursor: string;
+            access_revision?: string;
+            can_create_facility: boolean;
+        };
+        ResourceResult: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            facility_id: string;
+            revision: number;
+            structure_revision: number;
+            changed: boolean;
+            replayed: boolean;
+            access_revision?: string;
+            link_revision?: string;
+            /** Format: uuid */
+            project_id?: string;
+            /** Format: uuid */
+            link_id?: string;
+        };
+        ResourceChange: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            facility_id: string;
+            /** @enum {string} */
+            resource_kind: "facility" | "component" | "point" | "channel";
+            /** Format: uuid */
+            resource_id: string;
+            resource_revision: number;
+            /** @enum {string} */
+            operation: "create" | "update" | "retire" | "restore" | "delete";
+            /** Format: uuid */
+            actor_id?: string;
+            actor_name: string;
+            /** Format: uuid */
+            request_id: string;
+            /** Format: date-time */
+            changed_at: string;
+            reason: string;
+            before: components["schemas"]["Resource"] | null;
+            after: components["schemas"]["Resource"];
+            changed_fields: string[];
+            definition_versions: string[];
+            /** @enum {string} */
+            actor_scope?: "tenant" | "project" | "other";
+            /** Format: uuid */
+            actor_project_id?: string;
+            /** Format: uuid */
+            actor_tenant_membership_id?: string;
+            /** Format: uuid */
+            actor_project_membership_id?: string;
+            /** Format: uuid */
+            actor_link_id?: string;
+        };
+        ResourceChanges: {
+            items: components["schemas"]["ResourceChange"][];
+            next_cursor: string;
+            /** @description Fixed published definitions and dependencies used by the authorized history items on this page, including disabled versions. */
+            definitions: components["schemas"]["EngineeringVersion"][];
+        };
+        ResourceError: {
+            /**
+             * @description 包括 permission_denied、project_not_found、resource_not_found、project_archived、resource_access_changed、preview_required、preview_changed、resource_revision_conflict、structure_revision_conflict、shared_resource_tenant_action_required、tenant_action_required、resource_referenced、resource_code_taken、request_payload_conflict、resource_invalid、grant_capability_invalid、unavailable。
+             * @example permission_denied
+             * @example project_not_found
+             * @example resource_not_found
+             * @example project_archived
+             * @example resource_access_changed
+             * @example preview_required
+             * @example preview_changed
+             * @example resource_revision_conflict
+             * @example structure_revision_conflict
+             * @example shared_resource_tenant_action_required
+             * @example tenant_action_required
+             * @example resource_referenced
+             * @example resource_code_taken
+             * @example request_payload_conflict
+             * @example resource_invalid
+             * @example grant_capability_invalid
+             * @example unavailable
+             */
+            code: string;
+            message: string;
+            issues?: components["schemas"]["EngineeringIssue"][];
+            dependencies?: {
+                [key: string]: number;
+            };
+        };
+        ResourceContext: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
+            code: string;
+            name: string;
+            /** @enum {string} */
+            status: "normal" | "retired";
+            /** @constant */
+            visibility: "context";
+            category_key?: string;
+            /** Format: uuid */
+            parent_component_id?: string;
+            /** Format: uuid */
+            component_id?: string;
+            /** Format: uuid */
+            point_id?: string;
+            /** Format: uuid */
+            facility_id?: string;
+        };
+        ResourceFullItem: {
             name: string;
             code: string;
             description?: string;
@@ -5468,71 +6287,707 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             /** Format: uuid */
-            created_by: string;
+            created_by?: string;
             /** Format: uuid */
-            updated_by: string;
+            updated_by?: string;
             /** Format: date-time */
             deleted_at: string | null;
-            has_children: boolean;
+            has_children?: boolean;
             type_name?: string;
             type_number?: number;
             /** Format: uuid */
             type_definition_id?: string;
+            /** Format: uuid */
+            created_project_id?: string;
+            /** @constant */
+            visibility?: "full";
+            historical_context_hidden?: boolean;
+            has_visible_children: boolean;
         };
-        ResourcePage: {
-            items: components["schemas"]["ResourceItem"][];
-            next_cursor: string;
-        };
-        ResourceResult: {
+        ResourceContextItem: {
             /** Format: uuid */
             id: string;
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
+            code: string;
+            name: string;
+            /** @enum {string} */
+            status: "normal" | "retired";
+            /** @constant */
+            visibility: "context";
+            category_key?: string;
             /** Format: uuid */
-            facility_id: string;
-            revision: number;
-            structure_revision: number;
-            changed: boolean;
-            replayed: boolean;
+            parent_component_id?: string;
+            /** Format: uuid */
+            component_id?: string;
+            /** Format: uuid */
+            point_id?: string;
+            /** Format: uuid */
+            facility_id?: string;
+            has_children?: boolean;
+            has_visible_children: boolean;
         };
-        ResourceChange: {
+        ProjectResourceFacilityCreate: {
+            name: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            source_reference?: string;
+            /** Format: uuid */
+            type_version_id: string;
+            /** Format: uuid */
+            request_id: string;
+            code: string;
+            expected_access_revision: string;
+        };
+        ProjectResourceFacilityUpdate: {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            source_reference?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceFacilityState: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceComponentCreate: {
+            name: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            parent_component_id?: string | null;
+            category_key: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            code: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceComponentUpdate: {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            parent_component_id?: string | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision?: number;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceComponentState: {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourcePointCreate: {
+            name: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            source_reference?: string;
+            /** Format: uuid */
+            component_id?: string | null;
+            purpose?: string;
+            direction_description?: string;
+            reference_description?: string;
+            /** Format: uuid */
+            request_id: string;
+            code: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourcePointUpdate: {
+            name?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            source_reference?: string;
+            /** Format: uuid */
+            component_id?: string | null;
+            purpose?: string;
+            direction_description?: string;
+            reference_description?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourcePointState: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceChannelCreate: {
+            name: string;
+            description?: string;
+            sampling?: components["schemas"]["ResourceSampling"] | null;
+            /** Format: uuid */
+            metric_version_id: string;
+            /** Format: uuid */
+            unit_version_id?: string | null;
+            observation_direction?: string;
+            reference_basis?: string;
+            /** @enum {string} */
+            timestamp_meaning: "observation_time" | "interval_end";
+            aggregation_description?: string;
+            /** Format: uuid */
+            request_id: string;
+            code: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceChannelUpdate: {
+            name?: string;
+            description?: string;
+            sampling?: components["schemas"]["ResourceSampling"] | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ProjectResourceChannelState: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+        };
+        ResourceMutationPreviewInput: {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            source_reference?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "delete";
+        } | {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            parent_component_id?: string | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision?: number;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "delete";
+        } | {
+            name?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            source_reference?: string;
+            /** Format: uuid */
+            component_id?: string | null;
+            purpose?: string;
+            direction_description?: string;
+            reference_description?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "delete";
+        } | {
+            name?: string;
+            description?: string;
+            sampling?: components["schemas"]["ResourceSampling"] | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            /** @constant */
+            action: "delete";
+        };
+        ProjectResourceMutationPreviewInput: {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            source_reference?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "update";
+        } | {
+            name?: string;
+            description?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** @description 按固定定义校验的属性；整体替换，最多 128 KiB。 */
+            values?: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            parent_component_id?: string | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision?: number;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_structure_revision: number;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            name?: string;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            source_reference?: string;
+            /** Format: uuid */
+            component_id?: string | null;
+            purpose?: string;
+            direction_description?: string;
+            reference_description?: string;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "restore";
+        } | {
+            name?: string;
+            description?: string;
+            sampling?: components["schemas"]["ResourceSampling"] | null;
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            preview_hash?: string;
+            reason?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "update";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "retire";
+        } | {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: number;
+            reason: string;
+            preview_hash?: string;
+            expected_access_revision: string;
+            expected_link_revision: string;
+            /** @constant */
+            action: "restore";
+        };
+        ResourceMutationPreview: {
+            preview_hash: string;
+            required: boolean;
+            can_submit: boolean;
+            shared: boolean;
+            blocked_code?: string;
+            blocked_reason?: string;
+            changes: components["schemas"]["EngineeringDifference"][];
+            projects?: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                status: string;
+            }[];
+            dependencies?: {
+                [key: string]: number;
+            };
+        };
+        ProjectResourcePolicy: {
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string;
+            project_name: string;
+            /** @enum {string} */
+            project_status: "active" | "archived";
+            project_version: string;
+            allow_facility_create: boolean;
+            revision: string;
+        };
+        ProjectFacilityLink: {
             /** Format: uuid */
             id: string;
             /** Format: uuid */
             tenant_id: string;
             /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
             facility_id: string;
+            facility_name: string;
+            facility_code: string;
             /** @enum {string} */
-            resource_kind: "facility" | "component" | "point" | "channel";
+            status: "active" | "revoked";
+            revision: string;
+            /** Format: date-time */
+            created_at: string;
+        };
+        ProjectResourceGrant: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            link_id: string;
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
             /** Format: uuid */
             resource_id: string;
-            resource_revision: number;
-            /** @enum {string} */
-            operation: "create" | "update" | "retire" | "restore" | "delete";
             /** Format: uuid */
-            actor_id: string;
-            actor_name: string;
+            component_id?: string;
+            /** Format: uuid */
+            point_id?: string;
+            /** Format: uuid */
+            channel_id?: string;
+            name: string;
+            code: string;
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+            /** @enum {string} */
+            source: "tenant_grant" | "project_create";
+            revision: string;
+        };
+        ProjectResourceAccessDetail: {
+            policy: components["schemas"]["ProjectResourcePolicy"];
+            links: components["schemas"]["ProjectFacilityLink"][];
+            next_cursor: string;
+            link: components["schemas"]["ProjectFacilityLink"] | null;
+            grants: components["schemas"]["ProjectResourceGrant"][];
+            grant_next_cursor: string;
+            candidates: components["schemas"]["ResourcePage"];
+            candidate_grants: components["schemas"]["ProjectResourceGrant"][];
+        };
+        ProjectResourceGrantInput: {
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
+            /** Format: uuid */
+            component_id?: string;
+            /** Format: uuid */
+            point_id?: string;
+            /** Format: uuid */
+            channel_id?: string;
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+        };
+        ProjectResourceGrantUpdate: {
+            /** Format: uuid */
+            grant_id: string;
+            expected_revision: string;
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+        };
+        ProjectResourceGrantEnd: {
+            /** Format: uuid */
+            grant_id: string;
+            expected_revision: string;
+        };
+        ProjectResourceCurrentSelection: {
+            /** @enum {string} */
+            root_kind: "facility" | "component" | "point" | "channel";
+            /** Format: uuid */
+            root_id: string;
+            kinds: {
+                facility?: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+                component?: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+                point?: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+                channel?: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+            };
+        };
+        ProjectResourceAccessInput: {
             /** Format: uuid */
             request_id: string;
+            /** @enum {string} */
+            action: "policy" | "create_link" | "change_grants" | "revoke_link";
+            expected_access_revision: string;
+            expected_link_revision?: string;
+            reason: string;
+            preview_hash?: string;
+            allow_facility_create?: boolean;
+            add?: components["schemas"]["ProjectResourceGrantInput"][];
+            update?: components["schemas"]["ProjectResourceGrantUpdate"][];
+            end?: components["schemas"]["ProjectResourceGrantEnd"][];
+            select_current?: components["schemas"]["ProjectResourceCurrentSelection"];
+        };
+        ProjectResourceAccessPreview: {
+            preview_hash: string;
+            policy: components["schemas"]["ProjectResourcePolicy"];
+            link: components["schemas"]["ProjectFacilityLink"] | null;
+            add: components["schemas"]["ProjectResourceGrant"][];
+            update: components["schemas"]["ProjectResourceGrant"][];
+            end: components["schemas"]["ProjectResourceGrant"][];
+            retained_context: components["schemas"]["ResourceContext"][];
+            changed: boolean;
+        };
+        ProjectResourceAccessResult: {
+            /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
+            link_id?: string;
+            link_revision?: string;
+            access_revision: string;
+            changed: boolean;
+            replayed: boolean;
+        };
+        ProjectResourceAccessChange: {
+            /** Format: uuid */
+            id: string;
+            access_revision: string;
+            operation: string;
+            /** Format: uuid */
+            actor_id: string;
+            /** @enum {string} */
+            actor_scope: "tenant" | "project";
+            reason: string;
+            before: unknown;
+            after: unknown;
             /** Format: date-time */
             changed_at: string;
-            reason: string;
-            before: components["schemas"]["Resource"] | null;
-            after: components["schemas"]["Resource"];
-            changed_fields: string[];
-            definition_versions: string[];
         };
-        ResourceChanges: {
-            items: components["schemas"]["ResourceChange"][];
+        ProjectResourceAccessChanges: {
+            items: components["schemas"]["ProjectResourceAccessChange"][];
             next_cursor: string;
-            /** @description Fixed published definitions and dependencies used by the authorized history items on this page, including disabled versions. */
-            definitions: components["schemas"]["EngineeringVersion"][];
         };
-        ResourceError: {
+        ProjectResourceCatalogItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            definition_id: string;
             code: string;
-            message: string;
-            issues?: components["schemas"]["EngineeringIssue"][];
-            dependencies?: {
-                [key: string]: number;
-            };
+            name: string;
+            number: number;
+        };
+        ProjectResourceCatalogPage: {
+            items: components["schemas"]["ProjectResourceCatalogItem"][];
+            total: number;
+            limit: number;
+            offset: number;
+        };
+        ProjectResourceCatalogVersion: {
+            version: components["schemas"]["EngineeringVersion"];
+            dependencies: components["schemas"]["EngineeringVersion"][];
+        };
+        ResourceUsagePage: {
+            next_cursor: string;
+            items: {
+                /** Format: uuid */
+                project_id: string;
+                /** Format: uuid */
+                link_id: string;
+                name: string;
+                code: string;
+                /** @enum {string} */
+                status: "active" | "archived";
+            }[];
         };
     };
     responses: never;
@@ -24633,6 +26088,4720 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "normal" | "retired" | "all";
+                limit?: number;
+                cursor?: string;
+                type_definition_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceFacilityCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceFacilityUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:facility:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "normal" | "retired" | "all";
+                limit?: number;
+                cursor?: string;
+                parent_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceComponentCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceComponentUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:component:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceComponentState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:component:restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceComponentState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "normal" | "retired" | "all";
+                limit?: number;
+                cursor?: string;
+                owner?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourcePointCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourcePointUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:point:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourcePointState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:point:restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourcePointState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "normal" | "retired" | "all";
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel:restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:facility:changes": {
+        parameters: {
+            query?: {
+                kind?: "facility" | "component" | "point" | "channel";
+                id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceChanges"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:request:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:access:detail": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:access:changes": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessChanges"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:policy:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:policy:change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:facility:detail": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                grant_cursor?: string;
+                candidate_kind?: string;
+                candidate_cursor?: string;
+                candidate_limit?: number;
+                candidate_q?: string;
+                candidate_status?: string;
+                candidate_parent_id?: string;
+                candidate_owner?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:facility:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:facility:change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:request:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceAccessResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:type-definitions:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogPage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:type-definitions:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:metrics:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogPage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:metrics:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:units:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogPage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:units:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResourceAccess:usage:detail": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceUsagePage"];
                 };
             };
             /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */

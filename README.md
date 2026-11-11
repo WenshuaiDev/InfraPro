@@ -4,7 +4,15 @@ Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack 
 
 工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前功能包括账号、租户、项目、工程定义及租户工程资源，使用 PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。最新提交范围和统一复验见 [2026-11-11 PR 交付记录](docs/verification/pr-delivery-20261111.md)，各功能的自验与人工验收仍分别记录。
 
-## 全功能人工验收环境
+## 项目资源共享重构
+
+租户统一保存设施、构件、测点与通道，项目按明确对象授权使用和维护；共享编辑、归档、撤权、历史和收据均在实际权限范围内执行。本次增量迁移为 v10，权限目录 101 项，独立验收入口为 [项目资源 console](http://localhost:35173/)。
+
+[方案](docs/requirements/project-resource-management-refactor-plan.md) · [功能自验](docs/verification/project-resource-management.md) · [运行与人工验收](docs/operations/project-resource-management.md)。原目录的本机业务环境保持独立，生产尚未部署。当前为 **Awaiting acceptance**，实现及自验完成，等待用户人工验收。
+
+## 既有全功能人工验收环境
+
+本节保留原迭代入口；本次项目资源重构使用上方 35173 专用环境。
 
 已按当前功能准备独立、持久化的本机验收账号和业务数据，入口为 <http://localhost:25173/login>。账号密码及精确数据链接保存在本机 `.artifacts/manual-acceptance/账号与验收入口.local.md`；建议先使用 `accept_admin`、`accept_platform`、`accept_project`。无需自行创建账号或录入初始资料。
 
@@ -199,4 +207,4 @@ Go 工作区机制参考 [Go 官方文档](https://go.dev/doc/tutorial/workspace
 
 租户通过“工程资源 → 设施管理”直接管理设施、构件树、设施整体或构件测点及业务监测通道。已有定义版本固定引用；最少构件数量仅作参考，最多数量仍校验；位置可留空，坐标基准与真实零值保留。包含退役/恢复、软删除保护、独立变更历史、并发修订与幂等收据。本轮不增加监测方案、完成度、地图、图纸/模型绑定或采集运行功能。
 
-本机数据库已从 v8 升级至 v9，权限目录为 90 项；原账号继续使用，开发入口 [本地 console](http://127.0.0.1:5173/)。工程资源自动检查及人工验收状态见[自验记录](docs/verification/engineering-resources.md)，准备好的隔离验收环境与 13 步操作见[操作手册](docs/operations/engineering-resources.md)。
+工程资源初始迭代的本机记录为 v8 升级至 v9、权限目录 90 项；本次 v10/101 项见上方重构说明。原迭代开发入口 [本地 console](http://127.0.0.1:5173/)。工程资源自动检查及人工验收状态见[自验记录](docs/verification/engineering-resources.md)，准备好的隔离验收环境与 13 步操作见[操作手册](docs/operations/engineering-resources.md)。

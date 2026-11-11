@@ -316,7 +316,7 @@ func TestProjectCatalogPublicationAuditCleanupAndPaging(t *testing.T) {
 		}
 		cursor = page.NextCursor
 	}
-	if len(seen) != 28 {
+	if len(seen) != 30 {
 		t.Fatal("incomplete role pages", len(seen))
 	}
 	auditIDs := map[string]bool{}

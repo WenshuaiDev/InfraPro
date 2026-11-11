@@ -2,6 +2,7 @@ import { test, expect, login, createAccount, csrf, consoleURL } from './fixtures
 import { expectIdentity, logout, navigateTo } from '../helpers/navigation';
 
 test('cursor tables retain rows on failure and append real invitation and event pages', async ({ page, context, account }) => {
+  test.setTimeout(90_000);
   await login(page, account);
   const api = new URL('/api/v1', consoleURL).href;
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };

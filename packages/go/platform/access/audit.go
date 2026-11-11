@@ -13,7 +13,7 @@ import (
 
 // Scope is applied before name lookup/search, including the legacy cursor lookup.
 // This endpoint intentionally excludes project events and project governance.
-const platformAuditScope = `e.project_id IS NULL AND e.event_type<>'tenant.project.governance' AND NOT (e.tenant_id IS NOT NULL AND e.object_type IN ('engineering_definition','engineering_facility','engineering_component','engineering_point','engineering_channel'))`
+const platformAuditScope = `e.project_id IS NULL AND e.event_type<>'tenant.project.governance' AND NOT (e.tenant_id IS NOT NULL AND e.object_type IN ('engineering_definition','engineering_facility','engineering_component','engineering_point','engineering_channel','project_resource_policy','project_facility_link','project_resource_grant_set'))`
 
 const auditNames = `WITH named AS (
  SELECT e.*,

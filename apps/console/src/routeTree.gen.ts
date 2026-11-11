@@ -35,6 +35,7 @@ import { Route as AuthenticatedTTenantIdAuditRouteImport } from './routes/_authe
 import { Route as AuthenticatedPlatformTenantsTenantIdRouteImport } from './routes/_authenticated/platform/tenants/$tenantId'
 import { Route as AuthenticatedPlatformEngineeringKindRouteImport } from './routes/_authenticated/platform/engineering/$kind'
 import { Route as AuthenticatedTTenantIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/roles/index'
+import { Route as AuthenticatedTTenantIdResourceAccessIndexRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/index'
 import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './routes/_authenticated/t/$tenantId/projects/index'
 import { Route as AuthenticatedTTenantIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/members/index'
 import { Route as AuthenticatedTTenantIdInvitationsIndexRouteImport } from './routes/_authenticated/t/$tenantId/invitations/index'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedTTenantIdMembersMembershipIdRouteImport } from '.
 import { Route as AuthenticatedTTenantIdInvitationsInvitationIdRouteImport } from './routes/_authenticated/t/$tenantId/invitations/$invitationId'
 import { Route as AuthenticatedTTenantIdEngineeringTemplatesRouteImport } from './routes/_authenticated/t/$tenantId/engineering/templates'
 import { Route as AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/index'
+import { Route as AuthenticatedTTenantIdResourceAccessProjectIdIndexRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/$projectId/index'
 import { Route as AuthenticatedTTenantIdPProjectIdIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/index'
 import { Route as AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/$facilityId'
 import { Route as AuthenticatedTTenantIdPProjectIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/profile'
@@ -54,8 +56,11 @@ import { Route as AuthenticatedTTenantIdPProjectIdAuditRouteImport } from './rou
 import { Route as AuthenticatedTTenantIdEngineeringCatalogKindRouteImport } from './routes/_authenticated/t/$tenantId/engineering/catalog/$kind'
 import { Route as AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/index'
 import { Route as AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/index'
+import { Route as AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
 import { Route as AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
 import { Route as AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
+import { Route as AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/resources/facilities/index'
+import { Route as AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -198,6 +203,12 @@ const AuthenticatedTTenantIdRolesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedTTenantIdRolesRoute,
   } as any)
+const AuthenticatedTTenantIdResourceAccessIndexRoute =
+  AuthenticatedTTenantIdResourceAccessIndexRouteImport.update({
+    id: '/resource-access/',
+    path: '/resource-access/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdProjectsIndexRoute =
   AuthenticatedTTenantIdProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -264,6 +275,12 @@ const AuthenticatedTTenantIdResourcesFacilitiesIndexRoute =
     path: '/resources/facilities/',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute =
+  AuthenticatedTTenantIdResourceAccessProjectIdIndexRouteImport.update({
+    id: '/resource-access/$projectId/',
+    path: '/resource-access/$projectId/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdPProjectIdIndexRoute =
   AuthenticatedTTenantIdPProjectIdIndexRouteImport.update({
     id: '/',
@@ -312,6 +329,14 @@ const AuthenticatedTTenantIdPProjectIdMembersIndexRoute =
     path: '/members/',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute =
+  AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRouteImport.update(
+    {
+      id: '/resource-access/$projectId/facilities/$facilityId',
+      path: '/resource-access/$projectId/facilities/$facilityId',
+      getParentRoute: () => AuthenticatedTTenantIdRoute,
+    } as any,
+  )
 const AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute =
   AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport.update({
     id: '/roles/$roleId',
@@ -324,6 +349,20 @@ const AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute =
     path: '/members/$membershipId',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute =
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport.update({
+    id: '/resources/facilities/',
+    path: '/resources/facilities/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute =
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport.update(
+    {
+      id: '/resources/facilities/$facilityId',
+      path: '/resources/facilities/$facilityId',
+      getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -359,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
   '/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/t/$tenantId/resource-access/': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
   '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
@@ -366,11 +406,15 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/t/$tenantId/resource-access/$projectId/': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
   '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
   '/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId/resources/facilities/': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
@@ -404,6 +448,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/invitations': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/t/$tenantId/members': typeof AuthenticatedTTenantIdMembersIndexRoute
   '/t/$tenantId/projects': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/t/$tenantId/resource-access': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
   '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
@@ -411,11 +456,15 @@ export interface FileRoutesByTo {
   '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/t/$tenantId/resource-access/$projectId': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/t/$tenantId/resources/facilities': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
   '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/members': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
   '/t/$tenantId/p/$projectId/roles': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId/resources/facilities': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -454,6 +503,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/_authenticated/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
   '/_authenticated/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
+  '/_authenticated/t/$tenantId/resource-access/': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/_authenticated/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/_authenticated/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
   '/_authenticated/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
@@ -461,11 +511,15 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/_authenticated/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
+  '/_authenticated/t/$tenantId/resource-access/$projectId/': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/_authenticated/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
+  '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -503,6 +557,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/invitations/'
     | '/t/$tenantId/members/'
     | '/t/$tenantId/projects/'
+    | '/t/$tenantId/resource-access/'
     | '/t/$tenantId/roles/'
     | '/t/$tenantId/engineering/catalog/$kind'
     | '/t/$tenantId/p/$projectId/audit'
@@ -510,11 +565,15 @@ export interface FileRouteTypes {
     | '/t/$tenantId/p/$projectId/profile'
     | '/t/$tenantId/resources/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/'
+    | '/t/$tenantId/resource-access/$projectId/'
     | '/t/$tenantId/resources/facilities/'
     | '/t/$tenantId/p/$projectId/members/$membershipId'
     | '/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/members/'
     | '/t/$tenantId/p/$projectId/roles/'
+    | '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId/resources/facilities/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -548,6 +607,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/invitations'
     | '/t/$tenantId/members'
     | '/t/$tenantId/projects'
+    | '/t/$tenantId/resource-access'
     | '/t/$tenantId/roles'
     | '/t/$tenantId/engineering/catalog/$kind'
     | '/t/$tenantId/p/$projectId/audit'
@@ -555,11 +615,15 @@ export interface FileRouteTypes {
     | '/t/$tenantId/p/$projectId/profile'
     | '/t/$tenantId/resources/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId'
+    | '/t/$tenantId/resource-access/$projectId'
     | '/t/$tenantId/resources/facilities'
     | '/t/$tenantId/p/$projectId/members/$membershipId'
     | '/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/members'
     | '/t/$tenantId/p/$projectId/roles'
+    | '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId/resources/facilities'
   id:
     | '__root__'
     | '/_auth'
@@ -597,6 +661,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/invitations/'
     | '/_authenticated/t/$tenantId/members/'
     | '/_authenticated/t/$tenantId/projects/'
+    | '/_authenticated/t/$tenantId/resource-access/'
     | '/_authenticated/t/$tenantId/roles/'
     | '/_authenticated/t/$tenantId/engineering/catalog/$kind'
     | '/_authenticated/t/$tenantId/p/$projectId/audit'
@@ -604,11 +669,15 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/p/$projectId/profile'
     | '/_authenticated/t/$tenantId/resources/facilities/$facilityId'
     | '/_authenticated/t/$tenantId/p/$projectId/'
+    | '/_authenticated/t/$tenantId/resource-access/$projectId/'
     | '/_authenticated/t/$tenantId/resources/facilities/'
     | '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
     | '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+    | '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/_authenticated/t/$tenantId/p/$projectId/members/'
     | '/_authenticated/t/$tenantId/p/$projectId/roles/'
+    | '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -800,6 +869,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdRolesIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRolesRoute
     }
+    '/_authenticated/t/$tenantId/resource-access/': {
+      id: '/_authenticated/t/$tenantId/resource-access/'
+      path: '/resource-access'
+      fullPath: '/t/$tenantId/resource-access/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdResourceAccessIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/projects/': {
       id: '/_authenticated/t/$tenantId/projects/'
       path: '/projects'
@@ -877,6 +953,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/resource-access/$projectId/': {
+      id: '/_authenticated/t/$tenantId/resource-access/$projectId/'
+      path: '/resource-access/$projectId'
+      fullPath: '/t/$tenantId/resource-access/$projectId/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/p/$projectId/': {
       id: '/_authenticated/t/$tenantId/p/$projectId/'
       path: '/'
@@ -933,6 +1016,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
+    '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId': {
+      id: '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
+      path: '/resource-access/$projectId/facilities/$facilityId'
+      fullPath: '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': {
       id: '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
       path: '/roles/$roleId'
@@ -945,6 +1035,20 @@ declare module '@tanstack/react-router' {
       path: '/members/$membershipId'
       fullPath: '/t/$tenantId/p/$projectId/members/$membershipId'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/'
+      path: '/resources/facilities'
+      fullPath: '/t/$tenantId/p/$projectId/resources/facilities/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+      path: '/resources/facilities/$facilityId'
+      fullPath: '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
   }
@@ -997,6 +1101,8 @@ interface AuthenticatedTTenantIdPProjectIdRouteChildren {
   AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   AuthenticatedTTenantIdPProjectIdMembersIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
   AuthenticatedTTenantIdPProjectIdRolesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 
 const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProjectIdRouteChildren =
@@ -1017,6 +1123,10 @@ const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProj
       AuthenticatedTTenantIdPProjectIdMembersIndexRoute,
     AuthenticatedTTenantIdPProjectIdRolesIndexRoute:
       AuthenticatedTTenantIdPProjectIdRolesIndexRoute,
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute:
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute:
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute,
   }
 
 const AuthenticatedTTenantIdPProjectIdRouteWithChildren =
@@ -1038,9 +1148,12 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdInvitationsIndexRoute: typeof AuthenticatedTTenantIdInvitationsIndexRoute
   AuthenticatedTTenantIdMembersIndexRoute: typeof AuthenticatedTTenantIdMembersIndexRoute
   AuthenticatedTTenantIdProjectsIndexRoute: typeof AuthenticatedTTenantIdProjectsIndexRoute
+  AuthenticatedTTenantIdResourceAccessIndexRoute: typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   AuthenticatedTTenantIdEngineeringCatalogKindRoute: typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
   AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   AuthenticatedTTenantIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
+  AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
 }
 
 const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
@@ -1069,12 +1182,18 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdMembersIndexRoute,
     AuthenticatedTTenantIdProjectsIndexRoute:
       AuthenticatedTTenantIdProjectsIndexRoute,
+    AuthenticatedTTenantIdResourceAccessIndexRoute:
+      AuthenticatedTTenantIdResourceAccessIndexRoute,
     AuthenticatedTTenantIdEngineeringCatalogKindRoute:
       AuthenticatedTTenantIdEngineeringCatalogKindRoute,
     AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute:
       AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute:
+      AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute,
     AuthenticatedTTenantIdResourcesFacilitiesIndexRoute:
       AuthenticatedTTenantIdResourcesFacilitiesIndexRoute,
+    AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute:
+      AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute,
   }
 
 const AuthenticatedTTenantIdRouteWithChildren =

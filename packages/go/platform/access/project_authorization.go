@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v5"
 	"slices"
+	"strings"
 )
 
 var ErrProjectNotFound = &Error{Code: "project_not_found", Message: "当前项目不可访问。", Status: 404}
@@ -119,7 +120,7 @@ func ExplainProject(v *ProjectAuthorization, catalog map[Code]Permission) {
 	if eligible && len(v.Permissions) == 0 {
 		v.InactiveReasons = append(v.InactiveReasons, "no_project_permissions")
 	}
-	for _, p := range projectPolicies() {
+	for _, p := range Policies() {
 		if p.Class != "project" {
 			continue
 		}
@@ -136,6 +137,10 @@ func ExplainProject(v *ProjectAuthorization, catalog map[Code]Permission) {
 	}
 }
 func ProjectActiveOnly(op Operation) bool {
+	if strings.HasPrefix(string(op), "ProjectResource:") {
+		p, ok := PolicyFor(op)
+		return ok && p.Method != "GET"
+	}
 	return slices.Contains([]Operation{OpProjectUpdate, OpProjectOwnerChange, OpProjectOwnerChangePreview, OpProjectMemberAdd, OpProjectMemberResume, OpProjectMemberResumePreview, OpProjectRoleCreate, OpProjectRoleCopy, OpProjectRoleUpdate, OpProjectArchive, OpProjectArchivePreview}, op)
 }
 func ProjectAuthorizationTx(ctx context.Context, tx pgx.Tx, tenant, project, member, revision string) (ProjectAuthorization, error) {
@@ -221,6 +226,9 @@ func RequireProjectTx(ctx context.Context, tx pgx.Tx, account string, op Operati
 		if !slices.Contains(v.Permissions, code) {
 			return v, ErrDenied
 		}
+	}
+	if v.ProjectStatus == "archived" && ProjectActiveOnly(op) && op != OpProjectArchive && op != OpProjectArchivePreview {
+		return v, &Error{Code: "project_archived", Message: "项目已归档，仅可读取当前获准资源。", Status: 409}
 	}
 	return v, nil
 }

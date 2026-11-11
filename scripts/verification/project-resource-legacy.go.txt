@@ -1,0 +1,27 @@
+package resources_test
+import (
+ "encoding/json"
+ "fmt"
+ "net/url"
+ "os"
+ "os/exec"
+ "path/filepath"
+ "testing"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/projects"
+ res "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+)
+func TestExportLegacyProjectResource(t *testing.T){
+ f:=resourcesSetup(t)
+ request:=f.wm(t).RequestID;fields:=map[string]any{"request_id":request,"code":"LEGACY","name":"迁移前设施","type_version_id":f.typ,"values":map[string]any{"length":0}}
+ facility,e:=f.write(t,res.Target{Tenant:f.tenant,Kind:res.Facility},"create",fields);must(t,e)
+ point,e:=f.write(t,res.Target{Tenant:f.tenant,Facility:facility.ID,Kind:res.Point},"create",map[string]any{"code":"P","name":"原测点"});must(t,e)
+ var member string;must(t,f.env.Pool.QueryRow(ctx,`SELECT id::text FROM tenant_memberships WHERE tenant_id=$1 AND account_id=$2`,f.tenant,f.actor.ID).Scan(&member))
+ p,e:=projects.New(f.env.Service.Access()).Create(ctx,f.actor,f.tenant,projects.CreateInput{Fields:projects.Fields{Name:"旧项目",Code:"legacy-project",Purpose:"升级前保留的项目"},WriteMeta:projects.WriteMeta{RequestID:f.wm(t).RequestID,Reason:"旧库验证"},Owner:member,Administrator:member},access.Meta{});must(t,e)
+ tables:=[]string{"accounts","account_passwords","tenant_memberships","tenant_member_roles","projects","project_memberships","project_member_roles","engineering_facilities","engineering_components","engineering_points","engineering_channels","engineering_resource_changes","engineering_resource_receipts","engineering_definitions","engineering_versions"}
+ checks:=map[string]string{};for _,table:=range tables {var checksum string;must(t,f.env.Pool.QueryRow(ctx,fmt.Sprintf(`SELECT md5(COALESCE(jsonb_agg(to_jsonb(r) ORDER BY to_jsonb(r)::text)::text,'[]')) FROM %s r`,table)).Scan(&checksum));checks[table]=checksum}
+ out:=struct{Config config.Config;Tenant,Project,Facility,Point,Request string;Input map[string]any;Checks map[string]string}{f.env.Config,f.tenant,p.ProjectID,facility.ID,point.ID,request,fields,checks};raw,e:=json.Marshal(out);must(t,e);dir:=os.Getenv("INFRAPRO_MIGRATION_EVIDENCE");must(t,os.WriteFile(filepath.Join(dir,"legacy.json"),raw,0600))
+ u,e:=url.Parse(f.env.Config.DatabaseURL);must(t,e);compose,e:=filepath.Abs("../../../../deploy/compose/test.yaml");must(t,e);cmd:=exec.Command("docker","compose","-f",compose,"exec","-T","postgres","pg_dump","-U","infrapro_test","-d","infrapro_test","-n",u.Query().Get("search_path"),"-Fc");dump,e:=cmd.Output();must(t,e);must(t,os.WriteFile(filepath.Join(dir,"legacy.dump"),dump,0600))
+ t.Log("v9 fixture exported: original identities, credentials, project, resources and v1 receipts")
+}

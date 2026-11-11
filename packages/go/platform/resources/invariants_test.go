@@ -34,9 +34,9 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 	f := resourcesSetup(t)
 	facility := f.facility(t, "Private.Facility")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
+
 	reader, role, member := f.reader(t)
-	d, e := f.srv.Detail(ctx, reader, ft)
+	d, e := f.srv.Detail(ctx, reader, res.TenantScope(f.tenant), ft)
 	must(t, e)
 	if len(d.Definitions) == 0 {
 		t.Fatal("reader cannot interpret adopted definition")
@@ -44,9 +44,9 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 	_, e = f.s.Detail(ctx, reader, eng.Scope{Tenant: f.tenant, Catalog: true, Kind: eng.TypeDefinition}, d.Definitions[0].DefinitionID)
 	code(t, e, "permission_denied")
 	raw, _ := json.Marshal(map[string]any{"request_id": f.wm(t).RequestID, "expected_revision": 1, "name": "unauthorized"})
-	_, e = f.srv.Mutate(ctx, reader, ft, "update", raw, access.Meta{})
+	_, e = f.srv.Mutate(ctx, reader, res.TenantScope(f.tenant), ft, "update", raw, access.Meta{})
 	code(t, e, "permission_denied")
-	_, e = f.srv.Detail(ctx, f.fixture.actor(f.p), ft)
+	_, e = f.srv.Detail(ctx, f.fixture.actor(f.p), res.TenantScope(f.tenant), ft)
 	code(t, e, "tenant_not_found")
 	// Tenant security audit is independent from business history and excluded before platform filters.
 	platform := f.fixture.actor(f.p)
@@ -70,7 +70,7 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 	// Removing security events never erases resource history.
 	_, e = f.env.Pool.Exec(ctx, `DELETE FROM account_security_events WHERE object_id=$1`, facility.ID)
 	must(t, e)
-	h, e := f.srv.Changes(ctx, reader, ft, res.Filter{})
+	h, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{})
 	must(t, e)
 	if len(h.Items) != 1 {
 		t.Fatal(h)
@@ -82,7 +82,7 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 	_, e = tx.Exec(ctx, `DELETE FROM role_permissions WHERE role_id=$1`, role)
 	must(t, e)
 	done := make(chan error, 1)
-	go func() { _, err := f.srv.Detail(ctx, reader, ft); done <- err }()
+	go func() { _, err := f.srv.Detail(ctx, reader, res.TenantScope(f.tenant), ft); done <- err }()
 	select {
 	case e := <-done:
 		t.Fatalf("authorization lock bypassed: %v", e)
@@ -92,14 +92,14 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 	code(t, <-done, "permission_denied")
 	_, e = f.env.Pool.Exec(ctx, `UPDATE tenant_memberships SET status='suspended' WHERE id=$1`, member)
 	must(t, e)
-	_, e = f.srv.Detail(ctx, reader, ft)
+	_, e = f.srv.Detail(ctx, reader, res.TenantScope(f.tenant), ft)
 	code(t, e, "tenant_not_found")
 }
 func TestDefinitionAdoptionLocksAndRetainedResources(t *testing.T) {
 	f := resourcesSetup(t)
 	facility := f.facility(t, "F")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
+
 	tx, e := f.env.Pool.Begin(ctx)
 	must(t, e)
 	defer tx.Rollback(ctx)
@@ -133,19 +133,19 @@ func TestFailureRollbackAndReceiptAuthorization(t *testing.T) {
 	f := resourcesSetup(t)
 	facility := f.facility(t, "F")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
+
 	for _, table := range []string{"engineering_resource_changes", "account_security_events"} {
 		_, e := f.env.Pool.Exec(ctx, `CREATE FUNCTION fail_resource_write() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'test failure'; END $$; CREATE TRIGGER fail_resource BEFORE INSERT ON `+table+` FOR EACH ROW EXECUTE FUNCTION fail_resource_write()`)
 		must(t, e)
 		req := map[string]any{"expected_revision": 1, "name": "Atomic change", "request_id": f.wm(t).RequestID}
 		_, e = f.write(t, ft, "update", req)
 		code(t, e, "unavailable")
-		d, e := f.srv.Detail(ctx, f.actor, ft)
+		d, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
 		must(t, e)
 		if d.Revision != 1 || d.Name == "Atomic change" {
 			t.Fatal("partial commit")
 		}
-		_, e = f.srv.Receipt(ctx, f.actor, f.tenant, req["request_id"].(string))
+		_, e = f.srv.Receipt(ctx, f.actor, res.TenantScope(f.tenant), req["request_id"].(string))
 		code(t, e, "resource_not_found")
 		_, e = f.env.Pool.Exec(ctx, `DROP TRIGGER fail_resource ON `+table+`; DROP FUNCTION fail_resource_write()`)
 		must(t, e)
@@ -153,18 +153,18 @@ func TestFailureRollbackAndReceiptAuthorization(t *testing.T) {
 	req := map[string]any{"expected_revision": 1, "name": "Atomic change", "request_id": f.wm(t).RequestID}
 	out, e := f.write(t, ft, "update", req)
 	must(t, e)
-	receipt, e := f.srv.Receipt(ctx, f.actor, f.tenant, req["request_id"].(string))
+	receipt, e := f.srv.Receipt(ctx, f.actor, res.TenantScope(f.tenant), req["request_id"].(string))
 	must(t, e)
 	if receipt.ID != out.ID {
 		t.Fatal(receipt)
 	}
 	reader, _, _ := f.reader(t)
-	_, e = f.srv.Receipt(ctx, reader, f.tenant, req["request_id"].(string))
+	_, e = f.srv.Receipt(ctx, reader, res.TenantScope(f.tenant), req["request_id"].(string))
 	code(t, e, "resource_not_found")
 	// A current session check is required again even for a committed receipt.
 	denied := f.actor
 	denied.Check = func(_ context.Context, _ pgx.Tx, _ bool) error { return access.ErrDenied }
-	_, e = f.srv.Receipt(ctx, denied, f.tenant, req["request_id"].(string))
+	_, e = f.srv.Receipt(ctx, denied, res.TenantScope(f.tenant), req["request_id"].(string))
 	code(t, e, "permission_denied")
 }
 func TestPagedStructureBeyondPreviewLimit(t *testing.T) {
@@ -179,12 +179,12 @@ func TestPagedStructureBeyondPreviewLimit(t *testing.T) {
 	_, e = f.env.Pool.Exec(ctx, `INSERT INTO engineering_components(tenant_id,facility_id,code,name,category_key,created_by,updated_by) SELECT $1,$2,'C'||n,'部件'||n,'part',$3,$3 FROM generate_series(1,501) n`, f.tenant, facility.ID, f.actor.ID)
 	must(t, e)
 	target := target(facility, res.Component, "")
-	target.Tenant = f.tenant
+
 	count := 0
 	filter := res.Filter{Parent: "root", Limit: 100}
 	seen := map[string]bool{}
 	for {
-		page, e := f.srv.List(ctx, f.actor, target, filter)
+		page, e := f.srv.List(ctx, f.actor, res.TenantScope(f.tenant), target, filter)
 		must(t, e)
 		for _, item := range page.Items {
 			if seen[item.ID] {
@@ -202,14 +202,14 @@ func TestPagedStructureBeyondPreviewLimit(t *testing.T) {
 		t.Fatalf("truncated tree: %d", count)
 	}
 	filter.Query = "changed filter"
-	_, e = f.srv.List(ctx, f.actor, target, filter)
+	_, e = f.srv.List(ctx, f.actor, res.TenantScope(f.tenant), target, filter)
 	code(t, e, "invalid_request")
 }
 func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	f := resourcesSetup(t)
 	facility := f.facility(t, "F")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
+
 	makeComponent := func(code, kind string, parent any, structure int) res.Result {
 		t.Helper()
 		v, e := f.write(t, target(facility, res.Component, ""), "create", map[string]any{"code": code, "name": code, "category_key": kind, "parent_component_id": parent, "expected_structure_revision": structure})
@@ -224,8 +224,8 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	moved, e := f.write(t, target(facility, res.Component, child.ID), "update", map[string]any{"expected_revision": 1, "expected_structure_revision": 4, "parent_component_id": b.ID})
 	must(t, e)
 	pt := target(facility, res.Point, p.ID)
-	pt.Tenant = f.tenant
-	d, e := f.srv.Detail(ctx, f.actor, pt)
+
+	d, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), pt)
 	must(t, e)
 	if len(d.Ancestors) != 3 || d.Ancestors[1].ID != b.ID || d.Ancestors[2].ID != child.ID {
 		t.Fatal(d.Ancestors)
@@ -238,7 +238,7 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	code(t, e, "ancestor_retired")
 	_, e = f.write(t, ft, "restore", map[string]any{"expected_revision": off.Revision, "reason": "恢复设施"})
 	must(t, e)
-	d, e = f.srv.Detail(ctx, f.actor, pt)
+	d, e = f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), pt)
 	must(t, e)
 	if d.Status != "retired" {
 		t.Fatal("restoring ancestor resurrected descendant")
@@ -262,7 +262,7 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	saved, e := f.s.Save(ctx, platform, engScope, definition, eng.SaveInput{WriteMeta: f.wm(t), Revision: draft.Revision, Content: content}, access.Meta{})
 	must(t, e)
 	f.publish(t, eng.TypeDefinition, saved)
-	old, e := f.srv.Detail(ctx, f.actor, ft)
+	old, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
 	must(t, e)
 	if old.TypeVersionID != f.typ {
 		t.Fatal("adopted type followed latest")
@@ -275,10 +275,10 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	other, e := tenancy.New(f.env.Service.Access()).Create(ctx, platform, tenancy.CreateInput{Fields: tenancy.Fields{Name: "另一租户", Code: "another-tenant"}, AdministratorID: f.actor.ID, RequestID: f.wm(t).RequestID, Reason: "隔离验证"}, access.Meta{})
 	must(t, e)
 	foreign := ft
-	foreign.Tenant = other.TenantID
-	_, e = f.srv.Detail(ctx, f.actor, foreign)
+
+	_, e = f.srv.Detail(ctx, f.actor, res.TenantScope(other.TenantID), foreign)
 	code(t, e, "resource_not_found")
-	_, e = f.srv.Changes(ctx, f.actor, foreign, res.Filter{})
+	_, e = f.srv.Changes(ctx, f.actor, res.TenantScope(other.TenantID), foreign, res.Filter{})
 	code(t, e, "resource_not_found")
 	_, e = f.env.Pool.Exec(ctx, `INSERT INTO engineering_points(tenant_id,facility_id,code,name,created_by,updated_by) VALUES($1,$2,'X','非法跨租户',$3,$3)`, other.TenantID, facility.ID, f.actor.ID)
 	if e == nil {

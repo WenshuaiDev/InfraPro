@@ -251,6 +251,9 @@ func (s *Service) Create(ctx context.Context, a access.Actor, tenant string, in 
 		if e != nil {
 			return e
 		}
+		if _, e = tx.Exec(ctx, `INSERT INTO project_resource_policies(tenant_id,project_id) VALUES($1,$2)`, tenant, pid); e != nil {
+			return e
+		}
 		if e = reserve(ctx, tx, tenant, pid, in.Code); e != nil {
 			return e
 		}

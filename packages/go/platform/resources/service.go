@@ -16,13 +16,16 @@ type Service struct{ access *access.Service }
 
 func New(a *access.Service) *Service { return &Service{a} }
 func fingerprint(v any) string       { h := sha256.Sum256(jsonBytes(v)); return hex.EncodeToString(h[:]) }
-func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operation, t string, fn func(pgx.Tx) error) error {
+func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operation, scope Scope, exclusive bool, fn func(pgx.Tx, authorization) error) error {
+	if !scope.valid() {
+		return notFound()
+	}
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
 		p, ok := access.PolicyFor(op)
 		if !ok || a.Check == nil {
 			return access.ErrDenied
 		}
-		if _, e := access.Lock(ctx, tx, false); e != nil {
+		if _, e := access.Lock(ctx, tx, exclusive); e != nil {
 			return e
 		}
 		if _, e := tx.Exec(ctx, `SELECT id FROM accounts WHERE id::text=$1 FOR UPDATE`, a.ID); e != nil {
@@ -31,14 +34,15 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 		if e := a.Check(ctx, tx, p.Recent); e != nil {
 			return e
 		}
-		if e := access.RequireScopedTx(ctx, tx, a.ID, op, t); e != nil {
+		auth, e := s.authorizeTx(ctx, tx, a, op, scope)
+		if e != nil {
 			return e
 		}
 		// This lock always precedes facility locks, including historical interpretation.
 		if _, e := tx.Exec(ctx, `SELECT id FROM engineering_catalog_state WHERE id=1 FOR SHARE`); e != nil {
 			return e
 		}
-		return fn(tx)
+		return fn(tx, auth)
 	})
 	s.access.LogDenial(op, a.ID, e)
 	var pe *pgconn.PgError
@@ -59,8 +63,8 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 	}
 	return e
 }
-func checkTarget(t Target) error {
-	if tables[t.Kind] == "" || !access.ValidID(t.Tenant) {
+func checkTarget(t scopedTarget) error {
+	if tables[t.Kind] == "" || !t.Scope.valid() {
 		return problem("resource_not_found", "资源不存在或不可访问。", 404)
 	}
 	for _, id := range []string{t.Facility, t.Point, t.ID} {
@@ -79,7 +83,7 @@ func checkTarget(t Target) error {
 func notFound() *Error {
 	return problem("resource_not_found", "资源不存在或不可访问。", 404)
 }
-func lockFacility(ctx context.Context, tx pgx.Tx, t Target, write, deleted bool) (Resource, error) {
+func lockFacility(ctx context.Context, tx pgx.Tx, t scopedTarget, write, deleted bool) (Resource, error) {
 	suffix := " FOR SHARE"
 	if write {
 		suffix = " FOR UPDATE"
@@ -100,7 +104,7 @@ func lockFacility(ctx context.Context, tx pgx.Tx, t Target, write, deleted bool)
 	e = unmarshalResource(raw, &r)
 	return r, e
 }
-func load(ctx context.Context, tx pgx.Tx, t Target, deleted bool) (Resource, error) {
+func load(ctx context.Context, tx pgx.Tx, t scopedTarget, deleted bool) (Resource, error) {
 	r := Resource{Kind: t.Kind}
 	where := ""
 	if t.Kind != Facility {
@@ -130,11 +134,26 @@ func load(ctx context.Context, tx pgx.Tx, t Target, deleted bool) (Resource, err
 	e = unmarshalResource(raw, &r)
 	return r, e
 }
-func (s *Service) Receipt(ctx context.Context, a access.Actor, tenant, id string) (Result, error) {
+func (s *Service) Receipt(ctx context.Context, a access.Actor, scope Scope, id string) (Result, error) {
 	out := Result{}
-	e := s.transact(ctx, a, access.ResourceOperation("request", "detail"), tenant, func(tx pgx.Tx) error {
+	tenant := scope.Tenant
+	e := s.transact(ctx, a, scope.operation("request", "detail"), scope, false, func(tx pgx.Tx, auth authorization) error {
 		if !access.ValidID(id) {
 			return notFound()
+		}
+		if scope.Entry == "project" {
+			e := tx.QueryRow(ctx, `SELECT result FROM project_resource_operation_receipts WHERE entry_scope='project' AND tenant_id=$1 AND project_id=$2 AND actor_id=$3 AND request_id=$4`, scope.Tenant, scope.Project, a.ID, id).Scan(&out)
+			if e == pgx.ErrNoRows {
+				return notFound()
+			}
+			if e != nil {
+				return e
+			}
+			if e = projectReceiptReadable(ctx, tx, auth, id, &out); e != nil {
+				return e
+			}
+			out.Replayed = true
+			return nil
 		}
 		var op string
 		e := tx.QueryRow(ctx, `SELECT operation,result FROM engineering_resource_receipts WHERE tenant_id::text=$1 AND actor_id=$2 AND request_id=$3`, tenant, a.ID, id).Scan(&op, &out)

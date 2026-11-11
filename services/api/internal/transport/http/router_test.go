@@ -234,7 +234,11 @@ func TestE2EServer(t *testing.T) {
 		}
 		defer os.Remove(p)
 	}
-	server := &http.Server{Addr: "127.0.0.1:18080", Handler: httptransport.NewRouter(logger, env.Service, env.Config), ReadHeaderTimeout: 5 * time.Second}
+	address := os.Getenv("INFRAPRO_HTTP_ADDR")
+	if address == "" {
+		address = "127.0.0.1:18080"
+	}
+	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config), ReadHeaderTimeout: 5 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()
 	jobs, stopJobs := context.WithCancel(ctx)

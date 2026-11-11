@@ -132,12 +132,25 @@ func resourcesSetup(t *testing.T) resourceFixture {
 }
 func (f resourceFixture) write(t *testing.T, target res.Target, op string, in map[string]any) (res.Result, error) {
 	t.Helper()
-	target.Tenant = f.tenant
+
 	if _, ok := in["request_id"]; !ok {
 		in["request_id"] = f.wm(t).RequestID
 	}
+	if op != "create" && in["preview_hash"] == nil {
+		if in["reason"] == nil {
+			in["reason"] = "资源修改自验"
+		}
+		raw, _ := json.Marshal(in)
+		preview, e := f.srv.PreviewMutation(ctx, f.actor, res.TenantScope(f.tenant), target, op, raw)
+		if e != nil {
+			return res.Result{}, e
+		}
+		if preview.Required {
+			in["preview_hash"] = preview.Hash
+		}
+	}
 	b, _ := json.Marshal(in)
-	return f.srv.Mutate(ctx, f.actor, target, op, b, access.Meta{})
+	return f.srv.Mutate(ctx, f.actor, res.TenantScope(f.tenant), target, op, b, access.Meta{})
 }
 func (f resourceFixture) facility(t *testing.T, code string) res.Result {
 	t.Helper()
@@ -152,8 +165,8 @@ func TestResourceLifecycleAndStableHistory(t *testing.T) {
 	f := resourcesSetup(t)
 	facility := f.facility(t, "F-01")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
-	d, e := f.srv.Detail(ctx, f.actor, ft)
+
+	d, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
 	must(t, e)
 	if d.Status != "normal" || d.Values["length"] != float64(0) {
 		t.Fatal(d)
@@ -163,8 +176,8 @@ func TestResourceLifecycleAndStableHistory(t *testing.T) {
 	point, e := f.write(t, target(facility, res.Point, ""), "create", map[string]any{"code": "P-1", "name": "测点", "component_id": component.ID})
 	must(t, e)
 	pt := target(facility, res.Point, point.ID)
-	pt.Tenant = f.tenant
-	pd, e := f.srv.Detail(ctx, f.actor, pt)
+
+	pd, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), pt)
 	must(t, e)
 	if len(pd.Ancestors) != 2 || len(pd.Position.LinearReferences) != 0 {
 		t.Fatal(pd)
@@ -211,9 +224,9 @@ func TestResourceLifecycleAndStableHistory(t *testing.T) {
 	must(t, e)
 	_, e = f.write(t, ft, "delete", map[string]any{"expected_revision": restored.Revision, "reason": "误建设施"})
 	must(t, e)
-	_, e = f.srv.Detail(ctx, f.actor, ft)
+	_, e = f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
 	code(t, e, "resource_not_found")
-	history, e := f.srv.Changes(ctx, f.actor, ft, res.Filter{})
+	history, e := f.srv.Changes(ctx, f.actor, res.TenantScope(f.tenant), ft, res.Filter{})
 	must(t, e)
 	if len(history.Items) != 11 {
 		t.Fatalf("history count %d", len(history.Items))

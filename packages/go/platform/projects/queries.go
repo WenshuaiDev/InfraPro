@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/jackc/pgx/v5"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -48,6 +49,12 @@ func (s *Service) context(ctx context.Context, a access.Actor, tenant, project s
 			return e
 		}
 		out = Context{Project: minimal(v.Summary), Authorization: auth, CanEnter: len(auth.Permissions) > 0}
+		var allow bool
+		if e = tx.QueryRow(ctx, `SELECT revision::text,allow_facility_create FROM project_resource_policies WHERE tenant_id=$1 AND project_id=$2`, tenant, project).Scan(&out.ResourceAccessRevision, &allow); e != nil {
+			return e
+		}
+		out.CanCreateFacility = allow && slices.Contains(auth.AllowedOperations, access.ProjectResourceOperation("facility", "create"))
+
 		return nil
 	})
 	return out, e

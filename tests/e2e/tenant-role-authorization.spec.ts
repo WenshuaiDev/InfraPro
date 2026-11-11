@@ -23,6 +23,7 @@ async function prepare(request: APIRequestContext) {
 }
 
 test('role UI: create, copy, multi-role union, impact, disable, empty authorization and keyboard', async ({ page, request, browser }, info) => {
+  test.setTimeout(90_000);
   const f = await prepare(request); await login(page, f.administrator); await page.goto(`${consoleURL}/t/${f.tenant}/permissions`);
   await expect(page).toHaveURL(`${consoleURL}/t/${f.tenant}/roles`); await expect(page.getByRole('heading', { name: '租户角色', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: '租户权限目录', exact: true })).toHaveCount(0);

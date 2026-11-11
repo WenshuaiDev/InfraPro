@@ -68,7 +68,7 @@ func Register(r *gin.Engine, i *identity.Service, s *engineering.Service) {
 		return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
 	}
 	for _, p := range access.Policies() {
-		if !strings.Contains(p.Path, "/engineering/") || strings.HasPrefix(string(p.Operation), "Resource:") {
+		if !strings.Contains(p.Path, "/engineering/") || strings.HasPrefix(string(p.Operation), "Resource:") || strings.HasPrefix(string(p.Operation), "ProjectResource:") || strings.HasPrefix(string(p.Operation), "ProjectResourceAccess:") {
 			continue
 		}
 		parts := strings.Split(string(p.Operation), ":")

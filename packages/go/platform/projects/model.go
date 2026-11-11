@@ -114,9 +114,11 @@ type Project struct {
 	ManagementGapReason string `json:"management_gap_reason"`
 }
 type Context struct {
-	Project       Summary                     `json:"project"`
-	Authorization access.ProjectAuthorization `json:"authorization"`
-	CanEnter      bool                        `json:"can_enter"`
+	ResourceAccessRevision string                      `json:"resource_access_revision"`
+	CanCreateFacility      bool                        `json:"can_create_facility"`
+	Project                Summary                     `json:"project"`
+	Authorization          access.ProjectAuthorization `json:"authorization"`
+	CanEnter               bool                        `json:"can_enter"`
 }
 type Member struct {
 	ID                     string    `json:"id"`

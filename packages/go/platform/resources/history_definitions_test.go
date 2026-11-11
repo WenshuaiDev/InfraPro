@@ -18,18 +18,18 @@ func TestDeletedChannelHistoryRetainsAuthorizedFixedDefinitions(t *testing.T) {
 	content.Metric = &eng.Metric{Shape: "enum", Options: []eng.Option{{Key: "ok", Name: "稳定"}, {Key: "fail", Name: "异常"}}}
 	published := f.publish(t, eng.MetricDefinition, f.create(t, eng.MetricDefinition, "history_enum", content))
 	ct := target(facility, res.Channel, "")
-	ct.Point, ct.Tenant = point.ID, f.tenant
+	ct.Point = point.ID
 	channel, e := f.write(t, ct, "create", map[string]any{"code": "CH", "name": "删除的状态通道", "metric_version_id": published.VersionID, "timestamp_meaning": "observation_time"})
 	must(t, e)
 	ct.ID = channel.ID
 	reader, _, _ := f.reader(t)
 	_, e = f.write(t, ct, "delete", map[string]any{"expected_revision": 1, "reason": "误建"})
 	must(t, e)
-	_, e = f.srv.Detail(ctx, reader, ct)
+	_, e = f.srv.Detail(ctx, reader, res.TenantScope(f.tenant), ct)
 	code(t, e, "resource_not_found")
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
-	history, e := f.srv.Changes(ctx, reader, ft, res.Filter{Kind: "channel", ID: channel.ID})
+
+	history, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{Kind: "channel", ID: channel.ID})
 	must(t, e)
 	if len(history.Items) != 2 {
 		t.Fatalf("want create/delete events, got %d", len(history.Items))
@@ -54,9 +54,9 @@ func TestDeletedChannelHistoryRetainsAuthorizedFixedDefinitions(t *testing.T) {
 	}
 	_, e = f.s.Detail(ctx, reader, eng.Scope{Tenant: f.tenant, Catalog: true, Kind: eng.MetricDefinition}, published.DefinitionID)
 	code(t, e, "permission_denied")
-	_, e = f.srv.Changes(ctx, f.fixture.actor(f.p), ft, res.Filter{})
+	_, e = f.srv.Changes(ctx, f.fixture.actor(f.p), res.TenantScope(f.tenant), ft, res.Filter{})
 	code(t, e, "tenant_not_found")
-	empty, e := f.srv.Changes(ctx, reader, ft, res.Filter{Kind: "channel", ID: f.wm(t).RequestID})
+	empty, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{Kind: "channel", ID: f.wm(t).RequestID})
 	must(t, e)
 	payload, e = json.Marshal(empty)
 	must(t, e)
@@ -67,7 +67,7 @@ func TestDeletedChannelHistoryRetainsAuthorizedFixedDefinitions(t *testing.T) {
 	// Keep authorization enforced after a current membership is suspended.
 	_, e = f.env.Pool.Exec(ctx, `UPDATE tenant_memberships SET status='suspended' WHERE tenant_id=$1 AND account_id=$2`, f.tenant, reader.ID)
 	must(t, e)
-	_, e = f.srv.Changes(ctx, reader, ft, res.Filter{})
+	_, e = f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{})
 	code(t, e, "tenant_not_found")
 }
 
@@ -77,11 +77,11 @@ func TestDeletedFacilityHistoryRetainsDisabledMetricUnit(t *testing.T) {
 	point, e := f.write(t, target(facility, res.Point, ""), "create", map[string]any{"code": "P", "name": "测点"})
 	must(t, e)
 	ct := target(facility, res.Channel, "")
-	ct.Point, ct.Tenant = point.ID, f.tenant
+	ct.Point = point.ID
 	channel, e := f.write(t, ct, "create", map[string]any{"code": "CH", "name": "数值通道", "metric_version_id": f.metric, "unit_version_id": f.unit, "timestamp_meaning": "observation_time"})
 	must(t, e)
 	ct.ID = channel.ID
-	detail, e := f.srv.Detail(ctx, f.actor, ct)
+	detail, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ct)
 	must(t, e)
 	for _, v := range detail.Definitions {
 		if v.ID == f.unit {
@@ -94,9 +94,9 @@ func TestDeletedFacilityHistoryRetainsDisabledMetricUnit(t *testing.T) {
 		must(t, e)
 	}
 	ft := target(facility, res.Facility, facility.ID)
-	ft.Tenant = f.tenant
+
 	reader, _, _ := f.reader(t)
-	history, e := f.srv.Changes(ctx, reader, ft, res.Filter{Kind: "channel", ID: channel.ID, Limit: 1})
+	history, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{Kind: "channel", ID: channel.ID, Limit: 1})
 	must(t, e)
 	if len(history.Items) != 1 || history.NextCursor == "" || len(history.Definitions) != 3 {
 		t.Fatal("expected paginated history with type, metric and unit", history)
@@ -106,7 +106,7 @@ func TestDeletedFacilityHistoryRetainsDisabledMetricUnit(t *testing.T) {
 			t.Fatal("historical disabled unit lost its meaning", v)
 		}
 	}
-	filtered, e := f.srv.Changes(ctx, reader, ft, res.Filter{Kind: "point", ID: point.ID})
+	filtered, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{Kind: "point", ID: point.ID})
 	must(t, e)
 	if len(filtered.Definitions) != 1 || filtered.Definitions[0].ID != f.typ {
 		t.Fatal("definitions escaped the authorized history filter", filtered.Definitions)

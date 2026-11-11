@@ -216,5 +216,5 @@ func RoutePolicy(method, path string) (Policy, bool) {
 }
 
 func Policies() []Policy {
-	return append(append(append(basePolicies(), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...)
+	return append(append(append(append(basePolicies(), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	"github.com/jackc/pgx/v5"
@@ -13,7 +14,7 @@ import (
 	"unicode/utf8"
 )
 
-func ancestorsTx(ctx context.Context, tx pgx.Tx, t Target, r, facility Resource) ([]Resource, error) {
+func ancestorsTx(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facility Resource) ([]Resource, error) {
 	out := []Resource{}
 	if r.Kind == Facility {
 		return out, nil
@@ -27,7 +28,7 @@ func ancestorsTx(ctx context.Context, tx pgx.Tx, t Target, r, facility Resource)
 	case Point:
 		parent = ptrValue(r.ComponentID)
 	case Channel:
-		p, e := load(ctx, tx, Target{Tenant: t.Tenant, Facility: t.Facility, Kind: Point, ID: r.PointID}, false)
+		p, e := load(ctx, tx, scoped(t.Scope, Target{Facility: t.Facility, Kind: Point, ID: r.PointID}), false)
 		if e != nil {
 			return nil, e
 		}
@@ -35,35 +36,63 @@ func ancestorsTx(ctx context.Context, tx pgx.Tx, t Target, r, facility Resource)
 		parent = ptrValue(p.ComponentID)
 	}
 	chain := []Resource{}
-	seen := map[string]bool{}
-	for parent != "" {
-		if seen[parent] {
-			return nil, invalid("/parent_component_id", "cycle", "构件归属不能形成环。")
-		}
-		seen[parent] = true
-		p, e := load(ctx, tx, Target{Tenant: t.Tenant, Facility: t.Facility, Kind: Component, ID: parent}, false)
+	if parent != "" {
+		rows, e := tx.Query(ctx, `WITH RECURSIVE path AS (
+ SELECT c.*,1 AS depth FROM engineering_components c WHERE c.tenant_id=$1 AND c.facility_id=$2 AND c.id=$3 AND c.deleted_at IS NULL
+ UNION ALL SELECT c.*,p.depth+1 FROM engineering_components c JOIN path p ON c.id=p.parent_component_id WHERE c.tenant_id=$1 AND c.facility_id=$2 AND c.deleted_at IS NULL)
+ SELECT to_jsonb(path) FROM path ORDER BY depth DESC`, t.Tenant, t.Facility, parent)
 		if e != nil {
 			return nil, e
 		}
-		chain = append(chain, p)
-		parent = ptrValue(p.ParentComponentID)
+		for rows.Next() {
+			r := Resource{Kind: Component}
+			var raw []byte
+			if e = rows.Scan(&raw); e != nil {
+				rows.Close()
+				return nil, e
+			}
+			if e = json.Unmarshal(raw, &r); e != nil {
+				rows.Close()
+				return nil, e
+			}
+			chain = append(chain, r)
+		}
+		e = rows.Err()
+		rows.Close()
+		if e != nil {
+			return nil, e
+		}
+		if len(chain) == 0 {
+			return nil, notFound()
+		}
 	}
-	slices.Reverse(chain)
 	out = append(out, chain...)
 	if point != nil {
 		out = append(out, *point)
 	}
 	return out, nil
 }
-func (s *Service) Detail(ctx context.Context, a access.Actor, t Target) (Detail, error) {
+func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, target Target) (Detail, error) {
+	t := scoped(scope, target)
 	out := Detail{Ancestors: []Resource{}, Definitions: []engineering.Version{}}
 	if e := checkTarget(t); e != nil {
 		return out, e
 	}
-	e := s.transact(ctx, a, access.ResourceOperation(string(t.Kind), "detail"), t.Tenant, func(tx pgx.Tx) error {
+	e := s.transact(ctx, a, t.operation(string(t.Kind), "detail"), t.Scope, false, func(tx pgx.Tx, auth authorization) error {
 		f, e := lockFacility(ctx, tx, t, false, false)
 		if e != nil {
 			return e
+		}
+		var grant Grant
+		if auth.Entry == "project" {
+			var link *Link
+			grant, link, e = projectGrantTx(ctx, tx, auth, t, true)
+			if e != nil {
+				return e
+			}
+			out.AccessRevision = auth.AccessRevision
+			out.LinkID = link.ID
+			out.LinkRevision = link.Revision
 		}
 		r, e := load(ctx, tx, t, false)
 		if e != nil {
@@ -82,8 +111,31 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, t Target) (Detail,
 		if e != nil {
 			return e
 		}
-		manage := access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation(string(t.Kind), "update"), t.Tenant) == nil
+		manage := access.RequireScopedTx(ctx, tx, a.ID, t.operation(string(t.Kind), "update"), t.Tenant) == nil
 		out.Actions = actionAllowed(r, out.Ancestors, manage)
+		out.Actions.Read = true
+		out.Actions.CreateComponent = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
+		out.Actions.CreatePoint = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
+		out.Actions.CreateChannel = out.Actions.Add && r.Kind == Point
+		out.Shared, e = sharedTx(ctx, tx, auth, t)
+		if e != nil {
+			return e
+		}
+		if auth.Entry == "project" {
+			out.Actions, e = projectActions(ctx, tx, auth, t, r, out.Ancestors, grant)
+			if e != nil {
+				return e
+			}
+			out.Ancestors, e = projectAncestors(ctx, tx, auth, t.Facility, out.Ancestors)
+			if e != nil {
+				return e
+			}
+		} else {
+			for i := range out.Ancestors {
+				out.Ancestors[i] = sourceProjection(out.Ancestors[i], auth)
+			}
+		}
+		out.Resource = sourceProjection(r, auth)
 		return nil
 	})
 	return out, e
@@ -115,16 +167,16 @@ type cursor struct {
 	ID    string    `json:"id"`
 }
 
-func cursorScope(t Target, f Filter, history bool) string {
+func cursorScope(t scopedTarget, f Filter, history bool) string {
 	f.Cursor = ""
 	f.Limit = 0
 	return fingerprint(struct {
-		Target  Target
+		Target  scopedTarget
 		Filter  Filter
 		History bool
 	}{t, f, history})
 }
-func readCursor(t Target, f Filter, history bool) (cursor, error) {
+func readCursor(t scopedTarget, f Filter, history bool) (cursor, error) {
 	out := cursor{Scope: cursorScope(t, f, history)}
 	if f.Cursor == "" {
 		return out, nil
@@ -135,7 +187,7 @@ func readCursor(t Target, f Filter, history bool) (cursor, error) {
 	}
 	return out, nil
 }
-func nextCursor(t Target, f Filter, history bool, at time.Time, id string) string {
+func nextCursor(t scopedTarget, f Filter, history bool, at time.Time, id string) string {
 	return base64.RawURLEncoding.EncodeToString(jsonBytes(cursor{cursorScope(t, f, history), at, id}))
 }
 func normalizeFilter(f *Filter) error {
@@ -162,7 +214,8 @@ func normalizeFilter(f *Filter) error {
 	}
 	return nil
 }
-func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) (Page, error) {
+func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target Target, f Filter) (Page, error) {
+	t := scoped(scope, target)
 	out := Page{Items: []Item{}}
 	if e := checkTarget(t); e != nil {
 		return out, e
@@ -173,11 +226,33 @@ func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) 
 	if t.Kind == Component && f.Parent == "" {
 		f.Parent = "root"
 	}
-	c, e := readCursor(t, f, false)
-	if e != nil {
-		return out, e
-	}
-	e = s.transact(ctx, a, access.ResourceOperation(string(t.Kind), "list"), t.Tenant, func(tx pgx.Tx) error {
+	e := s.transact(ctx, a, t.operation(string(t.Kind), "list"), t.Scope, false, func(tx pgx.Tx, auth authorization) error {
+		t.CursorScope = fingerprint([]string{auth.Account, auth.TenantMembership, auth.ProjectAuth.MembershipID, auth.AccessRevision})
+		c, e := readCursor(t, f, false)
+		if e != nil {
+			return e
+		}
+		if auth.Entry == "project" {
+			if f.Deleted != "" {
+				return access.ErrDenied
+			}
+			if t.Facility != "" {
+				link, e := linkTx(ctx, tx, auth.Tenant, auth.Project, t.Facility)
+				if e != nil {
+					return e
+				}
+				if link == nil {
+					return notFound()
+				}
+			}
+		}
+
+		out.AccessRevision = auth.AccessRevision
+		out.CanCreateFacility = auth.Entry == "project" && auth.AllowFacilityCreate && auth.can(Facility, "create")
+		if auth.Entry == "tenant" {
+			out.CanCreateFacility = access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation("facility", "create"), auth.Tenant) == nil
+		}
+
 		if t.Kind != Facility {
 			if _, e := lockFacility(ctx, tx, t, false, false); e != nil {
 				return e
@@ -191,12 +266,22 @@ func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) 
 			if !access.ValidID(owner) {
 				return problem("invalid_request", "归属筛选无效。", 400)
 			}
-			if _, e := load(ctx, tx, Target{Kind: Component, Tenant: t.Tenant, Facility: t.Facility, ID: owner}, false); e != nil {
+			if auth.Entry == "project" {
+				if _, _, e := projectGrantTx(ctx, tx, auth, scoped(t.Scope, Target{Kind: Component, Facility: t.Facility, ID: owner}), false); e != nil {
+					return e
+				}
+			}
+			if _, e := load(ctx, tx, scoped(t.Scope, Target{Kind: Component, Facility: t.Facility, ID: owner}), false); e != nil {
 				return e
 			}
 		}
 		if t.Kind == Channel {
-			if _, e := load(ctx, tx, Target{Kind: Point, Tenant: t.Tenant, Facility: t.Facility, ID: t.Point}, false); e != nil {
+			if auth.Entry == "project" {
+				if _, _, e := projectGrantTx(ctx, tx, auth, scoped(t.Scope, Target{Kind: Point, Facility: t.Facility, ID: t.Point}), false); e != nil {
+					return e
+				}
+			}
+			if _, e := load(ctx, tx, scoped(t.Scope, Target{Kind: Point, Facility: t.Facility, ID: t.Point}), false); e != nil {
 				return e
 			}
 		}
@@ -239,7 +324,17 @@ func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) 
 		if t.Kind == Facility {
 			projection += ` || (SELECT jsonb_build_object('type_name',v.content->>'name','type_number',v.number,'type_definition_id',v.definition_id) FROM engineering_versions v WHERE v.id=r.type_version_id)`
 		}
-		rows, e := tx.Query(ctx, `SELECT `+projection+`,`+children+` FROM `+tables[t.Kind]+` r WHERE `+where+` ORDER BY r.created_at,r.id LIMIT $4`, args...)
+		cte := ""
+		if auth.Entry == "project" {
+			args = append(args, auth.Project, t.Facility)
+			cte = fmt.Sprintf(`WITH visible AS MATERIALIZED (SELECT * FROM project_resource_visibility($1::text::uuid,$%d::uuid,NULLIF($%d,'')::uuid)) `, len(args)-1, len(args))
+			where += ` AND EXISTS(SELECT 1 FROM visible v WHERE v.kind='` + string(t.Kind) + `' AND v.id=r.id)`
+			projection += ` || jsonb_build_object('visibility',CASE WHEN EXISTS(SELECT 1 FROM visible v WHERE v.kind='` + string(t.Kind) + `' AND v.id=r.id AND v.full_access) THEN 'full' ELSE 'context' END)`
+			if t.Kind == Component {
+				children = `EXISTS(SELECT 1 FROM engineering_components c JOIN visible v ON v.kind='component' AND v.id=c.id WHERE c.tenant_id=r.tenant_id AND c.facility_id=r.facility_id AND c.parent_component_id=r.id AND c.deleted_at IS NULL)`
+			}
+		}
+		rows, e := tx.Query(ctx, cte+`SELECT `+projection+`,`+children+` FROM `+tables[t.Kind]+` r WHERE `+where+` ORDER BY r.created_at,r.id LIMIT $4`, args...)
 		if e != nil {
 			return e
 		}
@@ -263,6 +358,10 @@ func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) 
 			out.NextCursor = nextCursor(t, f, false, last.CreatedAt, last.ID)
 			out.Items = out.Items[:f.Limit]
 		}
+		for i := range out.Items {
+			out.Items[i].Resource = sourceProjection(out.Items[i].Resource, auth)
+		}
+
 		if f.Deleted == "only" {
 			for i, item := range out.Items {
 				r := item.Resource
@@ -273,7 +372,8 @@ func (s *Service) List(ctx context.Context, a access.Actor, t Target, f Filter) 
 	})
 	return out, e
 }
-func (s *Service) Changes(ctx context.Context, a access.Actor, t Target, f Filter) (Changes, error) {
+func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, target Target, f Filter) (Changes, error) {
+	t := scoped(scope, target)
 	out := Changes{Items: []Change{}, Definitions: []engineering.Version{}}
 	if e := checkTarget(t); e != nil {
 		return out, e
@@ -284,16 +384,38 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, t Target, f Filte
 	if f.Kind != "" && tables[Kind(f.Kind)] == "" {
 		return out, problem("invalid_request", "历史种类筛选无效。", 400)
 	}
-	c, e := readCursor(t, f, true)
-	if e != nil {
-		return out, e
-	}
-	e = s.transact(ctx, a, access.ResourceOperation("facility", "changes"), t.Tenant, func(tx pgx.Tx) error {
+	e := s.transact(ctx, a, t.operation("facility", "changes"), t.Scope, false, func(tx pgx.Tx, auth authorization) error {
+		t.CursorScope = fingerprint([]string{auth.Account, auth.TenantMembership, auth.ProjectAuth.MembershipID, auth.AccessRevision})
+		c, e := readCursor(t, f, true)
+		if e != nil {
+			return e
+		}
+		if auth.Entry == "project" {
+			if f.Deleted != "" {
+				return access.ErrDenied
+			}
+			if t.Facility != "" {
+				link, e := linkTx(ctx, tx, auth.Tenant, auth.Project, t.Facility)
+				if e != nil {
+					return e
+				}
+				if link == nil {
+					return notFound()
+				}
+			}
+		}
+
 		facility, e := lockFacility(ctx, tx, t, false, true)
 		if e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT to_jsonb(c) FROM engineering_resource_changes c WHERE tenant_id::text=$1 AND facility_id::text=$2 AND ($3='' OR resource_kind=$3) AND ($4='' OR resource_id::text=$4) AND ($5='' OR (changed_at,id)<($6::timestamptz,NULLIF($5,'')::uuid)) ORDER BY changed_at DESC,id DESC LIMIT $7`, t.Tenant, t.Facility, f.Kind, f.ID, c.ID, c.Time, f.Limit+1)
+		args := []any{t.Tenant, t.Facility, f.Kind, f.ID, c.ID, c.Time, f.Limit + 1}
+		scopeWhere := ""
+		if auth.Entry == "project" {
+			args = append(args, auth.Project)
+			scopeWhere = ` AND EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=c.tenant_id AND g.project_id=$8 AND g.facility_id=c.facility_id AND g.resource_kind=c.resource_kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)=c.resource_id AND g.ended_at IS NULL)`
+		}
+		rows, e := tx.Query(ctx, `SELECT to_jsonb(c) FROM engineering_resource_changes c WHERE tenant_id::text=$1 AND facility_id::text=$2 AND ($3='' OR resource_kind=$3) AND ($4='' OR resource_id::text=$4) AND ($5='' OR (changed_at,id)<($6::timestamptz,NULLIF($5,'')::uuid))`+scopeWhere+` ORDER BY changed_at DESC,id DESC LIMIT $7`, args...)
 		if e != nil {
 			return e
 		}
@@ -328,7 +450,26 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, t Target, f Filte
 			}
 		}
 		out.Definitions, e = fixedDefinitions(ctx, tx, refs)
-		return e
+		if e != nil {
+			return e
+		}
+		if auth.Entry == "project" {
+			return projectHistory(ctx, tx, auth, t.Facility, out.Items)
+		}
+		for i := range out.Items {
+			c := &out.Items[i]
+			c.After = sourceProjection(c.After, auth)
+			if c.Before != nil {
+				r := sourceProjection(*c.Before, auth)
+				c.Before = &r
+			}
+			if !auth.Governance {
+				c.ActorProjectID = ""
+				c.ActorLinkID = ""
+				c.ActorProjectMembershipID = ""
+			}
+		}
+		return nil
 	})
 	return out, e
 }

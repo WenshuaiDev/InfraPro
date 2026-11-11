@@ -11,48 +11,52 @@ import (
 	"strings"
 )
 
-func (s *Service) Mutate(ctx context.Context, a access.Actor, t Target, action string, raw json.RawMessage, meta access.Meta) (Result, error) {
+func (s *Service) Mutate(ctx context.Context, a access.Actor, scope Scope, target Target, action string, raw json.RawMessage, meta access.Meta) (Result, error) {
+	out, _, e := s.mutate(ctx, a, scope, target, action, raw, meta, false)
+	return out, e
+}
+func authExclusive(t scopedTarget, action string, dryRun bool) bool {
+	return t.Entry == "project" && action == "create" && !dryRun
+}
+func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, target Target, action string, raw json.RawMessage, meta access.Meta, dryRun bool) (Result, MutationPreview, error) {
+	t := scoped(scope, target)
 	out := Result{}
+	preview := MutationPreview{CanSubmit: true}
 	if e := checkTarget(t); e != nil {
-		return out, e
+		return out, preview, e
 	}
 	if !slices.Contains([]string{"create", "update", "retire", "restore", "delete"}, action) {
-		return out, problem("invalid_request", "不支持的操作。", 400)
+		return out, preview, problem("invalid_request", "不支持的操作。", 400)
 	}
 	m, in, e := parse(t, action, raw)
 	if e != nil {
-		return out, e
+		return out, preview, e
 	}
-	op := access.ResourceOperation(string(t.Kind), action)
-	payload := struct {
-		Target Target
-		Action string
-		Meta   WriteMeta
-		Fields map[string]any
-	}{t, action, m, in}
-	e = s.transact(ctx, a, op, t.Tenant, func(tx pgx.Tx) error {
-		var oldHash, oldOp string
-		e := tx.QueryRow(ctx, `SELECT operation,payload_hash,result FROM engineering_resource_receipts WHERE tenant_id=$1 AND actor_id=$2 AND request_id=$3`, t.Tenant, a.ID, m.RequestID).Scan(&oldOp, &oldHash, &out)
-		if e == nil {
-			if oldOp != string(op) || oldHash != fingerprint(payload) {
-				return problem("request_payload_conflict", "该请求编号已用于不同操作或内容。", 409)
+	op := t.operation(string(t.Kind), action)
+	e = s.transact(ctx, a, op, t.Scope, authExclusive(t, action, dryRun), func(tx pgx.Tx, auth authorization) error {
+		if !dryRun {
+			var replay bool
+			out, replay, e = mutationReceipt(ctx, tx, auth, t, action, m, in)
+			if e != nil || replay {
+				return e
 			}
-			out.Replayed = true
-			return nil
 		}
-		if e != pgx.ErrNoRows {
-			return e
-		}
+
 		r := Resource{Kind: t.Kind, TenantID: t.Tenant, FacilityID: t.Facility, PointID: t.Point, Status: "normal", Revision: 1, CreatedBy: a.ID, UpdatedBy: a.ID}
 		var facility Resource
 		var before *Resource
 		if action != "create" || t.Kind != Facility {
-			facility, e = lockFacility(ctx, tx, t, true, false)
+			facility, e = lockFacility(ctx, tx, t, !dryRun, false)
 			if e != nil {
 				return e
 			}
 		}
 		if action != "create" {
+			if auth.Entry == "project" {
+				if _, _, e = projectGrantTx(ctx, tx, auth, t, true); e != nil {
+					return e
+				}
+			}
 			r, e = load(ctx, tx, t, false)
 			if e != nil {
 				return e
@@ -91,6 +95,11 @@ func (s *Service) Mutate(ctx context.Context, a access.Actor, t Target, action s
 			if e = validateBasic(r); e != nil {
 				return e
 			}
+			if auth.Entry == "project" {
+				if _, e = validateProjectWrite(ctx, tx, auth, t, action, m, r, before); e != nil {
+					return e
+				}
+			}
 			if e = validateResource(ctx, tx, t, r, facility, action == "create"); e != nil {
 				return e
 			}
@@ -108,11 +117,45 @@ func (s *Service) Mutate(ctx context.Context, a access.Actor, t Target, action s
 		}
 		if action == "delete" {
 			if e = checkDependencies(ctx, tx, t, r); e != nil {
-				return e
+				if e = previewBlock(e, &preview, dryRun); e != nil {
+					return e
+				}
 			}
 			if e = tx.QueryRow(ctx, `SELECT clock_timestamp()`).Scan(&r.DeletedAt); e != nil {
 				return e
 			}
+		}
+		link, e := validateProjectWrite(ctx, tx, auth, t, action, m, r, before)
+		if e != nil {
+			if e = previewBlock(e, &preview, dryRun); e != nil {
+				return e
+			}
+		}
+		impact, e := mutationImpact(ctx, tx, auth, t, action, m, in, before, r)
+		if e != nil {
+			return e
+		}
+		impact.CanSubmit = preview.CanSubmit
+		impact.BlockedCode = preview.BlockedCode
+		impact.BlockedReason = preview.BlockedReason
+		impact.Dependencies = preview.Dependencies
+		preview = impact
+		if dryRun {
+			return nil
+		}
+		if preview.Required {
+			if m.PreviewHash == "" {
+				return problem("preview_required", "请先预览并确认本次修改影响。", 409)
+			}
+			if m.PreviewHash != preview.Hash {
+				return previewChanged()
+			}
+			if m.Reason == "" {
+				return invalid("/reason", "required", "请填写本次共享或结构修改的原因。")
+			}
+		}
+		if action == "create" && auth.Entry == "project" {
+			r.CreatedProjectID = &auth.Project
 		}
 		changed := before == nil || fingerprint(*before) != fingerprint(r)
 		if changed {
@@ -141,22 +184,35 @@ func (s *Service) Mutate(ctx context.Context, a access.Actor, t Target, action s
 			sr = r.StructureRevision
 		}
 		out = Result{ID: r.ID, FacilityID: fid, Revision: r.Revision, StructureRevision: sr, Changed: changed}
+		if auth.Entry == "project" {
+			out.ProjectID = auth.Project
+			out.AccessRevision = auth.AccessRevision
+			if link != nil {
+				out.LinkID = link.ID
+				out.LinkRevision = link.Revision
+			}
+			if action == "create" {
+				out.LinkID, out.LinkRevision, out.AccessRevision, e = projectCreateGrant(ctx, tx, auth, r, link, m.RequestID, meta)
+				if e != nil {
+					return e
+				}
+			}
+		}
 		if changed {
-			if e = recordChange(ctx, tx, a, t, action, m, before, r, fid, meta); e != nil {
+			if e = recordChange(ctx, tx, a, auth, t, action, m, before, r, fid, out.LinkID, meta); e != nil {
 				return e
 			}
 		}
-		_, e = tx.Exec(ctx, `INSERT INTO engineering_resource_receipts(tenant_id,actor_id,request_id,operation,payload_hash,result) VALUES($1,$2,$3,$4,$5,$6)`, t.Tenant, a.ID, m.RequestID, string(op), fingerprint(payload), out)
-		return e
+		return saveMutationReceipt(ctx, tx, auth, t, action, m, in, out)
 	})
-	return out, e
+	return out, preview, e
 }
 func hasKey(m map[string]any, k string) bool { _, ok := m[k]; return ok }
 func storeResource(ctx context.Context, tx pgx.Tx, r Resource, create bool) error {
 	columns := []string{"name", "status", "revision", "updated_at", "updated_by", "deleted_at"}
 	columns = append(columns, mutable[r.Kind][1:]...)
 	if create {
-		columns = append(columns, "id", "tenant_id", "created_at", "created_by")
+		columns = append(columns, "id", "tenant_id", "created_at", "created_by", "created_project_id")
 		columns = append(columns, fixed[r.Kind]...)
 		if r.Kind != Facility {
 			columns = append(columns, "facility_id")
@@ -183,7 +239,7 @@ func storeResource(ctx context.Context, tx pgx.Tx, r Resource, create bool) erro
 	_, e := tx.Exec(ctx, `UPDATE `+table+` SET (`+cs+`)=(SELECT `+cs+` FROM jsonb_populate_record(NULL::`+table+`,$1::jsonb)) WHERE tenant_id=$2 AND id=$3`, body, r.TenantID, r.ID)
 	return e
 }
-func validateResource(ctx context.Context, tx pgx.Tx, t Target, r, facility Resource, newUse bool) error {
+func validateResource(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facility Resource, newUse bool) error {
 	if r.Kind == Facility {
 		v, _, e := engineering.ResolvePublicTx(ctx, tx, r.TypeVersionID, engineering.TypeDefinition, newUse)
 		if e != nil {
@@ -284,7 +340,14 @@ func valuesValid(fields []engineering.Field, values map[string]any) error {
 	}
 	return nil
 }
-func checkDependencies(ctx context.Context, tx pgx.Tx, t Target, r Resource) error {
+func checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarget, r Resource) error {
+	var referenced bool
+	if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM project_resource_visibility($1,NULL,$2) WHERE kind=$3 AND id=$4)`, t.Tenant, t.Facility, t.Kind, r.ID).Scan(&referenced); e != nil {
+		return e
+	}
+	if referenced {
+		return problem("resource_referenced", "仍有项目使用此资源，请先由租户明确解除相应授权。", 409)
+	}
 	deps := map[string]int{}
 	queries := map[string]string{}
 	switch r.Kind {
@@ -311,7 +374,7 @@ func checkDependencies(ctx context.Context, tx pgx.Tx, t Target, r Resource) err
 	}
 	return nil
 }
-func recordChange(ctx context.Context, tx pgx.Tx, a access.Actor, t Target, action string, m WriteMeta, before *Resource, after Resource, fid string, meta access.Meta) error {
+func recordChange(ctx context.Context, tx pgx.Tx, a access.Actor, auth authorization, t scopedTarget, action string, m WriteMeta, before *Resource, after Resource, fid, link string, meta access.Meta) error {
 	fields := []string{}
 	for _, d := range engineering.Differences(before, after) {
 		fields = append(fields, d.Path)
@@ -337,14 +400,18 @@ func recordChange(ctx context.Context, tx pgx.Tx, a access.Actor, t Target, acti
 	if reason == "" {
 		reason = map[string]string{"create": "新增资源", "update": "更新资源资料"}[action]
 	}
-	_, e := tx.Exec(ctx, `INSERT INTO engineering_resource_changes(tenant_id,facility_id,resource_kind,resource_id,resource_revision,operation,actor_id,actor_name,request_id,reason,before,after,changed_fields,definition_versions) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`, t.Tenant, fid, t.Kind, after.ID, after.Revision, action, a.ID, name, m.RequestID, reason, before, after, fields, versions)
+	_, e := tx.Exec(ctx, `INSERT INTO engineering_resource_changes(tenant_id,facility_id,resource_kind,resource_id,resource_revision,operation,actor_id,actor_name,request_id,reason,before,after,changed_fields,definition_versions,actor_scope,actor_project_id,actor_tenant_membership_id,actor_project_membership_id,actor_link_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,NULLIF($16,'')::uuid,NULLIF($17,'')::uuid,NULLIF($18,'')::uuid,NULLIF($19,'')::uuid)`, t.Tenant, fid, t.Kind, after.ID, after.Revision, action, a.ID, name, m.RequestID, reason, before, after, fields, versions, auth.Entry, auth.Project, auth.TenantMembership, auth.ProjectAuth.MembershipID, link)
 	if e != nil {
 		return e
 	}
 	meta.ActorID = a.ID
-	meta.ActorScope = "tenant"
+	meta.ActorScope = auth.Entry
 	meta.TenantID = t.Tenant
-	meta.ProjectID = ""
+	meta.ProjectID = auth.Project
 	meta.Reason = reason
-	return access.Audit(ctx, tx, "resource."+action, "engineering_"+string(t.Kind), after.ID, "", nil, map[string]any{"id": after.ID, "code": after.Code, "name": after.Name, "changed_fields": fields}, meta)
+	event := "resource." + action
+	if auth.Entry == "project" {
+		event = "project." + event
+	}
+	return access.Audit(ctx, tx, event, "engineering_"+string(t.Kind), after.ID, "", nil, map[string]any{"id": after.ID, "code": after.Code, "name": after.Name, "changed_fields": fields}, meta)
 }

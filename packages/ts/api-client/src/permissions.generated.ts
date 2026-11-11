@@ -90,5 +90,16 @@ export const Permissions = {
   TenantEngineeringCatalogRead: 'tenant.engineering.catalog.read',
   TenantEngineeringResourceRead: 'tenant.engineering.resource.read',
   TenantEngineeringResourceManage: 'tenant.engineering.resource.manage',
+  TenantEngineeringResourceAuthorizationRead: 'tenant.engineering.resource.authorization.read',
+  TenantEngineeringResourceAuthorizationManage: 'tenant.engineering.resource.authorization.manage',
+  ProjectEngineeringResourceRead: 'project.engineering.resource.read',
+  ProjectEngineeringResourceUpdate: 'project.engineering.resource.update',
+  ProjectEngineeringResourceHistoryRead: 'project.engineering.resource.history.read',
+  ProjectEngineeringResourceLifecycle: 'project.engineering.resource.lifecycle',
+  ProjectEngineeringFacilityCreate: 'project.engineering.facility.create',
+  ProjectEngineeringComponentCreate: 'project.engineering.component.create',
+  ProjectEngineeringPointCreate: 'project.engineering.point.create',
+  ProjectEngineeringChannelCreate: 'project.engineering.channel.create',
+  ProjectEngineeringCatalogRead: 'project.engineering.catalog.read',
 } as const;
 export type PermissionCode = typeof Permissions[keyof typeof Permissions];

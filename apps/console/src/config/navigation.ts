@@ -7,7 +7,7 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string') return '/';
- if (new RegExp(`^/t/${uuid}/resources/facilities(?:/${uuid})?$`).test(value)) return value;
+ if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?resources/facilities(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/resource-access(?:/${uuid}(?:/facilities/${uuid})?)?$`).test(value)) return value;
  if (/^\/platform\/engineering\/(type-definitions|metrics|units|monitoring-templates)$/.test(value) || new RegExp(`^/t/${uuid}/engineering/(templates|catalog/(type-definitions|metrics|units|monitoring-templates))$`).test(value)) return value;
  if (workspacePaths.some((path) => path === value) || value === '/tenant-invite') return value;
  return new RegExp(`^/(?:platform/tenants/${uuid}|t/${uuid}/(?:projects(?:/new|/${uuid})?|p/${uuid}(?:/(?:profile|audit|permissions|roles(?:/${uuid})?|members(?:/${uuid})?))?|profile|audit|permissions|roles(?:/${uuid})?|members(?:/${uuid})?|invitations(?:/${uuid})?))$`).test(value) ? value : '/';
@@ -71,6 +71,7 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
       { title: '项目信息', items: [
         { title: projectCan(P.ProjectProfileRead) ? '项目资料' : '本人项目授权', href: `${projectBase}/profile`, icon: FolderKanban, active: path === `${projectBase}/profile` },
       ] },
+      { title: '工程资源', items: projectCan(P.ProjectEngineeringResourceRead) ? [{ title: '项目设施', href: `${projectBase}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : [] },
       { title: '成员与权限', items: [
         ...(projectCan(P.ProjectMemberRead) ? [{ title: '项目成员', href: `${projectBase}/members`, icon: Users, active: path.startsWith(`${projectBase}/members`) }] : []),
         ...(projectCan(P.ProjectRoleRead) ? [{ title: '项目角色', href: `${projectBase}/roles`, icon: KeyRound, active: path.startsWith(`${projectBase}/roles`) }] : []),
@@ -97,7 +98,10 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
         ...(tenantCan(P.TenantAuditRead) ? [{ title: '租户操作记录', href: `/t/${tenant}/audit`, icon: ScrollText, active: path === `/t/${tenant}/audit` }] : []),
       ] },
     ];
-    groups.splice(1, 0, { title: '工程资源', items: tenantCan(P.TenantEngineeringResourceRead) ? [{ title: '设施管理', href: `/t/${tenant}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : [] });
+    groups.splice(1, 0, { title: '工程资源', items: [
+      ...(tenantCan(P.TenantEngineeringResourceRead) ? [{ title: '设施管理', href: `/t/${tenant}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : []),
+      ...([P.TenantEngineeringResourceRead,P.TenantProjectRead,P.TenantEngineeringResourceAuthorizationRead].every(tenantCan) ? [{title:'项目资源授权',href:`/t/${tenant}/resource-access`,icon:KeyRound,active:path.includes('/resource-access')}] : []),
+    ] });
     groups.splice(2, 0, { title: '工程配置', items: [
       ...(tenantCan(P.TenantEngineeringCatalogRead) ? [
         { title: '公共设施类型', href: `/t/${tenant}/engineering/catalog/type-definitions`, icon: Blocks, active: path.endsWith('/engineering/catalog/type-definitions') },

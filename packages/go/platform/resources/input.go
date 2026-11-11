@@ -31,7 +31,7 @@ func strict(b []byte, v any) error {
 	}
 	return nil
 }
-func parse(t Target, action string, raw json.RawMessage) (WriteMeta, map[string]any, error) {
+func parse(t scopedTarget, action string, raw json.RawMessage) (WriteMeta, map[string]any, error) {
 	m := WriteMeta{}
 	var in map[string]any
 	if len(raw) > 256*1024 {
@@ -41,6 +41,12 @@ func parse(t Target, action string, raw json.RawMessage) (WriteMeta, map[string]
 		return m, nil, problem("invalid_request", "请提交有效的对象。", 400)
 	}
 	allowed := []string{"request_id"}
+	if t.Entry == "project" {
+		allowed = append(allowed, "expected_access_revision", "expected_link_revision")
+	}
+	if action != "create" {
+		allowed = append(allowed, "preview_hash", "reason")
+	}
 	if action != "create" {
 		allowed = append(allowed, "expected_revision")
 	}
@@ -70,7 +76,7 @@ func parse(t Target, action string, raw json.RawMessage) (WriteMeta, map[string]
 		}
 	}
 	meta := map[string]any{}
-	for _, k := range []string{"request_id", "expected_revision", "expected_structure_revision", "reason"} {
+	for _, k := range []string{"request_id", "expected_revision", "expected_structure_revision", "reason", "preview_hash", "expected_access_revision", "expected_link_revision"} {
 		if v, ok := in[k]; ok {
 			meta[k] = v
 			delete(in, k)
@@ -79,7 +85,13 @@ func parse(t Target, action string, raw json.RawMessage) (WriteMeta, map[string]
 	if strict(jsonBytes(meta), &m) != nil || !access.ValidID(m.RequestID) {
 		return m, nil, problem("invalid_request", "请求编号或修订无效。", 400)
 	}
+	if t.Entry == "project" && (!decimalRevision(m.AccessRevision) || (action != "create" || t.Kind != Facility) && !decimalRevision(m.LinkRevision)) {
+		return m, nil, problem("invalid_request", "项目写入须提供当前资源授权与关联修订。", 400)
+	}
 	m.Reason = strings.TrimSpace(m.Reason)
+	if utf8.RuneCountInString(m.Reason) > 2000 {
+		return m, nil, invalid("/reason", "input_limit", "原因最多 2000 字符。")
+	}
 	if action != "create" && action != "update" && (m.Reason == "" || utf8.RuneCountInString(m.Reason) > 2000) {
 		return m, nil, invalid("/reason", "required", "请填写原因，最多 2000 字符。")
 	}

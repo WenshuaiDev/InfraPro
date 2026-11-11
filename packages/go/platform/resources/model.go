@@ -19,16 +19,23 @@ const (
 var tables = map[Kind]string{Facility: "engineering_facilities", Component: "engineering_components", Point: "engineering_points", Channel: "engineering_channels"}
 
 type Target struct {
-	Tenant, Facility, Point, ID string
-	Kind                        Kind
+	Facility, Point, ID string
+	Kind                Kind
 }
 type WriteMeta struct {
+	AccessRevision    string `json:"expected_access_revision,omitempty"`
+	LinkRevision      string `json:"expected_link_revision,omitempty"`
+	PreviewHash       string `json:"preview_hash,omitempty"`
 	RequestID         string `json:"request_id"`
 	Revision          int    `json:"expected_revision"`
 	StructureRevision int    `json:"expected_structure_revision"`
 	Reason            string `json:"reason"`
 }
 type Result struct {
+	ProjectID         string `json:"project_id,omitempty"`
+	LinkID            string `json:"link_id,omitempty"`
+	LinkRevision      string `json:"link_revision,omitempty"`
+	AccessRevision    string `json:"access_revision,omitempty"`
 	ID                string `json:"id"`
 	FacilityID        string `json:"facility_id"`
 	Revision          int    `json:"revision"`
@@ -37,39 +44,42 @@ type Result struct {
 	Replayed          bool   `json:"replayed"`
 }
 type Resource struct {
-	ID                     string         `json:"id"`
-	TenantID               string         `json:"tenant_id"`
-	FacilityID             string         `json:"facility_id,omitempty"`
-	Kind                   Kind           `json:"kind"`
-	Code                   string         `json:"code"`
-	Name                   string         `json:"name"`
-	Status                 string         `json:"status"`
-	Revision               int            `json:"revision"`
-	StructureRevision      int            `json:"structure_revision,omitempty"`
-	CreatedAt              time.Time      `json:"created_at"`
-	UpdatedAt              time.Time      `json:"updated_at"`
-	CreatedBy              string         `json:"created_by"`
-	UpdatedBy              string         `json:"updated_by"`
-	DeletedAt              *time.Time     `json:"deleted_at"`
-	TypeVersionID          string         `json:"type_version_id,omitempty"`
-	CategoryKey            string         `json:"category_key,omitempty"`
-	ParentComponentID      *string        `json:"parent_component_id"`
-	ComponentID            *string        `json:"component_id"`
-	PointID                string         `json:"point_id,omitempty"`
-	Values                 map[string]any `json:"values,omitempty"`
-	Position               *Position      `json:"position,omitempty"`
-	Description            string         `json:"description"`
-	SourceReference        string         `json:"source_reference"`
-	Purpose                string         `json:"purpose"`
-	DirectionDescription   string         `json:"direction_description"`
-	ReferenceDescription   string         `json:"reference_description"`
-	MetricVersionID        string         `json:"metric_version_id,omitempty"`
-	UnitVersionID          *string        `json:"unit_version_id"`
-	ObservationDirection   string         `json:"observation_direction"`
-	ReferenceBasis         string         `json:"reference_basis"`
-	TimestampMeaning       string         `json:"timestamp_meaning"`
-	AggregationDescription string         `json:"aggregation_description"`
-	Sampling               *Sampling      `json:"sampling"`
+	CreatedProjectID        *string        `json:"created_project_id,omitempty"`
+	Visibility              string         `json:"visibility,omitempty"`
+	HistoricalContextHidden bool           `json:"historical_context_hidden,omitempty"`
+	ID                      string         `json:"id"`
+	TenantID                string         `json:"tenant_id"`
+	FacilityID              string         `json:"facility_id,omitempty"`
+	Kind                    Kind           `json:"kind"`
+	Code                    string         `json:"code"`
+	Name                    string         `json:"name"`
+	Status                  string         `json:"status"`
+	Revision                int            `json:"revision"`
+	StructureRevision       int            `json:"structure_revision,omitempty"`
+	CreatedAt               time.Time      `json:"created_at"`
+	UpdatedAt               time.Time      `json:"updated_at"`
+	CreatedBy               string         `json:"created_by,omitempty"`
+	UpdatedBy               string         `json:"updated_by,omitempty"`
+	DeletedAt               *time.Time     `json:"deleted_at"`
+	TypeVersionID           string         `json:"type_version_id,omitempty"`
+	CategoryKey             string         `json:"category_key,omitempty"`
+	ParentComponentID       *string        `json:"parent_component_id"`
+	ComponentID             *string        `json:"component_id"`
+	PointID                 string         `json:"point_id,omitempty"`
+	Values                  map[string]any `json:"values,omitempty"`
+	Position                *Position      `json:"position,omitempty"`
+	Description             string         `json:"description"`
+	SourceReference         string         `json:"source_reference"`
+	Purpose                 string         `json:"purpose"`
+	DirectionDescription    string         `json:"direction_description"`
+	ReferenceDescription    string         `json:"reference_description"`
+	MetricVersionID         string         `json:"metric_version_id,omitempty"`
+	UnitVersionID           *string        `json:"unit_version_id"`
+	ObservationDirection    string         `json:"observation_direction"`
+	ReferenceBasis          string         `json:"reference_basis"`
+	TimestampMeaning        string         `json:"timestamp_meaning"`
+	AggregationDescription  string         `json:"aggregation_description"`
+	Sampling                *Sampling      `json:"sampling"`
 }
 type Sampling struct {
 	Mode            string   `json:"mode"`
@@ -77,12 +87,16 @@ type Sampling struct {
 	Description     string   `json:"description"`
 }
 type Actions struct {
-	Edit    bool   `json:"edit"`
-	Add     bool   `json:"add"`
-	Retire  bool   `json:"retire"`
-	Restore bool   `json:"restore"`
-	Delete  bool   `json:"delete"`
-	Reason  string `json:"reason"`
+	Read            bool   `json:"read"`
+	CreateComponent bool   `json:"create_component"`
+	CreatePoint     bool   `json:"create_point"`
+	CreateChannel   bool   `json:"create_channel"`
+	Edit            bool   `json:"edit"`
+	Add             bool   `json:"add"`
+	Retire          bool   `json:"retire"`
+	Restore         bool   `json:"restore"`
+	Delete          bool   `json:"delete"`
+	Reason          string `json:"reason"`
 }
 type Item struct {
 	Resource
@@ -92,36 +106,47 @@ type Item struct {
 	TypeDefinitionID string `json:"type_definition_id,omitempty"`
 }
 type Detail struct {
+	AccessRevision string `json:"access_revision,omitempty"`
+	LinkID         string `json:"link_id,omitempty"`
+	LinkRevision   string `json:"link_revision,omitempty"`
+	Shared         bool   `json:"shared"`
 	Resource
 	Ancestors   []Resource            `json:"ancestors"`
 	Definitions []engineering.Version `json:"definitions"`
 	Actions     Actions               `json:"actions"`
 }
 type Page struct {
-	Items      []Item `json:"items"`
-	NextCursor string `json:"next_cursor"`
+	AccessRevision    string `json:"access_revision,omitempty"`
+	CanCreateFacility bool   `json:"can_create_facility"`
+	Items             []Item `json:"items"`
+	NextCursor        string `json:"next_cursor"`
 }
 type Filter struct {
 	Query, Status, TypeDefinition, Deleted, Parent, Owner, Cursor, Kind, ID string
 	Limit                                                                   int
 }
 type Change struct {
-	ID                 string    `json:"id"`
-	TenantID           string    `json:"tenant_id"`
-	FacilityID         string    `json:"facility_id"`
-	ResourceKind       Kind      `json:"resource_kind"`
-	ResourceID         string    `json:"resource_id"`
-	ResourceRevision   int       `json:"resource_revision"`
-	Operation          string    `json:"operation"`
-	ActorID            string    `json:"actor_id"`
-	ActorName          string    `json:"actor_name"`
-	RequestID          string    `json:"request_id"`
-	ChangedAt          time.Time `json:"changed_at"`
-	Reason             string    `json:"reason"`
-	Before             *Resource `json:"before"`
-	After              Resource  `json:"after"`
-	ChangedFields      []string  `json:"changed_fields"`
-	DefinitionVersions []string  `json:"definition_versions"`
+	ActorScope               string    `json:"actor_scope"`
+	ActorProjectID           string    `json:"actor_project_id,omitempty"`
+	ActorTenantMembershipID  string    `json:"actor_tenant_membership_id,omitempty"`
+	ActorProjectMembershipID string    `json:"actor_project_membership_id,omitempty"`
+	ActorLinkID              string    `json:"actor_link_id,omitempty"`
+	ID                       string    `json:"id"`
+	TenantID                 string    `json:"tenant_id"`
+	FacilityID               string    `json:"facility_id"`
+	ResourceKind             Kind      `json:"resource_kind"`
+	ResourceID               string    `json:"resource_id"`
+	ResourceRevision         int       `json:"resource_revision"`
+	Operation                string    `json:"operation"`
+	ActorID                  string    `json:"actor_id,omitempty"`
+	ActorName                string    `json:"actor_name"`
+	RequestID                string    `json:"request_id"`
+	ChangedAt                time.Time `json:"changed_at"`
+	Reason                   string    `json:"reason"`
+	Before                   *Resource `json:"before"`
+	After                    Resource  `json:"after"`
+	ChangedFields            []string  `json:"changed_fields"`
+	DefinitionVersions       []string  `json:"definition_versions"`
 }
 type Changes struct {
 	Items       []Change              `json:"items"`

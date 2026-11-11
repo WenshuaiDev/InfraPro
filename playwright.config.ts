@@ -1,11 +1,15 @@
 import { defineConfig } from '@playwright/test';
 
+const apiURL=process.env.INFRAPRO_E2E_API_URL||'http://127.0.0.1:18080';
+const consoleURL=process.env.INFRAPRO_E2E_CONSOLE_URL||'http://127.0.0.1:15173';
 const env = {
   INFRAPRO_CONFIG: '',
-  INFRAPRO_HTTP_ADDR: '127.0.0.1:18080',
+  INFRAPRO_HTTP_ADDR: new URL(apiURL).host,
   INFRAPRO_LOG_LEVEL: 'warn',
-  API_PROXY_TARGET: 'http://127.0.0.1:18080',
-  CONSOLE_PORT: '15173',
+  API_PROXY_TARGET: apiURL,
+  CONSOLE_PORT: new URL(consoleURL).port,
+  INFRAPRO_E2E_CONSOLE_URL: consoleURL,
+  INFRAPRO_E2E_ORIGINS: new URL(consoleURL).origin,
   VITE_API_BASE_URL: '/api/v1',
 };
 const serverOptions = {
@@ -31,7 +35,7 @@ export default defineConfig({
     { name: 'mobile', use: { browserName: 'chromium', viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true } },
   ],
   webServer: [
-    { ...serverOptions, command: 'node scripts/e2e-server.mjs', url: 'http://127.0.0.1:18080/readyz' },
-    { ...serverOptions, command: `pnpm --filter @infrapro/console ${appCommand}`, url: 'http://127.0.0.1:15173/api/v1/public/account-help' },
+    { ...serverOptions, command: 'node scripts/e2e-server.mjs', url: `${apiURL}/readyz` },
+    { ...serverOptions, command: `pnpm --filter @infrapro/console ${appCommand}`, url: `${consoleURL}/api/v1/public/account-help` },
   ],
 });

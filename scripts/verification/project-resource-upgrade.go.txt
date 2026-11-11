@@ -1,0 +1,32 @@
+package resources_test
+import (
+ "encoding/json"
+ "fmt"
+ "log/slog"
+ "os"
+ "path/filepath"
+ "testing"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
+ res "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+ "github.com/jackc/pgx/v5/pgxpool"
+ "github.com/redis/go-redis/v9"
+)
+func TestUpgradeRestoredProjectResource(t *testing.T){
+ var old struct{Config config.Config;Tenant,Project,Facility,Point,Request string;Input map[string]any;Checks map[string]string}
+ raw,e:=os.ReadFile(filepath.Join(os.Getenv("INFRAPRO_MIGRATION_EVIDENCE"),"legacy.json"));must(t,e);must(t,json.Unmarshal(raw,&old));old.Config.DatabaseURL=os.Getenv("INFRAPRO_MIGRATION_DATABASE");old.Config.RedisKeyPrefix+="restored:"
+ pool,e:=pgxpool.New(ctx,old.Config.DatabaseURL);must(t,e);defer pool.Close();var version int;must(t,pool.QueryRow(ctx,`SELECT max(version_id) FROM goose_db_version WHERE is_applied`).Scan(&version));if version!=9 {t.Fatal(version)}
+ must(t,migrations.Up(ctx,old.Config.DatabaseURL));must(t,migrations.Up(ctx,old.Config.DatabaseURL));must(t,migrations.Check(ctx,pool))
+ // Compare only pre-existing columns, before any new login or authorization sync writes.
+ removed:=` - 'created_project_id' - 'actor_scope' - 'actor_project_id' - 'actor_tenant_membership_id' - 'actor_project_membership_id' - 'actor_link_id' - 'fingerprint_version'`
+ for table,want:=range old.Checks {var got string;q:=fmt.Sprintf(`SELECT md5(COALESCE(jsonb_agg(to_jsonb(r)%s ORDER BY (to_jsonb(r)%s)::text)::text,'[]')) FROM %s r`,removed,removed,table);must(t,pool.QueryRow(ctx,q).Scan(&got));if got!=want{t.Fatalf("v9 data changed: %s",table)}}
+ a:=access.New(pool,slog.Default());must(t,a.Sync(ctx));must(t,a.Sync(ctx));must(t,a.Check(ctx))
+ var policies,links,grants int;var allowed bool;must(t,pool.QueryRow(ctx,`SELECT (SELECT count(*) FROM project_resource_policies),(SELECT count(*) FROM project_facility_links),(SELECT count(*) FROM project_resource_grants),(SELECT allow_facility_create FROM project_resource_policies WHERE project_id=$1)`,old.Project).Scan(&policies,&links,&grants,&allowed));if policies!=1||links!=0||grants!=0||allowed {t.Fatal(policies,links,grants,allowed)}
+ options,e:=redis.ParseURL(old.Config.RedisURL);must(t,e);cache:=redis.NewClient(options);defer cache.Close();s,e:=identity.NewService(pool,cache,old.Config,slog.Default());must(t,e);_,token,_,e:=s.Login(ctx,"ResourceOwner",password,identity.Meta{});must(t,e);principal,e:=s.Authenticate(ctx,token);must(t,e);actor:=s.AccessActor(principal);srv:=res.New(a)
+ d,e:=srv.Detail(ctx,actor,res.TenantScope(old.Tenant),res.Target{Kind:res.Point,Facility:old.Facility,ID:old.Point});must(t,e);if d.Name!="原测点"{t.Fatal(d.Name)}
+ input,_:=json.Marshal(old.Input);replayed,e:=srv.Mutate(ctx,actor,res.TenantScope(old.Tenant),res.Target{Kind:res.Facility},"create",input,access.Meta{});must(t,e);if !replayed.Replayed||replayed.ID!=old.Facility{t.Fatal(replayed)}
+ page,e:=srv.List(ctx,actor,res.ProjectScope(old.Tenant,old.Project),res.Target{Kind:res.Facility},res.Filter{});must(t,e);if len(page.Items)!=0{t.Fatal("upgrade inferred grants")}
+ report:=map[string]any{"from":9,"to":10,"restored":true,"preserved_tables":len(old.Checks),"original_login":true,"original_resource":true,"v1_receipt_replayed":true,"default_links":links,"default_grants":grants,"default_create_policy":allowed,"repeat_migrate_sync":true};b,e:=json.MarshalIndent(report,"","  ");must(t,e);must(t,os.WriteFile(filepath.Join(os.Getenv("INFRAPRO_MIGRATION_EVIDENCE"),"report.json"),b,0600));t.Log(string(b))
+}

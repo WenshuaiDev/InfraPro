@@ -508,7 +508,7 @@ func TestProjectAuditIsolationAndTenantRoleIndependence(t *testing.T) {
 			ordinary++
 		}
 	}
-	if len(list) != 21 || ordinary != 11 {
+	if len(list) != 30 || ordinary != 20 {
 		t.Fatal(list)
 	}
 	auth, e := f.s.Authorization(ctx, f.actor(f.b), f.tid, p.ProjectID, member.ObjectID)

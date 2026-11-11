@@ -66,6 +66,10 @@ function accountMethods(base: string, timeoutMs: number) {
   const projectMemberships = new Map<string, string>();
   const projectListeners = new Set<(tenant: string, project: string, code: string) => void>();
   const invalidateProjectScope = (tenant: string, project: string) => { const key = `${tenant}:${project}`; projectEpochs.set(key, (projectEpochs.get(key) ?? 0) + 1); };
+  const resourceEpochs = new Map<string, number>();
+  const resourceRevisions = new Map<string, string>();
+  const resourceListeners = new Set<(tenant: string, project: string | undefined, code: string) => void>();
+  const invalidateResourceScope = (tenant: string, project?: string) => { const key = `${tenant}:${project ?? ''}`; resourceEpochs.set(key, (resourceEpochs.get(key) ?? 0) + 1); };
   const tenantEpochs = new Map<string, number>();
   const tenantMemberships = new Map<string, string>();
   const tenantListeners = new Set<(id: string, code: string) => void>();
@@ -76,10 +80,12 @@ function accountMethods(base: string, timeoutMs: number) {
   async function request<T>(path: string, method = 'GET', body?: unknown, notifyUnauthorized = true, signal?: AbortSignal): Promise<T> {
     const epoch = identityEpoch;
     const tenant = /^\/tenants\/([^/?]+)/.exec(path)?.[1];
-    const project = /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const project = path.includes('/resource-access') ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const resourceRequest = /\/engineering\/(resources|catalog)(?:\/|$)/.test(path);
+    const resourceKey = `${tenant}:${project ?? ''}`; const resourceEpoch = resourceEpochs.get(resourceKey) ?? 0;
     const projectKey = `${tenant}:${project}`; const projectEpoch = projectEpochs.get(projectKey) ?? 0;
     const tenantEpoch = tenant ? tenantEpochs.get(tenant) ?? 0 : 0;
-    const current = () => { if (epoch !== identityEpoch || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
+    const current = () => { if (epoch !== identityEpoch || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
     if (method !== 'GET' && !csrfToken) await csrf();
     current();
     let response: Response;
@@ -103,7 +109,9 @@ function accountMethods(base: string, timeoutMs: number) {
     if (!response.ok) {
       const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number> } : {};
       if (notifyUnauthorized && error.code === 'unauthenticated') listeners.forEach((listener) => listener());
-      if (project && tenant && ['project_not_found', 'permission_denied', 'project_archived'].includes(error.code ?? '')) {
+      if (tenant && resourceRequest && ['permission_denied', 'resource_not_found', 'resource_access_changed', 'project_archived'].includes(error.code ?? '')) {
+        resourceListeners.forEach((listener) => listener(tenant, project, error.code!));
+      } else if (project && tenant && ['project_not_found', 'permission_denied', 'project_archived'].includes(error.code ?? '')) {
         invalidateProjectScope(tenant, project); projectListeners.forEach((listener) => listener(tenant, project, error.code!));
       } else if (tenant && ['tenant_disabled', 'tenant_not_found', 'permission_denied'].includes(error.code ?? '')) {
         invalidateTenantScope(tenant); tenantListeners.forEach((listener) => listener(tenant, error.code!));
@@ -116,6 +124,15 @@ function accountMethods(base: string, timeoutMs: number) {
       const member = (data as import('./projects').ProjectContext).authorization.membership_id; const previous = projectMemberships.get(projectKey);
       if (previous && previous !== member) invalidateProjectScope(tenant, project);
       projectMemberships.set(projectKey, member);
+      const resourceRevision = (data as import('./projects').ProjectContext).resource_access_revision;
+      const previousRevision = resourceRevisions.get(resourceKey);
+      if (previousRevision && resourceRevision !== previousRevision) invalidateResourceScope(tenant, project);
+      resourceRevisions.set(resourceKey, resourceRevision);
+    }
+    if (project && tenant && resourceRequest && data && typeof data === 'object' && 'access_revision' in data) {
+      const observed = String(data.access_revision ?? '');
+      const known = resourceRevisions.get(resourceKey);
+      if (known && observed && observed !== known) resourceListeners.forEach(listener => listener(tenant, project, 'resource_access_changed'));
     }
     if (tenant && /^\/tenants\/[^/]+\/context$/.test(path)) {
       const member = (data as TenantContext).membership_id;
@@ -137,6 +154,8 @@ function accountMethods(base: string, timeoutMs: number) {
   const tenantPath = (id: string) => `/tenants/${encodeURIComponent(id)}`;
   return {
     ...projectMethods(request),
+    invalidateResourceScope,
+    onResourceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { resourceListeners.add(listener); return () => { resourceListeners.delete(listener); }; },
     ...engineeringMethods(request),
     ...resourceMethods(request),
     invalidateProjectScope,
