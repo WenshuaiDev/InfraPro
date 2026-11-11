@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError, type ProjectContext, type PermissionCode } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
 import { ErrorState, FormNotice } from '@infrapro/ui/patterns/feedback';
+import { WorkspacePickerButton } from '../../app/workspace-picker-context';
 import { Badge } from '@infrapro/ui/components/badge';
 import { clearProject, projectContextKey, retryScopeRead } from './scope';
 
@@ -20,9 +21,9 @@ export function ProjectBoundary({ tenant, project, children }: { tenant: string;
   const previousStamp = useRef('');
   useEffect(() => { const old = previousStamp.current; previousStamp.current = stamp; if (old && old !== stamp) { const predicate = (q: {queryKey: readonly unknown[]}) => q.queryKey[0] === 'project' && q.queryKey[1] === account?.id && q.queryKey[2] === tenant && q.queryKey[4] === project && q.queryKey[6] === old; void cache.cancelQueries({predicate}); cache.removeQueries({predicate}); } }, [stamp, account?.id, cache, tenant, project]);
   const value = useMemo<Current | null>(() => state.data ? { ...state.data, available: !state.error && !state.isFetching && phase === 'authenticated', key: ['project', account?.id, tenant, state.data.authorization.tenant_membership_id, project, state.data.authorization.membership_id, stamp], can: (p) => state.data.authorization.permissions.includes(p), allows: (op) => state.data.authorization.allowed_operations.includes(op) } : null, [state.data, state.error, state.isFetching, phase, account?.id, tenant, project, stamp]);
-  if (state.error instanceof ApiError && [403, 404].includes(state.error.status ?? 0)) return <section className="space-y-4"><h1 className="text-2xl font-semibold">当前项目不可访问</h1><p>项目或上层成员资格已变化，请重新选择项目。</p><Link to="/projects" className="underline">返回我的项目</Link></section>;
+  if (state.error instanceof ApiError && [403, 404].includes(state.error.status ?? 0)) return <section className="space-y-4"><h1 className="text-2xl font-semibold">当前项目不可访问</h1><p>项目或上层成员资格已变化，请重新选择项目。</p><WorkspacePickerButton filter="projects">重新选择项目</WorkspacePickerButton><Link to="/" className="underline">返回首页</Link></section>;
   if (!value) return state.error ? <ErrorState message={state.error.message} onRetry={() => void state.refetch()} /> : <p role="status">正在核验项目身份…</p>;
-  return <CurrentProject value={value}><section className="mb-6 space-y-3 border-b pb-4"><div className="flex flex-wrap items-center gap-3"><p className="min-w-0 break-words text-lg font-semibold">{value.project.tenant_name} / {value.project.name}</p><Badge variant="outline">{value.project.status === 'active' ? '运行中' : '已归档'}</Badge><Link to="/projects" className="text-sm underline">切换项目</Link></div>{value.project.status === 'archived' && <FormNotice>项目已归档：可按权限查看、撤权及交接管理；恢复后才能编辑或扩权。</FormNotice>}{state.error && <ErrorState title="服务暂时不可用，输入已保留" message={state.error.message} onRetry={() => void state.refetch()} />}</section><div key={stamp}>{children}</div></CurrentProject>;
+  return <CurrentProject value={value}><section className="mb-6 space-y-3 border-b pb-4"><div className="flex flex-wrap items-center gap-3"><p className="min-w-0 break-words text-lg font-semibold">{value.project.tenant_name} / {value.project.name}</p><Badge variant="outline">{value.project.status === 'active' ? '运行中' : '已归档'}</Badge><WorkspacePickerButton filter="projects">切换项目</WorkspacePickerButton></div>{value.project.status === 'archived' && <FormNotice>项目已归档：可按权限查看、撤权及交接管理；恢复后才能编辑或扩权。</FormNotice>}{state.error && <ErrorState title="服务暂时不可用，输入已保留" message={state.error.message} onRetry={() => void state.refetch()} />}</section><div key={stamp}>{children}</div></CurrentProject>;
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export function useProject() { const value = useContext(CurrentProject); if (!value) throw new Error('Project context required'); return value; }

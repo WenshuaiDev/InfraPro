@@ -1,3 +1,2 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { MyProjectsPage } from '../../features/projects/lists';
-export const Route = createFileRoute('/_authenticated/projects')({ component: function Page() { return <MyProjectsPage />; } });
+import { createFileRoute, redirect } from '@tanstack/react-router';
+export const Route = createFileRoute('/_authenticated/projects')({ beforeLoad: () => { throw redirect({ to: '/', search: { workspace: 'projects' }, replace: true }); } });

@@ -1,5 +1,5 @@
 // Separate Vite HTML entry used only by component tests; excluded from production inputs.
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { ChartColumn, House, Landmark, Settings } from 'lucide-react';
 import { AdminLayout, AuthCard, AuthLayout, PageContent, PageHeader, SettingsLayout, type LinkRenderer } from '@infrapro/layouts';
 import { useLayoutStore } from '@infrapro/layouts/state';
@@ -23,9 +23,10 @@ export function Preview() {
   const [confirmed, setConfirmed] = useState(false);
   const reset = useLayoutStore((value) => value.reset);
   const navigation = [{ title: '首页', href: '/', icon: House }, { title: '图表组件', href: '/charts', icon: ChartColumn }, { title: '设置', href: '/settings', icon: Settings }].map((item) => ({ ...item, active: path === item.href }));
-  const renderLink: LinkRenderer = ({ href, onClick, ...props }) => <a href={href} {...props} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onClick?.(event); setPath(href); } }} />;
+  const renderLink: LinkRenderer = (props) => <PreviewLink {...props} onNavigate={setPath} />;
   if (new URLSearchParams(location.search).get('view') === 'auth') return <AuthLayout brand={brand}><AuthCard title="欢迎回来" description="使用组织邀请创建的账号登录。" footer="没有账号？请联系同事获取邀请链接。"><form className="grid gap-3" onSubmit={(event) => event.preventDefault()}><div className="grid gap-2"><Label htmlFor="username">用户名</Label><Input id="username" autoComplete="username" /></div><div className="grid gap-2"><div className="flex justify-between"><Label htmlFor="password">密码</Label><a href="?view=auth" className="text-sm font-medium text-muted-foreground">忘记密码</a></div><PasswordInput id="password" autoComplete="current-password" /></div><Button className="mt-2">登录</Button></form></AuthCard></AuthLayout>;
-  return <AdminLayout brand={brand} groups={[{ title: '工作空间', items: navigation }]} user={{ displayName: '组件自验', username: 'fixture' }} userNavigation={navigation.slice(2)} renderLink={renderLink} onNavigate={setPath} onLogout={() => setConfirmed(true)}>
+  const mode = new URLSearchParams(location.search).get('view') === 'plain' ? 'plain' : 'workspace';
+  return <AdminLayout mode={mode} brand={brand} groups={mode === 'plain' ? [] : [{ title: '工作空间', items: navigation }]} user={{ displayName: '组件自验', username: 'fixture' }} userNavigation={navigation.slice(2)} renderLink={renderLink} onNavigate={setPath} onLogout={() => setConfirmed(true)}>
     <PageContent><PageHeader title={navigation.find((item) => item.href === path)?.title ?? '组件自验'} description="以下为隔离的组件测试数据，不进入正式产品页面。" actions={<Button variant="outline" onClick={reset}>重置布局偏好</Button>} />
       {path === '/settings' ? <SettingsLayout navigation={navigation.slice(2)} renderLink={renderLink}><h2 className="font-semibold">设置内容</h2></SettingsLayout> : <>
         <div className="mb-6 flex flex-wrap gap-2">{[['data', '有数据'], ['empty', '空数据'], ['loading', '加载中'], ['error', '错误']].map(([value, label]) => <Button key={value} variant={state === value ? 'default' : 'outline'} onClick={() => setState(value!)}>{label}</Button>)}</div>
@@ -34,4 +35,13 @@ export function Preview() {
       <div className="mt-6"><ConfirmDialog trigger={<Button variant="outline">测试确认弹窗</Button>} open={confirm} onOpenChange={setConfirm} title="确认操作" description="仅验证组件交互，不执行业务操作。" onConfirm={() => { setConfirmed(true); setConfirm(false); }} /></div>{confirmed && <p role="status">操作已确认</p>}
     </PageContent>
   </AdminLayout>;
+}
+
+function PreviewLink({ href, onClick, onNavigate, ...props }: ComponentProps<'a'> & { onNavigate: (href: string) => void }) {
+  return <a href={href} {...props} onClick={(event) => {
+    onClick?.(event);
+    if (!event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+      event.preventDefault(); onNavigate(href ?? '/');
+    }
+  }} />;
 }

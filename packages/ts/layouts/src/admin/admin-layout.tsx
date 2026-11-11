@@ -1,19 +1,28 @@
-import type { ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import { Separator } from '@infrapro/ui/components/separator';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger, useSidebar } from '@infrapro/ui/components/sidebar';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger, useSidebar } from '@infrapro/ui/components/sidebar';
 import { useLayoutStore } from '../state/layout-store';
-import type { Brand, LayoutUser, LinkRenderer, NavigationGroup, NavigationItem } from '../shared/types';
+import type { AdminLayoutMode, WorkspaceSwitcherRenderer, Brand, LayoutUser, LinkRenderer, NavigationGroup, NavigationItem } from '../shared/types';
 import { CommandSearch } from './command-search';
 import { ThemeSwitch } from './theme-switch';
 import { UserMenu } from './user-menu';
 
-type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; workspaceSwitcher?: ReactNode; children: ReactNode };
+type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; mode: AdminLayoutMode; renderWorkspaceSwitcher?: WorkspaceSwitcherRenderer; workspaceSwitcherOpen?: boolean; children: ReactNode };
 
-function AppSidebar({ brand, groups, user, userNavigation, renderLink, onLogout, logoutPending, workspaceSwitcher }: Props) {
-  const { isMobile, setOpenMobile } = useSidebar();
-  return <Sidebar variant="inset" collapsible="icon">
+function AppSidebar({ brand, groups, renderLink, renderWorkspaceSwitcher, workspaceSwitcherOpen }: Props) {
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
+  const [drawerReady, setDrawerReady] = useState(false);
+  const drawerOpen = useRef(false);
+  useLayoutEffect(() => { drawerOpen.current = openMobile; }, [openMobile]);
+  // This coordinator stays mounted even when SheetContent (and its trigger) is absent.
+  useEffect(() => { if (workspaceSwitcherOpen && isMobile) setOpenMobile(true); }, [workspaceSwitcherOpen, isMobile, setOpenMobile]);
+  const workspaceSwitcher = renderWorkspaceSwitcher?.({ placement: 'sidebar', nestedInDrawer: isMobile, ready: !isMobile || (openMobile && drawerReady), onSelected: () => setOpenMobile(false) });
+  return <Sidebar variant="inset" collapsible="icon" mobileContentProps={{
+    onOpenAutoFocus: () => { queueMicrotask(() => { if (drawerOpen.current) setDrawerReady(true); }); },
+    onCloseAutoFocus: () => setDrawerReady(false),
+  }}>
     <SidebarHeader><SidebarMenu><SidebarMenuItem><div className="flex min-w-0 items-center">{workspaceSwitcher ?? <SidebarMenuButton size="lg" asChild>{renderLink({ href: '/', onClick: () => setOpenMobile(false), children: <><div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground [&>svg]:size-5">{brand.logo}</div><div className="grid flex-1 text-start text-sm leading-tight"><span className="truncate font-semibold">{brand.name}</span><span className="truncate text-xs">{brand.description}</span></div></> })}</SidebarMenuButton>}{isMobile && <Button size="icon" variant="ghost" aria-label="关闭导航" onClick={() => setOpenMobile(false)}><X className="size-4" /></Button>}</div></SidebarMenuItem></SidebarMenu></SidebarHeader>
     <SidebarContent className="group-data-[collapsible=icon]:overflow-y-auto">
       <nav aria-label="主导航" className="flex flex-col gap-5 px-2 py-4 group-data-[collapsible=icon]:gap-4 group-data-[collapsible=icon]:py-2">
@@ -31,21 +40,33 @@ function AppSidebar({ brand, groups, user, userNavigation, renderLink, onLogout,
         </SidebarGroup>)}
       </nav>
     </SidebarContent>
-    <SidebarFooter><SidebarMenu><SidebarMenuItem><UserMenu user={user} navigation={userNavigation} renderLink={renderLink} onLogout={onLogout} busy={logoutPending} sidebar /></SidebarMenuItem></SidebarMenu></SidebarFooter><SidebarRail />
+    <SidebarRail />
   </Sidebar>;
 }
 
-export function AdminLayout(props: Props) {
-  const sidebarOpen = useLayoutStore((state) => state.sidebarOpen);
-  const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
+function Toolbar(props: Props) {
   const accountItems = props.userNavigation.filter((item) => !props.groups.some((group) => group.items.some((entry) => entry.href === item.href)));
   const searchGroups = accountItems.length ? [...props.groups, { title: '账号快捷入口', items: accountItems }] : props.groups;
+  return <header className="sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className={`flex h-full min-w-0 items-center px-4 sm:gap-4 ${props.mode === 'workspace' ? 'gap-3' : 'gap-2'}`}>
+    {props.mode === 'workspace' ? <><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /></> : <div className="min-w-0 max-w-64 flex-1">{props.renderWorkspaceSwitcher?.({ placement: 'header', nestedInDrawer: false, ready: true, onSelected: () => {} }) ?? props.renderLink({ href: '/', className: 'flex min-h-11 items-center gap-2 font-semibold', children: <><span className="[&>svg]:size-5">{props.brand.logo}</span>{props.brand.name}</> })}</div>}
+    <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-2"><CommandSearch groups={searchGroups} onNavigate={props.onNavigate} /><ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div>
+  </div></header>;
+}
+function WorkspaceLayout(props: Props) {
+  useLayoutEffect(() => { if (!useLayoutStore.persist.hasHydrated()) void useLayoutStore.persist.rehydrate(); }, []);
+  const sidebarOpen = useLayoutStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useLayoutStore((state) => state.setSidebarOpen);
   return <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
-    <a href="#main" className="sr-only fixed start-4 top-4 z-100 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed">跳到主要内容</a>
     <AppSidebar {...props} />
-    <SidebarInset className="@container/content min-w-0">
-      <header className="sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className="flex h-full items-center gap-3 px-4 sm:gap-4"><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /><div className="ms-auto flex items-center gap-1 sm:gap-2"><CommandSearch groups={searchGroups} onNavigate={props.onNavigate} /><ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div></div></header>
-      {props.notice && <div className="px-4 pt-4">{props.notice}</div>}{props.children}
-    </SidebarInset>
+    <SidebarInset className="@container/content min-w-0"><LayoutContent {...props} /></SidebarInset>
   </SidebarProvider>;
+}
+function LayoutContent(props: Props) {
+  return <><Toolbar {...props} />{props.notice && <div className="px-4 pt-4">{props.notice}</div>}{props.children}</>;
+}
+export function AdminLayout(props: Props) {
+  return <>
+    <a href="#main" className="sr-only fixed start-4 top-4 z-100 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed">跳到主要内容</a>
+    {props.mode === 'workspace' ? <WorkspaceLayout {...props} /> : <div className="min-h-svh bg-sidebar md:p-2"><div className="@container/content relative flex min-h-svh min-w-0 md:min-h-[calc(100svh-1rem)] flex-col bg-background md:rounded-xl md:shadow-sm"><LayoutContent {...props} /></div></div>}
+  </>;
 }

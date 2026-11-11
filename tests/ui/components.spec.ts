@@ -80,3 +80,21 @@ test('auth layout and password visibility work at every viewport', async ({ page
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('auth.png'), fullPage: true });
 });
+
+test('plain shared layout works without sidebar context and has one account menu', async ({ page }) => {
+  await page.goto('/ui-preview.html?view=plain');
+  await expect(page.getByRole('heading', { name: '首页', exact: true })).toBeVisible();
+  await expect(page.locator('[data-slot="sidebar-wrapper"], [data-slot="sidebar"], [data-slot="sidebar-trigger"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('button', { name: '侧栏账号菜单' })).toHaveCount(0);
+  await page.getByRole('button', { name: '账号菜单', exact: true }).click();
+  await page.getByRole('menuitem', { name: '设置', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '设置内容', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '账号菜单', exact: true }).click();
+  await page.getByRole('menuitem', { name: '退出登录', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('操作已确认');
+  await page.getByRole('button', { name: /搜索页面/ }).click();
+  await expect(page.getByRole('option', { name: '设置', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

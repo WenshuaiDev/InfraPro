@@ -20,6 +20,15 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   expect(await page.evaluate(() => Boolean(navigator.clipboard))).toBe(false);
   await page.getByLabel('用户名', { exact: true }).fill('e2e_owner'); await page.getByLabel('密码', { exact: true }).fill(password); await page.getByRole('button', { name: '登录', exact: true }).click();
   await expect(page.getByRole('button', { name: '保存资料' })).toBeVisible(); await page.reload(); await expect(page.getByRole('button', { name: '保存资料' })).toBeVisible();
+  for (const alias of ['tenants', 'projects']) {
+    await page.goto(`${base}/${alias}`);
+    await expect(page.getByRole('menu', { name: '切换工作空间', exact: true }).getByLabel('工作空间类型')).toHaveValue(alias);
+    await expect(page).toHaveURL(`${base}/`);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-slot="sidebar-wrapper"]')).toHaveCount(0);
+    await navigateTo(page, '个人资料');
+    await expect(page).toHaveURL(`${base}/profile`);
+  }
   const session = (await context.cookies()).find((item) => item.name === 'infrapro_session'); expect(session).toMatchObject({ secure: false, httpOnly: true, sameSite: 'Lax', path: '/' });
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色' }).click(); await expect(page.locator('html')).toHaveClass('dark');
   expect(await page.evaluate(() => Reflect.get(window, 'policyViolations'))).toEqual([]);

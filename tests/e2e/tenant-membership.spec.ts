@@ -41,6 +41,13 @@ test('member journey: explicit login confirmation, two tenants, suspension, remo
     await member.goto(link); await expect(member).not.toHaveURL(/token=/); await member.getByRole('link', { name: '登录并继续' }).click(); await member.getByLabel('用户名', { exact: true }).fill(f.member.username); await member.getByLabel('密码', { exact: true }).fill(password); await member.getByRole('button', { name: '登录', exact: true }).click();
     await expect(member.getByRole('button', { name: '确认加入', exact: true })).toBeVisible();
     expect((await (await recipient.request.get(`${api}/account/tenants`)).json()).items).toHaveLength(0);
+    await member.getByRole('link', { name: '取消并选择工作空间', exact: true }).click();
+    await expect(member.getByRole('menu', { name: '切换工作空间', exact: true }).getByLabel('工作空间类型')).toHaveValue('tenants');
+    expect((await (await recipient.request.get(`${api}/account/tenants`)).json()).items).toHaveLength(0);
+    await member.goto(`${consoleURL}/tenant-invite`);
+    await expect(member.getByRole('heading', { name: '请重新打开原邀请链接', exact: true })).toBeVisible();
+    await member.goto(link);
+    await expect(member.getByRole('button', { name: '确认加入', exact: true })).toBeVisible();
     const persistent = await member.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)].join('')); expect(persistent.includes(credential(link)!)).toBe(false);
     await member.getByRole('button', { name: '确认加入', exact: true }).click(); await member.getByRole('link', { name: '进入租户', exact: true }).click(); await expect(member.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     for (const label of ['编辑资料', '成员管理', '成员邀请', '租户操作记录']) await expect(member.getByRole('button', { name: label, exact: true }).or(member.getByRole('link', { name: label, exact: true }))).toHaveCount(0);
@@ -137,7 +144,7 @@ test('membership dialogs preserve drafts, reauthenticate explicitly and discard 
     await page.route(`**/api/v1/tenants/${f.a}/context`, (route) => unavailable ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'unavailable', message: '短暂故障', request_id: 'test' }) }) : route.continue());
     await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await expect(page.getByRole('button', { name: '创建成员邀请', exact: true })).toBeDisabled(); await expect(page.getByLabel('操作原因')).toHaveValue('保留的邀请原因'); unavailable = false; await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await expect(page.getByRole('button', { name: '创建成员邀请', exact: true })).toBeEnabled();
     mode = 'held'; await page.getByRole('button', { name: '创建成员邀请', exact: true }).click(); await ready;
-    await page.getByRole('dialog').getByRole('button', { name: '关闭', exact: true }).click(); await navigateTo(page, '切换租户'); await page.getByRole('article').filter({ hasText: '成员验收 B' }).getByRole('link', { name: '进入租户' }).click(); release();
+    await page.getByRole('dialog').getByRole('button', { name: '关闭', exact: true }).click(); await navigateTo(page, '切换租户'); await page.getByRole('menuitem', { name: /^成员验收 B.*进入租户/ }).click(); release();
     await expect(page.getByRole('heading', { name: '租户资料' })).toBeVisible(); await expect(page.getByLabel('完整邀请链接')).toHaveCount(0); await expect(page.getByRole('heading', { name: '成员邀请链接已生成' })).toHaveCount(0);
     const invitations = await (await page.request.get(`${api}/tenants/${f.a}/member-invitations`)).json(); expect(invitations.items).toHaveLength(1); expect((await (await page.request.get(`${api}/tenants/${f.b}/member-invitations`)).json()).items).toHaveLength(0);
   } finally { release(); await page.unrouteAll({ behavior: 'wait' }); }
