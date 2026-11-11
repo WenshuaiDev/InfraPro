@@ -18,7 +18,7 @@ test('switching accounts clears profile drafts, invitation credentials and secur
   const invitations = await context.newPage();
   await invitations.goto(`${consoleURL}/invitations`);
   await invitations.getByRole('button', { name: '创建邀请', exact: true }).click();
-  await invitations.getByLabel('用途备注').fill('前一账号的专属邀请');
+  await invitations.getByRole('dialog').getByLabel('用途备注', { exact: true }).fill('前一账号的专属邀请');
   await invitations.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   await expect(invitations.getByLabel('可手动复制的完整链接')).toBeVisible();
   await expect(invitations.getByRole('dialog')).toContainText('前一账号的专属邀请');
@@ -45,7 +45,7 @@ test('switching accounts clears profile drafts, invitation credentials and secur
   await expect(invitations.getByLabel('可手动复制的完整链接')).toHaveCount(0);
   await expect(invitations.getByRole('dialog')).toHaveCount(0);
   await invitations.getByRole('button', { name: '创建邀请', exact: true }).click();
-  await expect(invitations.getByLabel('用途备注')).toHaveValue('');
+  await expect(invitations.getByRole('dialog').getByLabel('用途备注', { exact: true })).toHaveValue('');
   await invitations.getByRole('button', { name: '取消', exact: true }).click();
   await expect(invitations.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
   await expect(invitations.getByText('前一账号的专属邀请', { exact: true })).toHaveCount(0);

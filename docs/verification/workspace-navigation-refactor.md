@@ -6,7 +6,7 @@
 
 用户授权实现[完整方案](../requirements/workspace-navigation-refactor-plan.md)。工作树原为 `e2620cd`，缺少方案所需前端；已从正式已提交基线 `4e92f95` 创建 `codex/workspace-navigation-refactor`，带入指定方案及其历史文档检查。独立实现时没有复制主工作区的其他未提交迭代；后续按用户指令合回主工作树，整合记录见末节。
 
-实现与回归测试提交：`5d42bbc`；原交付文档提交：`6ff48cd`。2026-11-11 已通过 `eca8826` 合入主工作树的 `feature/tenant-project-engineering`；尚未推送。
+实现与回归测试提交：`5d42bbc`；原交付文档提交：`6ff48cd`。2026-11-11 已通过 `eca8826` 合入主工作树，随后与其他实现统一进入 `main`；最新验证和远端同步状态见[主分支整合记录](main-integration-20261111.md)。
 
 本轮仅修改前端、浏览器测试和文档。HomePage 源码保持不变；Go API、OpenAPI、数据库迁移和依赖版本均无改动。未采用原型分支。
 
@@ -35,7 +35,7 @@
 - 完整角色 UI 在首次并行回归中达到 30 秒总时限；保持业务断言与时限不变，专项桌面 / 手机复跑通过。
 - UI preview 遇到一次 Vite 页面重载；停止同时重生成路由文件后，最终 9 项通过。共享演示的链接改用接收 Slot 事件的组件，保留原生链接与菜单关闭语义。
 
-原运行日志及 8 张亮暗 / 桌面手机截图保留在独立工作树 `/Users/hijacker/.codex/worktrees/5695/InfraPro/build/verification/workspace-navigation/`（本地产物，不纳入 Git）；原报告位于同一工作树的 `playwright-report/e2e/`、`playwright-report/ui/`；HTTP 运行日志与截图分别位于上述证据目录及 `test-results/http/`。
+原运行日志、8 张亮暗 / 桌面手机截图、浏览器报告及 HTTP 证据，已随主分支整合保存至主目录 `.artifacts/main-integration-20261111/5695-InfraPro/local-artifacts.tar.gz`（本地产物，不纳入 Git）。归档保留原工作树内 `build/verification/workspace-navigation/`、`playwright-report/` 和 `test-results/` 路径，并已完整读取核验。
 
 ## 实现与 SV 覆盖位置
 

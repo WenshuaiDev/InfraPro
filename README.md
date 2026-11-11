@@ -2,7 +2,7 @@
 
 Go + Gin、React + TypeScript + Vite 项目；前端使用 shadcn/ui、TanStack Router/Query/Table、Zustand 与 Recharts。根目录同时管理 Go workspace 和 pnpm workspace，当前业务功能包括账号、平台角色权限、租户基础管理、成员与角色授权、租户启停恢复、项目管理，以及数据驱动的设施类型定义和监测模板。
 
-工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前功能包括账号、租户、项目、工程定义及租户工程资源，使用 PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。最新提交范围和统一复验见 [2026-11-11 PR 交付记录](docs/verification/pr-delivery-20261111.md)，各功能的自验与人工验收仍分别记录。
+工程目录基线已于 2026-11-09 验收，其运行状态演示页面与配套示例现已移除。当前功能包括账号、租户、项目、工程定义及租户工程资源，使用 PostgreSQL、Redis 与 HTTP 部署；前端单应用重构见下方工程文档。最新主分支整合与统一复验见 [2026-11-11 主分支整合记录](docs/verification/main-integration-20261111.md)；此前提交范围见 [PR 交付记录](docs/verification/pr-delivery-20261111.md)，各功能的自验与人工验收仍分别记录。
 
 ## 项目资源共享重构
 

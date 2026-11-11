@@ -39,7 +39,7 @@ test('invitation creation, manual copy, recipient validation, one-use and member
   await login(page, account); await navigateTo(page, '账号开户邀请');
   await page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true }));
   await page.getByRole('button', { name: '创建邀请', exact: true }).click();
-  await page.getByLabel('用途备注').fill('受邀同事'); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('用途备注', { exact: true }).fill('受邀同事'); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const output = page.getByLabel('可手动复制的完整链接'); await expect(output).toBeVisible(); const link = await output.inputValue();
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('invitations.png'), fullPage: true, mask: [output] });

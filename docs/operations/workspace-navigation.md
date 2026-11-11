@@ -18,7 +18,7 @@
 
 有现成配置的开发环境仍使用仓库根目录 `make dev`，默认入口 `http://127.0.0.1:5173/`。生产地址保留 `/console/` basepath。
 
-导航重构已合入主工作树 `/Users/hijacker/Documents/ChatGPT/InfraPro` 的 `feature/tenant-project-engineering`，与项目资源重构、现有账号管理及邀请修改共同运行。后续开发从主目录启动：
+导航重构、项目资源、账号管理及开户邀请已统一整合到主工作树 `/Users/hijacker/Documents/ChatGPT/InfraPro` 的 `main`。后续开发从主目录启动：
 
 ```bash
 cd /Users/hijacker/Documents/ChatGPT/InfraPro
@@ -27,7 +27,7 @@ make dev
 
 开发入口为 `http://127.0.0.1:5173/`，使用对应本地账号。已有验收数据的访问、配套数据库版本和重启命令分别见[单账号验收手册](manual-acceptance.md)与[项目资源操作手册](project-resource-management.md)。本次合并保留这些环境与数据，没有执行数据库迁移或账号初始化。
 
-原 `http://127.0.0.1:15176/` 导航单项预览仍来自独立工作树 `/Users/hijacker/.codex/worktrees/5695/InfraPro`；它用于复核原导航提交，主工作树整合结果以主目录运行的环境为准。
+原 `15176` 导航单项预览随临时工作树清理停用；统一使用主目录的开发或验收入口。原工作树源码、日志与截图已迁入主目录的 `.artifacts/main-integration-20261111/5695-InfraPro/` 恢复归档，详见[主分支整合记录](../verification/main-integration-20261111.md)。
 
 此次导航重构无需迁移、权限同步或重新 bootstrap。发布只替换前端构建并保留 SPA 回退；回滚只恢复旧版前端。
 
