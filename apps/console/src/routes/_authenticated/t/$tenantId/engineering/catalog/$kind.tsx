@@ -1,3 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { EngineeringPage } from '../../../../../../features/engineering/page';
-export const Route = createFileRoute('/_authenticated/t/$tenantId/engineering/catalog/$kind')({ validateSearch: (search: Record<string, unknown>): { definition?: string } => ({ definition: typeof search.definition === 'string' && /^[0-9a-f-]{36}$/i.test(search.definition) ? search.definition : undefined }), component: function Page() { const {kind}=Route.useParams(); const { definition } = Route.useSearch(); const navigate = Route.useNavigate(); return <EngineeringPage kind={kind} catalog selected={definition} onSelect={(definition) => void navigate({ search: { definition } })} />; } });
+import { createFileRoute, Navigate } from '@tanstack/react-router';
+
+// Public definitions are chosen where they are used; old bookmarks lead there.
+export const Route = createFileRoute('/_authenticated/t/$tenantId/engineering/catalog/$kind')({
+  component: function Page() {
+    const { tenantId, kind } = Route.useParams();
+    return kind === 'monitoring-templates'
+      ? <Navigate to="/t/$tenantId/engineering/templates" params={{ tenantId }} replace />
+      : <Navigate to="/t/$tenantId/resources/facilities" params={{ tenantId }} replace />;
+  },
+});

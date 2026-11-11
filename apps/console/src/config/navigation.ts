@@ -103,12 +103,6 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
       ...([P.TenantEngineeringResourceRead,P.TenantProjectRead,P.TenantEngineeringResourceAuthorizationRead].every(tenantCan) ? [{title:'项目资源授权',href:`/t/${tenant}/resource-access`,icon:KeyRound,active:path.includes('/resource-access')}] : []),
     ] });
     groups.splice(2, 0, { title: '工程配置', items: [
-      ...(tenantCan(P.TenantEngineeringCatalogRead) ? [
-        { title: '公共设施类型', href: `/t/${tenant}/engineering/catalog/type-definitions`, icon: Blocks, active: path.endsWith('/engineering/catalog/type-definitions') },
-        { title: '公共指标', href: `/t/${tenant}/engineering/catalog/metrics`, icon: Ruler, active: path.endsWith('/engineering/catalog/metrics') },
-        { title: '公共单位', href: `/t/${tenant}/engineering/catalog/units`, icon: Ruler, active: path.endsWith('/engineering/catalog/units') },
-        { title: '公共监测模板', href: `/t/${tenant}/engineering/catalog/monitoring-templates`, icon: ClipboardList, active: path.endsWith('/engineering/catalog/monitoring-templates') },
-      ] : []),
       ...(tenantCan(P.TenantEngineeringTemplateRead) ? [{ title: '本租户监测模板', href: `/t/${tenant}/engineering/templates`, icon: ClipboardList, active: path.endsWith('/engineering/templates') }] : []),
     ] });
     return groups.filter((group) => group.items.length > 0);

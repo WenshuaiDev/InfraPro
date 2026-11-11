@@ -16,7 +16,7 @@ type PaginationProps = {
 
 export function ListPagination({ label, count, unit = '条记录', page, pageCount, hasNext, fetching, go, next, pageSize, setPageSize }: PaginationProps) {
   return <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-    <div className="flex items-center gap-2 text-muted-foreground"><span>每页</span><Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}><SelectTrigger aria-label="每页条数" className="h-9 w-20 max-sm:h-11"><SelectValue /></SelectTrigger><SelectContent>{[10, 20, 50].map((size) => <SelectItem key={size} value={String(size)}>{size}</SelectItem>)}</SelectContent></Select><span className="hidden sm:inline">本页 {count} {unit}</span></div>
+    <div className="flex items-center gap-2 text-muted-foreground"><span>每页</span><Select disabled={fetching} value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}><SelectTrigger aria-label="每页条数" className="h-9 w-20 max-sm:h-11"><SelectValue /></SelectTrigger><SelectContent>{[10, 20, 50].map((size) => <SelectItem key={size} value={String(size)}>{size}</SelectItem>)}</SelectContent></Select><span className="hidden sm:inline">本页 {count} {unit}</span></div>
     <Pagination aria-label={`${label}分页`} className="mx-0 w-auto"><PaginationContent>
       <PaginationItem><Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="第一页" disabled={page === 0 || fetching} onClick={() => go(0)}><ChevronsLeft aria-hidden="true" /></Button></PaginationItem>
       <PaginationItem><Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="上一页" disabled={page === 0 || fetching} onClick={() => go(page - 1)}><ChevronLeft aria-hidden="true" /></Button></PaginationItem>

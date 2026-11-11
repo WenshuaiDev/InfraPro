@@ -1,9 +1,168 @@
 import type { EngineeringField, EngineeringVersion } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
-import { CheckControl, NumberControl, OptionsEditor, Section, SelectControl, TextControl, ValueInput } from './controls';
+import {
+  CheckControl,
+  NumberControl,
+  OptionsEditor,
+  Section,
+  SelectControl,
+  TextControl,
+  ValueInput,
+} from './controls';
 import { emptyField, shapeLabels } from './model';
 import { VersionPicker } from './reference-picker';
-export function FieldsEditor({ value, onChange, path, known }: { value: EngineeringField[]; onChange: (v: EngineeringField[]) => void; path: string; known: EngineeringVersion[] }) {
- const update = (index: number, patch: Partial<EngineeringField>) => onChange(value.map((f, i) => i === index ? { ...f, ...patch } : f));
- return <div className="space-y-4"><div className="flex justify-end"><Button type="button" variant="outline" onClick={() => onChange([...value, emptyField()])}>添加属性</Button></div>{!value.length && <p className="text-sm text-muted-foreground">尚无属性。可使用此通用编辑器配置任意类型。</p>}{value.map((f, i) => <Section key={i} id={`${path}/${i}`} title={`属性 ${i + 1} · ${f.name || '未命名'}`} action={<Button type="button" variant="ghost" onClick={() => onChange(value.filter((_, n) => i !== n))}>删除属性 {i + 1}</Button>}><div className="grid gap-4 sm:grid-cols-2"><TextControl id={`${path}/${i}/key`} label="属性键" value={f.key} onChange={(key) => update(i, { key })} hint="发布后不能用于另一种形态或量纲。" /><TextControl id={`${path}/${i}/name`} label="属性名称" value={f.name} onChange={(name) => update(i, { name })} /><SelectControl id={`${path}/${i}/shape`} label="数据形态" value={f.shape} onChange={(shape) => { const base = emptyField(); onChange(value.map((old, n) => n === i ? { ...base, key: old.key, name: old.name, description: old.description, group: old.group, order: old.order, required: old.required, shape: shape as EngineeringField['shape'] } : old)); }} options={Object.entries(shapeLabels).map(([value, label]) => ({ value, label }))} /><CheckControl label="必填属性" value={f.required} onChange={(required) => update(i, { required })} /><TextControl label="属性分组" value={f.group} onChange={(group) => update(i, { group })} /><NumberControl label="显示顺序" value={f.order} onChange={(order) => update(i, { order: order ?? 0 })} /></div><TextControl label="属性说明" value={f.description} onChange={(description) => update(i, { description })} multiline />{f.shape === 'text' && <div className="grid gap-3 sm:grid-cols-3"><NumberControl label="最小字符数" value={f.min_length} onChange={(min_length) => update(i, { min_length })} /><NumberControl label="最大字符数" value={f.max_length} onChange={(max_length) => update(i, { max_length })} /><CheckControl label="多行文本" value={f.multiline} onChange={(multiline) => update(i, { multiline })} /></div>}{['integer', 'decimal'].includes(f.shape) && <><div className="grid gap-3 sm:grid-cols-3"><NumberControl label="最小数值" value={f.minimum} onChange={(minimum) => update(i, { minimum })} /><NumberControl label="最大数值" value={f.maximum} onChange={(maximum) => update(i, { maximum })} /><NumberControl label="显示精度" value={f.precision} onChange={(precision) => update(i, { precision })} /></div><VersionPicker kind="units" label="属性单位" value={f.unit_version ?? ''} onChange={(unit_version) => update(i, { unit_version: unit_version || undefined })} known={known} /></>}{['enum', 'multi_enum'].includes(f.shape) && <OptionsEditor value={f.options ?? []} onChange={(options) => update(i, { options })} />}{f.shape === 'multi_enum' && <div className="grid gap-3 sm:grid-cols-2"><NumberControl label="最少选择数" value={f.min_items} onChange={(min_items) => update(i, { min_items })} /><NumberControl label="最多选择数" value={f.max_items} onChange={(max_items) => update(i, { max_items })} /></div>}<details className="rounded-lg border p-3"><summary className="min-h-8 cursor-pointer text-sm font-medium">初始默认值</summary><p className="my-3 text-xs text-muted-foreground">仅在创建样例时填入，不在校验时补值。</p><ValueInput field={{ ...f, name: '默认值', required: false }} value={f.default} onChange={(value) => update(i, { default: value })} /><Button type="button" variant="ghost" onClick={() => update(i, { default: undefined })}>移除默认值</Button></details></Section>)}</div>;
+export function FieldsEditor({
+  value,
+  onChange,
+  path,
+  known,
+  onReferences,
+}: {
+  value: EngineeringField[];
+  onChange: (v: EngineeringField[]) => void;
+  path: string;
+  known: EngineeringVersion[];
+  onReferences?: (versions: EngineeringVersion[]) => void;
+}) {
+  const update = (index: number, patch: Partial<EngineeringField>) =>
+    onChange(value.map((f, i) => (i === index ? { ...f, ...patch } : f)));
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button type="button" variant="outline" onClick={() => onChange([...value, emptyField()])}>
+          添加属性
+        </Button>
+      </div>
+      {!value.length && <p className="text-sm text-muted-foreground">尚无属性。可使用此通用编辑器配置任意类型。</p>}
+      {value.map((f, i) => (
+        <Section
+          key={i}
+          id={`${path}/${i}`}
+          title={`属性 ${i + 1} · ${f.name || '未命名'}`}
+          action={
+            <Button type="button" variant="ghost" onClick={() => onChange(value.filter((_, n) => i !== n))}>
+              删除属性 {i + 1}
+            </Button>
+          }
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextControl
+              id={`${path}/${i}/key`}
+              label="属性键"
+              value={f.key}
+              onChange={(key) => update(i, { key })}
+              hint="发布后不能用于另一种形态或量纲。"
+            />
+            <TextControl
+              id={`${path}/${i}/name`}
+              label="属性名称"
+              value={f.name}
+              onChange={(name) => update(i, { name })}
+            />
+            <SelectControl
+              id={`${path}/${i}/shape`}
+              label="数据形态"
+              value={f.shape}
+              onChange={(shape) => {
+                const base = emptyField();
+                onChange(
+                  value.map((old, n) =>
+                    n === i
+                      ? {
+                          ...base,
+                          key: old.key,
+                          name: old.name,
+                          description: old.description,
+                          group: old.group,
+                          order: old.order,
+                          required: old.required,
+                          shape: shape as EngineeringField['shape'],
+                        }
+                      : old,
+                  ),
+                );
+              }}
+              options={Object.entries(shapeLabels).map(([value, label]) => ({ value, label }))}
+            />
+            <CheckControl label="必填属性" value={f.required} onChange={(required) => update(i, { required })} />
+            <TextControl label="属性分组" value={f.group} onChange={(group) => update(i, { group })} />
+            <NumberControl label="显示顺序" value={f.order} onChange={(order) => update(i, { order: order ?? 0 })} />
+          </div>
+          <TextControl
+            label="属性说明"
+            value={f.description}
+            onChange={(description) => update(i, { description })}
+            multiline
+          />
+          {f.shape === 'text' && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <NumberControl
+                label="最小字符数"
+                value={f.min_length}
+                onChange={(min_length) => update(i, { min_length })}
+              />
+              <NumberControl
+                label="最大字符数"
+                value={f.max_length}
+                onChange={(max_length) => update(i, { max_length })}
+              />
+              <CheckControl label="多行文本" value={f.multiline} onChange={(multiline) => update(i, { multiline })} />
+            </div>
+          )}
+          {['integer', 'decimal'].includes(f.shape) && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <NumberControl label="最小数值" value={f.minimum} onChange={(minimum) => update(i, { minimum })} />
+                <NumberControl label="最大数值" value={f.maximum} onChange={(maximum) => update(i, { maximum })} />
+                <NumberControl
+                  label="显示精度"
+                  value={f.precision}
+                  onChange={(precision) => update(i, { precision })}
+                />
+              </div>
+              <VersionPicker
+                kind="units"
+                label="属性单位"
+                value={f.unit_version ?? ''}
+                onChange={(unit_version, v) => {
+                  if (v) onReferences?.([v]);
+                  update(i, { unit_version: unit_version || undefined });
+                }}
+                known={known}
+              />
+            </>
+          )}
+          {['enum', 'multi_enum'].includes(f.shape) && (
+            <OptionsEditor value={f.options ?? []} onChange={(options) => update(i, { options })} />
+          )}
+          {f.shape === 'multi_enum' && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <NumberControl
+                label="最少选择数"
+                value={f.min_items}
+                onChange={(min_items) => update(i, { min_items })}
+              />
+              <NumberControl
+                label="最多选择数"
+                value={f.max_items}
+                onChange={(max_items) => update(i, { max_items })}
+              />
+            </div>
+          )}
+          <details className="rounded-lg border p-3">
+            <summary className="min-h-8 cursor-pointer text-sm font-medium">初始默认值</summary>
+            <p className="my-3 text-xs text-muted-foreground">仅在创建样例时填入，不在校验时补值。</p>
+            <ValueInput
+              field={{ ...f, name: '默认值', required: false }}
+              value={f.default}
+              onChange={(value) => update(i, { default: value })}
+            />
+            <Button type="button" variant="ghost" onClick={() => update(i, { default: undefined })}>
+              移除默认值
+            </Button>
+          </details>
+        </Section>
+      ))}
+    </div>
+  );
 }
