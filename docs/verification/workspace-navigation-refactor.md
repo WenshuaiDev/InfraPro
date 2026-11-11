@@ -4,13 +4,13 @@
 
 ## 基线与边界
 
-用户授权实现[完整方案](../requirements/workspace-navigation-refactor-plan.md)。工作树原为 `e2620cd`，缺少方案所需前端；已从正式已提交基线 `4e92f95` 创建 `codex/workspace-navigation-refactor`，带入指定方案及其历史文档检查。主工作区另有账号邀请等未提交迭代，未复制、未覆盖。
+用户授权实现[完整方案](../requirements/workspace-navigation-refactor-plan.md)。工作树原为 `e2620cd`，缺少方案所需前端；已从正式已提交基线 `4e92f95` 创建 `codex/workspace-navigation-refactor`，带入指定方案及其历史文档检查。独立实现时没有复制主工作区的其他未提交迭代；后续按用户指令合回主工作树，整合记录见末节。
 
-实现与回归测试提交：`5d42bbc`。文档另提交；尚未推送或合并。
+实现与回归测试提交：`5d42bbc`；原交付文档提交：`6ff48cd`。2026-11-11 已通过 `eca8826` 合入主工作树的 `feature/tenant-project-engineering`；尚未推送。
 
 本轮仅修改前端、浏览器测试和文档。HomePage 源码保持不变；Go API、OpenAPI、数据库迁移和依赖版本均无改动。未采用原型分支。
 
-## 验证结果
+## 独立实现验证结果
 
 | 命令 / 范围 | 实际结果 |
 | --- | --- |
@@ -35,7 +35,7 @@
 - 完整角色 UI 在首次并行回归中达到 30 秒总时限；保持业务断言与时限不变，专项桌面 / 手机复跑通过。
 - UI preview 遇到一次 Vite 页面重载；停止同时重生成路由文件后，最终 9 项通过。共享演示的链接改用接收 Slot 事件的组件，保留原生链接与菜单关闭语义。
 
-运行日志及 8 张亮暗 / 桌面手机截图保留在本工作树 `build/verification/workspace-navigation/`（本地产物，不纳入 Git）；最近一次报告位于 `playwright-report/e2e/`、`playwright-report/ui/`；HTTP 运行日志与截图分别位于上述证据目录及 `test-results/http/`。
+原运行日志及 8 张亮暗 / 桌面手机截图保留在独立工作树 `/Users/hijacker/.codex/worktrees/5695/InfraPro/build/verification/workspace-navigation/`（本地产物，不纳入 Git）；原报告位于同一工作树的 `playwright-report/e2e/`、`playwright-report/ui/`；HTTP 运行日志与截图分别位于上述证据目录及 `test-results/http/`。
 
 ## 实现与 SV 覆盖位置
 
@@ -64,4 +64,12 @@
 
 HTTP 测试使用独立测试库和容器；导航功能本身没有数据库迁移。已启动的人工预览则使用原有本地库及账号，入口和停止方式见[操作手册](../operations/workspace-navigation.md)。
 
-人工 MA-01～MA-15 尚未由用户执行 / 确认；生产未发布，未合并到主工作区，未验证其他浏览器内核及真实手机硬件（手机测试使用 Chromium 375px 仿真）。构建保留约 522 kB 主 chunk 的 Vite 体积提示，构建成功；此轮不扩展到打包性能重构。
+人工 MA-01～MA-15 尚未由用户执行 / 确认；生产未发布，未验证其他浏览器内核及真实手机硬件（手机测试使用 Chromium 375px 仿真）。构建保留约 522 kB 主 chunk 的 Vite 体积提示，构建成功；此轮不扩展到打包性能重构。
+
+## 合并回主工作树
+
+2026-11-11，按用户指令将 `5d42bbc`、`6ff48cd` 以合并提交 `eca8826` 合入 `/Users/hijacker/Documents/ChatGPT/InfraPro` 的 `feature/tenant-project-engineering`。保留此前已合入的项目资源功能，手动合并项目治理列表并保留“资源授权”入口；README 保留当前资源版本说明和导航说明。
+
+合并前的 48 个修改 / 新增文件均已恢复：43 个逐字节一致；README、单账号验收手册、租户浏览器测试、HTTP 部署测试及导航方案按两边内容整合。两个原未跟踪的导航方案文档现已纳入导航提交，其余原修改继续保留未提交状态。原始补丁、未跟踪文件归档及逐文件核对清单保存在主目录 `.artifacts/workspace-navigation-integration/`。
+
+整合后的 `pnpm check`、console 生产构建及 HTTP 部署测试（9 项）已通过。追加的生产预览浏览器回归执行期间，用户明确要求“无需验收，合并完成即可”，因此停止剩余验证；不将本次部分浏览器结果计为整套通过，也不据此将功能状态标记 Accepted。未推送、未部署生产、未迁移原业务数据库，现有服务与数据保留。

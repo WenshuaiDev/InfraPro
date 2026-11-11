@@ -297,6 +297,7 @@ test('tenant governance keeps creation, owner, management-gap, status filters an
   await page.goto(`${consoleURL}/t/${f.tenantIds[0]}/projects`);
   await expect(page.getByRole('heading', { name: '项目治理', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: '创建项目', exact: true })).toHaveAttribute('href', `/t/${f.tenantIds[0]}/projects/new`);
+  await expect(page.getByRole('link', { name: '资源授权', exact: true })).toHaveAttribute('href', `/t/${f.tenantIds[0]}/resource-access/${f.projectIds[0]}`);
   await expect(page.getByLabel('项目状态', { exact: true })).toHaveValue('active');
   await page.getByRole('button', { name: '按此负责人筛选', exact: true }).click();
   await expect(page.getByRole('button', { name: '清除负责人筛选', exact: true })).toBeVisible();

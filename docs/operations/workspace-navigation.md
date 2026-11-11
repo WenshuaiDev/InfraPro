@@ -18,20 +18,16 @@
 
 有现成配置的开发环境仍使用仓库根目录 `make dev`，默认入口 `http://127.0.0.1:5173/`。生产地址保留 `/console/` basepath。
 
-本轮使用独立工作树 `/Users/hijacker/.codex/worktrees/5695/InfraPro`，基线 `4e92f95`，分支 `codex/workspace-navigation-refactor`。主目录中的其他未提交迭代未带入；不要把主目录现有 5173 页面误认为本轮结果。
-
-为与已运行的主目录隔离，使用已有本地配置启动本轮代码：
+导航重构已合入主工作树 `/Users/hijacker/Documents/ChatGPT/InfraPro` 的 `feature/tenant-project-engineering`，与项目资源重构、现有账号管理及邀请修改共同运行。后续开发从主目录启动：
 
 ```bash
-cd /Users/hijacker/.codex/worktrees/5695/InfraPro
-INFRAPRO_HTTP_ADDR=127.0.0.1:18081 \
-CONSOLE_PORT=15176 API_PROXY_TARGET=http://127.0.0.1:18081 \
-INFRAPRO_PUBLIC_CONSOLE_URL=http://127.0.0.1:15176/ \
-INFRAPRO_TRUSTED_ORIGINS=http://127.0.0.1:15176 \
-node --env-file=/Users/hijacker/Documents/ChatGPT/InfraPro/.env scripts/dev.mjs
+cd /Users/hijacker/Documents/ChatGPT/InfraPro
+make dev
 ```
 
-访问 `http://127.0.0.1:15176/`，使用已有本地账号。配置从现有文件读取，不复制或打印凭证；仅端口和入口覆盖为本轮环境。两个入口连接同一本地数据，因此人工验收的业务操作会作用于已有数据。停止时 Ctrl+C，仅停止此命令的 API / 前端进程。
+开发入口为 `http://127.0.0.1:5173/`，使用对应本地账号。已有验收数据的访问、配套数据库版本和重启命令分别见[单账号验收手册](manual-acceptance.md)与[项目资源操作手册](project-resource-management.md)。本次合并保留这些环境与数据，没有执行数据库迁移或账号初始化。
+
+原 `http://127.0.0.1:15176/` 导航单项预览仍来自独立工作树 `/Users/hijacker/.codex/worktrees/5695/InfraPro`；它用于复核原导航提交，主工作树整合结果以主目录运行的环境为准。
 
 此次导航重构无需迁移、权限同步或重新 bootstrap。发布只替换前端构建并保留 SPA 回退；回滚只恢复旧版前端。
 
