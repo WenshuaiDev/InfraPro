@@ -1,7 +1,7 @@
-import { TenantLifecycle, TenantStatus } from './lifecycle';
+import { TenantLifecycle } from './lifecycle';
 import { TenantAuthorizationView } from './role-components';
-import { useEffect, useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { WorkspacePickerButton } from '../../app/workspace-picker-context';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { ApiError, Permissions as P, type Tenant, type TenantProfile } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
@@ -18,18 +18,6 @@ import { TenantPermissions } from './shared';
 
 const tenantDate = (value: string) => new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
 function Availability({ value }: { value: TenantProfile }) { return <Badge variant={value.administrator_available ? 'outline' : 'secondary'} className="whitespace-normal">{value.administrator_available ? '正常' : '管理员不可用，待处理'}</Badge>; }
-export function MyTenantsPage() {
-  const { account, client, authorization_revision } = useIdentity(); const [q, setQ] = useState('');
-  const list = useInfiniteQuery({ queryKey: ['account', account?.id, 'my-tenants', q], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.myTenants({ q, cursor: pageParam }, signal), getNextPageParam: (p) => p.next_cursor || undefined, refetchInterval: 30_000, refetchOnWindowFocus: true });
-  const { refetch } = list;
-  useEffect(() => { void refetch(); }, [authorization_revision, refetch]);
-  useEffect(() => { const refresh = () => { if (document.visibilityState === 'visible') void refetch(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [refetch]);
-  return <><PageHeader title="我的租户" description="选择要进入的工作空间；各标签页可以独立使用不同租户。" /><div className="mb-5 max-w-md space-y-2"><Label htmlFor="my-tenant-search">搜索我的租户</Label><Input id="my-tenant-search" value={q} onChange={(e) => setQ(e.target.value)} /></div>{list.isPending && <p role="status">正在读取租户…</p>}{list.error && <ErrorState message={list.error.message} onRetry={() => void list.refetch()} />}
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{list.data?.pages.flatMap((p) => p.items).map((t) => <article key={t.id} className="space-y-3 rounded-xl border bg-card p-5"><h2 className="break-words text-lg font-semibold">{t.name}</h2><p className="break-all text-sm text-muted-foreground">{t.code}</p><TenantStatus status={t.status} />{t.can_enter && <p className="text-sm">本人角色：{t.roles.map((r) => r.name).join('、')} · 仅在本租户生效</p>}<Button asChild><Link to="/t/$tenantId/profile" params={{ tenantId: t.id }}>{t.can_enter ? '进入租户' : '查看状态'}</Link></Button></article>)}</div>
-    {list.data && !list.error && !list.data.pages[0]?.items.length && <div className="space-y-3 rounded-lg border p-5"><p>{q ? '没有符合筛选条件的租户' : '尚未加入租户，请联系平台管理人员'}</p>{q && <Button variant="outline" onClick={() => setQ('')}>清除筛选</Button>}<Link to="/" className="block underline">返回账号首页</Link></div>}
-    {list.hasNextPage && <Button className="mt-4" variant="outline" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>加载更多租户</Button>}
-  </>;
-}
 export function PlatformTenantPage({ id }: { id: string }) {
   const { account, client, can } = useIdentity();
   const detail = useQuery({ queryKey: ['platform', account?.id, 'tenant', id], queryFn: ({ signal }) => client.tenant(id, true, signal), enabled: can(P.PlatformTenantRead), refetchOnWindowFocus: true });
@@ -41,7 +29,7 @@ export function PlatformTenantPage({ id }: { id: string }) {
 export function TenantProfilePage() {
   const ctx = useTenant(); const { account, client } = useIdentity();
   const query = useQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'profile'], queryFn: ({ signal }) => client.tenant(ctx.tenant.id, false, signal), enabled: ctx.available && ctx.permissions.includes(P.TenantProfileRead), refetchInterval: 30_000 });
-  if (!ctx.permissions.includes(P.TenantProfileRead)) return <><PageHeader title="本人租户授权" description={ctx.tenant.name} /><FormNotice>当前未获资料查看权限，请联系租户管理员。</FormNotice><TenantAuthorizationView value={ctx.authorization} /><Link to="/tenants" className="inline-block min-h-11 underline">返回我的租户</Link></>;
+  if (!ctx.permissions.includes(P.TenantProfileRead)) return <><PageHeader title="本人租户授权" description={ctx.tenant.name} /><FormNotice>当前未获资料查看权限，请联系租户管理员。</FormNotice><TenantAuthorizationView value={ctx.authorization} /><WorkspacePickerButton filter="tenants">重新选择租户</WorkspacePickerButton></>;
   return <><PageHeader title="租户资料" description={`${ctx.tenant.name} · ${ctx.tenant.code}`} />{query.error && <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />}{query.data ? <TenantDetails value={query.data} /> : <p role="status">正在读取资料…</p>}<div className="mt-6"><TenantPermissions /></div></>;
 }
 function TenantDetails({ value: t, platform = false, blocked = false, retry }: { value: TenantProfile | Tenant; platform?: boolean; blocked?: boolean; retry?: () => void }) {

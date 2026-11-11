@@ -50,9 +50,13 @@ import { DataTable } from '@infrapro/ui/patterns/data-table';
 
 ## 布局和导航
 
-`@infrapro/layouts` 导出 AdminLayout、AuthLayout、AuthCard、SettingsLayout、PageContent、PageHeader，以及品牌、用户、导航和 LinkRenderer 类型。
+`@infrapro/layouts` 导出 AdminLayout、AuthLayout、AuthCard、SettingsLayout、PageContent、PageHeader，以及品牌、用户、导航、LinkRenderer、AdminLayoutMode 和 WorkspaceSwitcherHost / Renderer 类型。
 
-AdminLayout 内部处理侧栏展开/收起、手机抽屉、主题菜单、账号菜单和命令搜索；应用传 `groups`、`userNavigation`、`user`、`brand`、`renderLink`、`onNavigate`、`onLogout`。`renderLink` 返回应用 Router 的 Link，保留正常链接和修饰键行为。layout 不获取当前账号或执行退出 API。PageContent 统一页面宽度和间距，PageHeader 接收标题、说明及可选操作区。
+AdminLayout 必填 `mode`：`plain` 用于首页和个人设置，不挂载 SidebarProvider；`workspace` 保留业务侧栏、手机抽屉和偏好。两种模式均提供主题、右上账号菜单和命令搜索，侧栏底部不再展示账号。应用传 `groups`、`userNavigation`、`user`、`brand`、`renderLink`、`onNavigate`、`onLogout`。`renderLink` 返回应用 Router 的 Link，保留正常链接和修饰键行为。layout 不获取当前账号或执行退出 API。PageContent 统一页面宽度和间距，PageHeader 接收标题、说明及可选操作区。
+
+工作空间通过 `renderWorkspaceSwitcher(host)` 插槽呈现：`placement` 决定顶部或侧栏触发器，`nestedInDrawer` 控制嵌套模态，`ready` 表示实际抽屉焦点事件已完成，`onSelected` 只关闭手机导航。应用将 `workspaceSwitcherOpen` 传给布局，布局在始终挂载的协调点先打开手机 Sheet，监听 `mobileContentProps.onOpenAutoFocus` 并在 microtask 确认仍打开后允许选择器出现。未提供插槽时使用品牌链接兜底。
+
+应用层 WorkspacePickerProvider 按账号隔离短暂打开意图；页面按钮调用同一 controller，搜索 / 类型 / 状态 / 分页保留在弹层内部。查询只在打开时启用，按账号、来源和筛选隔离，传 AbortSignal，30 秒及焦点刷新，关闭销毁观察者与游标。`/tenants`、`/projects` 在鉴权后 replace 到首页的一次性 `workspace` 参数；先打开 controller，再 replace 清除参数。页面搜索仅索引当前业务菜单和账号快捷入口。
 
 AuthLayout 提供居中品牌与认证容器，AuthCard 提供标题、说明、内容和页尾；登录、邀请、找回和重置统一使用它。SettingsLayout 接收设置导航及业务内容，在窄屏时切换排列。
 
@@ -66,9 +70,10 @@ TanStack 文件路由在 `src/routes`，`_auth` 和 `_authenticated` 是不进�
 | 邀请、会话、安全记录 | TanStack Query | key 包含账号 ID；退出/切换身份时取消请求并清缓存 |
 | 字段值、校验与表单错误 | React Hook Form + Zod | 业务表单生命周期；网络错误保留输入 |
 | 桌面侧栏偏好 | layouts 的 Zustand store | `infrapro:layout`，version 1，只持久化 sidebarOpen |
+| 选择器打开意图 | WorkspacePickerProvider | 当前账号与标签页，路由变化关闭，不持久化 |
 | 手机抽屉、确认弹窗、生成链接 | 布局或 feature 本地状态 | 不跨身份持久化 |
 
-Zustand 已实际控制桌面 SidebarProvider，避免同时在 cookie、Context 和 store 保存展开状态。按 selector 订阅需要的字段，通过 store 的动作更新；`useLayoutStore.getState().reset()` 恢复展开默认值。持久化有明确白名单和类型验证，只保存非敏感界面偏好。
+Zustand 只在业务布局挂载时恢复 `infrapro:layout` version 1；账号页面不读取或改写侧栏偏好。Zustand 控制桌面 SidebarProvider，避免同时在 cookie、Context 和 store 保存展开状态。按 selector 订阅需要的字段，通过 store 的动作更新；`useLayoutStore.getState().reset()` 恢复展开默认值。持久化有明确白名单和类型验证，只保存非敏感界面偏好。
 
 后续跨组件、跨页面的客户端业务状态放 `features/<feature>/state`，应用级状态放 `app`；通用布局偏好才进入 layouts。store 应有明确类型、动作和 reset。账号相关 store 使用按账号创建的 Provider，放在 IdentityProvider 的账号子树内，或在身份切换/退出时显式 reset。不要把 API 数据再拷进 Zustand；不要把密码、会话或一次性凭证写入 persist。
 

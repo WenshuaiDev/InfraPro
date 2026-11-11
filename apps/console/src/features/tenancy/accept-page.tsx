@@ -31,7 +31,7 @@ function TenantAcceptForm() {
       if (e instanceof ApiError && [403, 404].includes(e.status ?? 0)) forgetCredential('tenant');
     });return () => controller.abort();
   }, [account?.id, client, token, phase, attempt]);
-  const cancel = <Link to="/tenants" className="underline" onClick={() => forgetCredential('tenant')}>取消并返回我的租户</Link>;
+  const cancel = <Link to="/tenants" className="underline" onClick={() => forgetCredential('tenant')}>取消并选择工作空间</Link>;
   if (result) return <AuthCard title="已加入租户" description="你已成为租户普通成员，可以查看本租户基本资料。"><Button asChild><Link to="/t/$tenantId/profile" params={{ tenantId: result.tenant_id }}>进入租户</Link></Button></AuthCard>;
   if (inspection?.status === 'accepted') return <AuthCard title="该邀请已经接受" description={`原成员关系当前${memberStatus[inspection.membership_status] ?? inspection.membership_status}，重试不会恢复或重复加入。`} footer={cancel}><p>{inspection.preview?.tenant.name}</p>{inspection.tenant_status === 'disabled' && <FormNotice>租户已停用，暂时无法进入。{inspection.availability?.status_notice}</FormNotice>}{inspection.membership_status === 'active' && inspection.tenant_status !== 'disabled' && inspection.preview && <Button asChild><Link to="/t/$tenantId/profile" params={{ tenantId: inspection.preview.tenant.id }}>进入租户</Link></Button>}</AuthCard>;
   if (!token) return <AuthCard title={error || inspection ? '邀请当前不可使用' : '请重新打开原邀请链接'} description={error || (inspection ? invitationStatus[inspection.status] : '刷新或关闭页面后不会保留凭证，请重新打开管理员交付的完整链接。')} footer={cancel}>{account && <div className="space-y-3"><p>若当前账号不匹配，请先退出，切换到受邀账号后重新打开原链接。</p><FormNotice error>{logout.error?.message}</FormNotice><Button variant="outline" disabled={logout.isPending} onClick={() => logout.mutate()}>退出当前账号</Button></div>}</AuthCard>;

@@ -151,11 +151,13 @@ function Sidebar({
   collapsible = 'offcanvas',
   className,
   children,
+  mobileContentProps,
   ...props
 }: React.ComponentProps<'div'> & {
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
+  mobileContentProps?: Pick<React.ComponentProps<typeof SheetContent>, 'onOpenAutoFocus' | 'onCloseAutoFocus'>
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
@@ -188,6 +190,7 @@ function Sidebar({
             } as React.CSSProperties
           }
           side={side}
+          {...mobileContentProps}
         >
           <SheetHeader className='sr-only'>
             <SheetTitle>主导航</SheetTitle>

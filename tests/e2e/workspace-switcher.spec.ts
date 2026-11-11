@@ -1,36 +1,9 @@
-import { randomBytes, randomUUID } from 'node:crypto';
-import type { APIRequestContext, Page } from '@playwright/test';
-import { test, expect, createAccount, csrf, login, password, consoleURL } from './fixtures';
+import { openWorkspacePicker } from '../helpers/navigation';
+import { prepareWorkspaces as prepare } from '../helpers/workspaces';
+import type { Page } from '@playwright/test';
+import { test, expect, createAccount, login, consoleURL } from './fixtures';
 
 const api = new URL('/api/v1', consoleURL).href;
-async function signIn(request: APIRequestContext, username: string) {
-  const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username, password } })).status()).toBe(200);
-  return headers;
-}
-
-async function prepare(request: APIRequestContext) {
-  const account = await createAccount(request);
-  const ownerHeaders = await signIn(request, 'e2e_owner');
-  const accounts = await (await request.get(`${api}/access/accounts?q=${account.username}`)).json();
-  const tenantIds: string[] = [];
-  for (const name of ['交通监测中心', '城市基础设施中心']) {
-    const response = await request.post(`${api}/platform/tenants`, { headers: ownerHeaders, data: { name, code: `ws-${randomBytes(5).toString('hex')}`, administrator_account_id: accounts.items[0].id, reason: '工作空间切换验收', client_request_id: randomUUID() } });
-    expect(response.status()).toBe(201);
-    tenantIds.push((await response.json()).tenant_id);
-  }
-  const headers = await signIn(request, account.username);
-  const projectIds: string[] = [];
-  for (const [index, name] of ['桥梁健康监测', '隧道运行监测'].entries()) {
-    const tenantId = tenantIds[index]!;
-    const ctx = await (await request.get(`${api}/tenants/${tenantId}/context`)).json();
-    const response = await request.post(`${api}/tenants/${tenantId}/projects`, { headers, data: { name, code: `project-${index}`, purpose: '工作空间切换验收', owner_tenant_membership_id: ctx.membership_id, administrator_tenant_membership_id: ctx.membership_id, reason: '工作空间切换验收', client_request_id: randomUUID() } });
-    expect(response.status()).toBe(200);
-    projectIds.push((await response.json()).project_id);
-  }
-  return { account, tenantIds, projectIds };
-}
-
 async function sidebar(page: Page) {
   const navigation = page.getByRole('navigation', { name: '主导航', exact: true });
   // Desktop navigation can briefly unmount while the new workspace loads.
@@ -39,11 +12,7 @@ async function sidebar(page: Page) {
   await expect(navigation).toBeVisible();
   return navigation;
 }
-async function switcher(page: Page) {
-  await sidebar(page);
-  await page.getByRole('button', { name: /^切换工作空间：/ }).click();
-  return page.getByRole('menu');
-}
+const switcher = openWorkspacePicker;
 
 test('workspace hierarchy switches routes and isolates platform, tenant and project navigation', async ({ page, request, context }, info) => {
   const f = await prepare(request);
@@ -156,10 +125,10 @@ test('workspace menu paginates both lists and preserves independent project acce
   });
   await login(page, f.account);
   const menu = await switcher(page);
-  await expect(menu.getByRole('menuitem', { name: /^交通监测中心/ })).toBeDisabled();
+  await expect(menu.getByRole('menuitem', { name: /^交通监测中心.*查看状态/ })).toBeEnabled();
   await expect(menu.getByRole('menuitem', { name: /^桥梁健康监测 已归档/ })).toBeEnabled();
   await menu.getByRole('menuitem', { name: '加载更多项目', exact: true }).click();
-  await expect(menu.getByRole('group', { name: '城市基础设施中心', exact: true }).getByRole('menuitem', { name: /^隧道运行监测/ })).toBeDisabled();
+  await expect(menu.getByRole('group', { name: '城市基础设施中心', exact: true }).getByRole('menuitem', { name: /^隧道运行监测.*查看本人状态/ })).toBeEnabled();
   await menu.getByRole('menuitem', { name: '加载更多租户', exact: true }).click();
   await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心 租户 ·/ })).toBeEnabled();
   await expect(menu.getByRole('menuitem', { name: /^加载更多/ })).toHaveCount(0);

@@ -1,4 +1,4 @@
-import { House, MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList } from 'lucide-react';
+import { MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
@@ -114,11 +114,5 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
     return groups.filter((group) => group.items.length > 0);
   }
   if (kind === 'platform') return platformNavigation(path, can);
-  return [
-    { title: '概览', items: [{ title: '首页', href: '/', icon: House, active: path === '/' }] },
-    { title: '工作空间', items: [
-      { title: '我的租户', href: '/tenants', icon: Building2, active: path === '/tenants' },
-      { title: '我的项目', href: '/projects', icon: FolderKanban, active: path === '/projects' },
-    ] },
-  ];
+  return [];
 }
