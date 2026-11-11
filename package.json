@@ -9,6 +9,7 @@
     "pnpm": "12.18.0"
   },
   "scripts": {
+    "prototype:navigation": "CONSOLE_PORT=25179 API_PROXY_TARGET=http://127.0.0.1:28080 VITE_API_BASE_URL=/api/v1 VITE_NAVIGATION_PROTOTYPE=1 pnpm --filter @infrapro/console dev",
     "dev": "node scripts/dev.mjs",
     "dev:api": "node scripts/dev.mjs --api-only",
     "dev:console": "pnpm --filter @infrapro/console dev",

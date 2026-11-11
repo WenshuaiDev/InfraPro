@@ -1,4 +1,5 @@
 export { AdminLayout } from './admin/admin-layout';
+export { NavigationPrototypeLayout } from './admin/navigation-prototype-layout';
 export { ThemeSwitch } from './admin/theme-switch';
 export { AuthLayout, AuthCard } from './auth/auth-layout';
 export { SettingsLayout } from './settings/settings-layout';
