@@ -6,6 +6,8 @@
 
 在本 checkout 打开 <http://127.0.0.1:15273/>，使用 `.artifacts/monitoring-local/login.json` 内的账号密码。直接进入监测空间和限定项目的链接见同目录 `acceptance.json` 的 `url`、`project_url`。若服务已停止，执行 `pnpm monitoring:local setup`、`pnpm monitoring:local start`；重新启动保留数据。完整步骤见[操作手册](monitoring-data.md)。
 
+2026-11-12 合并回主分支后，已经准备并运行的验收实例仍来自 `/Users/hijacker/.codex/worktrees/b143/InfraPro`。本轮登录文件、样本和 `acceptance.json` 位于该目录的 `.artifacts/monitoring-local/`，上述重启命令也在该目录执行；原工作树的 Git 合并没有迁移这些被忽略的运行文件。
+
 首次准备后的样本基线如下。执行撤销／发布等验收后，数量按实际操作变化，不应重新 seed 覆盖人工操作。
 
 | 对象 | 初始状态／期望 |

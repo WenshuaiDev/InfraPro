@@ -211,7 +211,9 @@ test('point deep links, comparison, enum samples and keyboard window controls us
   await importAPI(page,f,'observed_at,value,quality\n2020-01-01T00:00:00Z,1,good\n2020-01-02T00:00:00Z,3,good\n');
   await importAPI(page,{...f,channel:second.id},'observed_at,value,quality\n2020-01-01T00:00:00Z,2,good\n2020-01-02T00:00:00Z,4,good\n');
   await importAPI(page,{...f,channel:state.id},'observed_at,value,quality\n2020-01-01T00:00:00Z,yes,good\n2020-01-02T00:00:00Z,no,good\n',true,'ready','');
-  await page.goto(`${f.root}?point=${f.point}&channel=${f.channel}`);
+  await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${f.facility}?point=${f.point}&channel=${f.channel}`);
+  await page.getByRole('button', { name: '查看监测数据', exact: true }).click();
+  await expect(page).toHaveURL(`${f.root}?point=${f.point}&channel=${f.channel}`);
   await expect(page.getByRole('heading',{name:'已选通道 · 全历史概况'})).toBeVisible();
   const mobile=(page.viewportSize()?.width??1440)<1024;
   if(mobile)await page.getByRole('button',{name:'测点与通道',exact:true}).click();
