@@ -27,7 +27,6 @@
     "setup:local": "node scripts/setup-local.mjs",
     "test:http": "node scripts/test-http.mjs",
     "infrapro": "node scripts/infrapro.mjs",
-    "test:ui": "playwright test -c playwright.ui.config.ts",
     "permissions:generate": "node scripts/permissions.mjs && pnpm contracts:generate",
     "permissions:check": "node scripts/permissions.mjs --check"
   },

@@ -48,9 +48,12 @@ func (s *Service) context(ctx context.Context, a access.Actor, tenant, project s
 		if e != nil {
 			return e
 		}
-		out = Context{Project: minimal(v.Summary), Authorization: auth, CanEnter: len(auth.Permissions) > 0}
+		out = Context{Project: minimal(v.Summary), Authorization: auth, CanEnter: access.WorkspacePath("project", tenant, project, v.Status, auth.Permissions) != ""}
 		var allow bool
 		if e = tx.QueryRow(ctx, `SELECT revision::text,allow_facility_create FROM project_resource_policies WHERE tenant_id=$1 AND project_id=$2`, tenant, project).Scan(&out.ResourceAccessRevision, &allow); e != nil {
+			return e
+		}
+		if e = tx.QueryRow(ctx, `SELECT revision::text FROM project_device_access_states WHERE tenant_id=$1 AND project_id=$2`, tenant, project).Scan(&out.DeviceAccessRevision); e != nil {
 			return e
 		}
 		out.CanCreateFacility = allow && slices.Contains(auth.AllowedOperations, access.ProjectResourceOperation("facility", "create"))
@@ -166,7 +169,7 @@ func (s *Service) List(ctx context.Context, a access.Actor, tenant string, f Fil
 				if e != nil {
 					return e
 				}
-				v.CanEnter = len(v.Authorization.Permissions) > 0
+				v.CanEnter = access.WorkspacePath("project", p.TenantID, p.ID, p.Status, v.Authorization.Permissions) != ""
 				v.Project = minimal(p.Summary)
 			}
 			out.Items = append(out.Items, v)

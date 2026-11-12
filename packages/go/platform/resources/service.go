@@ -7,14 +7,18 @@ import (
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicecoord"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"strings"
 )
 
-type Service struct{ access *access.Service }
+type Service struct {
+	access   *access.Service
+	external ExternalReferences
+}
 
-func New(a *access.Service) *Service { return &Service{a} }
+func New(a *access.Service) *Service { return &Service{access: a} }
 func fingerprint(v any) string       { h := sha256.Sum256(jsonBytes(v)); return hex.EncodeToString(h[:]) }
 func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operation, scope Scope, exclusive bool, fn func(pgx.Tx, authorization) error) error {
 	if !scope.valid() {
@@ -40,6 +44,12 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 		}
 		// This lock always precedes facility locks, including historical interpretation.
 		if _, e := tx.Exec(ctx, `SELECT id FROM engineering_catalog_state WHERE id=1 FOR SHARE`); e != nil {
+			return e
+		}
+		if e := devicecoord.Catalog(ctx, tx, false); e != nil {
+			return e
+		}
+		if e := devicecoord.Tenant(ctx, tx, scope.Tenant, p.Method != "GET"); e != nil {
 			return e
 		}
 		return fn(tx, auth)

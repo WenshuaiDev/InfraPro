@@ -17,7 +17,7 @@ var kindCapabilities = map[Kind][]string{
 	Facility:  {"read", "update", "create_component", "create_point"},
 	Component: {"read", "update", "create_component", "create_point", "lifecycle"},
 	Point:     {"read", "update", "create_channel", "lifecycle"},
-	Channel:   {"read", "update", "lifecycle"},
+	Channel:   {"read", "update", "lifecycle", "source_manage"},
 }
 
 func capabilities(kind Kind, cs []string) ([]string, error) {
@@ -79,16 +79,16 @@ func linkTx(ctx context.Context, tx pgx.Tx, tenant, project, facility string) (*
 	return &v, e
 }
 
-const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)`
+const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle,g.can_source_manage FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)`
 
 func scanGrant(row pgx.Row) (Grant, error) {
 	g := Grant{Capabilities: []string{"read"}}
-	var update, component, point, channel, lifecycle bool
-	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle)
+	var update, component, point, channel, lifecycle, sourceManage bool
+	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle, &sourceManage)
 	for _, c := range []struct {
 		yes  bool
 		name string
-	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}} {
+	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}, {sourceManage, "source_manage"}} {
 		if c.yes {
 			g.Capabilities = append(g.Capabilities, c.name)
 		}
@@ -385,6 +385,26 @@ func planAccess(ctx context.Context, tx pgx.Tx, auth authorization, project, fac
 		if p.ProjectStatus == "archived" && (in.Action == "create_link" || len(out.Add) > 0) {
 			return out, problem("project_archived", "已归档项目不能新建关联或授权对象。", 409)
 		}
+
+		sourceChange := false
+		for _, g := range out.Add {
+			sourceChange = sourceChange || slices.Contains(g.Capabilities, "source_manage")
+		}
+		for _, g := range out.Update {
+			sourceChange = sourceChange || slices.Contains(g.Capabilities, "source_manage") != slices.Contains(byID[g.ID].Capabilities, "source_manage")
+		}
+		for _, g := range out.End {
+			sourceChange = sourceChange || slices.Contains(g.Capabilities, "source_manage")
+		}
+		if sourceChange {
+			_, snapshot, err := access.TenantSnapshotTx(ctx, tx, auth.Account, auth.Tenant, "")
+			if err != nil {
+				return out, err
+			}
+			if !slices.Contains(snapshot.Permissions, access.TenantMonitoringSourceManage) {
+				return out, access.ErrDenied
+			}
+		}
 		// Previews identify ended full records that remain necessary ancestor context.
 		if out.Link != nil && in.Action != "revoke_link" && len(out.End) > 0 {
 			ended := []string{}
@@ -488,7 +508,7 @@ func expandCurrent(ctx context.Context, tx pgx.Tx, tenant, facility string, sel 
 func saveGrant(ctx context.Context, tx pgx.Tx, tenant, project, facility, link, actor, source string, g Grant) (Grant, error) {
 	cs := g.Capabilities
 	var e error
-	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,source,granted_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), source, actor).Scan(&g.ID, &g.Revision)
+	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,can_source_manage,source,granted_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), source, actor).Scan(&g.ID, &g.Revision)
 	g.LinkID = link
 	g.Source = source
 	return g, e
@@ -522,6 +542,25 @@ func (s *Service) ChangeAccess(ctx context.Context, a access.Actor, tenant, proj
 			}
 			if oldHash != hash || oldOp != string(op) {
 				return problem("request_payload_conflict", "该请求编号已用于不同内容。", 409)
+			}
+
+			// A receipt is not an enduring grant to perform source authorization changes.
+			var sourceChanged bool
+			e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM project_resource_access_changes c WHERE c.tenant_id=$1 AND c.project_id=$2 AND c.request_id=$3 AND (
+    EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(NULLIF(c.after->'added','null'::jsonb),'[]'::jsonb)) g WHERE g->'capabilities' ? 'source_manage') OR
+    EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(NULLIF(c.after->'ended','null'::jsonb),'[]'::jsonb)) g WHERE g->'capabilities' ? 'source_manage') OR
+    EXISTS(SELECT 1 FROM jsonb_array_elements(COALESCE(NULLIF(c.after->'updated','null'::jsonb),'[]'::jsonb)) g JOIN LATERAL jsonb_array_elements(COALESCE(NULLIF(c.before->'grants','null'::jsonb),'[]'::jsonb)) old ON old->>'id'=g->>'id' WHERE (g->'capabilities' ? 'source_manage') IS DISTINCT FROM (old->'capabilities' ? 'source_manage'))))`, tenant, project, in.RequestID).Scan(&sourceChanged)
+			if e != nil {
+				return e
+			}
+			if sourceChanged {
+				_, snapshot, e := access.TenantSnapshotTx(ctx, tx, a.ID, tenant, "")
+				if e != nil {
+					return e
+				}
+				if !slices.Contains(snapshot.Permissions, access.TenantMonitoringSourceManage) {
+					return access.ErrDenied
+				}
 			}
 			out.Replayed = true
 			return nil
@@ -568,7 +607,7 @@ func (s *Service) ChangeAccess(ctx context.Context, a access.Actor, tenant, proj
 				}
 				for i, g := range plan.Update {
 					cs := g.Capabilities
-					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle")).Scan(&plan.Update[i].Revision); e != nil {
+					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,can_source_manage=$7,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage")).Scan(&plan.Update[i].Revision); e != nil {
 						return e
 					}
 				}

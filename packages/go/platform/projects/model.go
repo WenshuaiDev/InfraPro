@@ -114,6 +114,7 @@ type Project struct {
 	ManagementGapReason string `json:"management_gap_reason"`
 }
 type Context struct {
+	DeviceAccessRevision   string                      `json:"device_access_revision"`
 	ResourceAccessRevision string                      `json:"resource_access_revision"`
 	CanCreateFacility      bool                        `json:"can_create_facility"`
 	Project                Summary                     `json:"project"`

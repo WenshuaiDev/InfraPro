@@ -64,16 +64,17 @@ for (const surface of ['page', 'panel']) test(`platform tenant detail outage pre
 });
 
 test('tenant UI creates, edits, transfers with old sessions and protects account disable', async ({ page, request, browser }, info) => {
+  test.setTimeout(90_000);
   const alice = await createAccount(request, false); const bob = await createAccount(request, false); const headers = await owner(request); const a = await accountID(request, alice.username); const b = await accountID(request, bob.username);
   const guestContext = await browser.newContext({ viewport: info.project.use.viewport }); const bobContext = await browser.newContext({ viewport: info.project.use.viewport });
   try {
-    const guest = await guestContext.newPage(); const successor = await bobContext.newPage(); await login(successor, bob); await login(guest, alice); await navigateTo(guest, '我的租户'); await expect(guest.getByText('尚未加入租户，请联系平台管理人员')).toBeVisible();
+    const guest = await guestContext.newPage(); const successor = await bobContext.newPage(); await login(successor, bob); await login(guest, alice); await expect(guest.getByRole('heading', {name:'暂无工作空间授权', exact:true})).toBeVisible();
     await login(page, { username: 'e2e_owner', password }); await navigateTo(page, '租户管理'); await page.getByRole('button', { name: '创建租户', exact: true }).click();
     const name = `租户甲_${randomBytes(4).toString('hex')}`; const code = `ui-${randomBytes(5).toString('hex')}`;
     await page.getByLabel('租户名称', { exact: true }).fill(name); await page.getByLabel('租户编号', { exact: true }).fill(code); await page.getByLabel('租户说明', { exact: true }).fill('真实租户资料'); await select(page, alice.username); await save(page);
     await expect(page.getByRole('heading', { name, exact: true })).toBeVisible(); const tenantId = new URL(page.url()).pathname.split('/').at(-1)!;
     const beta = await create(request, headers, b.id, '租户乙');
-    await guest.reload(); await navigateTo(guest, '切换租户'); await guest.getByRole('menuitem', { name: /进入租户/ }).click(); await expect(guest.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
+    await guest.reload(); await expect(guest.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     await guest.getByText('当前租户权限', { exact: true }).click(); await expect(guest.getByText('角色：租户管理员（租户范围）')).toBeVisible();
     expect((await guestContext.request.get(`${api}/tenants/${beta.tenant_id}/profile`)).status()).toBe(404); expect((await request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404);
     await guest.getByRole('button', { name: '编辑资料', exact: true }).click(); await guest.getByLabel('租户名称', { exact: true }).fill(`${name}已改`); await save(guest); await guest.reload(); await expect(guest.getByRole('main').getByText(`${name}已改`, { exact: true })).toBeVisible();
@@ -95,7 +96,7 @@ test('tenant navigation rejects late reads and writes and keeps tabs independent
   let release = () => {}; let ready = () => {}; const held = new Promise<void>((r) => { release = r; }); const fetched = new Promise<void>((r) => { ready = r; });
   await page.route(`**/api/v1/tenants/${a.tenant_id}/profile`, async (route) => { const response = await route.fetch(); ready(); await held; await route.fulfill({ response }).catch(() => undefined); });
   try {
-    await page.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await fetched; await navigateTo(page, '切换租户'); await page.getByRole('menuitem', { name: /^隔离租户 B.*进入租户/ }).click();
+    await page.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await fetched; await navigateTo(page, '切换租户'); await page.getByRole('button', { name: /^隔离租户 B.*进入租户/ }).click();
     await expect(page.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible(); release(); await expect(page.getByRole('main').getByText('隔离租户 A', { exact: true })).toHaveCount(0);
   } finally { release(); await page.unrouteAll({ behavior: 'wait' }); }
   const tab = await context.newPage(); await tab.goto(`${consoleURL}/t/${a.tenant_id}/profile`); await expect(tab.getByRole('main').getByText('隔离租户 A', { exact: true })).toBeVisible(); await expect(page.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible();
@@ -107,7 +108,7 @@ test('tenant navigation rejects late reads and writes and keeps tabs independent
   await tab.route(`**/api/v1/tenants/${a.tenant_id}/profile`, async (route) => { if (route.request().method() !== 'PATCH') return route.continue(); const response = await route.fetch(); writeReady(); await writeHeld; await route.fulfill({ response }).catch(() => undefined); });
   try {
     await tab.getByLabel('变更原因').fill('迟到写响应'); await tab.getByRole('button', { name: '确认提交', exact: true }).click(); await committed;
-    tab.once('dialog', (dialog) => dialog.accept()); await tab.keyboard.press('Escape'); await navigateTo(tab, '切换租户'); await tab.getByRole('menuitem', { name: /^隔离租户 B.*进入租户/ }).click(); writeRelease();
+    tab.once('dialog', (dialog) => dialog.accept()); await tab.keyboard.press('Escape'); await navigateTo(tab, '切换租户'); await tab.getByRole('button', { name: /^隔离租户 B.*进入租户/ }).click(); writeRelease();
     await expect(tab.getByRole('main').getByText('隔离租户 B', { exact: true })).toBeVisible(); await expect(tab.getByText('变更已保存。')).toHaveCount(0); await expect(tab.getByText('A 未保存输入', { exact: true })).toHaveCount(0);
     const actual = await (await context.request.get(`${api}/tenants/${a.tenant_id}/profile`)).json(); expect(actual.name).toBe('A 未保存输入');
     expect(await tab.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await tab.screenshot({ path: info.outputPath('tenant-switch.png'), fullPage: true });

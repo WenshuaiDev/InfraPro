@@ -1,3 +1,4 @@
+import { ChannelSource } from '../devices/source-panel';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -29,7 +30,7 @@ import { useResources } from './context';
 import { ResourceEditor } from './editor';
 import { ResourceHistory } from './history';
 import { LifecycleForm } from './lifecycle';
-import { PositionView } from './position-editor';
+import { PositionView } from '../location-fields/position-editor';
 export type Selection = {
   component?: string;
   point?: string;
@@ -510,6 +511,7 @@ function FacilityBody({
                     {actions(object.data)}
                   </div>
                   <ResourceInfo resource={object.data} />
+                  {detailKind === 'channel' && selection.point && channel && <ChannelSource target={{facility_id:facilityId,point_id:selection.point,channel_id:channel}}/>}
                   <div className="flex flex-wrap gap-2">
                     {detailKind === 'component' && (
                       <>

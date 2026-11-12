@@ -152,6 +152,7 @@ func basePolicies() []Policy {
 		{OpTenantUpdate, "PATCH", "/api/v1/platform/tenants/:tenant_id", "permission", []Code{TenantUpdate}, true, false},
 		{OpTenantTransfer, "POST", "/api/v1/platform/tenants/:tenant_id/administrator-transfer", "permission", []Code{TenantTransfer}, true, true},
 		{OpTenantCandidates, "GET", "/api/v1/platform/tenant-admin-candidates", "permission_any", []Code{TenantCreate, TenantTransfer}, false, false},
+		{OpMyWorkspaces, "GET", "/api/v1/me/workspaces", "authenticated", nil, false, false},
 		{OpMyTenants, "GET", "/api/v1/account/tenants", "authenticated", nil, false, false},
 		{OpTenantContext, "GET", "/api/v1/tenants/:tenant_id/context", "tenant", nil, false, false},
 		{OpTenantProfileRead, "GET", "/api/v1/tenants/:tenant_id/profile", "tenant", []Code{TenantProfileRead}, false, false},
@@ -218,5 +219,5 @@ func RoutePolicy(method, path string) (Policy, bool) {
 }
 
 func Policies() []Policy {
-	return append(append(append(append(basePolicies(), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...)
+	return append(append(append(append(append(basePolicies(), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...)
 }

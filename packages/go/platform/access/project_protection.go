@@ -160,7 +160,7 @@ func AuditProjectAvailability(ctx context.Context, tx pgx.Tx, account string, en
 	}
 	return nil
 }
-func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, catalog map[Code]Permission, builtins map[string]Builtin) error {
+func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, previousCatalog, catalog map[Code]Permission, builtins map[string]Builtin) error {
 	report := &plan.Report
 	rows, e := tx.Query(ctx, `SELECT id::text,tenant_id::text,project_id::text FROM project_memberships WHERE status<>'ended' ORDER BY project_id,id`)
 	if e != nil {
@@ -203,11 +203,59 @@ func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, catalog 
 			plan.ProjectBefore[v.id] = before
 			report.Projects = append(report.Projects, CatalogProjectImpact{TenantID: v.tenant, ProjectID: v.project, MembershipID: v.id, Added: difference(after.ConfiguredPermissions, before.ConfiguredPermissions), Removed: difference(before.ConfiguredPermissions, after.ConfiguredPermissions)})
 		}
-		if (before.ProjectStatus == "archived" || before.TenantStatus != "active") && len(difference(after.ConfiguredPermissions, before.ConfiguredPermissions)) > 0 {
-			report.Conflicts = append(report.Conflicts, "归档项目或停用租户禁止预置扩权："+v.tenant+" / "+v.project)
+		added := difference(after.ConfiguredPermissions, before.ConfiguredPermissions)
+		if (before.ProjectStatus == "archived" || before.TenantStatus != "active") && len(added) > 0 {
+			initial, e := initialProjectResourcePublication(ctx, tx, before, added, previousCatalog)
+			if e != nil {
+				return e
+			}
+			if !initial {
+				initial, e = initialProjectDevicePublication(ctx, tx, before, added, previousCatalog)
+				if e != nil {
+					return e
+				}
+			}
+			if !initial {
+				report.Conflicts = append(report.Conflicts, "归档项目或停用租户禁止预置扩权："+v.tenant+" / "+v.project)
+			}
 		}
 	}
 	return nil
+}
+
+// The device release grants only four new role permissions. Object access must
+// still be empty, including source_manage on every retained resource grant.
+func initialProjectDevicePublication(ctx context.Context, tx pgx.Tx, before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) (bool, error) {
+	codes := projectDeviceCodes()
+	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
+		return false, nil
+	}
+	for _, code := range added {
+		if _, exists := previousCatalog[code]; exists || !slices.Contains(codes, code) {
+			return false, nil
+		}
+	}
+	var initial bool
+	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM project_device_access_states WHERE tenant_id=$1 AND project_id=$2 AND revision=1) AND NOT EXISTS(SELECT 1 FROM project_device_grants WHERE tenant_id=$1 AND project_id=$2) AND NOT EXISTS(SELECT 1 FROM project_resource_grants WHERE tenant_id=$1 AND project_id=$2 AND can_source_manage)`, before.TenantID, before.ProjectID).Scan(&initial)
+	return initial, e
+}
+
+// The v9 -> v10 release explicitly adds resource capabilities to project_admin.
+// Permit only their first publication with the migration's deny-by-default
+// resource scope. Existing capabilities and subsequent expansions stay protected.
+func initialProjectResourcePublication(ctx context.Context, tx pgx.Tx, before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) (bool, error) {
+	codes := projectResourceCodes()
+	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
+		return false, nil
+	}
+	for _, code := range added {
+		if _, exists := previousCatalog[code]; exists || !slices.Contains(codes, code) {
+			return false, nil
+		}
+	}
+	var initial bool
+	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM project_resource_policies WHERE tenant_id=$1 AND project_id=$2 AND NOT allow_facility_create) AND NOT EXISTS(SELECT 1 FROM project_facility_links WHERE tenant_id=$1 AND project_id=$2)`, before.TenantID, before.ProjectID).Scan(&initial)
+	return initial, e
 }
 
 type CatalogProjectImpact struct {

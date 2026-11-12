@@ -51,6 +51,7 @@ type TenantRole struct {
 	BindingScope string `json:"binding_scope"`
 }
 type Context struct {
+	CanEnter      bool                       `json:"can_enter"`
 	Authorization access.TenantAuthorization `json:"authorization"`
 	Tenant        Summary                    `json:"tenant"`
 	MembershipID  string                     `json:"membership_id"`

@@ -36,6 +36,9 @@ export async function login(page: Page, account: { username: string; password: s
   await page.getByLabel('密码', { exact: true }).fill(account.password);
   await page.getByRole('button', { name: '登录', exact: true }).click();
   await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
+  // The account shell appears before a sole workspace finishes redirecting.
+  // Wait for the landing page (or its recoverable error) before opening menus.
+  await expect(page.getByRole('main').getByRole('heading').first()).toBeVisible();
 }
 export const test = base.extend<{ account: { username: string; password: string } }>({
   account: async ({ request }, provide) => { await provide(await createAccount(request)); },

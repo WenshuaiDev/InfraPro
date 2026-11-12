@@ -16,7 +16,7 @@ test('protected routes, safe return, profile, cookie and shared tab logout', asy
   await page.reload(); await expect(page.getByLabel('显示名称', { exact: true })).toHaveValue('中文姓名 🙂');
   const cookies = await context.cookies(); const session = cookies.find((item) => item.name === 'infrapro_session');
   expect(session).toMatchObject({ httpOnly: true, secure: false, sameSite: 'Lax', path: '/' });
-  const other = await context.newPage(); await other.goto(consoleURL);
+  const other = await context.newPage(); await other.goto(`${consoleURL}/?view=account`);
   await expect(other.getByRole('heading', { name: '账号首页' })).toBeVisible();
   await expect(other.getByRole('heading', { name: '当前账号' })).toBeVisible();
   await expect(other.getByRole('main').getByText(account.username, { exact: true })).toBeVisible();
@@ -28,7 +28,7 @@ test('protected routes, safe return, profile, cookie and shared tab logout', asy
   await other.reload(); await expect(other.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await page.goto(`${consoleURL}/login?returnTo=https://attacker.invalid/`);
   await page.getByLabel('用户名', { exact: true }).fill(account.username); await page.getByLabel('密码', { exact: true }).fill(account.password); await page.getByRole('button', { name: '登录', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '账号首页' })).toBeVisible(); expect(new URL(page.url()).origin).toBe(new URL(consoleURL).origin);
+  await expect(page.getByRole('heading', { name: '账号开户邀请', exact: true })).toBeVisible(); expect(new URL(page.url()).origin).toBe(new URL(consoleURL).origin); await navigateTo(page, '账号首页'); await expect(page.getByRole('heading', { name: '账号首页' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '当前账号' })).toBeVisible();
   await expect(page.getByRole('main').getByText(account.username, { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -116,6 +116,7 @@ test('password confirmation and CSRF failure never silently resubmit a write', a
   await page.getByRole('menuitem', { name: '重新生成链接', exact: true }).click();
   await page.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await expect(page.getByLabel('可手动复制的完整链接')).not.toHaveValue(firstLink);
   await page.getByRole('button', { name: '完成', exact: true }).click();
+  await expect(page.getByRole('table').getByText('已撤销', { exact: true })).toHaveCount(1);
   const pendingRow = page.getByRole('row').filter({ hasText: '待使用' });
   await pendingRow.getByRole('button', { name: '未填写备注的操作', exact: true }).click(); await page.getByRole('menuitem', { name: '撤销邀请', exact: true }).click(); await page.getByRole('button', { name: '确认撤销', exact: true }).click();
   await expect(page.getByLabel('可手动复制的完整链接')).toHaveCount(0); await expect(page.getByRole('table').getByText('已撤销', { exact: true })).toHaveCount(2);

@@ -32,7 +32,9 @@ for (const module of modules) {
     }
     if (action === 'check') go(['vet', './...'], module);
   } else if (action === 'test') {
-    go(['test', '-race', '-count=1', './...'], module);
+    // Tenant lifecycle tests exercise real password hashing and database fixtures.
+    // The complete race suite exceeds Go's default ten-minute package limit.
+    go(['test', '-race', '-count=1', '-timeout=20m', './...'], module);
   } else if (action === 'download' || action === 'tidy') {
     go(['mod', action], module);
   } else {

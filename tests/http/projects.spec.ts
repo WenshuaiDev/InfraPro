@@ -25,7 +25,7 @@ test('project HTTP deployment deep links, explicit assignment, archive, CSRF and
   await expect(page.getByRole('button', { name: '编辑项目资料', exact: true })).toHaveCount(0); await page.reload(); await expect(page.getByRole('button', { name: '恢复项目', exact: true })).toBeVisible();
   const preview = await (await request.post(`${api}/platform/tenants/${tenant}/disable/preview`, { headers, data: {} })).json();
   expect((await request.post(`${api}/platform/tenants/${tenant}/disable`, { headers, data: { expected_version: preview.expected_version, preview_hash: preview.preview_hash, reason: '内部部署验证原因', tenant_notice: '项目验收维护中' } })).status()).toBe(200);
-  await page.reload(); await expect(page.getByRole('heading', { name: '租户已停用', exact: true })).toBeVisible(); await expect(page.getByText('项目部署深链接验证', { exact: true })).toHaveCount(0); await expect(page.getByText('内部部署验证原因', { exact: true })).toHaveCount(0);
+  await page.reload(); await expect(page.getByRole('heading', { name: '当前项目不可访问', exact: true })).toBeVisible(); await expect(page.getByText('项目部署深链接验证', { exact: true })).toHaveCount(0); await expect(page.getByText('内部部署验证原因', { exact: true })).toHaveCount(0);
   const denied = await request.get(path + '/profile'); expect(denied.status()).toBe(403); expect((await denied.json()).code).toBe('tenant_disabled');
   const cookie = (await page.context().cookies()).find((c) => c.name === 'infrapro_session'); expect(cookie?.httpOnly).toBe(true);
   await expect(page.getByRole('link', { name: /配额|资源目录|用量|资源授权/ })).toHaveCount(0);

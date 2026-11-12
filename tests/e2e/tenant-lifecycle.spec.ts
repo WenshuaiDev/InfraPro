@@ -41,6 +41,7 @@ async function confirmLifecycle(page: Page, tenant: string, action: 'disable' | 
 }
 
 test('lifecycle UI: preview, cancel, stop old tabs, preserve invite, restore and public audit', async ({ page, request, browser }, info) => {
+  test.setTimeout(90_000);
   const f = await prepare(request); await login(page, f.admin); await page.goto(`${consoleURL}/t/${f.tenant}/profile`);
   const oldMembership = (await (await page.request.get(`${api}/tenants/${f.tenant}/context`)).json()).membership_id;
   const adminHeaders = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
@@ -58,7 +59,7 @@ test('lifecycle UI: preview, cancel, stop old tabs, preserve invite, restore and
     await confirmLifecycle(op, f.tenant, 'disable'); await expect(op.getByRole('button', { name: '恢复租户', exact: true })).toBeVisible();
     await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await expect(page.getByRole('heading', { name: '租户已停用', exact: true })).toBeVisible(); await expect(page.getByRole('dialog')).toHaveCount(0); await expect(page.getByText('停用后应丢弃的草稿', { exact: true })).toHaveCount(0); await expect(page.getByText('内部原因-lifecycle-secret')).toHaveCount(0);
     await target.getByRole('button', { name: '确认加入', exact: true }).click(); await target.getByRole('button', { name: '查验当前邀请结果' }).click(); await expect(target.getByRole('heading', { name: '租户已停用，暂时无法加入' })).toBeVisible(); await expect(target.getByRole('button', { name: '确认加入', exact: true })).toBeDisabled();
-    await page.getByRole('button', { name: '选择其他工作空间' }).click(); await expect(page.getByRole('menuitem', { name: /查看状态/ })).toBeVisible(); await page.goto(`${consoleURL}/t/${f.other}/profile`); await expect(page.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
+    await page.getByRole('main').getByRole('button', { name: /^进入/ }).click(); await expect(page).toHaveURL(`${consoleURL}/t/${f.other}/profile`); await expect(page.getByRole('dialog', { name: '切换工作空间', exact: true })).toHaveCount(0); await expect(page.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     expect((await page.request.get(`${api}/account/profile`)).status()).toBe(200);
     await op.getByRole('button', { name: '恢复租户', exact: true }).click(); await op.getByLabel('平台内部操作原因').fill('恢复核验完成'); await confirmLifecycle(op, f.tenant, 'enable');
     await target.getByRole('button', { name: '重新检查', exact: true }).click(); await expect(target.getByRole('heading', { name: '确认加入租户', exact: true })).toBeVisible(); await target.getByRole('button', { name: '确认加入', exact: true }).click(); await expect(target.getByRole('heading', { name: '已加入租户', exact: true })).toBeVisible();

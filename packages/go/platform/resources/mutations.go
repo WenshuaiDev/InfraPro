@@ -116,7 +116,7 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			}
 		}
 		if action == "delete" {
-			if e = checkDependencies(ctx, tx, t, r); e != nil {
+			if e = s.checkDependencies(ctx, tx, t, r); e != nil {
 				if e = previewBlock(e, &preview, dryRun); e != nil {
 					return e
 				}
@@ -131,7 +131,7 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 				return e
 			}
 		}
-		impact, e := mutationImpact(ctx, tx, auth, t, action, m, in, before, r)
+		impact, e := s.mutationImpact(ctx, tx, auth, t, action, m, in, before, r)
 		if e != nil {
 			return e
 		}
@@ -340,7 +340,16 @@ func valuesValid(fields []engineering.Field, values map[string]any) error {
 	}
 	return nil
 }
-func checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarget, r Resource) error {
+func (s *Service) checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarget, r Resource) error {
+	if s.external != nil {
+		impact, e := s.external.ResourceImpactTx(ctx, tx, t.Scope, t.Target)
+		if e != nil {
+			return e
+		}
+		if impact.Referenced {
+			return problem("resource_referenced", "资源存在安装或来源履历，不能删除。", 409)
+		}
+	}
 	var referenced bool
 	if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM project_resource_visibility($1,NULL,$2) WHERE kind=$3 AND id=$4)`, t.Tenant, t.Facility, t.Kind, r.ID).Scan(&referenced); e != nil {
 		return e

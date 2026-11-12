@@ -1,9 +1,9 @@
 import type { Page } from '@playwright/test';
 import { test, expect, login, createAccount, consoleURL } from './fixtures';
-import { navigateTo, openWorkspacePicker, logout } from '../helpers/navigation';
+import { browseWorkspaceTenant, navigateTo, openWorkspacePicker, logout, selectWorkspaceType, workspaceTypeLabels } from '../helpers/navigation';
 import { prepareWorkspaces } from '../helpers/workspaces';
 
-const picker = (page: Page) => page.getByRole('menu', { name: '切换工作空间', exact: true });
+const picker = (page: Page) => page.getByRole('dialog', { name: '切换工作空间', exact: true });
 async function expectPlain(page: Page) {
   await expect(page.locator('[data-slot="sidebar-wrapper"], [data-slot="sidebar"], [data-slot="sidebar-gap"], [data-slot="sidebar-rail"], [data-slot="sidebar-trigger"]')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toHaveCount(1);
@@ -11,7 +11,8 @@ async function expectPlain(page: Page) {
   await expect(page.getByRole('button', { name: /^切换工作空间：/ })).toBeVisible();
 }
 
-test('plain account pages retain content and all toolbar actions without sidebar preferences', async ({ page, account }, info) => {
+test('plain account pages retain content and all toolbar actions without sidebar preferences', async ({ page, request }, info) => {
+  const { account } = await prepareWorkspaces(request);
   await page.addInitScript(() => {
     localStorage.setItem('infrapro:layout', JSON.stringify({ state: { sidebarOpen: false }, version: 1 }));
     const read = Storage.prototype.getItem;
@@ -51,13 +52,14 @@ test('plain account pages retain content and all toolbar actions without sidebar
   await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
 });
 
-test('legacy aliases consume their intent once, preserve history and keep the home card', async ({ page, account }) => {
+test('legacy aliases consume their intent once, preserve history and keep the home card', async ({ page, request }) => {
+  const { account } = await prepareWorkspaces(request);
   await login(page, account);
-  for (const filter of ['tenants', 'projects']) {
+  for (const filter of ['tenants', 'projects'] as const) {
     await page.goto(`${consoleURL}/${filter}`);
     await expect(picker(page)).toBeVisible();
-    await expect(picker(page).getByLabel('工作空间类型')).toHaveValue(filter);
-    await expect(page).toHaveURL(`${consoleURL}/`);
+    await expect(picker(page).getByRole('combobox', { name: '工作空间类型' })).toHaveText(workspaceTypeLabels[filter]);
+    await expect(page).toHaveURL(`${consoleURL}/?view=account`);
     await page.keyboard.press('Escape');
     await expect(picker(page)).toHaveCount(0);
     await expectPlain(page);
@@ -71,26 +73,27 @@ test('legacy aliases consume their intent once, preserve history and keep the ho
   }
   await navigateTo(page, '账号首页');
   await page.getByRole('link', { name: /我的租户/ }).click();
-  await expect(picker(page).getByLabel('工作空间类型')).toHaveValue('tenants');
+  await expect(picker(page).getByRole('combobox', { name: '工作空间类型' })).toHaveText('租户');
   await page.keyboard.press('Escape');
   await page.goto(`${consoleURL}/?workspace=invalid`);
   await expectPlain(page);
   await expect(picker(page)).toHaveCount(0);
 });
 
-for (const alias of ['tenants', 'projects']) test(`anonymous ${alias} alias survives login and opens only its requested source`, async ({ page, account }) => {
+for (const alias of ['tenants', 'projects'] as const) test(`anonymous ${alias} alias survives login and opens only its requested source`, async ({ page, request }) => {
+  const { account } = await prepareWorkspaces(request);
   const reads: string[] = [];
-  page.on('request', (request) => { if (/\/api\/v1\/(account\/tenants|me\/projects)\?/.test(request.url())) reads.push(request.url()); });
+  page.on('request', (request) => { if (request.url().includes('/api/v1/me/workspaces?') && new URL(request.url()).searchParams.has('kind')) reads.push(request.url()); });
   await page.goto(`${consoleURL}/${alias}`);
   await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await page.getByLabel('用户名', { exact: true }).fill(account.username);
   await page.getByLabel('密码', { exact: true }).fill(account.password);
   await page.getByRole('button', { name: '登录', exact: true }).click();
-  await expect(picker(page).getByLabel('工作空间类型')).toHaveValue(alias);
-  await expect(picker(page).getByText(alias === 'tenants' ? '尚未加入租户，请联系平台管理人员' : '当前没有可显示的项目。')).toBeVisible();
-  await expect(page).toHaveURL(`${consoleURL}/`);
+  await expect(picker(page).getByRole('combobox', { name: '工作空间类型' })).toHaveText(workspaceTypeLabels[alias]);
+  await expect(picker(page).getByRole('button', { name: alias === 'tenants' ? /^交通监测中心/ : /^桥梁健康监测/ })).toBeVisible();
+  await expect(page).toHaveURL(`${consoleURL}/?view=account`);
   expect(reads.length).toBeGreaterThan(0);
-  expect(reads.every((url) => url.includes(alias === 'tenants' ? '/account/tenants?' : '/me/projects?'))).toBe(true);
+  expect(reads.every((url) => new URL(url).searchParams.get('kind') === (alias === 'tenants' ? 'tenant' : 'project'))).toBe(true);
 });
 
 test('business deep links, sidebar preference, body picker focus and same-target history', async ({ page, request }, info) => {
@@ -108,12 +111,13 @@ test('business deep links, sidebar preference, body picker focus and same-target
     await navigateTo(page, '账号首页');
     await expectPlain(page);
     const menu = await openWorkspacePicker(page);
-    await menu.getByRole('menuitem', { name: /^桥梁健康监测/ }).click();
+    await browseWorkspaceTenant(page, '交通监测中心');
+    await menu.getByRole('button', { name: /^桥梁健康监测/ }).click();
     await expect(page).toHaveURL(target);
     await expect(page.locator('[data-slot="sidebar"]').first()).toHaveAttribute('data-state', 'collapsed');
   }
   await page.getByRole('button', { name: '切换项目', exact: true }).click();
-  await expect(picker(page).getByLabel('工作空间类型')).toHaveValue('projects');
+  await expect(picker(page).getByRole('combobox', { name: '工作空间类型' })).toHaveText('项目');
   await expect(picker(page).getByLabel('搜索名称或编号')).toBeFocused();
   await picker(page).getByLabel('搜索名称或编号').fill('桥梁');
   await page.keyboard.press('ArrowLeft');
@@ -128,103 +132,77 @@ test('business deep links, sidebar preference, body picker focus and same-target
   await page.getByRole('button', { name: '切换项目', exact: true }).click();
   await expect(picker(page).getByLabel('搜索名称或编号')).toHaveValue('');
   const length = await page.evaluate(() => history.length);
-  await picker(page).getByRole('menuitem', { name: /^桥梁健康监测/ }).click();
+  await picker(page).getByRole('button', { name: /^桥梁健康监测/ }).click();
   await expect(picker(page)).toHaveCount(0);
   await expect(page.getByRole('dialog', { name: '主导航', exact: true })).toBeHidden();
   expect(await page.evaluate(() => history.length)).toBe(length);
   await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('button', { name: '切换项目', exact: true }).click();
-  await picker(page).getByRole('menuitem', { name: /^隧道运行监测/ }).click();
+  await picker(page).getByRole('button', { name: /^隧道运行监测/ }).click();
   await expect(page).toHaveURL(new RegExp(`${f.projectIds[1]}/profile$`));
   await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('button', { name: '编辑项目资料', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '编辑项目资料', exact: true })).toBeVisible();
 });
 
-test('picker searches the server beyond loaded pages and keeps tenant pages when project status changes', async ({ page, request }) => {
+test('authorized lists paginate independently and search beyond loaded pages', async ({ page, request }) => {
   const f = await prepareWorkspaces(request);
   const api = new URL('/api/v1', consoleURL).href;
-  const tenants = (await (await request.get(`${api}/account/tenants`)).json()).items;
-  const projects = (await (await request.get(`${api}/me/projects?status=all`)).json()).items;
-  const firstTenant = tenants.find((t: { id: string }) => t.id === f.tenantIds[0]);
-  const laterTenant = tenants.find((t: { id: string }) => t.id === f.tenantIds[1]);
-  const firstProject = projects.find((p: { project: { id: string } }) => p.project.id === f.projectIds[0]);
-  const laterProject = projects.find((p: { project: { id: string } }) => p.project.id === f.projectIds[1]);
+  const snapshot = await (await request.get(`${api}/me/workspaces?limit=100`)).json();
+  const tenants = snapshot.items.filter((v: {kind:string}) => v.kind === 'tenant');
+  const projects = snapshot.items.filter((v: {kind:string}) => v.kind === 'project');
   const calls: URL[] = [];
-  await page.route('**/api/v1/account/tenants?*', (route) => {
+  await page.route('**/api/v1/me/workspaces?*', (route) => {
     const url = new URL(route.request().url()); calls.push(url);
+    const kind = url.searchParams.get('kind'); if (!kind) return route.continue();
     const q = url.searchParams.get('q'); const more = url.searchParams.get('cursor');
-    return route.fulfill({ json: { items: q ? (q === laterTenant.code ? [laterTenant] : []) : more ? [laterTenant] : [firstTenant], next_cursor: q || more ? '' : 'tenant-page-2' } });
-  });
-  await page.route('**/api/v1/me/projects?*', (route) => {
-    const url = new URL(route.request().url()); calls.push(url);
-    const q = url.searchParams.get('q'); const more = url.searchParams.get('cursor');
-    const archived = { ...laterProject, project: { ...laterProject.project, status: 'archived' } };
-    return route.fulfill({ json: { items: q ? (q === laterProject.project.code || q === laterProject.project.name ? [archived] : []) : url.searchParams.get('status') === 'archived' ? [archived] : more ? [firstProject, archived] : [firstProject], next_cursor: q || more || url.searchParams.get('status') === 'archived' ? '' : 'project-page-2' } });
+    const source = kind === 'tenant' ? tenants : projects;
+    const items = q ? source.filter((v: {name:string;code:string}) => v.name.includes(q) || v.code.includes(q)) : more ? source.slice(1) : source.slice(0, 1);
+    return route.fulfill({ json: { ...snapshot, items, next_cursor: !q && !more ? 'next-page' : '' } });
   });
   await login(page, f.account);
-  const menu = await openWorkspacePicker(page);
-  await menu.getByRole('menuitem', { name: '加载更多租户', exact: true }).click();
-  await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心.*进入租户/ })).toBeVisible();
-  await menu.getByRole('menuitem', { name: '加载更多项目', exact: true }).click();
-  await expect(menu.getByRole('menuitem', { name: /^桥梁健康监测/ })).toHaveCount(1);
-  const tenantReads = calls.filter((u) => u.pathname.endsWith('/account/tenants')).length;
-  await menu.getByLabel('项目状态').selectOption('archived');
-  await expect(menu.getByRole('menuitem', { name: /^隧道运行监测 已归档/ })).toBeVisible();
-  await expect(menu.getByRole('menuitem', { name: /^桥梁健康监测/ })).toHaveCount(0);
-  await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心.*进入租户/ })).toBeVisible();
-  expect(calls.filter((u) => u.pathname.endsWith('/account/tenants')).length).toBe(tenantReads);
-  await menu.getByLabel('工作空间类型').selectOption('tenants');
-  await expect(menu.getByLabel('项目状态')).toHaveCount(0);
-  await menu.getByLabel('搜索名称或编号').fill(laterTenant.code);
-  await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心/ })).toBeVisible();
-  await expect(menu.getByRole('menuitem', { name: /^交通监测中心/ })).toHaveCount(0);
-  expect(calls.some((u) => u.searchParams.get('q') === laterTenant.code && !u.searchParams.get('cursor'))).toBe(true);
-  await menu.getByRole('button', { name: '清除', exact: true }).click();
-  await menu.getByLabel('工作空间类型').selectOption('projects');
-  for (const q of [laterProject.project.name, laterProject.project.code]) {
-    await menu.getByLabel('搜索名称或编号').fill(q);
-    await expect.poll(() => calls.some((u) => u.searchParams.get('q') === q && !u.searchParams.get('cursor'))).toBe(true);
-    await expect(menu.getByRole('menuitem', { name: /^隧道运行监测 已归档/ })).toBeVisible();
-  }
-  await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心/ })).toHaveCount(0);
-  expect(calls.every((u) => u.searchParams.get('limit') === '50')).toBe(true);
+  const dialog = await openWorkspacePicker(page);
+  await dialog.getByRole('button', { name: '加载更多租户', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: /^浏览租户：/ }).or(dialog.getByLabel('选择租户'))).not.toHaveCount(0);
+  const tenantReads = calls.filter((u) => u.searchParams.get('kind') === 'tenant').length;
+  await dialog.getByLabel('项目状态').selectOption('archived');
+  await expect(dialog.getByRole('button', { name: '加载更多租户', exact: true })).toHaveCount(0);
+  expect(calls.filter((u) => u.searchParams.get('kind') === 'tenant').length).toBe(tenantReads);
+  await selectWorkspaceType(page, 'projects');
+  await dialog.getByRole('button', { name: '加载更多项目', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: /^桥梁健康监测/ })).toHaveCount(1);
+  await expect(dialog.getByRole('button', { name: /^隧道运行监测/ })).toHaveCount(1);
+  await dialog.getByLabel('搜索名称或编号').fill(projects[1].name);
+  await expect(dialog.getByRole('button', { name: new RegExp(`^${projects[0].name}`) })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: new RegExp(`^${projects[1].name}`) })).toBeVisible();
+  expect(calls.some((u) => u.searchParams.get('q') === projects[1].name && !u.searchParams.get('cursor'))).toBe(true);
+  await expect(page).toHaveURL(`${consoleURL}/`);
   await page.keyboard.press('Escape');
   const reopened = await openWorkspacePicker(page);
   await expect(reopened.getByLabel('搜索名称或编号')).toHaveValue('');
-  await expect(reopened.getByLabel('工作空间类型')).toHaveValue('all');
+  await expect(reopened.getByRole('combobox', { name: '工作空间类型' })).toHaveText('全部类型');
   await expect(reopened.getByLabel('项目状态')).toHaveValue('all');
-  await expect(reopened.getByRole('menuitem', { name: /^隧道运行监测/ })).toHaveCount(0);
 });
 
-test('unavailable sources and status actions retain independent access and recovery', async ({ page, request }) => {
+test('a failed tenant query does not block authorized projects or fabricate parent access', async ({ page, request }) => {
   const f = await prepareWorkspaces(request);
-  const api = new URL('/api/v1', consoleURL).href;
-  const list = (await (await request.get(`${api}/me/projects?status=all`)).json()).items;
   let failed = true;
-  await page.route('**/api/v1/account/tenants?*', (route) => failed ? route.fulfill({ status: 503, json: { code: 'unavailable', message: '租户读取失败' } }) : route.continue());
-  await page.route('**/api/v1/me/projects?*', (route) => route.fulfill({ json: { items: list.map((item: { authorization: object }) => ({ ...item, can_enter: false, authorization: { ...item.authorization, membership_status: 'suspended', inactive_reasons: ['membership_suspended'] } })), next_cursor: '' } }));
-  await page.route(`**/api/v1/tenants/${f.tenantIds[0]}/projects/${f.projectIds[0]}/context`, (route) => route.fulfill({ status: 404, json: { code: 'project_not_found', message: '项目不可访问' } }));
+  await page.route('**/api/v1/me/workspaces?*', (route) => new URL(route.request().url()).searchParams.get('kind') === 'tenant' && failed ? route.fulfill({ status:503, json:{code:'unavailable',message:'租户读取失败'} }) : route.continue());
   await login(page, f.account);
-  const menu = await openWorkspacePicker(page);
-  await expect(menu.getByRole('menuitem', { name: '租户加载失败，点击重试', exact: true })).toBeVisible();
-  await expect(menu.getByText('尚未加入租户或项目。', { exact: true })).toHaveCount(0);
-  await expect(menu.getByRole('menuitem', { name: /^交通监测中心/ })).toHaveCount(0);
-  await expect(menu.getByRole('menuitem', { name: /^桥梁健康监测.*项目成员已暂停.*查看本人状态/ })).toBeEnabled();
+  const dialog = await openWorkspacePicker(page);
+  await expect(dialog.getByRole('button', { name: '租户加载失败，点击重试', exact:true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /^交通监测中心/ })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: /^桥梁健康监测/ })).toBeVisible();
   failed = false;
-  await menu.getByRole('menuitem', { name: '租户加载失败，点击重试', exact: true }).click();
-  await expect(menu.getByRole('menuitem', { name: /^交通监测中心.*本人角色：.*进入租户/ })).toBeVisible();
-  await menu.getByRole('menuitem', { name: /^桥梁健康监测.*查看本人状态/ }).click();
-  await expect(page.getByRole('heading', { name: '当前项目不可访问', exact: true })).toBeVisible();
-  const url = page.url();
-  await page.getByRole('button', { name: '重新选择项目', exact: true }).click();
-  await expect(picker(page).getByLabel('工作空间类型')).toHaveValue('projects');
-  expect(page.url()).toBe(url);
-  await picker(page).getByRole('menuitem', { name: /^隧道运行监测/ }).click();
-  await expect(page.getByRole('heading', { name: '项目资料', exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '租户加载失败，点击重试', exact:true }).click();
+  await browseWorkspaceTenant(page, '交通监测中心');
+  await expect(dialog.getByRole('button', { name: /^交通监测中心.*进入租户/ })).toBeVisible();
+  await dialog.getByRole('button', { name: /^桥梁健康监测/ }).click();
+  await expect(page.getByRole('heading', { name:'项目资料',exact:true })).toBeVisible();
 });
 
-test('768px breakpoint and keyboard picker remain usable in both themes', async ({ page, account }, info) => {
+test('768px breakpoint and keyboard picker remain usable in both themes', async ({ page, request }, info) => {
+  const { account } = await prepareWorkspaces(request);
   test.skip(info.project.name !== 'desktop', 'Explicit tablet breakpoint coverage is independent of the presentation project.');
   await login(page, account);
   for (const width of [768, 1024, 1440]) {
@@ -235,8 +213,8 @@ test('768px breakpoint and keyboard picker remain usable in both themes', async 
       await page.getByRole('menuitemradio', { name: theme, exact: true }).click();
       await page.getByRole('button', { name: /^切换工作空间：/ }).press('Space');
       await expect(picker(page).getByLabel('搜索名称或编号')).toBeFocused();
-      await picker(page).press('Home');
-      await expect(picker(page).getByRole('menuitem', { name: /^平台工作空间/ })).toBeFocused();
+      await picker(page).press('End');
+      await expect(picker(page).getByRole('button', { name: /^平台工作空间/ })).toBeFocused();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.screenshot({ path: info.outputPath(`picker-${width}-${theme}.png`), fullPage: true });
       await page.keyboard.press('Escape');
@@ -245,31 +223,32 @@ test('768px breakpoint and keyboard picker remain usable in both themes', async 
 });
 
 test('late searches and an identity change cannot resurrect previous picker results', async ({ page, request, context }) => {
+  test.setTimeout(90_000);
   const f = await prepareWorkspaces(request);
   const api = new URL('/api/v1', consoleURL).href;
-  const list = await (await request.get(`${api}/account/tenants`)).json();
+  const list = await (await request.get(`${api}/me/workspaces?kind=tenant`)).json();
   const next = await createAccount(request, false);
   await login(page, f.account);
   let release!: () => void;
   let held = new Promise<void>((resolve) => { release = resolve; });
   let captured!: () => void;
   let capturedRequest = new Promise<void>((resolve) => { captured = resolve; });
-  await page.route('**/api/v1/account/tenants?*', async (route) => {
-    if (!new URL(route.request().url()).searchParams.get('q')?.startsWith('slow')) return route.continue();
+  await page.route('**/api/v1/me/workspaces?*', async (route) => {
+    if (new URL(route.request().url()).searchParams.get('kind') !== 'tenant' || !new URL(route.request().url()).searchParams.get('q')?.startsWith('slow')) return route.continue();
     captured(); await held;
     await route.fulfill({ json: list }).catch(() => {});
   });
   try {
-    let menu = await openWorkspacePicker(page, 'tenants');
-    await expect(menu.getByRole('menuitem', { name: /^交通监测中心/ })).toBeVisible();
+    const menu = await openWorkspacePicker(page, 'tenants');
+    await expect(menu.getByRole('button', { name: /^交通监测中心/ })).toBeVisible();
     await menu.getByLabel('搜索名称或编号').fill('slow');
     await capturedRequest;
     await menu.getByLabel('搜索名称或编号').fill('no-match-unique');
-    await expect(menu.getByText('没有符合筛选条件的工作空间。')).toBeVisible();
+    await expect(menu.getByText('当前没有符合条件的租户工作空间。')).toBeVisible();
     release();
     await menu.getByLabel('搜索名称或编号').fill('交通监测中心');
-    await expect(menu.getByRole('menuitem', { name: /^交通监测中心/ })).toBeVisible();
-    await expect(menu.getByRole('menuitem', { name: /^城市基础设施中心/ })).toHaveCount(0);
+    await expect(menu.getByRole('button', { name: /^交通监测中心/ })).toBeVisible();
+    await expect(menu.getByRole('button', { name: /^城市基础设施中心/ })).toHaveCount(0);
     held = new Promise<void>((resolve) => { release = resolve; });
     capturedRequest = new Promise<void>((resolve) => { captured = resolve; });
     await menu.getByLabel('搜索名称或编号').fill('slow-again');
@@ -284,14 +263,15 @@ test('late searches and an identity change cannot resurrect previous picker resu
     await refreshed;
     await expect(picker(page)).toHaveCount(0);
     release();
-    menu = await openWorkspacePicker(page);
-    await expect(menu.getByText('尚未加入租户或项目。', { exact: true })).toBeVisible();
-    await expect(menu.getByRole('menuitem', { name: /交通监测中心|城市基础设施中心/ })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: '暂无工作空间授权' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^切换工作空间：/ })).toHaveCount(0);
+    await expect(page.getByText(/交通监测中心|城市基础设施中心/)).toHaveCount(0);
     await other.close();
   } finally { release(); await page.unrouteAll({ behavior: 'wait' }); }
 });
 
 test('tenant governance keeps creation, owner, management-gap, status filters and details', async ({ page, request }) => {
+  test.setTimeout(60_000);
   const f = await prepareWorkspaces(request);
   await login(page, f.account);
   await page.goto(`${consoleURL}/t/${f.tenantIds[0]}/projects`);

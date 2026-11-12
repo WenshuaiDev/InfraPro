@@ -53,7 +53,7 @@ func (s *Service) Context(ctx context.Context, a access.Actor, id string) (Conte
 		if e != nil {
 			return e
 		}
-		v = Context{Authorization: auth, MembershipID: mid, Roles: roles, Permissions: snap.Permissions, Sources: snap.Sources, Revision: rev}
+		v = Context{CanEnter: access.WorkspacePath("tenant", id, "", "active", snap.Permissions) != "", Authorization: auth, MembershipID: mid, Roles: roles, Permissions: snap.Permissions, Sources: snap.Sources, Revision: rev}
 		return tx.QueryRow(ctx, `SELECT id::text,name,code FROM tenants WHERE id=$1`, id).Scan(&v.Tenant.ID, &v.Tenant.Name, &v.Tenant.Code)
 	})
 	return v, e
@@ -139,9 +139,16 @@ func (s *Service) Memberships(ctx context.Context, a access.Actor, account strin
 			v.NextCursor = v.Items[f.Limit-1].ID
 		}
 		for i := range v.Items {
-			v.Items[i].CanEnter = v.Items[i].Status == "active"
+			auth, err := access.TenantAuthorizationTx(ctx, tx, v.Items[i].ID, v.Items[i].MembershipID, rev)
+			if err != nil {
+				return err
+			}
+			v.Items[i].CanEnter = access.WorkspacePath("tenant", v.Items[i].ID, "", v.Items[i].Status, auth.Permissions) != ""
 			if !v.Items[i].CanEnter {
-				v.Items[i].Restriction = "tenant_disabled"
+				v.Items[i].Restriction = "no_tenant_permissions"
+				if v.Items[i].Status == "disabled" {
+					v.Items[i].Restriction = "tenant_disabled"
+				}
 				v.Items[i].Roles = []TenantRole{}
 				if op == access.OpMyTenants {
 					continue

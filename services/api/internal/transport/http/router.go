@@ -4,14 +4,16 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
-	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/projects"
-	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
+	devicecataloghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecatalog"
+	deviceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devices"
 	engineeringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/engineering"
 	projectshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/projects"
 	resourceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/resources"
+	sourceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/sources"
 	tenancyhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/tenancy"
 	"log/slog"
 	"net/http"
@@ -100,9 +102,12 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		handler.Register(r)
 		accesshttp.Register(r, service)
 		projectshttp.Register(r, service, projects.New(service.Access()))
-		resourceService := resources.New(service.Access())
-		resourceshttp.Register(r, service, resourceService)
-		engineeringhttp.Register(r, service, engineering.New(service.Access()).WithUsageReader(resourceService))
+		business := runtime.Compose(service.Access())
+		resourceshttp.Register(r, service, business.Resources)
+		engineeringhttp.Register(r, service, business.Engineering)
+		devicecataloghttp.Register(r, service, business.DeviceCatalog)
+		deviceshttp.Register(r, service, business.Devices)
+		sourceshttp.Register(r, service, business.Sources)
 		tenancyhttp.Register(r, service, tenancy.New(service.Access(), tenancy.Options{ConsoleURL: cfg.PublicConsoleURL, Limit: service.Limit, CredentialLimit: service.Rate}))
 		for _, route := range r.Routes() {
 			if _, ok := access.RoutePolicy(route.Method, route.Path); !ok {

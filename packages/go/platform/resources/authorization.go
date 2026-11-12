@@ -187,6 +187,8 @@ func projectCreateGrant(ctx context.Context, tx pgx.Tx, auth authorization, r Re
 		}
 	}
 	g := Grant{Kind: r.Kind, ResourceID: r.ID, Capabilities: kindCapabilities[r.Kind], Name: r.Name, Code: r.Code}
+	// Creating a channel never grants authority over its shared source relation.
+	g.Capabilities = slices.DeleteFunc(slices.Clone(g.Capabilities), func(c string) bool { return c == "source_manage" })
 	switch r.Kind {
 	case Component:
 		g.ComponentID = &r.ID

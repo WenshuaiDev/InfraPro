@@ -15,7 +15,7 @@ test('cursor tables retain rows on failure and append real invitation and event 
     const result = await response.json() as { items: { id: string; status: string }[] };
     for (const item of result.items.filter((item) => item.status === 'pending')) expect((await context.request.post(`${api}/invitations/${item.id}/revoke`, { headers })).status()).toBe(204);
   }
-  await navigateTo(page, '账号开户邀请');
+  await page.goto(`${consoleURL}/invitations`);
   const rows = page.getByRole('table', { name: '我的邀请', exact: true }).locator('tbody tr');
   await expect(rows).toHaveCount(50);
   let failNext = true;
@@ -68,10 +68,14 @@ test('a late invitation query cannot populate the next account cache', async ({ 
     try { await route.fulfill({ response }); } finally { delivered(); }
   });
   try {
-    await navigateTo(page, '账号开户邀请');
+    await page.goto(`${consoleURL}/invitations`);
     await fetched;
     const other = await context.newPage();
     await other.goto(consoleURL);
+    // A sole workspace redirects after the shell mounts; wait before opening
+    // its account menu so navigation cannot discard the logout interaction.
+    await expect(other).toHaveURL(`${consoleURL}/invitations`);
+    await expect(other.getByRole('main').getByRole('heading').first()).toBeVisible();
     await logout(other);
     await expect(other.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
     await login(other, nextAccount);

@@ -32,9 +32,9 @@ test('audit explains real permission changes and preserves filtered pagination a
   await expect(table).not.toContainText('RoleSetPermissions');
   await expect(table.getByRole('row').nth(1)).toContainText('成功');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: `.artifacts/platform-audit-redesign/${info.project.name}-list-light.png`, fullPage: true });
+  await page.screenshot({ path: info.outputPath('list-light.png'), fullPage: true });
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色', exact: true }).click();
-  await page.screenshot({ path: `.artifacts/platform-audit-redesign/${info.project.name}-list-dark.png`, fullPage: true });
+  await page.screenshot({ path: info.outputPath('list-dark.png'), fullPage: true });
   const trigger = table.getByRole('row').nth(1).getByRole('button', { name: '配置角色权限', exact: true });
   await trigger.click();
   const panel = page.getByRole('dialog'), drawer = page.locator('[data-slot="drawer-popup"]');
@@ -44,7 +44,7 @@ test('audit explains real permission changes and preserves filtered pagination a
   await expect(panel.getByRole('region', { name: '权限变化', exact: true })).toContainText('创建基础成员邀请');
   await expect(panel.getByText(prefix, { exact: true })).toBeVisible();
   await expect(panel.locator('pre')).toHaveCount(0);
-  await page.screenshot({ path: `.artifacts/platform-audit-redesign/${info.project.name}-drawer-dark.png` });
+  await page.screenshot({ path: info.outputPath('drawer-dark.png') });
   await panel.getByRole('switch', { name: '显示完整前后内容', exact: true }).check();
   await expect(panel.getByText('操作前', { exact: true })).toBeVisible(); await expect(panel.getByText('操作后', { exact: true })).toBeVisible();
   await panel.getByRole('tab', { name: '技术信息', exact: true }).click();
@@ -53,7 +53,7 @@ test('audit explains real permission changes and preserves filtered pagination a
   await expect(panel.getByLabel('原始审计内容')).toContainText(P.PlatformAuditRead);
   await page.keyboard.press('Escape'); await expect(panel).toHaveCount(0); await expect(trigger).toBeFocused();
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '浅色', exact: true }).click();
-  await trigger.click(); await page.screenshot({ path: `.artifacts/platform-audit-redesign/${info.project.name}-drawer-light.png` }); await panel.getByRole('button', { name: '关闭面板' }).click();
+  await trigger.click(); await page.screenshot({ path: info.outputPath('drawer-light.png') }); await panel.getByRole('button', { name: '关闭面板' }).click();
   await pager.getByRole('button', { name: '下一页' }).click(); await expect(pager.getByRole('status')).toContainText('第 2 页'); await expect(table.getByRole('row')).toHaveCount(5);
   const menu = table.getByRole('row').nth(1).getByRole('button', { name: /的操作$/ });
   await menu.click(); await page.getByRole('menuitem', { name: '查看详情', exact: true }).click(); await panel.getByRole('button', { name: '关闭面板' }).click();
@@ -96,6 +96,6 @@ test('audit presents failed login without attributing the visitor to the target 
     await table.getByRole('button', { name: '登录账号', exact: true }).click();
     const panel = page.getByRole('dialog'); await expect(panel.getByText('这是一条账号安全事件，没有业务字段的前后差异。')).toBeVisible();
     await expect(panel.locator('pre')).toHaveCount(0); await expect(panel).not.toContainText('验证通过，建立了登录会话');
-    await page.screenshot({ path: `.artifacts/platform-audit-redesign/${info.project.name}-failed-login.png` });
+    await page.screenshot({ path: info.outputPath('failed-login.png') });
   } finally { await guest.close(); }
 });

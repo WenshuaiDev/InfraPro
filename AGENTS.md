@@ -2,6 +2,15 @@
 
 Use small, independently testable iterations focused on current needs. The user provides requirements and final manual acceptance; Codex owns proposals, implementation, and self-verification.
 
+## Global Constraints
+
+Work in the current branch and checkout by default. These constraints apply project-wide, including actions performed through tools, scripts, or sub-agents.
+
+- **Git branches:** Never create a Git branch unless the user's prompt explicitly requests branch creation.
+- **Git worktrees:** Never create a Git worktree unless the user's prompt explicitly requests worktree creation.
+
+Authorization for one action does not authorize the other. General implementation, task-isolation, or parallel-work requests do not authorize either action.
+
 ## Workflow
 
 1. **Clarify:** Establish the goal, use cases, and scope from project context. Clarify gaps affecting business rules or acceptance; continue unaffected work.

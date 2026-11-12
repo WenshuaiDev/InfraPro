@@ -59,7 +59,7 @@ test('server search treats percent and underscore literally and detail access is
   const api = new URL('/api/v1', consoleURL).href;
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
   for (const note of ['Bridge 100%_汉字🙂', 'Bridge other']) expect((await context.request.post(`${api}/invitations`, { headers, data: { note } })).status()).toBe(200);
-  await navigateTo(page, '账号开户邀请');
+  await page.goto(`${consoleURL}/invitations`);
   await page.getByLabel('搜索用途备注').fill('%_');
   const table = page.getByRole('table', { name: '我的邀请', exact: true });
   await expect(table.locator('tbody tr')).toHaveCount(1);
@@ -92,7 +92,7 @@ test('server search treats percent and underscore literally and detail access is
 });
 
 test('withdrawing write permissions clears the open link while preserving read-only invitation access', async ({ page, account, request, context }) => {
-  await login(page, account); await navigateTo(page, '账号开户邀请');
+  await login(page, account); await page.goto(`${consoleURL}/invitations`);
   await page.getByRole('button', { name: '创建邀请', exact: true }).click();
   await page.getByRole('dialog').getByLabel('用途备注').fill('只读保留的记录');
   await page.getByRole('dialog').getByRole('button', { name: '生成邀请链接', exact: true }).click();

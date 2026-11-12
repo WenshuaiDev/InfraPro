@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
-import { positionIssues } from '../../apps/console/src/features/resources/validation';
+import { positionIssues } from '../../apps/console/src/features/location-fields/validation';
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { APIRequestContext, Page } from '@playwright/test';
 import { test, expect, consoleURL, csrf, login, password, createAccount } from './fixtures';
-import { navigateTo } from '../helpers/navigation';
+import { navigateTo, openWorkspacePicker, browseWorkspaceTenant } from '../helpers/navigation';
 const origin=new URL(consoleURL).origin;const api=`${origin}/api/v1`;const wm=()=>({request_id:randomUUID(),reason:'资源自验'});
 async function seed(request:APIRequestContext){
  const user=await createAccount(request,false);const headers={Origin:origin,'X-CSRF-Token':await csrf(request,origin)};expect((await request.post(`${api}/auth/login`,{headers,data:{username:'e2e_owner',password}})).status()).toBe(200);const suffix=randomBytes(5).toString('hex');
@@ -15,6 +15,44 @@ async function seed(request:APIRequestContext){
 }
 async function pick(page:Page,label:string,definition:string,version:string,q:string){await page.getByLabel(`${label}搜索`,{exact:true}).fill(q);await page.getByLabel(`${label}定义`,{exact:true}).selectOption(definition);await page.getByLabel(`${label}版本`,{exact:true}).selectOption(version);}
 async function save(page:Page,ending:string,status=201){const response=page.waitForResponse((r)=>['POST','PATCH'].includes(r.request().method())&&(r.url().endsWith(ending)||(status>=400&&r.url().endsWith(ending+'/mutation-preview'))));await page.getByRole('button',{name:'保存',exact:true}).click();const r=await response;expect(r.status(),await r.text()).toBe(status);return r.json();}
+
+for (const delayed of [false, true]) {
+ test(`resource editor blocks ${delayed ? 'late automatic' : 'confirmed'} writes during a tenant outage`, async ({ page, request }) => {
+  const f = await seed(request); await login(page, f.user);
+  const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
+  const base = `${api}/tenants/${f.tenant}/engineering/resources/facilities`;
+  const created = await page.request.post(base, { headers, data: { request_id: randomUUID(), code: 'OUTAGE', name: '故障回归设施', type_version_id: f.type.version_id, values: { length: 0 } } });
+  expect(created.status()).toBe(201); const facility = await created.json();
+  await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${facility.id}`);
+  await page.getByRole('button', { name: '故障回归设施 操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '编辑设施', exact: true }).click();
+  await page.getByLabel('名称 *', { exact: true }).fill('恢复后保存的设施');
+  await page.getByLabel('修改原因（共享或归属修改必填）', { exact: true }).fill('故障回归原因');
+  let unavailable = false; let writes = 0; let previewStarted = false; let release = () => {};
+  page.on('request', r => { if (r.method() === 'PATCH' && r.url() === `${base}/${facility.id}`) writes++; });
+  await page.route(`**/tenants/${f.tenant}/context`, route => unavailable ? route.fulfill({ status: 503, json: { code: 'unavailable', message: '模拟租户故障' } }) : route.continue());
+  await page.route(`**/facilities/${facility.id}/mutation-preview`, async route => {
+   const response = await route.fetch(); const body = await response.json(); previewStarted = true;
+   if (delayed) await new Promise<void>(resolve => { release = resolve; });
+   await route.fulfill({ response, json: { ...body, required: !delayed } });
+  });
+  await page.getByRole('button', { name: '保存', exact: true }).click();
+  await expect.poll(() => previewStarted).toBe(true);
+  const confirm = page.getByRole('button', { name: '确认保存', exact: true });
+  if (!delayed) await expect(confirm).toBeEnabled();
+  unavailable = true; await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(page.getByText('服务暂时不可用，输入已保留', { exact: true })).toBeVisible();
+  if (delayed) release();
+  await expect(confirm).toBeVisible(); await expect(confirm).toBeDisabled(); expect(writes).toBe(0);
+  unavailable = false; await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(confirm).toBeEnabled();
+  await expect(page.getByLabel('名称 *', { exact: true })).toHaveValue('恢复后保存的设施');
+  await confirm.click(); await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(writes).toBe(1);
+  const saved = await (await page.request.get(`${base}/${facility.id}`)).json();
+  expect(saved.name).toBe('恢复后保存的设施');
+ });
+}
 
 test('numeric resource inputs preserve typed decimals and save their exact numeric values', async ({ page, request }) => {
  const f = await seed(request); await login(page, f.user);
@@ -155,10 +193,9 @@ test('late resource write cannot reopen an object after switching tenants',async
  });
  await page.getByRole('button',{name:'保存',exact:true}).click();await ready;
  await page.getByRole('button',{name:'关闭面板',exact:true}).click();
- const navigation=page.getByRole('navigation',{name:'主导航',exact:true});
- if(!await navigation.isVisible())await page.getByRole('banner').getByRole('button',{name:'切换侧栏',exact:true}).click();
- await page.getByRole('button',{name:/^切换工作空间：/}).click();
- await page.getByRole('menuitem',{name:new RegExp(`^隔离租户_${f.suffix} 租户`)}).click();
+ const picker=await openWorkspacePicker(page);
+ await browseWorkspaceTenant(page,`隔离租户_${f.suffix}`);
+ await picker.getByRole('button',{name:new RegExp(`^隔离租户_${f.suffix} 租户`)}).click();
  await expect(page).toHaveURL(`${consoleURL}/t/${second.tenant_id}/profile`);
  await expect(page.getByRole('heading',{name:'租户资料',exact:true})).toBeVisible();
  if((page.viewportSize()?.width??1440)<768)await expect(page.getByRole('dialog',{name:'主导航',exact:true})).toBeHidden();

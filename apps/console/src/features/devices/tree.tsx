@@ -1,0 +1,30 @@
+import { useRef, useState, useEffect, type KeyboardEvent } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { ChevronDown, ChevronRight, Factory, Box, Cpu, Radio } from 'lucide-react';
+import type { DeviceFilter, DeviceTreeNode } from '@infrapro/api-client';
+import { Button } from '@infrapro/ui/components/button';
+import { Badge } from '@infrapro/ui/components/badge';
+import { useDevices } from './context';
+
+type Selection={manufacturer?:string;product?:string;device?:string;output?:string};
+type TreeProps={selection:Selection;onSelect:(node:DeviceTreeNode)=>void;filter?:DeviceFilter};
+type BranchProps=TreeProps&{level:'manufacturer'|'product'|'device'|'output';parent?:string;focus:string;onFocus:(id:string)=>void;autoFocus?:boolean;onFocused?:()=>void};
+const nextLevel={manufacturer:'product',product:'device',device:'output'} as const;
+const icons={manufacturer:Factory,product:Box,device:Cpu,output:Radio};
+function Branch({selection,onSelect,filter={},level,parent,focus,onFocus,autoFocus,onFocused}:BranchProps){
+ const {client,scope,prefix}=useDevices();const group=useRef<HTMLUListElement>(null);
+ const q=useInfiniteQuery({queryKey:[...prefix,'tree',level,parent,filter],initialPageParam:'',queryFn:({pageParam,signal})=>client.deviceTree(scope,{...filter,level,parent_id:parent,limit:25,cursor:pageParam},signal),getNextPageParam:p=>p.next_cursor||undefined});
+ const items=q.data?.pages.flatMap(p=>p.items)??[];
+ useEffect(()=>{if(autoFocus&&items.length){group.current?.querySelector<HTMLElement>('[role=treeitem]')?.focus();onFocused?.();}},[autoFocus,items.length,onFocused]);
+ return <ul ref={group} role={parent?'group':'tree'} aria-label={parent?undefined:'厂家、产品、设备与输出目录'} className={parent?'ml-4 border-l pl-2':'space-y-1'}>{items.map((node,index)=><TreeItem key={node.id} {...{node,selection,onSelect,filter,focus,onFocus,level}} first={!parent&&index===0}/>)}{q.isPending&&<li role="none"><p className="p-3 text-sm" role="status">正在读取目录…</p></li>}{q.error&&<li role="none"><p role="alert" className="p-2 text-sm text-destructive">{q.error.message}</p><Button variant="ghost" onClick={()=>void q.refetch()}>重试目录</Button></li>}{!q.isPending&&!q.error&&!items.length&&<li role="none"><p className="p-3 text-sm text-muted-foreground">暂无可见项目</p></li>}{q.hasNextPage&&<li role="none"><Button type="button" variant="ghost" className="my-1 w-full" disabled={q.isFetchingNextPage} onClick={()=>void q.fetchNextPage()}>加载更多{({manufacturer:'厂家',product:'产品',device:'设备',output:'输出'})[level]}</Button></li>}</ul>;
+}
+function TreeItem({node,selection,onSelect,filter,focus,onFocus,level,first}:{node:DeviceTreeNode;first:boolean}&Omit<BranchProps,'parent'|'autoFocus'|'onFocused'>){
+ const initially=Object.values(selection).includes(node.id);const [open,setOpen]=useState(initially&&node.has_visible_children);const [focusChild,setFocusChild]=useState(false);const element=useRef<HTMLLIElement>(null);const Icon=icons[level];const selected=selection.output?selection.output===node.id:selection.device?selection.device===node.id:selection.product?selection.product===node.id:selection.manufacturer===node.id;
+ const keyDown=(e:KeyboardEvent)=>{if(e.target!==e.currentTarget)return;const root=element.current?.closest('[role=tree]');const nodes=Array.from(root?.querySelectorAll<HTMLElement>('[role=treeitem]')??[]);const index=nodes.indexOf(element.current!);let target:HTMLElement|undefined;
+  switch(e.key){case 'ArrowDown':target=nodes[Math.min(index+1,nodes.length-1)];break;case 'ArrowUp':target=nodes[Math.max(index-1,0)];break;case 'Home':target=nodes[0];break;case 'End':target=nodes.at(-1);break;case 'ArrowRight':if(node.has_visible_children){if(!open)setOpen(true);else{target=element.current?.querySelector<HTMLElement>('[role=group] [role=treeitem]')??undefined;if(!target)setFocusChild(true);}}break;case 'ArrowLeft':if(open){setOpen(false);setFocusChild(false);}else target=element.current?.parentElement?.closest<HTMLElement>('[role=treeitem]')??undefined;break;case 'Enter':case ' ':onSelect(node);break;default:return;}e.preventDefault();e.stopPropagation();target?.focus();
+ };
+ return <li ref={element} role="treeitem" aria-selected={selected} aria-expanded={node.has_visible_children?open:undefined} tabIndex={focus===node.id||!focus&&first?0:-1} onFocus={e=>{if(e.target===e.currentTarget)onFocus(node.id);}} onKeyDown={keyDown} className="min-w-0 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring">
+ <div className={`flex min-h-11 min-w-0 items-center gap-1 rounded-md px-1 ${selected?'bg-accent':'hover:bg-accent/50'}`}><Button type="button" tabIndex={-1} variant="ghost" size="icon" className="size-8 shrink-0" aria-label={`${open?'收起':'展开'}${node.name}`} disabled={!node.has_visible_children} onClick={()=>{setOpen(!open);setFocusChild(false);element.current?.focus();}}>{node.has_visible_children?(open?<ChevronDown aria-hidden/>:<ChevronRight aria-hidden/>):<span className="size-4"/>}</Button><Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden/><button type="button" tabIndex={-1} className="min-w-0 flex-1 space-y-1 py-2 text-left text-sm" onClick={()=>{element.current?.focus();onSelect(node);}}><span className="block break-words font-medium">{node.name}</span><span className="block break-all text-xs text-muted-foreground">{node.code}{node.visibility==='context'?' · 仅作定位':''}</span></button>{level==='manufacturer'&&<Badge variant="outline" className="shrink-0 text-xs">{node.source==='public'?'公共':'私有'}</Badge>}</div>
+ {open&&level!=='output'&&<Branch {...{selection,onSelect,filter,focus,onFocus}} level={nextLevel[level]} parent={node.id} autoFocus={focusChild} onFocused={()=>setFocusChild(false)}/>}</li>;
+}
+export function DeviceTree(props:TreeProps){const [focus,setFocus]=useState('');return <nav aria-label="设备目录" className="min-w-0 space-y-3"><p className="text-xs text-muted-foreground">方向键移动与展开，Enter 选择。只显示当前可见的下级。</p><Branch {...props} level="manufacturer" focus={focus} onFocus={setFocus}/></nav>;}

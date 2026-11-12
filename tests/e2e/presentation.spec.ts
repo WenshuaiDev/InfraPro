@@ -37,6 +37,6 @@ test('real pages share responsive layouts, keyboard navigation and themes', asyn
   await page.goto(`${consoleURL}/missing-page`);
   await expect(page.getByRole('heading', { name: '页面未找到' })).toBeVisible();
   await page.getByRole('link', { name: '返回首页', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '账号首页' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '账号开户邀请', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -193,7 +193,7 @@ func prepareSync(ctx context.Context, tx pgx.Tx) (syncPlan, error) {
 		p.Report.Tenants = append(p.Report.Tenants, v)
 	}
 	slices.SortFunc(p.Report.Tenants, func(a, b CatalogTenantImpact) int { return strings.Compare(a.TenantID, b.TenantID) })
-	if e = prepareProjectSync(ctx, tx, &p, expected, builtins); e != nil {
+	if e = prepareProjectSync(ctx, tx, &p, old, expected, builtins); e != nil {
 		return p, e
 	}
 	p.Report.Changed = p.Report.BeforeChecksum != Checksum() || len(p.Report.Roles) > 0 || len(p.Report.Permissions) > 0

@@ -22,10 +22,8 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   await expect(page.getByRole('button', { name: '保存资料' })).toBeVisible(); await page.reload(); await expect(page.getByRole('button', { name: '保存资料' })).toBeVisible();
   for (const alias of ['tenants', 'projects']) {
     await page.goto(`${base}/${alias}`);
-    await expect(page.getByRole('menu', { name: '切换工作空间', exact: true }).getByLabel('工作空间类型')).toHaveValue(alias);
-    await expect(page).toHaveURL(`${base}/`);
-    await page.keyboard.press('Escape');
-    await expect(page.locator('[data-slot="sidebar-wrapper"]')).toHaveCount(0);
+    await expect(page).toHaveURL(`${base}/platform/tenants`);
+    await expect(page.getByRole('dialog', { name: '切换工作空间', exact: true })).toHaveCount(0);
     await navigateTo(page, '个人资料');
     await expect(page).toHaveURL(`${base}/profile`);
   }
@@ -33,7 +31,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色' }).click(); await expect(page.locator('html')).toHaveClass('dark');
   expect(await page.evaluate(() => Reflect.get(window, 'policyViolations'))).toEqual([]);
   expect(browserErrors).toEqual([]);
-  const legacy = await context.newPage(); await legacy.goto(`${origin}/screen/`); await expect(legacy).toHaveURL(`${base}/`); await expect(legacy.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
+  const legacy = await context.newPage(); await legacy.goto(`${origin}/screen/`); await expect(legacy).toHaveURL(`${base}/platform/tenants`); await expect(legacy.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
   await navigateTo(page, '账号开户邀请'); await page.reload(); await page.getByRole('button', { name: '创建邀请', exact: true }).click(); await page.getByRole('button', { name: '生成邀请链接', exact: true }).click();
   const link = await page.getByLabel('可手动复制的完整链接').inputValue(); expect(link.startsWith(`${base}/invite#token=`)).toBe(true);
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
@@ -80,7 +78,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'check');
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '登录', exact: true }).click();
   await expect(recipient.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(40); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
+  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(45); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
   await logout(page); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await legacy.reload(); await expect(legacy.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await recipientContext.close();
   const logs = compose('logs', '--no-color', 'api', 'web');

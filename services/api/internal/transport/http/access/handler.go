@@ -63,6 +63,14 @@ func Register(r *gin.Engine, s *identity.Service) {
 	a := s.Access()
 	g := r.Group("/api/v1/access")
 	actor := func(c *gin.Context) access.Actor { return s.AccessActor(identityhttp.Principal(c)) }
+	r.GET("/api/v1/me/workspaces", func(c *gin.Context) {
+		f := filter(c)
+		v, e := a.MyWorkspaces(c.Request.Context(), actor(c), access.WorkspaceFilter{Kind: c.Query("kind"), Query: f.Query, Cursor: f.Cursor, Status: f.Status, TenantID: f.TenantID, Limit: f.Limit})
+		if e == nil {
+			c.Header("X-Authorization-Revision", v.Revision)
+		}
+		reply(c, v, e)
+	})
 	g.GET("/permissions", func(c *gin.Context) { v, e := a.Permissions(c.Request.Context(), actor(c)); reply(c, v, e) })
 	g.GET("/roles", func(c *gin.Context) { v, e := a.Roles(c.Request.Context(), actor(c), filter(c)); reply(c, v, e) })
 	g.GET("/roles/:id", func(c *gin.Context) { v, e := a.Role(c.Request.Context(), actor(c), c.Param("id")); reply(c, v, e) })

@@ -15,15 +15,18 @@ type ImpactProject struct {
 	Status string `json:"status"`
 }
 type MutationPreview struct {
-	Hash          string                   `json:"preview_hash"`
-	Required      bool                     `json:"required"`
-	CanSubmit     bool                     `json:"can_submit"`
-	Shared        bool                     `json:"shared"`
-	BlockedCode   string                   `json:"blocked_code,omitempty"`
-	BlockedReason string                   `json:"blocked_reason,omitempty"`
-	Changes       []engineering.Difference `json:"changes"`
-	Projects      []ImpactProject          `json:"projects,omitempty"`
-	Dependencies  map[string]int           `json:"dependencies,omitempty"`
+	DeviceReferences       bool                     `json:"device_references"`
+	PreservesInstallations bool                     `json:"preserves_installations"`
+	PreservesSources       bool                     `json:"preserves_sources"`
+	Hash                   string                   `json:"preview_hash"`
+	Required               bool                     `json:"required"`
+	CanSubmit              bool                     `json:"can_submit"`
+	Shared                 bool                     `json:"shared"`
+	BlockedCode            string                   `json:"blocked_code,omitempty"`
+	BlockedReason          string                   `json:"blocked_reason,omitempty"`
+	Changes                []engineering.Difference `json:"changes"`
+	Projects               []ImpactProject          `json:"projects,omitempty"`
+	Dependencies           map[string]int           `json:"dependencies,omitempty"`
 }
 
 func (s *Service) PreviewMutation(ctx context.Context, a access.Actor, scope Scope, target Target, action string, raw json.RawMessage) (MutationPreview, error) {
@@ -33,7 +36,7 @@ func (s *Service) PreviewMutation(ctx context.Context, a access.Actor, scope Sco
 	_, preview, e := s.mutate(ctx, a, scope, target, action, raw, access.Meta{}, true)
 	return preview, e
 }
-func mutationImpact(ctx context.Context, tx pgx.Tx, auth authorization, t scopedTarget, action string, m WriteMeta, in map[string]any, before *Resource, after Resource) (MutationPreview, error) {
+func (s *Service) mutationImpact(ctx context.Context, tx pgx.Tx, auth authorization, t scopedTarget, action string, m WriteMeta, in map[string]any, before *Resource, after Resource) (MutationPreview, error) {
 	out := MutationPreview{CanSubmit: true, Changes: []engineering.Difference{}}
 	if action == "delete" {
 		after.DeletedAt = nil
@@ -58,6 +61,16 @@ func mutationImpact(ctx context.Context, tx pgx.Tx, auth authorization, t scoped
  )::text)`, auth.Tenant, t.Facility, t.Kind, t.ID).Scan(&state)
 	if e != nil {
 		return out, e
+	}
+	if s.external != nil {
+		external, e := s.external.ResourceImpactTx(ctx, tx, auth.Scope, t.Target)
+		if e != nil {
+			return out, e
+		}
+		state = fingerprint([]any{state, external.Hash})
+		out.DeviceReferences = external.Referenced
+		out.PreservesInstallations = external.CurrentInstallation
+		out.PreservesSources = external.CurrentSource
 	}
 	m.PreviewHash = ""
 	out.Hash = fingerprint(struct {

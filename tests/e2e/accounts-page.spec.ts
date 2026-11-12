@@ -70,9 +70,9 @@ test('accounts paginate real rows, recover reads, filter and preserve drawer foc
   const pager = page.getByRole('navigation', { name: '账号列表分页', exact: true });
   await expect(rows).toHaveCount(10);
   const firstPage = await rows.locator('td:first-child').allTextContents();
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-list-light.png`, fullPage: true });
+  await page.screenshot({ path: info.outputPath('list-light.png'), fullPage: true });
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色', exact: true }).click();
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-list-dark.png`, fullPage: true });
+  await page.screenshot({ path: info.outputPath('list-dark.png'), fullPage: true });
   await pager.getByRole('button', { name: '下一页' }).click();
   await expect(page.getByRole('alert')).toContainText('账号查询暂时不可用'); await expect(rows).toHaveCount(10); await expect(pager.getByRole('status')).toContainText('第 1 页');
   await page.getByRole('button', { name: '重新加载', exact: true }).click(); await expect(page.getByRole('alert')).toHaveCount(0);
@@ -83,7 +83,7 @@ test('accounts paginate real rows, recover reads, filter and preserve drawer foc
   await expect(page.locator('[data-slot="drawer-popup"]')).toHaveAttribute('data-swipe-direction', info.project.name === 'mobile' ? 'down' : 'right');
   await expect(page.locator('[data-slot="drawer-overlay"]')).toHaveCSS('backdrop-filter', /blur\([1-9]/);
   await expect(panel.getByRole('heading', { name: '绑定的平台角色', exact: true })).toBeVisible();
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-drawer-dark.png` });
+  await page.screenshot({ path: info.outputPath('drawer-dark.png') });
   await page.keyboard.press('Escape'); await expect(panel).toHaveCount(0); await expect(trigger).toBeFocused();
   await expect(pager.getByRole('status')).toContainText('第 2 页'); await expect(page.getByLabel('搜索用户名或显示名称')).toHaveValue(prefix);
   const menu = rows.first().getByRole('button', { name: /的操作$/ });
@@ -93,7 +93,13 @@ test('accounts paginate real rows, recover reads, filter and preserve drawer foc
   await page.getByRole('combobox', { name: '每页条数', exact: true }).click(); await page.getByRole('option', { name: '20', exact: true }).click(); await expect(rows).toHaveCount(12); await expect(pager.getByRole('status')).toContainText('第 1 页');
   await page.getByRole('tab', { name: '已停用', exact: true }).click(); await expect(rows).toHaveCount(1); await expect(table).toContainText(disabled.username);
   await page.getByRole('tab', { name: '正常', exact: true }).click(); await expect(rows).toHaveCount(11);
-  await page.getByRole('button', { name: '绑定角色', exact: true }).click(); await page.getByRole('menuitemradio', { name: '基础成员', exact: true }).click(); await expect(rows).toHaveCount(11);
+  await page.getByRole('button', { name: '绑定角色', exact: true }).click();
+  while (await page.getByRole('menuitemradio', { name: '基础成员', exact: true }).count() === 0) {
+    const count = await page.getByRole('menuitemradio').count();
+    await page.getByRole('menuitem', { name: '加载更多角色', exact: true }).click();
+    await expect.poll(() => page.getByRole('menuitemradio').count()).toBeGreaterThan(count);
+  }
+  await page.getByRole('menuitemradio', { name: '基础成员', exact: true }).click(); await expect(rows).toHaveCount(11);
   if (info.project.name === 'desktop') {
     await page.getByRole('button', { name: '显示列', exact: true }).click(); await page.getByRole('menuitemcheckbox', { name: '创建时间', exact: true }).click(); await expect(table.getByRole('columnheader', { name: '创建时间', exact: true })).toHaveCount(0);
   }
@@ -106,12 +112,12 @@ test('account roles save, explain their sources and reopen without stale selecti
   const target = await createManaged(request), role = await makeRole(request, `账号审计_${randomBytes(4).toString('hex')}`);
   await openAccount(page, target);
   const panel = page.getByRole('dialog');
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-drawer-light.png` });
+  await page.screenshot({ path: info.outputPath('drawer-light.png') });
   await panel.getByRole('button', { name: '配置角色', exact: true }).click();
   await expect(panel.getByRole('button', { name: '保存角色绑定', exact: true })).toBeDisabled();
   await panel.getByLabel('搜索可选角色').fill(role.name); await panel.getByRole('checkbox', { name: new RegExp(role.name) }).check();
   await expect(panel.getByRole('region', { name: '角色变更摘要' })).toContainText(`新增：${role.name}`);
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-roles.png` });
+  await page.screenshot({ path: info.outputPath('roles.png') });
   await saveRoles(page);
   await expect(panel.getByRole('heading', { name: role.name, exact: true })).toBeVisible();
   await panel.getByRole('tab', { name: '有效权限', exact: true }).click();
@@ -120,7 +126,7 @@ test('account roles save, explain their sources and reopen without stale selecti
   await expect(panel.locator('code').filter({ hasText: P.PlatformAuditRead })).toHaveCount(0);
   await panel.getByRole('switch', { name: '显示权限编码', exact: true }).check(); await expect(panel.getByText(P.PlatformAuditRead, { exact: true })).toBeVisible();
   await panel.getByLabel('搜索有效权限').fill(role.name); await expect(panel.getByRole('listitem')).toHaveCount(1);
-  await page.screenshot({ path: `.artifacts/account-management-redesign/${info.project.name}-permissions.png` });
+  await page.screenshot({ path: info.outputPath('permissions.png') });
   await panel.getByRole('button', { name: '配置角色', exact: true }).click();
   await expect(panel.getByRole('checkbox', { name: new RegExp(role.name) })).toBeChecked();
   await panel.getByRole('checkbox', { name: new RegExp(role.name) }).uncheck(); await saveRoles(page);
@@ -167,6 +173,13 @@ test('account editing rejects stale versions and reloads the real binding', asyn
   await expect(panel.getByRole('button', { name: '重新加载并比较', exact: true })).toBeVisible(); await expect(panel.getByRole('button', { name: '保存角色绑定', exact: true })).toBeDisabled();
   await panel.getByRole('button', { name: '重新加载并比较', exact: true }).click(); await expect(panel.getByText('尚未绑定平台角色', { exact: true })).toBeVisible();
   await panel.getByRole('button', { name: '配置角色', exact: true }).click(); await expect(panel.getByRole('checkbox', { name: new RegExp(role.name) })).not.toBeChecked();
+  // The full suite creates enough roles to move built-ins beyond the first page.
+  // Load the option before asserting its binding; absence is not an unchecked state.
+  while (await panel.getByRole('checkbox', { name: /^基础成员/ }).count() === 0) {
+    const count = await panel.getByRole('checkbox').count();
+    await panel.getByRole('button', { name: '加载更多可选角色', exact: true }).click();
+    await expect.poll(() => panel.getByRole('checkbox').count()).toBeGreaterThan(count);
+  }
   await expect(panel.getByRole('checkbox', { name: /^基础成员/ })).not.toBeChecked();
 });
 

@@ -11,7 +11,7 @@ import { Button } from '@infrapro/ui/components/button';
 const CurrentTenant = createContext<(TenantContext & { epoch: number; available: boolean }) | null>(null);
 let nextEpoch = 0;
 export function TenantBoundary({ id, children }: { id: string; children: ReactNode }) {
-  const { client, account, authorization_revision } = useIdentity();
+  const { client, account, authorization_revision, phase } = useIdentity();
   const cache = useQueryClient();
   const [epoch, setEpoch] = useState(() => ++nextEpoch);
   const [checking, setChecking] = useState(false);
@@ -63,15 +63,21 @@ export function TenantBoundary({ id, children }: { id: string; children: ReactNo
       void cache.refetchQueries({ queryKey: ['tenant', account?.id, id, 'context'] }).finally(() => setChecking(false));
     }
   }), [client, cache, account?.id, id]);
+  useEffect(() => {
+    if (context.data?.can_enter !== false) return;
+    const predicate = (q: { queryKey: readonly unknown[] }) => q.queryKey[0] === 'tenant' && q.queryKey[1] === account?.id && q.queryKey[2] === id && q.queryKey[3] !== 'context';
+    void cache.cancelQueries({ predicate }); cache.removeQueries({ predicate });
+    void cache.invalidateQueries({ queryKey: ['account', account?.id, 'workspaces'] });
+  }, [context.data?.can_enter, cache, account?.id, id]);
   const errorCode = context.error instanceof ApiError ? context.error.code : undefined;
   const disabled = restricted === 'disabled' || errorCode === 'tenant_disabled';
-  const lost = restricted === 'lost' || (!disabled && context.error instanceof ApiError && [403, 404].includes(context.error.status ?? 0));
+  const lost = context.data?.can_enter === false || restricted === 'lost' || (!disabled && context.error instanceof ApiError && [403, 404].includes(context.error.status ?? 0));
   if (disabled) return <DisabledTenant id={id} onActive={() => { setEpoch(++nextEpoch); setChecking(true); setRestricted(null); void context.refetch().finally(() => setChecking(false)); }} />;
   if (lost) return <section className="space-y-4"><h1 className="text-2xl font-semibold">当前租户不可访问</h1><p>成员关系或权限已变化，请重新选择租户。</p><div className="flex flex-wrap items-center gap-3"><WorkspacePickerButton filter="tenants">重新选择租户</WorkspacePickerButton><Link to="/" className="underline">返回首页</Link><Button variant="outline" disabled={context.isFetching} onClick={() => void refetch()}>重新检查租户资格</Button></div></section>;
   if (context.error && !context.data) return <ErrorState title="服务暂时不可用" message={context.error.message} onRetry={() => void context.refetch()} />;
   if (!context.data) return <p role="status">正在核验租户身份…</p>;
   const value = context.data;
-  return <CurrentTenant value={{ ...value, epoch, available: !checking && !context.error }}>{context.error && <ErrorState title="服务暂时不可用，输入已保留" message={context.error.message} onRetry={() => void context.refetch()} />}<div key={`${epoch}:${value.membership_id}:${value.permissions.join(',')}`} hidden={checking}>{children}</div>{checking && <p role="status">正在核验租户身份…</p>}</CurrentTenant>;
+  return <CurrentTenant value={{ ...value, epoch, available: phase === 'authenticated' && !checking && !context.error }}>{context.error && <ErrorState title="服务暂时不可用，输入已保留" message={context.error.message} onRetry={() => void context.refetch()} />}<div key={`${epoch}:${value.membership_id}:${value.permissions.join(',')}`} hidden={checking}>{children}</div>{checking && <p role="status">正在核验租户身份…</p>}</CurrentTenant>;
 }
 function DisabledTenant({ id, onActive }: { id: string; onActive: () => void }) {
   const { client, account } = useIdentity();

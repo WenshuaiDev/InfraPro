@@ -6,4 +6,4 @@
 
 `web.Dockerfile` 使用固定 Node/pnpm 和锁文件构建唯一前端 `/console/`，由 Nginx 托管并代理 API。服务器秘密只在运行时注入 API 或运维 CLI，不传入前端构建。
 
-运行方式见 [账号运行手册](../../docs/operations/account-management.md) 和 `deploy/compose/compose.yaml`。
+运行方式见 [架构设计：运行维护](../../docs/architecture.md#operations) 和 `deploy/compose/compose.yaml`。

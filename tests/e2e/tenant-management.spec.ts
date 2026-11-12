@@ -38,10 +38,10 @@ test('tenant list filters, cursor pagination and panels preserve context and sup
   const pager = page.getByRole('navigation', { name: '平台租户列表分页', exact: true });
   await search.fill(prefix); await expect(table.getByRole('row')).toHaveCount(11);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: `.artifacts/tenant-management-redesign/${info.project.name}-list-light.png`, fullPage: true });
+  await page.screenshot({ path: info.outputPath('list-light.png'), fullPage: true });
   if (info.project.name === 'desktop') {
     await page.setViewportSize({ width: 1024, height: 768 }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: '.artifacts/tenant-management-redesign/tablet-list-light.png', fullPage: true }); await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.screenshot({ path: info.outputPath('tablet-list-light.png'), fullPage: true }); await page.setViewportSize({ width: 1440, height: 1000 });
     await page.getByRole('button', { name: '显示列', exact: true }).click(); await page.getByRole('menuitemcheckbox', { name: '更新时间', exact: true }).click();
     await expect(table.getByRole('columnheader', { name: '更新时间', exact: true })).toHaveCount(0);
     await page.getByRole('button', { name: '显示列', exact: true }).click(); await page.getByRole('menuitemcheckbox', { name: '更新时间', exact: true }).click();
@@ -73,11 +73,11 @@ test('tenant list filters, cursor pagination and panels preserve context and sup
   await page.getByRole('tab', { name: '已停用', exact: true }).click(); await expect(table.getByRole('row')).toHaveCount(2); await expect(table).toContainText(disabled.code);
   await table.getByRole('button', { name: /长名称/ }).first().click(); await expect(panel.getByText('维护期间暂停使用。', { exact: true })).toBeVisible();
   expect(await panel.locator('[data-slot="drawer-scroll-area"]').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await page.screenshot({ path: `.artifacts/tenant-management-redesign/${info.project.name}-drawer-light.png` });
+  await page.screenshot({ path: info.outputPath('drawer-light.png') });
   await panel.getByRole('button', { name: '关闭面板', exact: true }).click();
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色', exact: true }).click();
-  await page.screenshot({ path: `.artifacts/tenant-management-redesign/${info.project.name}-list-dark.png`, fullPage: true });
-  await table.getByRole('button', { name: /长名称/ }).first().click(); await page.screenshot({ path: `.artifacts/tenant-management-redesign/${info.project.name}-drawer-dark.png` }); await panel.getByRole('button', { name: '关闭面板', exact: true }).click();
+  await page.screenshot({ path: info.outputPath('list-dark.png'), fullPage: true });
+  await table.getByRole('button', { name: /长名称/ }).first().click(); await page.screenshot({ path: info.outputPath('drawer-dark.png') }); await panel.getByRole('button', { name: '关闭面板', exact: true }).click();
   await page.getByRole('tab', { name: '已启用', exact: true }).click(); await expect(table.getByRole('row')).toHaveCount(12);
   await page.getByRole('button', { name: '管理员可用性', exact: true }).click(); await page.getByRole('menuitemradio', { name: '管理员不可用', exact: true }).click();
   await expect(page.getByText('没有符合筛选条件的租户', { exact: true })).toBeVisible(); await page.getByRole('button', { name: '清除筛选', exact: true }).click();

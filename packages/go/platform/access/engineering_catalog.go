@@ -43,5 +43,5 @@ func engineeringCatalog() []Permission {
 }
 
 func Catalog() []Permission {
-	return append(append(projectCatalog(), engineeringCatalog()...), resourceCatalog()...)
+	return append(append(append(projectCatalog(), engineeringCatalog()...), resourceCatalog()...), deviceCatalog()...)
 }

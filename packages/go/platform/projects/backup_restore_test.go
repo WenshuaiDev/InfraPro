@@ -49,6 +49,8 @@ func TestProjectBackupRestoreWithAllHistory(t *testing.T) {
 	run(nil, "createdb", "-U", "infrapro_test", db)
 	defer run(nil, "dropdb", "-U", "infrapro_test", db)
 	dump := run(nil, "pg_dump", "-U", "infrapro_test", "-d", "infrapro_test", "-n", schema, "-Fc")
+	// A schema-only dump excludes extensions installed in public.
+	run(nil, "psql", "-v", "ON_ERROR_STOP=1", "-U", "infrapro_test", "-d", db, "-c", "CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public")
 	run(dump, "pg_restore", "-U", "infrapro_test", "-d", db, "--no-owner")
 	u.Path = "/" + db
 	restored, e := pgxpool.New(ctx, u.String())

@@ -22,7 +22,7 @@ GOWORK=off go build -o ../../build/bin/infrapro ./cmd/infrapro
 
 新的项目运维能力在此 CLI 中新增命令组或子命令。交互与参数处理放在 command，共享业务规则放在 `packages/go/platform` 中的对应包；禁止复制 API 业务规则或导入 API 的内部实现。不要为各业务模块另建运维可执行程序。
 
-帮助命令不加载配置或连接依赖。密码仍通过终端无回显输入，重置链接只允许受控终端输出。真实维护流程见 [运行手册](../../docs/operations/account-management.md)。
+帮助命令不加载配置或连接依赖。密码仍通过终端无回显输入，重置链接只允许受控终端输出。真实维护流程见 [架构设计：运行维护](../../docs/architecture.md#operations)。
 ## 权限维护
 
-`infrapro access sync` 同步目录和内置角色，`access check` 只读检查，`access recover-admin --username ... --reason ...` 为已有账号添加管理员角色绑定。首次 bootstrap 前必须同步目录；恢复角色不恢复停用状态或历史凭证。详见[运行手册](../../docs/operations/role-permission.md)。
+`infrapro access sync` 同步目录和内置角色，`access check` 只读检查，`access recover-admin --username ... --reason ...` 为已有账号添加管理员角色绑定。首次 bootstrap 前必须同步目录；恢复角色不恢复停用状态或历史凭证。详见[架构设计：运行维护](../../docs/architecture.md#migrations)。

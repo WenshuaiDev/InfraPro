@@ -4376,6 +4376,1741 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/workspaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Only workspaces the current account can enter; summary ignores filters and pagination. */
+        get: operations["MyWorkspaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/manufacturers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform manufacturer list */
+        get: operations["Device:platform:manufacturer:list"];
+        put?: never;
+        /**
+         * platform manufacturer create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:manufacturer:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/manufacturers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform manufacturer detail */
+        get: operations["Device:platform:manufacturer:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * platform manufacturer update
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        patch: operations["Device:platform:manufacturer:update"];
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/manufacturers/{id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform manufacturer state
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:manufacturer:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/manufacturers/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform manufacturer delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:manufacturer:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/manufacturers/{id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform manufacturer preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:manufacturer:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform product list */
+        get: operations["Device:platform:product:list"];
+        put?: never;
+        /**
+         * platform product create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform product detail */
+        get: operations["Device:platform:product:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * platform product draft-save
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        put: operations["Device:platform:product:draft-save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product draft-create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:draft-create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/draft/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product draft-delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:draft-delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product validate
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product publish
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform product version */
+        get: operations["Device:platform:product:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product state
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * platform product copy
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:platform:product:copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform catalog changes */
+        get: operations["Device:platform:catalog:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/manufacturers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant manufacturer list */
+        get: operations["Device:tenant:manufacturer:list"];
+        put?: never;
+        /**
+         * tenant manufacturer create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:manufacturer:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/manufacturers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant manufacturer detail */
+        get: operations["Device:tenant:manufacturer:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * tenant manufacturer update
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        patch: operations["Device:tenant:manufacturer:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/manufacturers/{id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant manufacturer state
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:manufacturer:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/manufacturers/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant manufacturer delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:manufacturer:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/manufacturers/{id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant manufacturer preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:manufacturer:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant product list */
+        get: operations["Device:tenant:product:list"];
+        put?: never;
+        /**
+         * tenant product create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant product detail */
+        get: operations["Device:tenant:product:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * tenant product draft-save
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        put: operations["Device:tenant:product:draft-save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product draft-create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:draft-create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/draft/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product draft-delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:draft-delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product validate
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product publish
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant product version */
+        get: operations["Device:tenant:product:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product state
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant product copy
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:product:copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant catalog changes */
+        get: operations["Device:tenant:catalog:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/manufacturers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant catalog-manufacturer list */
+        get: operations["Device:tenant:catalog-manufacturer:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant catalog-product list */
+        get: operations["Device:tenant:catalog-product:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/products/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant catalog-product versions */
+        get: operations["Device:tenant:catalog-product:versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/products/{id}/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant catalog-product version */
+        get: operations["Device:tenant:catalog-product:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant device list */
+        get: operations["Device:tenant:device:list"];
+        put?: never;
+        /**
+         * tenant device create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:device:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant device detail */
+        get: operations["Device:tenant:device:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * tenant device update
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        patch: operations["Device:tenant:device:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant device state
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:device:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant device delete
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:device:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant device preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:device:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/outputs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant output slots */
+        get: operations["Device:tenant:output:slots"];
+        put?: never;
+        /**
+         * tenant output create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:output:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/output-generations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant output generations */
+        get: operations["Device:tenant:output:generations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/outputs/{output_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant output detail */
+        get: operations["Device:tenant:output:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * tenant output update
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        patch: operations["Device:tenant:output:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/outputs/{output_id}/replace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant output replace
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:output:replace"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/outputs/{output_id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant output end
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:output:end"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/installations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant installation list */
+        get: operations["Device:tenant:installation:list"];
+        put?: never;
+        /**
+         * tenant installation create
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:installation:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/installations/{installation_id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant installation end
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:installation:end"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/installations/{installation_id}/relocate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant installation relocate
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:installation:relocate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/installations/{installation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * tenant installation correct
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        patch: operations["Device:tenant:installation:correct"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/installation-targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant installation targets */
+        get: operations["Device:tenant:installation:targets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant device changes */
+        get: operations["Device:tenant:device:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/product-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant device product-candidates */
+        get: operations["Device:tenant:device:product-candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant tree list */
+        get: operations["Device:tenant:tree:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project tree list */
+        get: operations["Device:project:tree:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project device list */
+        get: operations["Device:project:device:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices/{device_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project device detail */
+        get: operations["Device:project:device:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices/{device_id}/installations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project installation list */
+        get: operations["Device:project:installation:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices/{device_id}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project device changes */
+        get: operations["Device:project:device:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-outputs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project output list */
+        get: operations["Device:project:output:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-outputs/{output_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project output detail */
+        get: operations["Device:project:output:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-outputs/{output_id}/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project output changes */
+        get: operations["Device:project:output:changes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant source detail */
+        get: operations["Device:tenant:source:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant source history */
+        get: operations["Device:tenant:source:history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant source candidates */
+        get: operations["Device:tenant:source:candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant source preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:source:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/bind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant source bind
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:source:bind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/switch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant source switch
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:source:switch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant source unbind
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:source:unbind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-outputs/{output_id}/channel-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant output channel-candidates */
+        get: operations["Device:tenant:output:channel-candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-outputs/{output_id}/source-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant output source-history */
+        get: operations["Device:tenant:output:source-history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project source detail */
+        get: operations["Device:project:source:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project source history */
+        get: operations["Device:project:source:history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project source candidates */
+        get: operations["Device:project:source:candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * project source preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:project:source:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/bind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * project source bind
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:project:source:bind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/switch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * project source switch
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:project:source:switch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/points/{point_id}/channels/{channel_id}/source/unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * project source unbind
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:project:source:unbind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-outputs/{output_id}/channel-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project output channel-candidates */
+        get: operations["Device:project:output:channel-candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-outputs/{output_id}/source-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project output source-history */
+        get: operations["Device:project:output:source-history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant access detail */
+        get: operations["Device:tenant:access:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-access/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant access candidates */
+        get: operations["Device:tenant:access:candidates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-access/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant access history */
+        get: operations["Device:tenant:access:history"];
+        put?: never;
+        /**
+         * tenant access change
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:access:change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-access/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * tenant access preview
+         * @description 单个 JSON 对象，最多 256 KiB；拒绝未知、不适用字段及重复键。浏览器写入须满足 Origin 与 CSRF。
+         */
+        post: operations["Device:tenant:access:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** platform request detail */
+        get: operations["Device:platform:request:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** tenant request detail */
+        get: operations["Device:tenant:request:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/device-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** project request detail */
+        get: operations["Device:project:request:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4502,7 +6237,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read";
+        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage";
         Permission: {
             name: string;
             group: string;
@@ -4677,6 +6412,7 @@ export interface components {
             };
             authorization_revision: string;
             authorization: components["schemas"]["TenantAuthorization"];
+            can_enter: boolean;
         };
         MyTenant: {
             /** Format: uuid */
@@ -5257,6 +6993,7 @@ export interface components {
             can_enter: boolean;
             resource_access_revision: string;
             can_create_facility: boolean;
+            device_access_revision: string;
         };
         ProjectMember: {
             id: string;
@@ -6881,7 +8618,7 @@ export interface components {
             channel_id?: string;
             name: string;
             code: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
             /** @enum {string} */
             source: "tenant_grant" | "project_create";
             revision: string;
@@ -6905,13 +8642,13 @@ export interface components {
             point_id?: string;
             /** Format: uuid */
             channel_id?: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
         };
         ProjectResourceGrantUpdate: {
             /** Format: uuid */
             grant_id: string;
             expected_revision: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
         };
         ProjectResourceGrantEnd: {
             /** Format: uuid */
@@ -7016,6 +8753,1434 @@ export interface components {
                 status: "active" | "archived";
             }[];
         };
+        WorkspaceEntry: {
+            /** @enum {string} */
+            kind: "platform" | "tenant" | "project";
+            id: string;
+            name: string;
+            code: string;
+            tenant_id?: string;
+            tenant_name?: string;
+            /** @enum {string} */
+            status: "active" | "archived";
+            default_path: string;
+            roles: string[];
+        };
+        WorkspaceSummary: {
+            /** @enum {string} */
+            mode: "none" | "single" | "multiple";
+            single?: components["schemas"]["WorkspaceEntry"];
+            platform?: components["schemas"]["WorkspaceEntry"];
+            tenant_count: number;
+            project_count: number;
+        };
+        Workspaces: {
+            items: components["schemas"]["WorkspaceEntry"][];
+            summary: components["schemas"]["WorkspaceSummary"];
+            authorization_revision: string;
+            next_cursor?: string;
+        };
+        Device: {
+            actions: components["schemas"]["DeviceActions"];
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            current_installation: components["schemas"]["DeviceInstallation"] | null;
+            deleted_at: string | null;
+            description: string;
+            /** Format: uuid */
+            id: string;
+            installation_revision: string;
+            name: string;
+            output_revision: string;
+            product: components["schemas"]["DeviceProductSummary"];
+            /** Format: uuid */
+            product_id: string;
+            /** Format: uuid */
+            product_version_id: string;
+            revision: string;
+            serial_number: string;
+            /** @enum {string} */
+            status: "enabled" | "disabled";
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: date-time */
+            updated_at: string;
+            visibility: string;
+        };
+        DeviceActions: {
+            configure: boolean;
+            delete: boolean;
+            edit: boolean;
+            history: boolean;
+            install: boolean;
+            reason: string;
+            state: boolean;
+            use_source: boolean;
+        };
+        DeviceCatalogActions: {
+            copy: boolean;
+            delete: boolean;
+            draft: boolean;
+            edit: boolean;
+            publish: boolean;
+            state: boolean;
+        };
+        DeviceCatalogChange: {
+            actor_name: string;
+            after: unknown;
+            before: unknown;
+            /** Format: date-time */
+            changed_at: string;
+            /** Format: uuid */
+            id: string;
+            manufacturer_id: string | null;
+            operation: string;
+            product_id: string | null;
+            reason: string;
+            version_id: string | null;
+        };
+        DeviceCatalogChanges: {
+            items: components["schemas"]["DeviceCatalogChange"][];
+            next_cursor: string;
+        };
+        DeviceChannelCandidate: {
+            available: boolean;
+            /** Format: uuid */
+            channel_id: string;
+            code: string;
+            compatible: boolean;
+            configured: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            facility_id: string;
+            issues: components["schemas"]["DeviceFieldIssue"][];
+            name: string;
+            /** Format: uuid */
+            point_id: string;
+            revision: string;
+            semantics: components["schemas"]["DeviceSemantics"];
+        };
+        DeviceChannelCandidatePage: {
+            items: components["schemas"]["DeviceChannelCandidate"][];
+            next_cursor: string;
+        };
+        DeviceContext: {
+            code: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            product_model: string;
+            product_name: string;
+        };
+        DeviceCreate: {
+            code: string;
+            description?: string;
+            name: string;
+            preview_hash?: string;
+            /** Format: uuid */
+            product_version_id: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            serial_number?: string;
+            /** @enum {string} */
+            status?: "enabled" | "disabled";
+        };
+        DeviceError: {
+            code: string;
+            issues: components["schemas"]["DeviceFieldIssue"][];
+            message: string;
+        };
+        DeviceFieldIssue: {
+            code: string;
+            message: string;
+            path: string;
+        };
+        DeviceGrant: {
+            can_use_source: boolean;
+            device_code: string;
+            /** Format: uuid */
+            device_id: string;
+            device_name: string;
+            ended_at: string | null;
+            /** Format: date-time */
+            granted_at: string;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            name: string;
+            output_id: string | null;
+            revision: string;
+        };
+        DeviceGrantCandidate: {
+            /** Format: date-time */
+            created_at: string;
+            device_code: string;
+            /** Format: uuid */
+            device_id: string;
+            device_name: string;
+            ended: boolean;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            name: string;
+        };
+        DeviceGrantCandidatePage: {
+            items: components["schemas"]["DeviceGrantCandidate"][];
+            next_cursor: string;
+        };
+        DeviceGrantChangeSet: {
+            add: {
+                kind: string;
+                /** Format: uuid */
+                target_id: string;
+                use_source: boolean;
+            }[];
+            end: {
+                expected_revision: string;
+                /** Format: uuid */
+                grant_id: string;
+            }[];
+            expected_device_access_revision: string;
+            expected_project_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            update: {
+                expected_revision: string;
+                /** Format: uuid */
+                grant_id: string;
+                use_source: boolean;
+            }[];
+        };
+        DeviceGrantChanges: {
+            items: components["schemas"]["DeviceGrantHistory"][];
+            next_cursor: string;
+        };
+        DeviceGrantHistory: {
+            access_revision: string;
+            actor_name: string;
+            after: components["schemas"]["DeviceGrant"][];
+            before: components["schemas"]["DeviceGrant"][];
+            /** Format: date-time */
+            changed_at: string;
+            /** Format: uuid */
+            id: string;
+            reason: string;
+        };
+        DeviceGrantPage: {
+            device_access_revision: string;
+            items: components["schemas"]["DeviceGrant"][];
+            next_cursor: string;
+            /** Format: uuid */
+            project_id: string;
+            project_name: string;
+            project_revision: string;
+            project_status: string;
+        };
+        DeviceInstallation: {
+            component_id?: string | null;
+            /** Format: uuid */
+            device_id: string;
+            facility_id?: string | null;
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            installed_at: string;
+            location_description?: string;
+            point_id?: string | null;
+            position?: components["schemas"]["ResourcePosition"] | null;
+            /** Format: date-time */
+            recorded_at: string;
+            revision: string;
+            target_kind: string;
+            target_name?: string;
+            target_status?: string;
+            uninstalled_at: string | null;
+            /** Format: date-time */
+            updated_at: string;
+            visibility: string;
+        };
+        DeviceInstallationCandidate: {
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            facility_id: string;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            name: string;
+            /** @enum {string} */
+            status: "normal" | "retired";
+        };
+        DeviceInstallationCandidatePage: {
+            items: components["schemas"]["DeviceInstallationCandidate"][];
+            next_cursor: string;
+        };
+        DeviceInstallationCorrect: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            installed_at: string;
+            location_description?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+            uninstalled_at: string | null;
+        };
+        DeviceInstallationCreate: {
+            expected_installation_revision: string;
+            installed_at?: string;
+            location_description?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+            uninstalled_at?: string;
+        };
+        DeviceInstallationEnd: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            uninstalled_at?: string;
+        };
+        DeviceInstallationPage: {
+            items: components["schemas"]["DeviceInstallation"][];
+            next_cursor: string;
+        };
+        DeviceInstallationRelocate: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            location_description?: string;
+            moved_at?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+        };
+        DeviceInstallationTarget: components["schemas"]["DeviceInstallationResourceTarget"] | components["schemas"]["DeviceInstallationLocationTarget"];
+        DeviceManufacturer: {
+            actions: components["schemas"]["DeviceCatalogActions"];
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            deleted_at: string | null;
+            description: string;
+            /** Format: uuid */
+            id: string;
+            name: string;
+            owner_tenant_id: string | null;
+            revision: string;
+            /** @enum {string} */
+            status: "active" | "archived";
+            /** Format: date-time */
+            updated_at: string;
+        };
+        DeviceManufacturerCreate: {
+            code: string;
+            description?: string;
+            name: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceManufacturerPage: {
+            items: components["schemas"]["DeviceManufacturer"][];
+            next_cursor: string;
+        };
+        DeviceManufacturerState: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            target_status: "active" | "archived";
+        };
+        DeviceManufacturerUpdate: {
+            description?: string;
+            expected_revision: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceMutationPreview: {
+            blockers: components["schemas"]["DeviceFieldIssue"][];
+            can_submit: boolean;
+            changes: {
+                [key: string]: unknown;
+            };
+            next_cursor: string;
+            preview_hash: string;
+            required: boolean;
+            shared: boolean;
+            visible_impacts: {
+                [key: string]: unknown;
+            }[];
+        };
+        DeviceOutput: {
+            actions: components["schemas"]["DeviceActions"];
+            aggregation_description: string;
+            description: string;
+            device: components["schemas"]["DeviceContext"];
+            /** Format: uuid */
+            device_id: string;
+            device_revision: string;
+            device_status: string;
+            ended_at: string | null;
+            generation: number;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            metric_version_id: string;
+            name: string;
+            observation_direction: string;
+            occupied: boolean;
+            /** Format: uuid */
+            product_version_id: string;
+            reference_basis: string;
+            revision: string;
+            semantic_hash: string;
+            slot_key: string;
+            /** Format: date-time */
+            started_at: string;
+            template: components["schemas"]["DeviceProductSlot"];
+            /** Format: uuid */
+            tenant_id: string;
+            /** @enum {string} */
+            timestamp_meaning: "observation_time" | "interval_end";
+            unit_version_id: string | null;
+            /** @enum {string} */
+            value_shape: "integer" | "decimal" | "enum";
+            visibility: string;
+            definitions: components["schemas"]["EngineeringVersion"][];
+        };
+        DeviceOutputConfigure: {
+            aggregation_description?: string;
+            description?: string;
+            expected_output_revision: string;
+            /** Format: uuid */
+            metric_version_id?: string;
+            name: string;
+            observation_direction?: string;
+            preview_hash?: string;
+            reason?: string;
+            reference_basis?: string;
+            /** Format: uuid */
+            request_id: string;
+            slot_key: string;
+            /** @enum {string} */
+            timestamp_meaning?: "observation_time" | "interval_end";
+            unit_version_id?: string | null;
+        };
+        DeviceOutputEnd: {
+            expected_output_revision: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceOutputPage: {
+            items: components["schemas"]["DeviceOutput"][];
+            next_cursor: string;
+        };
+        DeviceOutputReplace: {
+            aggregation_description?: string;
+            description?: string;
+            expected_output_revision: string;
+            expected_revision: string;
+            /** Format: uuid */
+            metric_version_id?: string;
+            name: string;
+            observation_direction?: string;
+            preview_hash?: string;
+            reason?: string;
+            reference_basis?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            timestamp_meaning?: "observation_time" | "interval_end";
+            unit_version_id?: string | null;
+        };
+        DeviceOutputSlot: {
+            current: components["schemas"]["DeviceOutput"] | null;
+            template: components["schemas"]["DeviceProductSlot"];
+            definitions: components["schemas"]["EngineeringVersion"][];
+        };
+        DeviceOutputSlotPage: {
+            items: components["schemas"]["DeviceOutputSlot"][];
+            next_cursor: string;
+        };
+        DeviceOutputSource: {
+            channel_snapshot?: unknown;
+            /** @constant */
+            configured: true;
+            ended_at?: string | null;
+            /** Format: uuid */
+            id: string;
+            output: components["schemas"]["DeviceOutput"] | null;
+            output_snapshot?: unknown;
+            reason?: string;
+            revision: string;
+            started_at: string | null;
+            /** @enum {string} */
+            visibility: "full";
+            /** Format: uuid */
+            facility_id: string;
+            /** Format: uuid */
+            point_id: string;
+            /** Format: uuid */
+            channel_id: string;
+            channel_name: string;
+            channel_code: string;
+        };
+        DeviceOutputSourcePage: {
+            items: components["schemas"]["DeviceOutputSource"][];
+            next_cursor: string;
+        };
+        DeviceOutputUpdate: {
+            description?: string;
+            expected_revision: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DevicePage: {
+            items: components["schemas"]["Device"][];
+            next_cursor: string;
+        };
+        DeviceProductContent: {
+            description: string;
+            model: string;
+            name: string;
+            output_slots: components["schemas"]["DeviceProductSlot"][];
+            purpose: string;
+            release_notes: string;
+            /** @constant */
+            schema_version: 1;
+        };
+        DeviceProductCopy: {
+            code: string;
+            /** Format: uuid */
+            manufacturer_id: string;
+            model?: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** Format: uuid */
+            source_version_id: string;
+        };
+        DeviceProductCreate: {
+            code: string;
+            description?: string;
+            /** Format: uuid */
+            manufacturer_id: string;
+            model: string;
+            name: string;
+            output_slots?: components["schemas"]["DeviceProductSlot"][];
+            preview_hash?: string;
+            purpose?: string;
+            reason?: string;
+            release_notes?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProductDraft: {
+            base_version_id: string | null;
+            content: components["schemas"]["DeviceProductContent"];
+            copied_from_version_id: string | null;
+            revision: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        DeviceProductDraftCreate: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** Format: uuid */
+            version_id: string;
+        };
+        DeviceProductDraftRevision: {
+            expected_draft_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProductDraftSave: {
+            content: components["schemas"]["DeviceProductContent"];
+            expected_draft_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProductIdentity: {
+            actions: components["schemas"]["DeviceCatalogActions"];
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            deleted_at: string | null;
+            draft?: components["schemas"]["DeviceProductDraft"] | null;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            manufacturer_id: string;
+            manufacturer_name: string;
+            model: string;
+            name: string;
+            next_cursor: string;
+            owner_tenant_id: string | null;
+            revision: string;
+            versions: components["schemas"]["DeviceProductVersion"][];
+            has_draft: boolean;
+            latest_version_number: number | null;
+            latest_version_enabled: boolean | null;
+        };
+        DeviceProductPage: {
+            items: components["schemas"]["DeviceProductIdentity"][];
+            next_cursor: string;
+        };
+        DeviceProductSlot: components["schemas"]["DeviceFixedSlot"] | components["schemas"]["DeviceConfigurableSlot"];
+        DeviceProductSummary: {
+            code: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            manufacturer_id: string;
+            manufacturer_name: string;
+            model: string;
+            name: string;
+            number: number;
+            /** @enum {string} */
+            source: "public" | "private";
+            /** Format: uuid */
+            version_id: string;
+        };
+        DeviceProductValidation: {
+            issues: components["schemas"]["DeviceFieldIssue"][];
+            valid: boolean;
+        };
+        DeviceProductVersion: {
+            content: components["schemas"]["DeviceProductContent"];
+            content_hash: string;
+            definitions: components["schemas"]["EngineeringVersion"][];
+            enabled: boolean;
+            /** Format: uuid */
+            id: string;
+            issues: components["schemas"]["DeviceFieldIssue"][];
+            number: number;
+            /** Format: uuid */
+            product_id: string;
+            /** Format: date-time */
+            published_at: string;
+            revision: string;
+            usable: boolean;
+            /** Format: uuid */
+            manufacturer_id: string;
+            manufacturer_name: string;
+        };
+        DeviceProductVersionPage: {
+            items: components["schemas"]["DeviceProductVersion"][];
+            next_cursor: string;
+        };
+        DeviceProductVersionState: {
+            enabled: boolean | null;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceResourceChange: {
+            actor_name?: string;
+            actor_scope: string;
+            after?: unknown;
+            before?: unknown;
+            binding_id: string | null;
+            /** Format: date-time */
+            changed_at: string;
+            changed_fields: string[];
+            /** Format: uuid */
+            device_id: string;
+            /** Format: uuid */
+            id: string;
+            installation_id: string | null;
+            operation: string;
+            output_id: string | null;
+            reason?: string;
+            visibility: string;
+        };
+        DeviceResourceChanges: {
+            items: components["schemas"]["DeviceResourceChange"][];
+            next_cursor: string;
+        };
+        DeviceRevisionInput: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceSemantics: {
+            aggregation_description: string;
+            /** Format: uuid */
+            metric_version_id: string;
+            observation_direction: string;
+            reference_basis: string;
+            /** @enum {string} */
+            timestamp_meaning: "observation_time" | "interval_end";
+            unit_version_id: string | null;
+            /** @enum {string} */
+            value_shape: "integer" | "decimal" | "enum";
+        };
+        DeviceSourceActions: {
+            bind: boolean;
+            switch: boolean;
+            unbind: boolean;
+        };
+        DeviceSourceBind: {
+            expected_channel_revision: string;
+            expected_device_access_revision?: string;
+            expected_link_revision?: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_resource_access_revision?: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceSourceBinding: components["schemas"]["DeviceSourceVisibleBinding"] | components["schemas"]["DeviceSourceRestrictedBinding"] | components["schemas"]["DeviceSourceEmptyBinding"];
+        DeviceSourceCandidate: {
+            available: boolean;
+            compatible: boolean;
+            issues: components["schemas"]["DeviceFieldIssue"][];
+            output: components["schemas"]["DeviceOutput"];
+        };
+        DeviceSourceCandidatePage: {
+            items: components["schemas"]["DeviceSourceCandidate"][];
+            next_cursor: string;
+        };
+        DeviceSourceCurrent: {
+            actions: components["schemas"]["DeviceSourceActions"];
+            channel_revision: string;
+            device_access_revision?: string;
+            link_revision?: string;
+            resource_access_revision?: string;
+            semantics: components["schemas"]["DeviceSemantics"];
+            source: components["schemas"]["DeviceSourceBinding"];
+            source_revision: string;
+            target_retired: boolean;
+        };
+        DeviceSourceHistory: {
+            items: components["schemas"]["DeviceSourceBinding"][];
+            next_cursor: string;
+        };
+        DeviceSourceSwitch: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision?: string;
+            expected_link_revision?: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision?: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceSourceUnbind: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision?: string;
+            expected_link_revision?: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision?: string;
+            expected_source_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceState: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            status: "enabled" | "disabled";
+        };
+        DeviceTreeNode: {
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            has_visible_children: boolean;
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            model: string;
+            name: string;
+            parent_id: string | null;
+            /** @enum {string} */
+            source: "public" | "private";
+            visibility: string;
+        };
+        DeviceTreePage: {
+            items: components["schemas"]["DeviceTreeNode"][];
+            next_cursor: string;
+        };
+        DeviceUpdate: {
+            description?: string;
+            expected_revision: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            serial_number?: string;
+        };
+        DeviceWriteResult: {
+            /** Format: uuid */
+            binding_id?: string;
+            changed: boolean;
+            device_access_revision?: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            installation_id?: string;
+            installation_revision?: string;
+            number?: number;
+            /** Format: uuid */
+            output_id?: string;
+            output_revision?: string;
+            replayed: boolean;
+            revision: string;
+            source_revision?: string;
+            /** Format: uuid */
+            version_id?: string;
+            issues?: components["schemas"]["DeviceFieldIssue"][];
+        };
+        DeviceFixedSlot: {
+            key: string;
+            name: string;
+            description?: string;
+            order?: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mode: "fixed";
+            /** Format: uuid */
+            metric_version_id: string;
+            unit_version_id?: string | null;
+            /** @enum {string} */
+            timestamp_meaning: "observation_time" | "interval_end";
+            aggregation_description?: string;
+        };
+        DeviceConfigurableSlot: {
+            key: string;
+            name: string;
+            description?: string;
+            order?: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mode: "configurable";
+            allowed_shapes: ("integer" | "decimal" | "enum")[];
+        };
+        DeviceInstallationResourceTarget: {
+            /** @enum {string} */
+            kind: "facility" | "component" | "point";
+            /** Format: uuid */
+            id: string;
+        };
+        DeviceInstallationLocationTarget: {
+            /** @enum {string} */
+            kind: "location";
+        };
+        DeviceTenantSourceBind: {
+            expected_channel_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProjectSourceBind: {
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceTenantSourceBindPreview: {
+            expected_channel_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "bind";
+        };
+        DeviceProjectSourceBindPreview: {
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "bind";
+        };
+        DeviceTenantSourceSwitch: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProjectSourceSwitch: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceTenantSourceSwitchPreview: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "switch";
+        };
+        DeviceProjectSourceSwitchPreview: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_new_device_revision: string;
+            expected_new_output_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            /** Format: uuid */
+            output_id: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "switch";
+        };
+        DeviceTenantSourceUnbind: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_source_revision: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceProjectSourceUnbind: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        DeviceTenantSourceUnbindPreview: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_source_revision: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "unbind";
+        };
+        DeviceProjectSourceUnbindPreview: {
+            /** Format: uuid */
+            expected_binding_id: string;
+            expected_binding_revision: string;
+            expected_channel_revision: string;
+            expected_device_access_revision: string;
+            expected_link_revision: string;
+            expected_old_device_revision: string;
+            expected_old_output_revision: string;
+            expected_resource_access_revision: string;
+            expected_source_revision: string;
+            preview_hash?: string;
+            reason: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "unbind";
+        };
+        DeviceTenantSourcePreviewInput: components["schemas"]["DeviceTenantSourceBindPreview"] | components["schemas"]["DeviceTenantSourceSwitchPreview"] | components["schemas"]["DeviceTenantSourceUnbindPreview"];
+        DeviceProjectSourcePreviewInput: components["schemas"]["DeviceProjectSourceBindPreview"] | components["schemas"]["DeviceProjectSourceSwitchPreview"] | components["schemas"]["DeviceProjectSourceUnbindPreview"];
+        DevicePreviewUpdate: {
+            description?: string;
+            expected_revision: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            serial_number?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "update";
+        };
+        DevicePreviewState: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            status: "enabled" | "disabled";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "state";
+        };
+        DevicePreviewDelete: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "delete";
+        };
+        DevicePreviewOutputReplace: {
+            aggregation_description?: string;
+            description?: string;
+            expected_output_revision: string;
+            expected_revision: string;
+            /** Format: uuid */
+            metric_version_id?: string;
+            name: string;
+            observation_direction?: string;
+            preview_hash?: string;
+            reason?: string;
+            reference_basis?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            timestamp_meaning?: "observation_time" | "interval_end";
+            unit_version_id?: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "output_replace";
+            /** Format: uuid */
+            output_id: string;
+        };
+        DevicePreviewOutputEnd: {
+            expected_output_revision: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "output_end";
+            /** Format: uuid */
+            output_id: string;
+        };
+        DevicePreviewInstallationCreate: {
+            expected_installation_revision: string;
+            installed_at?: string;
+            location_description?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+            uninstalled_at?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "installation_create";
+        };
+        DevicePreviewInstallationEnd: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            uninstalled_at?: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "installation_end";
+            /** Format: uuid */
+            installation_id: string;
+        };
+        DevicePreviewInstallationRelocate: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            location_description?: string;
+            moved_at?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "installation_relocate";
+            /** Format: uuid */
+            installation_id: string;
+        };
+        DevicePreviewInstallationCorrect: {
+            expected_installation_revision: string;
+            expected_revision: string;
+            installed_at: string;
+            location_description?: string;
+            position: components["schemas"]["ResourcePosition"] | null;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            target: components["schemas"]["DeviceInstallationTarget"];
+            uninstalled_at: string | null;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "installation_correct";
+            /** Format: uuid */
+            installation_id: string;
+        };
+        DeviceMutationPreviewInput: components["schemas"]["DevicePreviewUpdate"] | components["schemas"]["DevicePreviewState"] | components["schemas"]["DevicePreviewDelete"] | components["schemas"]["DevicePreviewOutputReplace"] | components["schemas"]["DevicePreviewOutputEnd"] | components["schemas"]["DevicePreviewInstallationCreate"] | components["schemas"]["DevicePreviewInstallationEnd"] | components["schemas"]["DevicePreviewInstallationRelocate"] | components["schemas"]["DevicePreviewInstallationCorrect"];
+        DeviceManufacturerUpdatePreview: {
+            description?: string;
+            expected_revision: string;
+            name?: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "update";
+        };
+        DeviceManufacturerStatePreview: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /** @enum {string} */
+            target_status: "active" | "archived";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "state";
+        };
+        DeviceManufacturerDeletePreview: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "delete";
+        };
+        DeviceManufacturerPreviewInput: components["schemas"]["DeviceManufacturerUpdatePreview"] | components["schemas"]["DeviceManufacturerStatePreview"] | components["schemas"]["DeviceManufacturerDeletePreview"];
+        DeviceProductStatePreview: {
+            enabled: boolean | null;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "state";
+            /** Format: uuid */
+            version_id: string;
+        };
+        DeviceProductDeletePreview: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            /** Format: uuid */
+            request_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "delete";
+        };
+        DeviceProductPreviewInput: components["schemas"]["DeviceProductStatePreview"] | components["schemas"]["DeviceProductDeletePreview"];
+        DeviceSourceVisibleBinding: {
+            channel_snapshot?: unknown;
+            /** @constant */
+            configured: true;
+            ended_at?: string | null;
+            /** Format: uuid */
+            id: string;
+            output: components["schemas"]["DeviceOutput"] | null;
+            output_snapshot?: unknown;
+            reason?: string;
+            revision: string;
+            started_at: string | null;
+            /** @enum {string} */
+            visibility: "full";
+        };
+        DeviceSourceRestrictedBinding: {
+            /** @constant */
+            configured: true;
+            /** @enum {string} */
+            visibility: "restricted";
+        };
+        DeviceSourceEmptyBinding: {
+            /** @constant */
+            configured: false;
+            /** @enum {string} */
+            visibility: "full";
+        };
+        /** @description Only a current explicit device grant exposes this complete archive; output grants do not qualify. */
+        DeviceProject: {
+            actions: components["schemas"]["DeviceActions"];
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            current_installation: components["schemas"]["DeviceInstallation"] | null;
+            deleted_at: string | null;
+            description: string;
+            /** Format: uuid */
+            id: string;
+            installation_revision: string;
+            name: string;
+            output_revision: string;
+            product: components["schemas"]["DeviceProductSummary"];
+            /** Format: uuid */
+            product_id: string;
+            /** Format: uuid */
+            product_version_id: string;
+            revision: string;
+            serial_number: string;
+            /** @enum {string} */
+            status: "enabled" | "disabled";
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: date-time */
+            updated_at: string;
+            visibility: string;
+        };
+        /** @description Explicit output grant. Parent context excludes serial numbers, notes, installations and siblings. */
+        DeviceProjectOutput: {
+            actions: components["schemas"]["DeviceActions"];
+            aggregation_description: string;
+            description: string;
+            device: components["schemas"]["DeviceContext"];
+            /** Format: uuid */
+            device_id: string;
+            device_revision: string;
+            device_status: string;
+            ended_at: string | null;
+            generation: number;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            metric_version_id: string;
+            name: string;
+            observation_direction: string;
+            occupied: boolean;
+            /** Format: uuid */
+            product_version_id: string;
+            reference_basis: string;
+            revision: string;
+            semantic_hash: string;
+            slot_key: string;
+            /** Format: date-time */
+            started_at: string;
+            template: components["schemas"]["DeviceProductSlot"];
+            /** Format: uuid */
+            tenant_id: string;
+            /** @enum {string} */
+            timestamp_meaning: "observation_time" | "interval_end";
+            unit_version_id: string | null;
+            /** @enum {string} */
+            value_shape: "integer" | "decimal" | "enum";
+            visibility: string;
+            definitions: components["schemas"]["EngineeringVersion"][];
+        };
+        DeviceProjectPage: {
+            items: components["schemas"]["DeviceProject"][];
+            next_cursor: string;
+        };
+        DeviceProjectOutputPage: {
+            items: components["schemas"]["DeviceProjectOutput"][];
+            next_cursor: string;
+        };
+        DeviceEmptyInput: Record<string, never>;
     };
     responses: never;
     parameters: never;
@@ -30989,6 +34154,10323 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    MyWorkspaces: {
+        parameters: {
+            query?: {
+                kind?: string;
+                q?: string;
+                status?: string;
+                tenant_id?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Workspaces"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Version, preview, lifecycle, grant or idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Transaction failed; no partial business writes */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceManufacturerPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceManufacturer"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerState"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:manufacturer:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductIdentity"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:draft-save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftSave"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:draft-create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:draft-delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftRevision"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceEmptyInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductValidation"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftRevision"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductVersion"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductVersionState"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:product:copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductCopy"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:catalog:changes": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                product_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceCatalogChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceManufacturerPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceManufacturer"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerState"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:manufacturer:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceManufacturerPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductIdentity"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:draft-save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftSave"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:draft-create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:draft-delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftRevision"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceEmptyInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductValidation"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductDraftRevision"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductVersion"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductVersionState"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:product:copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProductCopy"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:catalog:changes": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                product_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceCatalogChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:catalog-manufacturer:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceManufacturerPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:catalog-product:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:catalog-product:versions": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductVersionPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:catalog-product:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductVersion"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                product_id?: string;
+                product_version_id?: string;
+                status?: string;
+                installation?: string;
+                source?: "all" | "public" | "private";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DevicePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Device"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceState"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:slots": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOutputSlotPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceOutputConfigure"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:generations": {
+        parameters: {
+            query: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                slot_key: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOutputPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOutput"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceOutputUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:replace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceOutputReplace"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceOutputEnd"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceInstallationPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceInstallationCreate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                installation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceInstallationEnd"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:relocate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                installation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceInstallationRelocate"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:correct": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+                installation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceInstallationCorrect"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:installation:targets": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceInstallationCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:changes": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: "device" | "output" | "installation" | "source";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceResourceChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:device:product-candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                product_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProductVersionPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:tree:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                level?: string;
+                parent_id?: string;
+                manufacturer_id?: string;
+                product_id?: string;
+                source?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceTreePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:tree:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                level?: string;
+                parent_id?: string;
+                manufacturer_id?: string;
+                product_id?: string;
+                source?: string;
+                status?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceTreePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:device:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                manufacturer_id?: string;
+                product_id?: string;
+                product_version_id?: string;
+                status?: string;
+                installation?: string;
+                source?: "all" | "public" | "private";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProjectPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:device:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProject"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:installation:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceInstallationPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:device:changes": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: "device" | "output" | "installation" | "source";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceResourceChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:output:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                device_id?: string;
+                manufacturer_id?: string;
+                product_id?: string;
+                status?: "enabled" | "disabled";
+                source?: "all" | "public" | "private";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProjectOutputPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:output:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceProjectOutput"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:output:changes": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: "device" | "output" | "installation" | "source";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceResourceChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceCurrent"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:history": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceHistory"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                device_id?: string;
+                metric_version_id?: string;
+                unit_version_id?: string;
+                compatible_only?: boolean;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTenantSourcePreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:bind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTenantSourceBind"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:switch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTenantSourceSwitch"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTenantSourceUnbind"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:channel-candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                compatible_only?: boolean;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceChannelCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:output:source-history": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOutputSourcePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceCurrent"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:history": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceHistory"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                device_id?: string;
+                metric_version_id?: string;
+                unit_version_id?: string;
+                compatible_only?: boolean;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceSourceCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProjectSourcePreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:bind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProjectSourceBind"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:switch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProjectSourceSwitch"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:source:unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                point_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceProjectSourceUnbind"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:output:channel-candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                compatible_only?: boolean;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceChannelCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:output:source-history": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                output_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceOutputSourcePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:access:detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: string;
+                device_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceGrantPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:access:candidates": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+                kind?: string;
+                device_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceGrantCandidatePage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:access:history": {
+        parameters: {
+            query?: {
+                q?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceGrantChanges"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:access:change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceGrantChangeSet"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:access:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceGrantChangeSet"];
+            };
+        };
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:platform:request:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:request:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Device:project:request:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。所有新增修订号为十进制字符串；写入收据为最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceWriteResult"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
                 };
             };
         };

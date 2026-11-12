@@ -1,4 +1,4 @@
-import { MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList } from 'lucide-react';
+import { MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
@@ -7,6 +7,7 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string') return '/';
+ if (new RegExp(`^/platform/device-products(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/(?:device-products(?:/${uuid})?|devices(?:/${uuid})?|projects/${uuid}/device-access|p/${uuid}/(?:devices(?:/${uuid})?|device-outputs/${uuid}))$`).test(value)) return value;
  if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?resources/facilities(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/resource-access(?:/${uuid}(?:/facilities/${uuid})?)?$`).test(value)) return value;
  if (/^\/platform\/engineering\/(type-definitions|metrics|units|monitoring-templates)$/.test(value) || new RegExp(`^/t/${uuid}/engineering/(templates|catalog/(type-definitions|metrics|units|monitoring-templates))$`).test(value)) return value;
  if (workspacePaths.some((path) => path === value) || value === '/tenant-invite') return value;
@@ -17,6 +18,7 @@ export function relativePath(path: string) {
   return base && (path === base || path.startsWith(`${base}/`)) ? path.slice(base.length) || '/' : path;
 }
 export function allowedPath(path: string, can: (permission: PermissionCode) => boolean) {
+  if (path.startsWith('/platform/device-products')) return can(P.DeviceDefinitionRead);
   if (path.startsWith('/platform/engineering/')) { const kind = path.split('/').at(-1); return can(kind === 'type-definitions' ? P.EngineeringTypeRead : kind === 'monitoring-templates' ? P.EngineeringTemplateRead : P.EngineeringMetricRead); }
   if (path.startsWith('/platform/tenants')) return [P.PlatformTenantRead, P.PlatformTenantCreate, P.PlatformTenantUpdate, P.PlatformTenantTransferAdmin].some(can);
   const permissions: Partial<Record<WorkspacePath, PermissionCode[]>> = {
@@ -51,6 +53,7 @@ export function platformNavigation(path: string, can: (permission: PermissionCod
       { title: '单位目录', href: '/platform/engineering/units', icon: Ruler, active: path === '/platform/engineering/units' },
       { title: '公共监测模板', href: '/platform/engineering/monitoring-templates', icon: ClipboardList, active: path === '/platform/engineering/monitoring-templates' },
     ] },
+    { title: '设备管理', items: [{title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
     { title: '账号与权限', items: [
       { title: '账号管理', href: '/access/accounts', icon: Users, active: path === '/access/accounts' },
       { title: '账号开户邀请', href: '/invitations', icon: MailPlus, active: path === '/invitations' },
@@ -72,6 +75,7 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
         { title: projectCan(P.ProjectProfileRead) ? '项目资料' : '本人项目授权', href: `${projectBase}/profile`, icon: FolderKanban, active: path === `${projectBase}/profile` },
       ] },
       { title: '工程资源', items: projectCan(P.ProjectEngineeringResourceRead) ? [{ title: '项目设施', href: `${projectBase}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : [] },
+      { title: '设备管理', items: projectCan(P.ProjectDeviceRead)?[{title:'项目设备',href:`${projectBase}/devices`,icon:Cpu,active:path.includes('/devices')||path.includes('/device-outputs')}]:[] },
       { title: '成员与权限', items: [
         ...(projectCan(P.ProjectMemberRead) ? [{ title: '项目成员', href: `${projectBase}/members`, icon: Users, active: path.startsWith(`${projectBase}/members`) }] : []),
         ...(projectCan(P.ProjectRoleRead) ? [{ title: '项目角色', href: `${projectBase}/roles`, icon: KeyRound, active: path.startsWith(`${projectBase}/roles`) }] : []),
@@ -102,7 +106,11 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
       ...(tenantCan(P.TenantEngineeringResourceRead) ? [{ title: '设施管理', href: `/t/${tenant}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : []),
       ...([P.TenantEngineeringResourceRead,P.TenantProjectRead,P.TenantEngineeringResourceAuthorizationRead].every(tenantCan) ? [{title:'项目资源授权',href:`/t/${tenant}/resource-access`,icon:KeyRound,active:path.includes('/resource-access')}] : []),
     ] });
-    groups.splice(2, 0, { title: '工程配置', items: [
+    groups.splice(2, 0, {title:'设备管理',items:[
+      ...([P.TenantDeviceDefinitionRead,P.TenantDeviceCatalogRead].some(tenantCan)?[{title:'设备产品目录',href:`/t/${tenant}/device-products`,icon:Factory,active:path.includes('/device-products')}]:[]),
+      ...(tenantCan(P.TenantDeviceRead)?[{title:'设备台账',href:`/t/${tenant}/devices`,icon:Cpu,active:path.includes('/devices')}]:[]),
+    ]});
+    groups.splice(3, 0, { title: '工程配置', items: [
       ...(tenantCan(P.TenantEngineeringTemplateRead) ? [{ title: '本租户监测模板', href: `/t/${tenant}/engineering/templates`, icon: ClipboardList, active: path.endsWith('/engineering/templates') }] : []),
     ] });
     return groups.filter((group) => group.items.length > 0);

@@ -1,3 +1,5 @@
+import { deviceMethods } from './devices';
+export type * from './devices';
 import { resourceMethods } from './resources';
 export type * from './resources';
 import { engineeringMethods, type EngineeringIssue } from './engineering';
@@ -30,6 +32,9 @@ export type TenantInvitationInspection = components['schemas']['TenantInvitation
 export type TenantContext = components['schemas']['TenantContext'];
 export type TenantAccount = components['schemas']['TenantAccount'];
 export type TenantAdministratorCandidate = components['schemas']['TenantAdministratorCandidate'];
+export type WorkspaceEntry = Schema<'WorkspaceEntry'>;
+export type WorkspaceSummary = Schema<'WorkspaceSummary'>;
+export type WorkspaceFilter = { kind?: 'all' | 'tenant' | 'project' | 'platform'; q?: string; status?: string; tenant_id?: string; cursor?: string; limit?: number };
 export type MyTenant = components['schemas']['MyTenant'];
 export type TenantAuditEvent = components['schemas']['TenantAuditEvent'];
 export type TenantResult = components['schemas']['TenantMutationResult'];
@@ -68,6 +73,10 @@ function accountMethods(base: string, timeoutMs: number) {
   const projectMemberships = new Map<string, string>();
   const projectListeners = new Set<(tenant: string, project: string, code: string) => void>();
   const invalidateProjectScope = (tenant: string, project: string) => { const key = `${tenant}:${project}`; projectEpochs.set(key, (projectEpochs.get(key) ?? 0) + 1); };
+  const deviceEpochs = new Map<string, number>();
+  const deviceRevisions = new Map<string, string>();
+  const deviceListeners = new Set<(tenant: string, project: string | undefined, code: string) => void>();
+  const invalidateDeviceScope = (tenant?: string, project?: string) => { const key = `${tenant}:${project ?? ''}`; deviceEpochs.set(key, (deviceEpochs.get(key) ?? 0) + 1); };
   const resourceEpochs = new Map<string, number>();
   const resourceRevisions = new Map<string, string>();
   const resourceListeners = new Set<(tenant: string, project: string | undefined, code: string) => void>();
@@ -82,12 +91,14 @@ function accountMethods(base: string, timeoutMs: number) {
   async function request<T>(path: string, method = 'GET', body?: unknown, notifyUnauthorized = true, signal?: AbortSignal): Promise<T> {
     const epoch = identityEpoch;
     const tenant = /^\/tenants\/([^/?]+)/.exec(path)?.[1];
-    const project = path.includes('/resource-access') ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const project = (path.includes('/resource-access') || path.includes('/device-access')) ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
     const resourceRequest = /\/engineering\/(resources|catalog)(?:\/|$)/.test(path);
+    const deviceRequest = /\/(devices|device-(?:tree|catalog|definitions|outputs|requests|access))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
+    const deviceKey = `${tenant}:${project ?? ''}`; const deviceEpoch = deviceEpochs.get(deviceKey) ?? 0;
     const resourceKey = `${tenant}:${project ?? ''}`; const resourceEpoch = resourceEpochs.get(resourceKey) ?? 0;
     const projectKey = `${tenant}:${project}`; const projectEpoch = projectEpochs.get(projectKey) ?? 0;
     const tenantEpoch = tenant ? tenantEpochs.get(tenant) ?? 0 : 0;
-    const current = () => { if (epoch !== identityEpoch || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
+    const current = () => { if (epoch !== identityEpoch || (deviceRequest && deviceEpoch !== (deviceEpochs.get(deviceKey) ?? 0)) || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
     if (method !== 'GET' && !csrfToken) await csrf();
     current();
     let response: Response;
@@ -111,7 +122,9 @@ function accountMethods(base: string, timeoutMs: number) {
     if (!response.ok) {
       const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number> } : {};
       if (notifyUnauthorized && error.code === 'unauthenticated') listeners.forEach((listener) => listener());
-      if (tenant && resourceRequest && ['permission_denied', 'resource_not_found', 'resource_access_changed', 'project_archived'].includes(error.code ?? '')) {
+      if (tenant && deviceRequest && ['permission_denied','device_not_found','source_not_found','definition_not_found','device_access_changed','resource_access_changed','project_archived'].includes(error.code ?? '')) {
+        deviceListeners.forEach(listener => listener(tenant,project,error.code!));
+      } else if (tenant && resourceRequest && ['permission_denied', 'resource_not_found', 'resource_access_changed', 'project_archived'].includes(error.code ?? '')) {
         resourceListeners.forEach((listener) => listener(tenant, project, error.code!));
       } else if (project && tenant && ['project_not_found', 'permission_denied', 'project_archived'].includes(error.code ?? '')) {
         invalidateProjectScope(tenant, project); projectListeners.forEach((listener) => listener(tenant, project, error.code!));
@@ -130,6 +143,15 @@ function accountMethods(base: string, timeoutMs: number) {
       const previousRevision = resourceRevisions.get(resourceKey);
       if (previousRevision && resourceRevision !== previousRevision) invalidateResourceScope(tenant, project);
       resourceRevisions.set(resourceKey, resourceRevision);
+      const deviceRevision = `${resourceRevision}:${(data as import('./projects').ProjectContext).device_access_revision}`;
+      const oldDeviceRevision = deviceRevisions.get(deviceKey);
+      if (oldDeviceRevision && oldDeviceRevision !== deviceRevision) invalidateDeviceScope(tenant,project);
+      deviceRevisions.set(deviceKey,deviceRevision);
+    }
+    if (project && tenant && deviceRequest && data && typeof data === 'object' && 'device_access_revision' in data && 'resource_access_revision' in data) {
+      const observed = `${data.resource_access_revision}:${data.device_access_revision}`;
+      const known = deviceRevisions.get(deviceKey);
+      if (known && observed !== known) deviceListeners.forEach(listener => listener(tenant,project,'device_access_changed'));
     }
     if (project && tenant && resourceRequest && data && typeof data === 'object' && 'access_revision' in data) {
       const observed = String(data.access_revision ?? '');
@@ -160,6 +182,9 @@ function accountMethods(base: string, timeoutMs: number) {
     onResourceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { resourceListeners.add(listener); return () => { resourceListeners.delete(listener); }; },
     ...engineeringMethods(request),
     ...resourceMethods(request),
+    ...deviceMethods(request),
+    invalidateDeviceScope,
+    onDeviceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { deviceListeners.add(listener); return () => { deviceListeners.delete(listener); }; },
     invalidateProjectScope,
     onProjectRestriction(listener: (tenant: string, project: string, code: string) => void) { projectListeners.add(listener); return () => { projectListeners.delete(listener); }; },
     csrf,
@@ -192,6 +217,7 @@ function accountMethods(base: string, timeoutMs: number) {
     inspectTenantInvitation: (token: string, signal?: AbortSignal) => request<TenantInvitationInspection>('/account/tenant-invitations/inspect', 'POST', { token }, true, signal),
     acceptTenantInvitation: (input: Schema<'AcceptTenantInvitationInput'>) => request<Schema<'TenantAcceptanceResult'>>('/account/tenant-invitations/accept', 'POST', input),
     tenants: (filter?: TenantFilter, signal?: AbortSignal) => request<Schema<'Tenants'>>(`/platform/tenants?${query(filter)}`, 'GET', undefined, true, signal),
+    myWorkspaces: (filter?: WorkspaceFilter, signal?: AbortSignal) => request<Schema<'Workspaces'>>(`/me/workspaces?${query(filter)}`, 'GET', undefined, true, signal),
     myTenants: (filter?: TenantFilter, signal?: AbortSignal) => request<Schema<'MyTenants'>>(`/account/tenants?${query(filter)}`, 'GET', undefined, true, signal),
     accountTenants: (id: string, filter?: TenantFilter, signal?: AbortSignal) => request<Schema<'MyTenants'>>(`${idPath('accounts', id)}/tenant-memberships?${query(filter)}`, 'GET', undefined, true, signal),
     tenantCandidates: (filter: TenantFilter, signal?: AbortSignal) => request<Schema<'TenantCandidates'>>(`/platform/tenant-admin-candidates?${query(filter)}`, 'GET', undefined, true, signal),
@@ -242,3 +268,4 @@ function accountMethods(base: string, timeoutMs: number) {
     completeReset: (input: Schema<'ResetPasswordInput'>) => request<void>('/public/password-resets/complete', 'POST', input),
   };
 }
+export { normalizeDeviceText, deviceSemanticDifferences, deviceSemanticLabels } from './device-semantics';

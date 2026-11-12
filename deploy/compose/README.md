@@ -7,4 +7,4 @@
 
 `migrate` 使用独立 CLI 镜像完成迁移，随后 `access-sync` 同步目录和内置角色，成功后才启动 API；`ops` 是按需运行的统一运维入口，不常驻。维护使用 `docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml run --rm ops <命令组> <子命令>`；不再进入 API 容器执行 CLI。
 
-部署、配置、初始化、账号维护及备份步骤见 [账号运行手册](../../docs/operations/account-management.md)。不要用测试环境的明文固定凭据配置正式环境，也不要对正式环境执行 `down --volumes`。
+部署、配置、初始化、账号维护及备份步骤见 [架构设计：运行维护](../../docs/architecture.md#operations)。不要用测试环境的明文固定凭据配置正式环境，也不要对正式环境执行 `down --volumes`。

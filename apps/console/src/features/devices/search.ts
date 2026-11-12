@@ -1,0 +1,3 @@
+import { z } from '../../config/validation';
+export const deviceListSearch=z.object({q:z.string().optional(),manufacturer:z.string().uuid().optional().catch(undefined),product:z.string().uuid().optional().catch(undefined),device:z.string().uuid().optional().catch(undefined),status:z.enum(['enabled','disabled']).optional().catch(undefined),installation:z.enum(['recorded','unrecorded']).optional().catch(undefined),source:z.enum(['all','public','private']).optional().catch(undefined),tab:z.enum(['devices','outputs']).optional().catch(undefined)});
+export const deviceDetailSearch=z.object({tab:z.enum(['details','outputs','installations','changes']).optional().catch(undefined),output:z.string().uuid().optional().catch(undefined)});
