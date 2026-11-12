@@ -188,5 +188,5 @@ type deviceReferences struct{ devices *devices.Service }
 
 func (r deviceReferences) ResourceImpactTx(ctx context.Context, tx pgx.Tx, scope resources.Scope, target resources.Target) (resources.ExternalImpact, error) {
 	v, e := r.devices.ResourceImpactTx(ctx, tx, scope.Tenant, string(target.Kind), target.ID)
-	return resources.ExternalImpact{Hash: v.Hash, Referenced: v.Referenced, CurrentInstallation: v.CurrentInstallation, CurrentSource: v.CurrentSource}, e
+	return resources.ExternalImpact{Hash: v.Hash, Referenced: v.Referenced, DeviceReferenced: v.Referenced, CurrentInstallation: v.CurrentInstallation, CurrentSource: v.CurrentSource}, e
 }

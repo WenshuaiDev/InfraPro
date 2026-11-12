@@ -1,8 +1,14 @@
 # 监测数据基础闭环详细开发方案（V1.0）
 
-日期：2026-11-12。文档状态：**Awaiting acceptance（方案已整理并完成文档自检，待用户审阅）**。功能状态：**In progress（尚未开始实现）**。本轮交付的是开发方案；没有执行代码开发、数据库迁移、集群部署或规模压测。
+日期：2026-11-12。方案状态：**Accepted（用户已确认并授权实施）**。功能状态：**Awaiting acceptance（本机功能自验通过，待用户验收）**。功能验收与方案确认分别记录；目标规模等后续验证项见下方范围调整。
 
-需求基线见[总体方案](monitoring-data-foundation-plan.md)。本文保留已确认业务规则、完整开发约定和实施前置验证条件；尚未开始功能实现。
+需求基线见[总体方案](monitoring-data-foundation-plan.md)。本文保留已确认业务规则、完整开发约定和实施前置验证条件。实施结果见[验证记录](../verification/monitoring-data.md)。
+
+### 2026-11-12 实施范围调整（用户确认）
+
+用户确认没有真实样本与部署目标，要求由 Codex 生成样本、优先在本机完成功能需求。因此本轮以明确标注的合成 CSV／XLSX、可手算数据与精度／故障边界完成 S-01，并继续 S-02–S-07 与本机 S-09。目标环境、真实业务分布、P-1–P-3 规模、两小时目标混合负载与 24 小时稳定性验证移到具备部署条件后的专项验证，不作为本轮本机功能验收的前置条件，也不记作通过。原始保真、整批可见、重复核对、授权与故障语义保持不变。
+
+本机参考环境：Docker Linux ARM64，14 vCPU、约 7.75 GiB 可用内存上限；ClickHouse 26.8.36.3 双副本、单 Keeper、SeaweedFS 4.53 单节点候选、PostgreSQL 17.11。镜像 digest 与依赖锁见 `deploy/monitoring-contract/versions.json`。同主机副本不构成独立故障域，候选对象存储不代表已确定生产部署产品。
 
 ## 1. 执行依据与交付目标
 
@@ -723,7 +729,7 @@ S3 兼容性至少验证 multipart 完成／中断、精确 Range GET、上传�
 
 用 trace_id 贯穿 API、job、publication、CH query；审计记录谁在什么 scope 对什么范围做了什么和理由，不记录凭据或整个原始文件内容。
 
-拟新增 `infrapro monitoring` 下的 `storage check`、`verify`、`summaries rebuild`、`routes plan/move/status`、`backup`、`restore`、`jobs inspect/retry` 子命令。这些是待实现接口，不是当前已可运行命令。变更命令先显示固定范围／影响并校验版本；读取检查不能暗中修复或删除数据。
+已实现统一 `infrapro monitoring` 下的 `storage init/check/status`、`verify`、`summaries rebuild`、`routes plan/move/status/pause/continue/rollback`、`backup`、`restore/open`、`jobs inspect/retry`。实际参数与本机启动方法见[操作手册](../operations/monitoring-data.md)。变更命令先显示固定范围／影响并校验版本；读取检查不能暗中修复或删除数据。
 
 ## 21. 迁移、配置与兼容发布
 
@@ -753,7 +759,7 @@ S3 兼容性至少验证 multipart 完成／中断、精确 Range GET、上传�
 
 S-03 即形成可验证的小闭环，后续扩展不得改变已经锁定的原始保真和整批规则。每阶段在同一当前分支／checkout 工作，保留其他任务修改；不因“隔离开发”自行创建分支或 worktree。
 
-后两个文件在实施时创建，本次不以空模板声称已交付功能。
+实际执行结果见[自验记录](../verification/monitoring-data.md)，运行与维护见[操作手册](../operations/monitoring-data.md)，本机样本及 MA-01–16 见[人工验收清单](../operations/monitoring-data-acceptance.md)。
 
 ## 23. 容量与性能验证方案
 
@@ -877,4 +883,4 @@ S-03 即形成可验证的小闭环，后续扩展不得改变已经锁定的原
 
 本轮方案完整性检查关注：MD-01–MD-10 均有实施阶段和自验／人工验收；C-01–C-07 未被弱化；原始数据永久保留、在线历史、整批可见、精确去重与统计、项目权限和故障行为没有相互矛盾。检查结果独立记录，不等同功能测试通过。
 
-实施全部范围通过自验后，交付可运行入口、配置与启动方法、实际结果、未验证项／已知限制、恢复和扩容手册、人工验收数据。用户确认功能后才进入 Accepted。没有把本文件的拟验收指标写成已经达到，也没有因为完成设计而执行实现、部署或迁移。
+实施全部范围通过自验后，交付可运行入口、配置与启动方法、实际结果、未验证项／已知限制、恢复和扩容手册、人工验收数据。用户确认功能后才进入 Accepted。本机实施和隔离验证按用户授权执行；目标规模指标没有记为已经达到，人工验收与生产部署均须分别记录。

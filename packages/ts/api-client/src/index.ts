@@ -1,3 +1,5 @@
+import { monitoringMethods, type MonitoringRequestOptions } from './monitoring';
+export type * from './monitoring';
 import { deviceMethods } from './devices';
 export type * from './devices';
 import { resourceMethods } from './resources';
@@ -73,6 +75,10 @@ function accountMethods(base: string, timeoutMs: number) {
   const projectMemberships = new Map<string, string>();
   const projectListeners = new Set<(tenant: string, project: string, code: string) => void>();
   const invalidateProjectScope = (tenant: string, project: string) => { const key = `${tenant}:${project}`; projectEpochs.set(key, (projectEpochs.get(key) ?? 0) + 1); };
+  const monitoringEpochs = new Map<string,number>();
+  const monitoringRevisions = new Map<string,string>();
+  const monitoringListeners = new Set<(tenant:string,project:string|undefined,code:string,revision?:string)=>void>();
+  const invalidateMonitoringScope=(tenant:string,project?:string)=>{const key=`${tenant}:${project??''}`;monitoringEpochs.set(key,(monitoringEpochs.get(key)??0)+1);};
   const deviceEpochs = new Map<string, number>();
   const deviceRevisions = new Map<string, string>();
   const deviceListeners = new Set<(tenant: string, project: string | undefined, code: string) => void>();
@@ -88,25 +94,27 @@ function accountMethods(base: string, timeoutMs: number) {
   let csrfPending: Promise<void> | undefined;
   const listeners = new Set<() => void>();
   const authorizationListeners = new Set<(revision?: string) => void>();
-  async function request<T>(path: string, method = 'GET', body?: unknown, notifyUnauthorized = true, signal?: AbortSignal): Promise<T> {
+  async function request<T>(path: string, method = 'GET', body?: unknown, notifyUnauthorized = true, signal?: AbortSignal, options:MonitoringRequestOptions={}): Promise<T> {
     const epoch = identityEpoch;
     const tenant = /^\/tenants\/([^/?]+)/.exec(path)?.[1];
     const project = (path.includes('/resource-access') || path.includes('/device-access')) ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const monitoringRequest = /\/monitoring(?:\/|[?]|$)/.test(path);
+    const monitoringKey=`${tenant}:${project??''}`;const monitoringEpoch=monitoringEpochs.get(monitoringKey)??0;
     const resourceRequest = /\/engineering\/(resources|catalog)(?:\/|$)/.test(path);
     const deviceRequest = /\/(devices|device-(?:tree|catalog|definitions|outputs|requests|access))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
     const deviceKey = `${tenant}:${project ?? ''}`; const deviceEpoch = deviceEpochs.get(deviceKey) ?? 0;
     const resourceKey = `${tenant}:${project ?? ''}`; const resourceEpoch = resourceEpochs.get(resourceKey) ?? 0;
     const projectKey = `${tenant}:${project}`; const projectEpoch = projectEpochs.get(projectKey) ?? 0;
     const tenantEpoch = tenant ? tenantEpochs.get(tenant) ?? 0 : 0;
-    const current = () => { if (epoch !== identityEpoch || (deviceRequest && deviceEpoch !== (deviceEpochs.get(deviceKey) ?? 0)) || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
+    const current = () => { if (epoch !== identityEpoch || (monitoringRequest && monitoringEpoch !== (monitoringEpochs.get(monitoringKey)??0)) || (deviceRequest && deviceEpoch !== (deviceEpochs.get(deviceKey) ?? 0)) || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
     if (method !== 'GET' && !csrfToken) await csrf();
     current();
     let response: Response;
     try {
       response = await fetch(`${base}${path}`, {
-        method, credentials: 'same-origin', cache: 'no-store', signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs),
-        headers: { Accept: 'application/json', ...(method === 'GET' ? {} : { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }) },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        method, credentials: 'same-origin', cache: 'no-store', signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(options.timeoutMs??timeoutMs)]) : AbortSignal.timeout(options.timeoutMs??timeoutMs),
+        headers: { Accept: 'application/json', ...options.headers, ...(method === 'GET' ? {} : { 'Content-Type': options.binary?'application/octet-stream':'application/json', 'X-CSRF-Token': csrfToken }) },
+        ...(options.binary ? {body:options.binary} : body === undefined ? {} : { body: JSON.stringify(body) }),
       });
     } catch { signal?.throwIfAborted(); current(); throw new ApiError(method === 'GET' ? '无法连接服务，请稍后重试。' : '结果尚未确认，请查验对应记录后再决定是否重试。'); }
     const revision = response.headers.get('X-Authorization-Revision');
@@ -122,6 +130,7 @@ function accountMethods(base: string, timeoutMs: number) {
     if (!response.ok) {
       const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number> } : {};
       if (notifyUnauthorized && error.code === 'unauthenticated') listeners.forEach((listener) => listener());
+      if(tenant&&monitoringRequest&&['permission_denied','authorization_changed','selection_stale','snapshot_stale','resource_access_changed'].includes(error.code??'')){invalidateMonitoringScope(tenant,project);monitoringListeners.forEach(listener=>listener(tenant,project,error.code!));}
       if (tenant && deviceRequest && ['permission_denied','device_not_found','source_not_found','definition_not_found','device_access_changed','resource_access_changed','project_archived'].includes(error.code ?? '')) {
         deviceListeners.forEach(listener => listener(tenant,project,error.code!));
       } else if (tenant && resourceRequest && ['permission_denied', 'resource_not_found', 'resource_access_changed', 'project_archived'].includes(error.code ?? '')) {
@@ -134,6 +143,13 @@ function accountMethods(base: string, timeoutMs: number) {
       if (error.code === 'csrf_invalid') { csrfToken = ''; await csrf().catch(() => undefined); }
       const retry = response.headers.get('Retry-After');
       throw new ApiError((typeof error.message === 'string' ? error.message : '请求失败，请稍后重试。') + (response.status === 429 && retry ? ` 请在 ${retry} 秒后重试。` : ''), response.status, error.code, error.fields, error.issues ?? [], error.dependencies ?? {});
+    }
+    const monitoringRevision=response.headers.get('X-Monitoring-Authorization-Revision');
+    if(tenant&&monitoringRequest&&monitoringRevision){
+      const previous=monitoringRevisions.get(monitoringKey);
+      if(previous&&monitoringRevision.split(':').some((part,i)=>BigInt(part)<BigInt(previous.split(':')[i]??'0')))throw new DOMException('Superseded authorization revision','AbortError');
+      monitoringRevisions.set(monitoringKey,monitoringRevision);
+      if(previous!==monitoringRevision){if(previous)invalidateMonitoringScope(tenant,project);monitoringListeners.forEach(listener=>listener(tenant,project,'revision',monitoringRevision));if(previous)throw new DOMException('Authorization changed','AbortError');}
     }
     if (project && tenant && path.endsWith('/context')) {
       const member = (data as import('./projects').ProjectContext).authorization.membership_id; const previous = projectMemberships.get(projectKey);
@@ -182,6 +198,10 @@ function accountMethods(base: string, timeoutMs: number) {
     onResourceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { resourceListeners.add(listener); return () => { resourceListeners.delete(listener); }; },
     ...engineeringMethods(request),
     ...resourceMethods(request),
+    ...monitoringMethods(request,base),
+    invalidateMonitoringScope,
+    monitoringRevision:(tenant:string,project?:string)=>`${monitoringRevisions.get(`${tenant}:${project??''}`)??''}:${monitoringEpochs.get(`${tenant}:${project??''}`)??0}`,
+    onMonitoringRestriction(listener:(tenant:string,project:string|undefined,code:string,revision?:string)=>void){monitoringListeners.add(listener);return ()=>{monitoringListeners.delete(listener);};},
     ...deviceMethods(request),
     invalidateDeviceScope,
     onDeviceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { deviceListeners.add(listener); return () => { deviceListeners.delete(listener); }; },

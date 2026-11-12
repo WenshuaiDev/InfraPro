@@ -1,0 +1,240 @@
+import { createHash, randomUUID } from 'node:crypto';
+import type { APIRequestContext, Page } from '@playwright/test';
+import type { MonitoringImportBatch, MonitoringMapping } from '../../packages/ts/api-client/src/monitoring';
+import { test, expect, consoleURL, csrf, login } from './fixtures';
+import { seedResources } from '../helpers/resource-fixture';
+const origin = new URL(consoleURL).origin, api = `${origin}/api/v1`;
+const wm = (revision = '0') => ({ request_id: randomUUID(), expected_revision: revision, reason: '本机合成监测浏览器自验' });
+test.use({actionTimeout:15000});
+test.skip(process.env.INFRAPRO_MONITORING_E2E !== '1', 'requires the real disposable monitoring lab');
+
+async function prepare(page: Page, request: APIRequestContext) {
+  const f = await seedResources(request); await login(page, f.user);
+  const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
+  const post = async (path: string, data: object, status = 201) => { const r = await page.request.post(api + path, { headers, data }); expect(r.status(), await r.text()).toBe(status); return r.json(); };
+  const base = `/tenants/${f.tenant}`;
+  const facility = await post(`${base}/engineering/resources/facilities`, { request_id: randomUUID(), code: 'MONITOR', name: '合成监测设施', type_version_id: f.type.version_id, values: { length: 0 } });
+  const point = await post(`${base}/engineering/resources/facilities/${facility.id}/points`, { request_id: randomUUID(), code: 'P10', name: '孔 A 深度 10 m' });
+  const channel = await post(`${base}/engineering/resources/facilities/${facility.id}/points/${point.id}/channels`, { request_id: randomUUID(), code: 'DISP', name: '位移通道', metric_version_id: f.metric.version_id, unit_version_id: f.unit.version_id, timestamp_meaning: 'observation_time' });
+  return { ...f, headers, post, base, facility: facility.id as string, point: point.id as string, channel: channel.id as string, monitoring: `${base}/monitoring`, root: `${consoleURL}/t/${f.tenant}/monitoring` };
+}
+async function importAPI(page: Page, f: Awaited<ReturnType<typeof prepare>>, csv: string, publish = true, expectedState = 'ready', unit = 'mm') {
+  const sha256 = createHash('sha256').update(csv).digest('hex');
+  let batch = await f.post(`${f.monitoring}/imports`, { ...wm(), name: 'synthetic-browser.csv', size_bytes: String(Buffer.byteLength(csv)) }) as MonitoringImportBatch;
+  const part = await page.request.put(`${api}${f.monitoring}/imports/${batch.id}/upload/parts/1`, { headers: { ...f.headers, 'Content-Type': 'application/octet-stream', 'X-Expected-Revision': batch.revision, 'X-Content-SHA256': sha256 }, data: Buffer.from(csv) }); expect(part.status(), await part.text()).toBe(200);
+  batch = await f.post(`${f.monitoring}/imports/${batch.id}/upload/complete`, { ...wm(batch.revision), sha256 }, 200);
+  const mapping: MonitoringMapping = { format: 'csv', mode: 'single', encoding: 'utf-8', delimiter: ',', header_row: 1, time_column: 'observed_at', value_column: 'value', quality_column: 'quality', timezone: 'UTC', empty_wide: 'error', channels: [{ alias: 'C', channel_id: f.channel, unit }] };
+  batch = await f.post(`${f.monitoring}/imports/${batch.id}/mappings`, { ...wm(batch.revision), mapping }, 200);
+  await f.post(`${f.monitoring}/imports/${batch.id}/validate`, wm(batch.revision), 202);
+  await expect.poll(async () => { batch = await (await page.request.get(`${api}${f.monitoring}/imports/${batch.id}`)).json(); return batch.state; }, { timeout: 30_000 }).toBe(expectedState);
+  if (publish) { await f.post(`${f.monitoring}/imports/${batch.id}/publish`, wm(batch.revision), 202); await expect.poll(async () => { batch = await (await page.request.get(`${api}${f.monitoring}/imports/${batch.id}`)).json(); return batch.state; }, { timeout: 30_000 }).toBe('published'); }
+  return batch;
+}
+async function selectPoint(page: Page) {
+  await expect(page.getByRole('heading', {name:'监测数据',exact:true})).toBeVisible();
+  const mobile = (page.viewportSize()?.width ?? 1440) < 1024;
+  if (mobile) await page.getByRole('button', { name: '测点与通道', exact: true }).click();
+  const area = mobile ? page.getByRole('dialog') : page.locator('aside').filter({ has: page.getByRole('heading', { name: '选择测点与通道' }) });
+  await area.getByRole('button', { name: /孔 A 深度 10 m/ }).click();
+  await expect(area.getByRole('checkbox', { name: /位移通道/ })).toBeChecked();
+  if (mobile) { await area.getByRole('button', { name: '查看已选 1 个通道' }).click(); await expect(page.getByRole('button', { name: '测点与通道', exact: true })).toBeFocused(); }
+  await expect(page.getByRole('heading', { name: '已选通道 · 全历史概况' })).toBeVisible();
+}
+
+test('real upload mapping validation publish, exact browsing, export and revocation are usable by keyboard and narrow screen', async ({ page, request }, info) => {
+  test.setTimeout(180_000); const f = await prepare(page, request);
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  const csv = 'observed_at,value,quality\n2020-01-01T00:00:00.000000001Z,999999999999999999.000000000001,good\n2020-01-02T00:00:00Z,999999999999999999.000000000003,unmarked\n2020-01-03T00:00:00Z,999999999999999999.000000000005,suspect\n';
+  await page.goto(`${f.root}/imports`);
+  await page.getByRole('button', { name: '导入历史文件', exact: true }).click();
+  await page.getByLabel('历史监测文件', { exact: true }).setInputFiles({ name: 'synthetic-ui.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await page.getByLabel('来源说明 / 导入原因').fill('生成的本机验收样本');
+  await page.getByRole('button', { name: '上传文件', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '2. 明确文件映射' })).toBeVisible({ timeout: 30_000 });
+  const batchID = page.url().split('/').at(-1)!;
+  await page.getByLabel('质量列名（可选）', { exact: true }).fill('quality');
+  await page.getByRole('button', { name: '选择映射目标' }).click();
+  await page.getByRole('button', { name: /孔 A 深度 10 m/ }).click();
+  await page.getByRole('checkbox', { name: /位移通道/ }).check();
+  await page.getByRole('button', { name: '采用所选 1 个通道' }).click();
+  await page.getByLabel('映射说明 / 原因').fill('明确时间、质量与毫米通道');
+  await page.getByRole('button', { name: '保存映射版本', exact: true }).click();
+  await expect(page.getByRole('button', { name: '开始全量校验', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '开始全量校验', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('操作原因').fill('校验完整文件');
+  await page.getByRole('dialog').getByRole('button', { name: '开始全量校验', exact: true }).click();
+  await expect(page.getByText('可发布', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: '发布合格批次' }).click();
+  await page.getByRole('dialog').getByLabel('操作原因').fill('核对后发布');
+  await page.getByRole('dialog').getByRole('button', { name: '确认发布该批次' }).click();
+  await expect(page.getByText('已生效', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await page.goto(f.root); await selectPoint(page);
+  await expect(page.getByRole('img', { name: /监测趋势/ })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: '全部历史范围', exact: true }).click();
+  await expect(page.getByRole('button', { name: '明细', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '明细', exact: true }).click();
+  await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('999999999999999999.000000000001');
+  await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('2020-01-01T00:00:00.000000001Z');
+  await expect(page.getByRole('table', { name: '监测原始明细' }).getByRole('row')).toHaveCount(3);
+  await page.getByRole('button', { name: '统计', exact: true }).click();
+  await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('999999999999999999.000000000002');
+  await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('0.000000000001');
+  await page.getByRole('button', { name: '导出当前统计', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('导出用途 / 原因').fill('核对精确统计导出');
+  const exportRequests:string[]=[];
+  await page.route('**/monitoring/exports',async route=>{exportRequests.push(route.request().postDataJSON().request_id);const response=await route.fetch();if(exportRequests.length===1)await route.abort('failed');else await route.fulfill({response});});
+  await page.getByRole('dialog').getByRole('button', { name: '创建后台导出任务' }).click();
+  await expect(page.getByRole('dialog').getByRole('heading',{name:'未能完成请求',exact:true})).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: '创建后台导出任务' }).click();
+  await expect.poll(()=>exportRequests.length).toBe(2);expect(exportRequests[1]).toBe(exportRequests[0]);
+  await expect(page.getByRole('dialog').getByRole('link', { name: '查看任务与下载' })).toBeVisible();
+  await page.unroute('**/monitoring/exports');
+  await page.getByRole('dialog').getByRole('link', { name: '查看任务与下载' }).click();
+  await page.getByRole('button', { name: '数据导出', exact: true }).first().click();
+  await expect(page.getByRole('dialog').getByRole('heading', { name: '完整导出结果' })).toBeVisible({ timeout: 30_000 });
+  const downloadPromise = page.waitForEvent('download'); await page.getByRole('dialog').getByRole('link', { name: /\.parquet$/ }).click();
+  const download = await downloadPromise; expect(await download.failure()).toBeNull();
+  await page.getByRole('button', { name: '关闭面板', exact: true }).click();
+  await page.goto(`${f.root}/imports/${batchID}`);
+  await page.getByRole('button', { name: '预览撤销影响' }).click();
+  await expect(page.getByRole('dialog')).toContainText('将撤销采用 3 条');
+  await page.getByRole('dialog').getByLabel('撤销理由').fill('合成数据撤销自验');
+  await page.getByRole('dialog').getByRole('button', { name: '撤销该批次', exact: true }).click();
+  await expect(page.getByText('已撤销', { exact: true })).toBeVisible({ timeout: 20_000 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: info.outputPath('monitoring-batch-revoked.png'), fullPage: true });
+  await page.getByRole('button',{name:'从原观测重新采用',exact:true}).click();
+  await page.getByRole('dialog').getByLabel('重新采用原因').fill('以新采用关系恢复原观测');
+  await page.getByRole('dialog').getByRole('button',{name:'建立关联的新批次'}).click();
+  await expect.poll(()=>page.url().split('/').at(-1)).not.toBe(batchID);
+  await page.getByRole('button',{name:'开始全量校验',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新校验');await page.getByRole('dialog').getByRole('button',{name:'开始全量校验',exact:true}).click();await expect(page.getByText('可发布',{exact:true})).toBeVisible({timeout:30000});
+  await page.getByRole('button',{name:'发布合格批次'}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新采用');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByText('已生效',{exact:true})).toBeVisible({timeout:30000});
+  expect(errors).toEqual([]);
+});
+
+test('cursor pages, bounded trends and last complete results survive service failures', async ({ page, request }, info) => {
+  test.setTimeout(120_000); const f = await prepare(page, request);
+  const rows = Array.from({ length: 605 }, (_, i) => `${new Date(Date.UTC(2020, 0, 1) + i * 1000).toISOString()},${i},good`);
+  await importAPI(page, f, `observed_at,value,quality\n${rows.join('\n')}\n`);
+  await page.goto(f.root); await selectPoint(page);
+  await expect(page.getByRole('img', { name: /监测趋势/ })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('button', { name: '明细', exact: true }).click();
+  const table = page.getByRole('table', { name: '监测原始明细' });
+  await expect(table.getByRole('row')).toHaveCount(201);
+  const first = await table.getByRole('row').nth(1).innerText();
+  await page.getByRole('button', { name: '下一页', exact: true }).last().click();
+  await expect(table.getByRole('row')).toHaveCount(201);
+  expect(await table.getByRole('row').nth(1).innerText()).not.toBe(first);
+  await page.getByRole('button', { name: '上一页', exact: true }).last().click();
+  await expect.poll(()=>table.getByRole('row').nth(1).innerText()).toBe(first);
+  await page.getByRole('button', { name: '趋势', exact: true }).click();
+  await page.route('**/monitoring/queries/overview', route => route.fulfill({ status: 503, json: { code: 'unavailable', message: '自验期间模拟存储暂不可用' } }));
+  await page.getByRole('button',{name:'重读当前快照',exact:true}).click();
+  await expect(page.getByText('自验期间模拟存储暂不可用',{exact:true})).toBeVisible();
+  await expect(page.getByText(/当前读取失败，保留上次完整结果/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: '已选通道 · 全历史概况' })).toBeVisible();
+  await page.unroute('**/monitoring/queries/overview');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: info.outputPath('monitoring-data-window.png'), fullPage: true });
+  await page.getByRole('region',{name:'趋势图',exact:true}).screenshot({path:info.outputPath('monitoring-chart.png')});
+});
+
+test('project data grants, archive reading and revocation clear cached and late results', async ({page,request}, info) => {
+ test.setTimeout(180000); const f=await prepare(page,request);
+ await importAPI(page,f,'observed_at,value,quality\n2020-01-01T00:00:00Z,11,good\n2020-01-02T00:00:00Z,22,good\n2020-01-03T00:00:00Z,33,good\n');
+ const tenantContext=await(await page.request.get(api+f.base+'/context')).json();
+ const project=await f.post(f.base+'/projects',{client_request_id:randomUUID(),reason:'监测项目边界验收',name:'监测授权验收',code:'monitoring-test',purpose:'限定历史范围',owner_tenant_membership_id:tenantContext.membership_id,administrator_tenant_membership_id:tenantContext.membership_id},200);
+ const pid=project.project_id as string, pb=f.base+'/projects/'+pid, resource=pb+'/resource-access/facilities/'+f.facility;
+ const state=await(await page.request.get(api+resource)).json();
+ const change={request_id:randomUUID(),reason:'明确通道资源',action:'create_link',expected_access_revision:state.policy.revision,add:[{kind:'facility',capabilities:['read']},{kind:'channel',channel_id:f.channel,capabilities:['read']}]};
+ const impact=await f.post(resource+'/preview',change,200);await f.post(resource+'/changes',{...change,preview_hash:impact.preview_hash},200);
+ const projectPage=await page.context().newPage();
+ try{
+ const root=`${consoleURL}/t/${f.tenant}/p/${pid}/monitoring`;
+ await projectPage.goto(root);await expect(projectPage.getByText('0 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible();
+ await page.goto(`${consoleURL}/t/${f.tenant}/projects/${pid}/monitoring-access`);
+ await page.getByRole('button',{name:'新增数据授权',exact:true}).click();
+ const panel=page.getByRole('dialog');await panel.getByRole('button',{name:/合成监测设施/}).click();
+ await panel.getByRole('radio',{name:/位移通道/}).check();
+ await panel.getByLabel('授权开始（含，可留空）').fill('2020-01-02T00:00:00Z');
+ await panel.getByLabel('授权结束（不含，可留空）').fill('2020-01-03T00:00:00Z');
+ await panel.getByRole('checkbox',{name:'导出数据',exact:true}).check();
+ await panel.getByLabel('授权原因').fill('只授权中间一天');await panel.getByRole('button',{name:'授予上述通道与时间范围'}).click();await expect(panel).toHaveCount(0);
+ await expect(page.getByRole('table',{name:'项目监测数据授权'})).toContainText('当前有效');
+ await projectPage.reload();await selectPoint(projectPage);
+ await projectPage.getByRole('button',{name:'明细',exact:true}).click();const table=projectPage.getByRole('table',{name:'监测原始明细'});
+ await expect(table).toContainText('22.000000000000');await expect(table.getByRole('row')).toHaveCount(2);await expect(table).not.toContainText('2020-01-01');
+ // Real project lifecycle must retain reads/exports but remove import/revoke controls.
+ await projectPage.goto(`${consoleURL}/t/${f.tenant}/p/${pid}/profile`);await projectPage.getByRole('button',{name:'归档项目',exact:true}).click();
+ await projectPage.getByRole('dialog').getByRole('button',{name:'预览变更影响'}).click();await projectPage.getByRole('dialog').getByLabel('变更原因').fill('归档读取验收');await projectPage.getByRole('dialog').getByRole('button',{name:'确认归档项目',exact:true}).click();await expect(projectPage.getByRole('dialog')).toHaveCount(0);
+ await projectPage.goto(root);await selectPoint(projectPage);await expect(projectPage.getByRole('button',{name:'导出当前明细',exact:true})).toBeVisible();
+ await projectPage.goto(root+'/imports');await expect(projectPage.getByRole('button',{name:'导入历史文件',exact:true})).toHaveCount(0);
+ await projectPage.goto(`${consoleURL}/t/${f.tenant}/p/${pid}/profile`);await projectPage.getByRole('button',{name:'恢复项目',exact:true}).click();await projectPage.getByRole('dialog').getByRole('button',{name:'预览变更影响'}).click();await projectPage.getByRole('dialog').getByLabel('变更原因').fill('继续撤权自验');await projectPage.getByRole('dialog').getByRole('button',{name:'确认恢复项目',exact:true}).click();await expect(projectPage.getByRole('dialog')).toHaveCount(0);
+ await projectPage.goto(root);await selectPoint(projectPage);await expect(projectPage.getByRole('img',{name:/监测趋势/})).toBeVisible({timeout:30000});
+ let release!:()=>void, received!:()=>void;const gate=new Promise<void>(r=>release=r), waiting=new Promise<void>(r=>received=r);
+ await projectPage.route('**/monitoring/queries/details',async route=>{const response=await route.fetch();received();await gate;await route.fulfill({response});});
+ await projectPage.getByRole('button',{name:'明细',exact:true}).click();await waiting;
+ await page.reload();await page.getByRole('button',{name:'预览撤销',exact:true}).click();await page.getByRole('dialog').getByLabel('撤销授权原因').fill('当前会话立即收回');await page.getByRole('dialog').getByRole('button',{name:'撤销此数据授权',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ await projectPage.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});
+ await expect(projectPage.getByText('0 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible({timeout:35000});release();
+ await expect(projectPage.getByRole('table',{name:'监测原始明细'})).toHaveCount(0);await expect(projectPage.getByText('22.000000000000',{exact:true})).toHaveCount(0);
+ expect(await projectPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await projectPage.screenshot({path:info.outputPath('monitoring-project-revoked.png'),fullPage:true});
+ }finally{await projectPage.close();}
+});
+
+test('duplicate confirmation preserves evidence and a conflicting value blocks the whole file',async({page,request},info)=>{
+ test.setTimeout(120000);const f=await prepare(page,request),csv='observed_at,value,quality\n2020-01-01T00:00:00Z,2,good\n2020-01-02T00:00:00Z,4,unmarked\n';
+ await importAPI(page,f,csv);
+ const duplicate=await importAPI(page,f,csv,false,'needs_resolution');
+ await page.goto(`${f.root}/imports/${duplicate.id}`);
+ await expect(page.getByRole('table',{name:'导入问题报告'})).toContainText('same_observation');
+ const confirm=page.getByRole('button',{name:'确认同观测并忽略重复',exact:true});await expect(confirm).toBeDisabled();
+ await page.getByRole('checkbox',{name:/已核对完整集合，确认全部 2 条/}).check();await page.getByLabel('核对理由').fill('人工核对同一观测的两个来源');await confirm.click();
+ await page.getByRole('button',{name:'确认完成，无新增数据',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('仅保留来源核对依据');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByText('完成，无新增数据',{exact:true})).toBeVisible({timeout:30000});
+ const conflict=await importAPI(page,f,'observed_at,value,quality\n2020-01-01T00:00:00Z,999,good\n2020-01-03T00:00:00Z,6,good\n',false,'needs_resolution');
+ await page.goto(`${f.root}/imports/${conflict.id}`);
+ await expect(page.getByRole('table',{name:'导入问题报告'})).toContainText('value_conflict');
+ await expect(page.getByText('存在错误或同时间异值冲突，整批不能发布。请修正映射，或修正源文件后创建新批次；原文件保留。',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'发布合格批次',exact:true})).toHaveCount(0);
+ const selection=await f.post(f.monitoring+'/selections',{channel_ids:[f.channel]});
+ const details=await f.post(f.monitoring+'/queries/details',{selection_id:selection.id,all_history:true},200);expect(details.items).toHaveLength(2);expect(details.items.map((r:{value:string})=>r.value).sort()).toEqual(['2.000000000000','4.000000000000']);
+ await page.evaluate(()=>document.documentElement.classList.add('dark'));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath('monitoring-conflict-dark.png'),fullPage:true});
+});
+
+test('point deep links, comparison, enum samples and keyboard window controls use real data', async ({page,request}, info) => {
+  test.setTimeout(150000);
+  const f=await prepare(page,request);
+  const point=await f.post(`${f.base}/engineering/resources/facilities/${f.facility}/points`,{request_id:randomUUID(),code:'P20',name:'孔 A 深度 20 m'});
+  const second=await f.post(`${f.base}/engineering/resources/facilities/${f.facility}/points/${point.id}/channels`,{request_id:randomUUID(),code:'SECOND',name:'深层位移',metric_version_id:f.metric.version_id,unit_version_id:f.unit.version_id,timestamp_meaning:'observation_time'});
+  const state=await f.post(`${f.base}/engineering/resources/facilities/${f.facility}/points/${point.id}/channels`,{request_id:randomUUID(),code:'STATE',name:'状态样本',metric_version_id:f.enumMetric.version_id,timestamp_meaning:'observation_time'});
+  await importAPI(page,f,'observed_at,value,quality\n2020-01-01T00:00:00Z,1,good\n2020-01-02T00:00:00Z,3,good\n');
+  await importAPI(page,{...f,channel:second.id},'observed_at,value,quality\n2020-01-01T00:00:00Z,2,good\n2020-01-02T00:00:00Z,4,good\n');
+  await importAPI(page,{...f,channel:state.id},'observed_at,value,quality\n2020-01-01T00:00:00Z,yes,good\n2020-01-02T00:00:00Z,no,good\n',true,'ready','');
+  await page.goto(`${f.root}?point=${f.point}&channel=${f.channel}`);
+  await expect(page.getByRole('heading',{name:'已选通道 · 全历史概况'})).toBeVisible();
+  const mobile=(page.viewportSize()?.width??1440)<1024;
+  if(mobile)await page.getByRole('button',{name:'测点与通道',exact:true}).click();
+  const area=mobile?page.getByRole('dialog'):page.locator('aside').filter({has:page.getByRole('heading',{name:'选择测点与通道'})});
+  const target=area.getByRole('button',{name:/孔 A 深度 20 m/});await target.focus();await page.keyboard.press('Enter');
+  const choose=area.getByRole('checkbox',{name:/深层位移/});await choose.focus();await page.keyboard.press('Space');await expect(choose).toBeChecked();
+  const enumBox=area.getByRole('checkbox',{name:/状态样本/});await enumBox.focus();await page.keyboard.press('Space');
+  if(mobile){await area.getByRole('button',{name:'查看已选 3 个通道'}).focus();await page.keyboard.press('Enter');}
+  await expect(page.getByText('3 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible();
+  const all=page.getByRole('button',{name:'全部历史范围',exact:true});await all.focus();await page.keyboard.press('Enter');
+  await expect(page.getByLabel('窗口开始（含）')).toHaveValue('2020-01-01T00:00:00Z');
+  await expect(all).toBeFocused();
+  const original=await page.getByLabel('窗口开始（含）').inputValue();
+  const shift=page.getByRole('button',{name:'向前半窗',exact:true});await shift.focus();await page.keyboard.press('Enter');
+  await expect(page.getByLabel('窗口开始（含）')).not.toHaveValue(original);await expect(shift).toBeFocused();
+  await all.focus();await page.keyboard.press('Enter');
+  await expect(page.getByRole('img',{name:/监测趋势/})).toBeVisible({timeout:30000});
+  const legend=page.locator('[aria-label="图例开关"]');await expect(legend.getByRole('button')).toHaveCount(2);
+  const toggle=legend.getByRole('button').first();await toggle.focus();await page.keyboard.press('Enter');await expect(toggle).toHaveAttribute('aria-pressed','false');await page.keyboard.press('Enter');
+  const enumGroup=page.getByRole('button',{name:/枚举 · 第 2 组/});await enumGroup.focus();await page.keyboard.press('Enter');await expect(legend).toContainText('状态样本');
+  await page.getByRole('button',{name:'统计',exact:true}).focus();await page.keyboard.press('Enter');
+  await expect(page.getByRole('table',{name:'监测基础统计'})).toContainText('yes');
+  await expect(page.getByRole('table',{name:'监测基础统计'})).toContainText('no');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({path:info.outputPath('monitoring-comparison-keyboard.png'),fullPage:true});
+});

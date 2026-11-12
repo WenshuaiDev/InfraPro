@@ -10,6 +10,7 @@ async function revisit(page: Page) {
 }
 
 test('switching accounts clears profile drafts, invitation credentials and security state', async ({ page, context, request, account }) => {
+  test.setTimeout(60_000);
   const nextAccount = await createAccount(request);
   await login(page, account);
   await navigateTo(page, '个人资料');

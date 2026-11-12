@@ -18,6 +18,7 @@ import (
 
 type Config struct {
 	foundation.Config
+	Monitoring                                                                                Monitoring
 	DatabaseURL, RedisURL, RedisKeyPrefix                                                     string
 	PublicConsoleURL, SupportContact                                                          string
 	TrustedOrigins                                                                            []string
@@ -30,32 +31,54 @@ type Config struct {
 }
 
 type input struct {
-	foundation.Input       `yaml:",inline"`
-	DatabaseURL            string `yaml:"database_url"`
-	RedisURL               string `yaml:"redis_url"`
-	RedisKeyPrefix         string `yaml:"redis_key_prefix"`
-	PublicConsoleURL       string `yaml:"public_console_url"`
-	DeprecatedScreenURL    string `yaml:"public_screen_url"` // Decode old strict YAML without using it at runtime.
-	TrustedOrigins         string `yaml:"trusted_origins"`
-	TrustedProxies         string `yaml:"trusted_proxies"`
-	CSRFKey                string `yaml:"csrf_auth_key"`
-	CookieSecure           string `yaml:"cookie_secure"`
-	SessionIdle            string `yaml:"session_idle_timeout"`
-	SessionAbsolute        string `yaml:"session_absolute_timeout"`
-	SessionCacheTTL        string `yaml:"session_cache_ttl"`
-	InvitationTTL          string `yaml:"invitation_ttl"`
-	ResetTTL               string `yaml:"password_reset_ttl"`
-	SupportContact         string `yaml:"support_contact"`
-	AuditRetention         string `yaml:"audit_retention"`
-	InvitationRate         string `yaml:"invitation_rate"`
-	InvitationLimit        string `yaml:"invitation_limit"`
-	IPRequestLimit         string `yaml:"ip_request_limit"`
-	CredentialRequestLimit string `yaml:"credential_request_limit"`
-	PasswordFailures       string `yaml:"password_failures"`
+	foundation.Input           `yaml:",inline"`
+	DatabaseURL                string `yaml:"database_url"`
+	RedisURL                   string `yaml:"redis_url"`
+	RedisKeyPrefix             string `yaml:"redis_key_prefix"`
+	PublicConsoleURL           string `yaml:"public_console_url"`
+	DeprecatedScreenURL        string `yaml:"public_screen_url"` // Decode old strict YAML without using it at runtime.
+	TrustedOrigins             string `yaml:"trusted_origins"`
+	TrustedProxies             string `yaml:"trusted_proxies"`
+	CSRFKey                    string `yaml:"csrf_auth_key"`
+	CookieSecure               string `yaml:"cookie_secure"`
+	SessionIdle                string `yaml:"session_idle_timeout"`
+	SessionAbsolute            string `yaml:"session_absolute_timeout"`
+	SessionCacheTTL            string `yaml:"session_cache_ttl"`
+	InvitationTTL              string `yaml:"invitation_ttl"`
+	ResetTTL                   string `yaml:"password_reset_ttl"`
+	SupportContact             string `yaml:"support_contact"`
+	AuditRetention             string `yaml:"audit_retention"`
+	InvitationRate             string `yaml:"invitation_rate"`
+	InvitationLimit            string `yaml:"invitation_limit"`
+	IPRequestLimit             string `yaml:"ip_request_limit"`
+	CredentialRequestLimit     string `yaml:"credential_request_limit"`
+	PasswordFailures           string `yaml:"password_failures"`
+	MonitoringBackupEndpoint   string `yaml:"monitoring_backup_endpoint"`
+	MonitoringBackupAccessKey  string `yaml:"monitoring_backup_access_key"`
+	MonitoringBackupSecretKey  string `yaml:"monitoring_backup_secret_key"`
+	MonitoringBackupBucket     string `yaml:"monitoring_backup_bucket"`
+	MonitoringBackupCollection string `yaml:"monitoring_backup_named_collection"`
+	MonitoringShards           string `yaml:"monitoring_physical_shards"`
+	MonitoringReplicas         string `yaml:"monitoring_clickhouse_replicas"`
+	MonitoringDatabase         string `yaml:"monitoring_clickhouse_database"`
+	MonitoringUser             string `yaml:"monitoring_clickhouse_user"`
+	MonitoringPassword         string `yaml:"monitoring_clickhouse_password"`
+	MonitoringPolicy           string `yaml:"monitoring_clickhouse_policy"`
+	MonitoringTLS              string `yaml:"monitoring_clickhouse_tls"`
+	MonitoringObjectEndpoint   string `yaml:"monitoring_object_endpoint"`
+	MonitoringObjectAccessKey  string `yaml:"monitoring_object_access_key"`
+	MonitoringObjectSecretKey  string `yaml:"monitoring_object_secret_key"`
+	MonitoringBucket           string `yaml:"monitoring_source_bucket"`
+	MonitoringTemp             string `yaml:"monitoring_temp_directory"`
+	MonitoringExportRows       string `yaml:"monitoring_export_rows_per_file"`
+	MonitoringExportBytes      string `yaml:"monitoring_export_bytes_per_file"`
+	MonitoringHotDays          string `yaml:"monitoring_hot_days"`
+	MonitoringOnlineVolume     string `yaml:"monitoring_online_volume"`
 }
 
 func loadInput(path string) (input, error) {
 	raw := input{Input: foundation.Defaults(), RedisKeyPrefix: "infrapro:dev:identity:v1:",
+		MonitoringHotDays: "90", MonitoringOnlineVolume: "online", MonitoringDatabase: "infrapro_monitoring", MonitoringUser: "default", MonitoringPolicy: "monitoring_tiered", MonitoringTLS: "false", MonitoringExportRows: "1000000", MonitoringExportBytes: "268435456",
 		PublicConsoleURL: "http://127.0.0.1:5173/",
 		TrustedOrigins:   "http://127.0.0.1:5173", CookieSecure: "false",
 		SessionIdle: "2h", SessionAbsolute: "12h", SessionCacheTTL: "5m", InvitationTTL: "24h", ResetTTL: "30m",
@@ -123,6 +146,10 @@ func Load(path string) (Config, error) {
 		return Config{}, err
 	}
 	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	c.Monitoring, err = resolveMonitoring(raw)
+	if err != nil {
+		return c, err
+	}
 	for name, value := range map[string]string{"database_url": c.DatabaseURL, "redis_url": c.RedisURL, "support_contact": c.SupportContact} {
 		if value == "" {
 			return c, fmt.Errorf("%s is required", name)

@@ -1,0 +1,24 @@
+{
+  "scope": "S-01 local candidate; not a production qualification",
+  "selected_on": "2026-11-12",
+  "clickhouse": "26.8.36.3",
+  "keeper": "26.8.36.3",
+  "object_store": "SeaweedFS 4.53",
+  "images": {
+    "clickhouse/clickhouse-server:26.8.36.3-alpine": "sha256:f5443f9ffa48f0154cdd50cab39fed732201762574a27f04f1f564bbba81832d",
+    "clickhouse/clickhouse-keeper:26.8.36.3-alpine": "sha256:82cb1687db7d461b180ac17b5a7a1db91d9fcbf8ba91aa32aea85998cd61383d",
+    "chrislusf/seaweedfs:4.53": "sha256:ccad23e18639c8b98cee17e7100b95830a06077b56d8e5b006d6dcf8ec5e94a0",
+    "postgres:17-alpine": "sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac"
+  },
+  "go": "1.27.0",
+  "node": "26.10.0",
+  "pnpm": "12.18.0",
+  "dependencies": {
+    "github.com/ClickHouse/clickhouse-go/v2": "v2.51.0",
+    "github.com/minio/minio-go/v7": "v7.4.1",
+    "github.com/xuri/excelize/v2": "v2.11.1",
+    "github.com/apache/arrow-go/v18": "v18.8.0"
+  },
+  "frontend_candidate": {"echarts": "6.1.0"},
+  "frontend_existing_lock": "pnpm-lock.yaml"
+}

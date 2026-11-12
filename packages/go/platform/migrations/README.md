@@ -24,3 +24,5 @@
 `00010_project_resource_access.sql` 增量建立项目设施关联、对象授权、新建政策、历史和收据。资源保持租户归属，迁移不复制业务资源、不按项目名称自动授权。升级和恢复见[项目资源手册](../../../../docs/architecture.md#migrations)。
 
 `00011_device_product_resources.sql` 在 v10 项目资源授权基线上增加公共／私有厂家和产品、不可变版本／槽位／依赖、设备／输出代次、安装及纠错引用、即时来源期间、独立项目设备授权、历史与收据。`btree_gist` 安装在 public；安装、输出和来源期间采用数据库排斥约束。旧租户／项目只初始化协调行，can_source_manage 默认 false，不创建业务样例或设备授权。Down 只提示从完整备份恢复；升级顺序见[设备操作手册](../../../../docs/architecture.md#migrations)。
+
+`00012_monitoring_metadata.sql` 增加监测控制元数据、纳秒 `int8range` 数据授权、持久任务、不可变源文件／映射／发布依据及永久通道引用保护。原始逐条观测不进入 PostgreSQL。升级不创建样本、数据授权或批次；系统角色按权限目录同步新增能力，自定义角色不扩权。有数据后禁止 destructive down，使用验证过的恢复或前向修复。阶段证据见[监测自验记录](../../../../docs/verification/monitoring-data.md)。

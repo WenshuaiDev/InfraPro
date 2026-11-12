@@ -1,4 +1,4 @@
-import { MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory } from 'lucide-react';
+import { MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, ListChecks } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
@@ -7,6 +7,7 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string') return '/';
+ if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?monitoring(?:/imports(?:/${uuid})?|/batches/${uuid}|/jobs)?$`).test(value) || new RegExp(`^/t/${uuid}/projects/${uuid}/monitoring-access$`).test(value)) return value;
  if (new RegExp(`^/platform/device-products(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/(?:device-products(?:/${uuid})?|devices(?:/${uuid})?|projects/${uuid}/device-access|p/${uuid}/(?:devices(?:/${uuid})?|device-outputs/${uuid}))$`).test(value)) return value;
  if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?resources/facilities(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/resource-access(?:/${uuid}(?:/facilities/${uuid})?)?$`).test(value)) return value;
  if (/^\/platform\/engineering\/(type-definitions|metrics|units|monitoring-templates)$/.test(value) || new RegExp(`^/t/${uuid}/engineering/(templates|catalog/(type-definitions|metrics|units|monitoring-templates))$`).test(value)) return value;
@@ -76,6 +77,7 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
       ] },
       { title: '工程资源', items: projectCan(P.ProjectEngineeringResourceRead) ? [{ title: '项目设施', href: `${projectBase}/resources/facilities`, icon: Blocks, active: path.includes('/resources/facilities') }] : [] },
       { title: '设备管理', items: projectCan(P.ProjectDeviceRead)?[{title:'项目设备',href:`${projectBase}/devices`,icon:Cpu,active:path.includes('/devices')||path.includes('/device-outputs')}]:[] },
+      { title: '监测数据', items: monitoringNavigation(projectBase, path, projectCan, false) },
       { title: '成员与权限', items: [
         ...(projectCan(P.ProjectMemberRead) ? [{ title: '项目成员', href: `${projectBase}/members`, icon: Users, active: path.startsWith(`${projectBase}/members`) }] : []),
         ...(projectCan(P.ProjectRoleRead) ? [{ title: '项目角色', href: `${projectBase}/roles`, icon: KeyRound, active: path.startsWith(`${projectBase}/roles`) }] : []),
@@ -110,11 +112,21 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
       ...([P.TenantDeviceDefinitionRead,P.TenantDeviceCatalogRead].some(tenantCan)?[{title:'设备产品目录',href:`/t/${tenant}/device-products`,icon:Factory,active:path.includes('/device-products')}]:[]),
       ...(tenantCan(P.TenantDeviceRead)?[{title:'设备台账',href:`/t/${tenant}/devices`,icon:Cpu,active:path.includes('/devices')}]:[]),
     ]});
-    groups.splice(3, 0, { title: '工程配置', items: [
+    groups.splice(3, 0, { title: '监测数据', items: monitoringNavigation(`/t/${tenant}`, path, tenantCan, true) });
+    groups.splice(4, 0, { title: '工程配置', items: [
       ...(tenantCan(P.TenantEngineeringTemplateRead) ? [{ title: '本租户监测模板', href: `/t/${tenant}/engineering/templates`, icon: ClipboardList, active: path.endsWith('/engineering/templates') }] : []),
     ] });
     return groups.filter((group) => group.items.length > 0);
   }
   if (kind === 'platform') return platformNavigation(path, can);
   return [];
+}
+
+function monitoringNavigation(base: string, path: string, can: (permission: PermissionCode) => boolean, tenant: boolean): NavigationItem[] {
+ const read=can(tenant?P.TenantMonitoringDataRead:P.ProjectMonitoringDataRead), imports=can(tenant?P.TenantMonitoringImportsRead:P.ProjectMonitoringImportsRead);
+ return [
+ ...(read?[{title:"监测浏览",href:`${base}/monitoring`,icon:Activity,active:path===`${base}/monitoring`||path===`${base}/monitoring/`}]:[]),
+ ...(imports?[{title:"导入与批次",href:`${base}/monitoring/imports`,icon:Upload,active:path.startsWith(`${base}/monitoring/imports`)||path.startsWith(`${base}/monitoring/batches`)}]:[]),
+ ...(read||imports?[{title:"监测任务",href:`${base}/monitoring/jobs`,icon:ListChecks,active:path===`${base}/monitoring/jobs`}]:[]),
+ ];
 }

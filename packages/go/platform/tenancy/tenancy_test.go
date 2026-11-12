@@ -130,7 +130,7 @@ func TestLifecycleIsolationHistoryAndRecovery(t *testing.T) {
 	code(t, e, "permission_denied")
 	c, e := s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(c.Permissions) != 46 || len(c.Roles) != 1 || len(c.Sources) != 46 {
+	if len(c.Permissions) != 55 || len(c.Roles) != 1 || len(c.Sources) != 55 {
 		t.Fatal(c)
 	}
 	originalMember := c.MembershipID
@@ -514,7 +514,7 @@ func TestPlatformActionsAreIndependentAndTenantOnlyIdentity(t *testing.T) {
 	}
 	context, e := f.s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(context.Permissions) != 46 {
+	if len(context.Permissions) != 55 {
 		t.Fatal(context)
 	}
 	_, e = f.s.Memberships(ctx, f.actor(f.a), "", tenancy.Filter{})

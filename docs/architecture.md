@@ -1,10 +1,10 @@
 # InfraPro 架构设计
 
-基线：2026-11-12。本文统一工程结构、模块边界、数据与事务、接口、前端、部署及恢复。业务规则与人工验收见[软件需求规格说明书](requirements.md)，选择依据和版本来源见[技术选型](technology-selection.md)。本次只重组文档，不改变实现或执行迁移。
+基线：2026-11-12。本文统一工程结构、模块边界、数据与事务、接口、前端、部署及恢复。业务规则与人工验收见[软件需求规格说明书](requirements.md)，选择依据和版本来源见[技术选型](technology-selection.md)。监测数据本轮实现与本机验证另见监测操作手册及验证记录；其余章节沿用已整理的模块设计。
 导航：[系统上下文与运行结构](#overview) · [工程模块与依赖边界](#modules) · [账号、凭证与会话设计](#identity) · [授权、租户及生命周期设计](#access-tenancy) · [项目数据、接口与事务](#projects) · [工程定义与校验设计](#definitions) · [工程资源与项目授权设计](#resources) · [设备目录、输出、安装与来源设计](#devices) · [前端结构、交互和状态](#frontend) · [部署、配置与运行维护](#operations) · [迁移、授权发布与应急恢复](#migrations) · [检查、故障反馈与交付](#verification)
 
 
-精确接口以 [OpenAPI](../contracts/openapi/api.yaml)、当前权限以 [access](../packages/go/platform/access/)、数据库结构以[迁移](../packages/go/platform/migrations/)为准。本文保留跨模块约束与详细设计；新增字段／路由须同步这些契约源。监测数据的未来架构保留在原方案中，不并入当前已实现架构。
+精确接口以 [OpenAPI](../contracts/openapi/api.yaml)、当前权限以 [access](../packages/go/platform/access/)、数据库结构以[迁移](../packages/go/platform/migrations/)为准。本文保留跨模块约束与详细设计；新增字段／路由须同步这些契约源。监测数据实现采用独立 worker、ClickHouse 和对象存储，详细运行约束见[监测操作手册](operations/monitoring-data.md)，本轮仅本机合成验收。
 
 <a id="overview"></a>
 
@@ -19,9 +19,14 @@ flowchart LR
     Runtime --> Business[身份 / 授权 / 租户 / 项目 / 定义 / 资源 / 设备 / 来源]
     Business --> PG[(PostgreSQL)]
     Business --> Redis[(Redis)]
+    Worker[monitoring-worker] --> Runtime
+    Runtime --> Monitoring[监测服务]
+    Monitoring --> PG
+    Monitoring --> CH[(ClickHouse 双副本)]
+    Monitoring --> S3[(源文件 / 摘要 / 导出对象)]
 ```
 
-部署为单个 API、单个 console、独立按需 CLI。PostgreSQL 保存持久业务真相；Redis 仅承担会话快照、活动合并及限流。来源绑定属于当前业务元数据；当前架构不含监测明细存储或采集执行器。
+部署为单个 API、单个 console、独立按需 CLI。PostgreSQL 保存持久业务真相；Redis 仅承担会话快照、活动合并及限流。来源绑定属于业务元数据；监测 worker 从 PG 持久任务领取 CSV／XLSX、摘要、导出及维护任务。原始类型化载荷位于双副本 ClickHouse，源文件与不可变派生对象位于 S3，PG 只保存清单／授权／任务／版本。Redis 不保存监测真相。设备协议采集执行器仍不在本轮范围。
 
 <a id="system-1"></a>
 

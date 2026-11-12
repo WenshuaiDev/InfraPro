@@ -1,0 +1,37 @@
+<clickhouse>
+  <logger><level>warning</level><console>true</console></logger>
+  <listen_host>0.0.0.0</listen_host>
+  <max_server_memory_usage>1500000000</max_server_memory_usage>
+  <background_pool_size>4</background_pool_size>
+  <background_schedule_pool_size>8</background_schedule_pool_size>
+  <merge_tree>
+    <number_of_free_entries_in_pool_to_execute_mutation>2</number_of_free_entries_in_pool_to_execute_mutation>
+    <number_of_free_entries_in_pool_to_execute_optimize_entire_partition>2</number_of_free_entries_in_pool_to_execute_optimize_entire_partition>
+    <number_of_free_entries_in_pool_to_lower_max_size_of_merge>2</number_of_free_entries_in_pool_to_lower_max_size_of_merge>
+  </merge_tree>
+  <macros><replica from_env="CONTRACT_REPLICA"/></macros>
+  <zookeeper><node><host>keeper</host><port>9181</port></node></zookeeper>
+  <!-- Native backup credentials are separate from raw and source storage. -->
+  <named_collections><monitoring_backups>
+    <url>http://backup-s3:8333/monitoring-backups/</url>
+    <access_key_id>backup-local</access_key_id><secret_access_key>backup-local-test-only</secret_access_key>
+  </monitoring_backups></named_collections>
+  <storage_configuration>
+    <disks><contract_s3>
+      <type>s3</type><endpoint from_env="CONTRACT_S3_ENDPOINT"/>
+      <access_key_id>contract-ch</access_key_id><secret_access_key>contract-ch-test-only</secret_access_key>
+      <metadata_path>/var/lib/clickhouse/disks/contract_s3/</metadata_path>
+      <skip_access_check>true</skip_access_check>
+    </contract_s3>
+      <monitoring_cache><type>cache</type><disk>contract_s3</disk><skip_access_check>true</skip_access_check>
+        <path>/var/lib/clickhouse/filesystem_caches/monitoring/</path><max_size>256Mi</max_size>
+      </monitoring_cache>
+    </disks>
+    <policies><contract_tiered><volumes>
+      <hot><disk>default</disk></hot>
+      <online><disk>contract_s3</disk></online>
+    </volumes></contract_tiered>
+      <monitoring_tiered><volumes><hot><disk>default</disk></hot><online><disk>monitoring_cache</disk></online></volumes></monitoring_tiered>
+    </policies>
+  </storage_configuration>
+</clickhouse>

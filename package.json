@@ -26,9 +26,14 @@
     "test:identity": "node scripts/test-identity.mjs",
     "setup:local": "node scripts/setup-local.mjs",
     "test:http": "node scripts/test-http.mjs",
+    "test:monitoring:contract": "node scripts/test-monitoring-contract.mjs",
     "infrapro": "node scripts/infrapro.mjs",
     "permissions:generate": "node scripts/permissions.mjs && pnpm contracts:generate",
-    "permissions:check": "node scripts/permissions.mjs --check"
+    "permissions:check": "node scripts/permissions.mjs --check",
+    "test:monitoring": "node scripts/test-monitoring.mjs",
+    "test:monitoring:client": "node --test tests/unit/monitoring-client.test.mjs",
+    "test:monitoring:restore": "node scripts/test-monitoring-restore.mjs",
+    "monitoring:local": "node scripts/monitoring-local.mjs"
   },
   "devDependencies": {
     "@infrapro/eslint-config": "workspace:*",

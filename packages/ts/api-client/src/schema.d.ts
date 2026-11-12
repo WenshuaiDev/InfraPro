@@ -6111,6 +6111,1114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** access.list */
+        get: operations["Monitoring:tenant:access.list"];
+        put?: never;
+        /** access.grant */
+        post: operations["Monitoring:tenant:access.grant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring-access/{id}/revoke-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** access.preview */
+        post: operations["Monitoring:tenant:access.preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring-access/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** access.revoke */
+        post: operations["Monitoring:tenant:access.revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.list */
+        get: operations["Monitoring:tenant:imports.list"];
+        put?: never;
+        /** imports.create */
+        post: operations["Monitoring:tenant:imports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.detail */
+        get: operations["Monitoring:tenant:imports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/upload/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** upload.part */
+        put: operations["Monitoring:tenant:upload.part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/upload/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** upload.complete */
+        post: operations["Monitoring:tenant:upload.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.mapping */
+        post: operations["Monitoring:tenant:imports.mapping"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.issues */
+        get: operations["Monitoring:tenant:imports.issues"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/resolutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.resolve */
+        post: operations["Monitoring:tenant:imports.resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/selections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** selections.create */
+        post: operations["Monitoring:tenant:selections.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/queries/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** details */
+        post: operations["Monitoring:tenant:details"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/snapshots/{id}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** snapshots.renew */
+        post: operations["Monitoring:tenant:snapshots.renew"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** jobs.list */
+        get: operations["Monitoring:tenant:jobs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** jobs.detail */
+        get: operations["Monitoring:tenant:jobs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/jobs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** jobs.cancel */
+        post: operations["Monitoring:tenant:jobs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.validate */
+        post: operations["Monitoring:tenant:imports.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.publish */
+        post: operations["Monitoring:tenant:imports.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.retry */
+        post: operations["Monitoring:tenant:imports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.cancel */
+        post: operations["Monitoring:tenant:imports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.list */
+        get: operations["Monitoring:project:imports.list"];
+        put?: never;
+        /** imports.create */
+        post: operations["Monitoring:project:imports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.detail */
+        get: operations["Monitoring:project:imports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/upload/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** upload.part */
+        put: operations["Monitoring:project:upload.part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/upload/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** upload.complete */
+        post: operations["Monitoring:project:upload.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.mapping */
+        post: operations["Monitoring:project:imports.mapping"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** imports.issues */
+        get: operations["Monitoring:project:imports.issues"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/resolutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.resolve */
+        post: operations["Monitoring:project:imports.resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/selections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** selections.create */
+        post: operations["Monitoring:project:selections.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/queries/details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** details */
+        post: operations["Monitoring:project:details"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/snapshots/{id}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** snapshots.renew */
+        post: operations["Monitoring:project:snapshots.renew"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** jobs.list */
+        get: operations["Monitoring:project:jobs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** jobs.detail */
+        get: operations["Monitoring:project:jobs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/jobs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** jobs.cancel */
+        post: operations["Monitoring:project:jobs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.validate */
+        post: operations["Monitoring:project:imports.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.publish */
+        post: operations["Monitoring:project:imports.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.retry */
+        post: operations["Monitoring:project:imports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.cancel */
+        post: operations["Monitoring:project:imports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/batches/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** batches.detail */
+        get: operations["Monitoring:tenant:batches.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/batches/{id}/revoke-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** batches.preview */
+        post: operations["Monitoring:tenant:batches.preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/batches/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** batches.revoke */
+        post: operations["Monitoring:tenant:batches.revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/imports/{id}/readopt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.readopt */
+        post: operations["Monitoring:tenant:imports.readopt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/source-files/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** sources.download */
+        get: operations["Monitoring:tenant:sources.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/batches/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** batches.detail */
+        get: operations["Monitoring:project:batches.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/batches/{id}/revoke-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** batches.preview */
+        post: operations["Monitoring:project:batches.preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/batches/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** batches.revoke */
+        post: operations["Monitoring:project:batches.revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/imports/{id}/readopt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** imports.readopt */
+        post: operations["Monitoring:project:imports.readopt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/source-files/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** sources.download */
+        get: operations["Monitoring:project:sources.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/queries/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** overview */
+        post: operations["Monitoring:tenant:overview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/queries/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** latest */
+        post: operations["Monitoring:tenant:latest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/queries/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** statistics */
+        post: operations["Monitoring:tenant:statistics"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/queries/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** trends */
+        post: operations["Monitoring:tenant:trends"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** points.list */
+        get: operations["Monitoring:tenant:points.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/points/{id}/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.list */
+        get: operations["Monitoring:tenant:channels.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/queries/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** overview */
+        post: operations["Monitoring:project:overview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/queries/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** latest */
+        post: operations["Monitoring:project:latest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/queries/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** statistics */
+        post: operations["Monitoring:project:statistics"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/queries/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** trends */
+        post: operations["Monitoring:project:trends"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** points.list */
+        get: operations["Monitoring:project:points.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/points/{id}/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.list */
+        get: operations["Monitoring:project:channels.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** exports.create */
+        post: operations["Monitoring:tenant:exports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** exports.files */
+        get: operations["Monitoring:tenant:exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/exports/{id}/files/{part}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** exports.download */
+        get: operations["Monitoring:tenant:exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** exports.create */
+        post: operations["Monitoring:project:exports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** exports.files */
+        get: operations["Monitoring:project:exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/exports/{id}/files/{part}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** exports.download */
+        get: operations["Monitoring:project:exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6237,7 +7345,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage";
+        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read";
         Permission: {
             name: string;
             group: string;
@@ -10181,6 +11289,611 @@ export interface components {
             next_cursor: string;
         };
         DeviceEmptyInput: Record<string, never>;
+        MonitoringRange: {
+            /**
+             * Format: date-time
+             * @description RFC3339，保留最多九位小数秒；null 为显式无界。
+             */
+            from: string | null;
+            /**
+             * Format: date-time
+             * @description RFC3339，保留最多九位小数秒；null 为显式无界。
+             */
+            to: string | null;
+        };
+        /** @enum {string} */
+        MonitoringCapability: "read" | "export" | "import" | "revoke" | "history" | "source";
+        MonitoringGrantInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            resource_grant_id: string;
+            range: components["schemas"]["MonitoringRange"];
+            capabilities: components["schemas"]["MonitoringCapability"][];
+        };
+        MonitoringDataGrant: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            resource_grant_id: string;
+            range: components["schemas"]["MonitoringRange"];
+            capabilities: components["schemas"]["MonitoringCapability"][];
+            revision: string;
+            /** Format: date-time */
+            granted_at: string;
+            /** Format: date-time */
+            revoked_at: string | null;
+            effective: boolean;
+            channel_name: string;
+            channel_code: string;
+            point_name: string;
+            facility_name: string;
+        };
+        MonitoringGrantResult: {
+            /** Format: uuid */
+            id: string;
+            revision: string;
+            access_revision: string;
+            replayed: boolean;
+        };
+        MonitoringGrantPage: {
+            items: components["schemas"]["MonitoringDataGrant"][];
+            access_revision: string;
+            next_cursor: string;
+        };
+        MonitoringGrantPreview: {
+            grant: components["schemas"]["MonitoringDataGrant"];
+            preview_hash: string;
+            access_revision: string;
+        };
+        MonitoringRevisionInput: {
+            expected_revision: string;
+        };
+        MonitoringRevokeInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            preview_hash: string;
+        };
+        MonitoringIssue: {
+            code: string;
+            path: string;
+            message: string;
+        };
+        MonitoringError: {
+            code: string;
+            message: string;
+            request_id?: string;
+            issues?: components["schemas"]["MonitoringIssue"][];
+        };
+        MonitoringWriteMeta: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+        };
+        MonitoringImportInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            name: string;
+            size_bytes: string;
+        };
+        MonitoringUploadComplete: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            sha256: string;
+        };
+        MonitoringUploadPart: {
+            part: number;
+            size_bytes: string;
+            sha256: string;
+        };
+        MonitoringChannelMapping: {
+            alias: string;
+            /** Format: uuid */
+            channel_id: string;
+            value_column?: string;
+            unit: string;
+        };
+        MonitoringMapping: {
+            /** @enum {string} */
+            format: "csv" | "xlsx";
+            /** @enum {string} */
+            mode: "single" | "long" | "wide";
+            /** @enum {string} */
+            encoding?: "utf-8" | "gb18030";
+            delimiter?: string;
+            sheet?: string;
+            header_row: number;
+            channel_column?: string;
+            time_column: string;
+            value_column?: string;
+            unit_column?: string;
+            quality_column?: string;
+            record_column?: string;
+            interval_start_column?: string;
+            timezone: string;
+            local_time_layout?: string;
+            /** @enum {string} */
+            empty_wide: "error" | "no_observation";
+            quality_map?: {
+                [key: string]: "good" | "unmarked" | "suspect" | "bad";
+            };
+            channels: components["schemas"]["MonitoringChannelMapping"][];
+        };
+        MonitoringMappingInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            mapping: components["schemas"]["MonitoringMapping"];
+        };
+        MonitoringResolveInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            preview_hash: string;
+            confirm_same_observation: boolean;
+        };
+        MonitoringImportCounts: {
+            parsed_rows: string;
+            candidates: string;
+            blank_rows: string;
+            missing_cells: string;
+            errors: string;
+            suspect: string;
+            duplicates: string;
+            ignored: string;
+            proposed: string;
+        };
+        MonitoringImportBatch: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            state: "uploading" | "received" | "validating" | "needs_resolution" | "ready" | "preparing" | "published" | "completed_noop" | "failed" | "cancelled" | "revoked";
+            revision: string;
+            mapping_revision: string;
+            name: string;
+            size_bytes?: string;
+            source_file_id?: string;
+            /** Format: uuid */
+            created_by?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            counts?: components["schemas"]["MonitoringImportCounts"];
+            validation_hash?: string;
+            error_code: string;
+            readopt_batch_id?: string;
+            parts: components["schemas"]["MonitoringUploadPart"][];
+            mapping?: components["schemas"]["MonitoringMapping"];
+            /** Format: uuid */
+            job_id?: string;
+            scope_clipped: boolean;
+            visible_adopted_count?: string;
+            visible_coverage?: components["schemas"]["MonitoringBatchCoverage"][];
+            preview?: components["schemas"]["MonitoringSourcePreview"];
+        };
+        MonitoringImportPage: {
+            items: components["schemas"]["MonitoringImportBatch"][];
+            next_cursor: string;
+        };
+        MonitoringImportIssue: {
+            code: string;
+            line: string;
+            column: string;
+            channel_id: string;
+            observed_at: string;
+            message: string;
+            target_observation_id?: string;
+            payload_hash?: string;
+        };
+        MonitoringIssuePage: {
+            items: components["schemas"]["MonitoringImportIssue"][];
+            next_cursor: string;
+            preview_hash: string;
+        };
+        MonitoringJob: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "validate" | "publish" | "summary" | "export" | "verify" | "relocate" | "backup" | "restore";
+            /** Format: uuid */
+            target_id: string;
+            target_revision: string;
+            /** @enum {string} */
+            state: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "needs_action" | "retry_wait";
+            revision: string;
+            attempts: number;
+            progress: {
+                [key: string]: unknown;
+            };
+            error_code: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** @enum {string} */
+            result_state?: "preparing" | "available" | "invalidated" | "expired";
+            /** Format: uuid */
+            trace_id: string;
+        };
+        MonitoringJobPage: {
+            items: components["schemas"]["MonitoringJob"][];
+            next_cursor: string;
+        };
+        MonitoringSelectionInput: {
+            all_workspace?: boolean;
+            channel_ids?: string[];
+            point_ids?: string[];
+        };
+        MonitoringSelection: {
+            /** Format: uuid */
+            id: string;
+            hash: string;
+            channel_count: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        MonitoringQuery: {
+            /** Format: uuid */
+            selection_id: string;
+            /** Format: uuid */
+            snapshot_id?: string | null;
+            range?: components["schemas"]["MonitoringRange"];
+            all_history?: boolean;
+            qualities?: ("good" | "unmarked" | "suspect" | "bad")[];
+            timezone?: string;
+            /** @enum {string} */
+            status?: "active" | "history";
+            /** @enum {string} */
+            value_kind?: "integer" | "decimal" | "enum";
+            cursor?: string;
+            /** @default 200 */
+            limit: number;
+            /** @enum {string} */
+            direction?: "forward" | "backward";
+            plot_width_px?: number;
+            /** @enum {string} */
+            period?: "day" | "month" | "year";
+            /** @default 12 */
+            digits: number;
+            /** @description Optional viewport inside the immutable snapshot base range. Authorization, watermark and base filters stay fixed; cursors bind this viewport. */
+            view_range?: components["schemas"]["MonitoringRange"];
+            /** @description Optional lower per-curve point budget for a complete trend tile. Cannot increase the server pixel or total-curve budgets. */
+            plot_point_budget?: number;
+        };
+        MonitoringSnapshot: {
+            /** Format: uuid */
+            id: string;
+            watermark: string;
+            route_revision: string;
+            /** Format: date-time */
+            expires_at: string;
+            query_hash: string;
+        };
+        MonitoringObservation: {
+            /** Format: uuid */
+            observation_id: string;
+            /** Format: uuid */
+            adoption_id: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            batch_id: string;
+            /** Format: date-time */
+            observed_at: string;
+            /** Format: date-time */
+            interval_start: string | null;
+            /** @enum {string} */
+            value_kind: "integer" | "decimal" | "enum";
+            value: string;
+            /** @enum {string} */
+            quality: "good" | "unmarked" | "suspect" | "bad";
+            quality_reason: string;
+            revoked: boolean;
+        };
+        MonitoringDetailPage: {
+            items: components["schemas"]["MonitoringObservation"][];
+            snapshot: components["schemas"]["MonitoringSnapshot"];
+            has_more: boolean;
+            next_cursor: string;
+            prev_cursor: string;
+        };
+        MonitoringBatchCoverage: {
+            /** Format: uuid */
+            channel_id: string;
+            count: string;
+            earliest: string;
+            latest: string;
+        };
+        MonitoringBatchRevokePreview: {
+            /** Format: uuid */
+            batch_id: string;
+            revision: string;
+            preview_hash: string;
+            adopted_count: string;
+            ignored_duplicates: string;
+            quality_counts: {
+                [key: string]: string;
+            };
+            coverage: components["schemas"]["MonitoringBatchCoverage"][];
+            affected_own_exports: string;
+        };
+        MonitoringBatchRevokeResult: {
+            /** Format: uuid */
+            batch_id: string;
+            revision: string;
+            revoke_sequence: string;
+            revoked_count: string;
+            replayed: boolean;
+        };
+        MonitoringReadoptInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            all_originally_adopted?: boolean;
+            channel_ids?: string[];
+            range?: components["schemas"]["MonitoringRange"];
+        };
+        MonitoringPreviewSheet: {
+            name: string;
+            dimension: string;
+        };
+        MonitoringSourcePreview: {
+            available: boolean;
+            format: string;
+            sheet: string;
+            sheets: components["schemas"]["MonitoringPreviewSheet"][];
+            rows: string[][];
+            truncated: boolean;
+            notice: string;
+        };
+        MonitoringOverview: {
+            ever_published_count: string;
+            active_count: string;
+            sample_count: string;
+            quality_counts: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            earliest: string | null;
+            /** Format: date-time */
+            latest: string | null;
+        };
+        MonitoringEnumStatistic: {
+            value: string;
+            count: string;
+            sample_proportion: string;
+            /** Format: date-time */
+            first_at: string;
+            /** Format: date-time */
+            last_at: string;
+        };
+        MonitoringChannelStatistic: {
+            ever_published_count: string;
+            active_count: string;
+            sample_count: string;
+            quality_counts: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            earliest: string | null;
+            /** Format: date-time */
+            latest: string | null;
+            /** Format: uuid */
+            channel_id: string;
+            n: string;
+            scale: number;
+            /** @enum {string} */
+            rounding: "half_even";
+            first: components["schemas"]["MonitoringObservation"] | null;
+            last: components["schemas"]["MonitoringObservation"] | null;
+            minimum: components["schemas"]["MonitoringObservation"] | null;
+            maximum: components["schemas"]["MonitoringObservation"] | null;
+            minimum_ties: string;
+            maximum_ties: string;
+            mean: string | null;
+            population_stddev: string | null;
+            states: components["schemas"]["MonitoringEnumStatistic"][];
+        };
+        MonitoringCalendarStatistic: {
+            ever_published_count: string;
+            active_count: string;
+            sample_count: string;
+            quality_counts: {
+                [key: string]: string;
+            };
+            /** Format: date-time */
+            earliest: string | null;
+            /** Format: date-time */
+            latest: string | null;
+            /** Format: uuid */
+            channel_id: string;
+            n: string;
+            scale: number;
+            /** @enum {string} */
+            rounding: "half_even";
+            first: components["schemas"]["MonitoringObservation"] | null;
+            last: components["schemas"]["MonitoringObservation"] | null;
+            minimum: components["schemas"]["MonitoringObservation"] | null;
+            maximum: components["schemas"]["MonitoringObservation"] | null;
+            minimum_ties: string;
+            maximum_ties: string;
+            mean: string | null;
+            population_stddev: string | null;
+            states: components["schemas"]["MonitoringEnumStatistic"][];
+            /** @enum {string} */
+            period: "day" | "month" | "year";
+            timezone: string;
+            /** Format: date-time */
+            calendar_start: string;
+            /** Format: date-time */
+            calendar_end: string;
+            actual_range: components["schemas"]["MonitoringRange"];
+            included_ranges: components["schemas"]["MonitoringRange"][];
+            partial: boolean;
+        };
+        MonitoringTrendBucket: {
+            range: components["schemas"]["MonitoringRange"];
+            sample_count: string;
+            points: components["schemas"]["MonitoringObservation"][];
+            states: components["schemas"]["MonitoringEnumStatistic"][];
+            discontinuous: boolean;
+        };
+        MonitoringTrendSeries: {
+            /** Format: uuid */
+            channel_id: string;
+            range: components["schemas"]["MonitoringRange"];
+            resolution: string;
+            summary: boolean;
+            sample_count: string;
+            buckets: components["schemas"]["MonitoringTrendBucket"][];
+            /** @enum {string} */
+            coverage: "complete";
+            /** @enum {string} */
+            connection: "observed_points" | "extrema_envelope";
+            gap_explanation: string;
+        };
+        MonitoringAnalyticResult: {
+            /** @enum {string} */
+            state: "ready" | "pending" | "failed" | "needs_action" | "cancelled";
+            snapshot: components["schemas"]["MonitoringSnapshot"];
+            /** Format: uuid */
+            job_id?: string;
+            overview?: components["schemas"]["MonitoringOverview"];
+            channels?: components["schemas"]["MonitoringChannelStatistic"][];
+            groups?: components["schemas"]["MonitoringCalendarStatistic"][];
+            trends?: components["schemas"]["MonitoringTrendSeries"][];
+            has_more: boolean;
+            next_cursor?: string;
+            computation: string;
+        };
+        MonitoringPoint: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            /** Format: uuid */
+            facility_id: string;
+            facility_name: string;
+            component_id: string;
+            status: string;
+            position: components["schemas"]["ResourcePosition"];
+            direction_description: string;
+            reference_description: string;
+        };
+        MonitoringChannel: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            point_id: string;
+            code: string;
+            name: string;
+            status: string;
+            /** Format: uuid */
+            metric_version_id: string;
+            metric_name: string;
+            unit: string;
+            /** @enum {string} */
+            value_kind: "integer" | "decimal" | "enum";
+            observation_direction: string;
+            reference_basis: string;
+            timestamp_meaning: string;
+            sampling: {
+                [key: string]: unknown;
+            } | null;
+            read_ranges: components["schemas"]["MonitoringRange"][];
+        };
+        MonitoringPointPage: {
+            items: components["schemas"]["MonitoringPoint"][];
+            next_cursor: string;
+            authorization_revision: string;
+        };
+        MonitoringChannelPage: {
+            items: components["schemas"]["MonitoringChannel"][];
+            next_cursor: string;
+            authorization_revision: string;
+        };
+        MonitoringExportInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            query: components["schemas"]["MonitoringQuery"];
+            /** @enum {string} */
+            format: "csv" | "parquet";
+            /**
+             * @default details
+             * @enum {string}
+             */
+            kind: "details" | "statistics";
+            /**
+             * @default exact
+             * @enum {string}
+             */
+            csv_mode: "exact" | "spreadsheet_safe";
+        };
+        MonitoringExportRecord: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            job_id: string;
+            state: string;
+            /** Format: date-time */
+            expires_at: string;
+            snapshot: components["schemas"]["MonitoringSnapshot"];
+        };
+        MonitoringExportFile: {
+            part: string;
+            name: string;
+            row_count: string;
+            size_bytes: string;
+            sha256: string;
+        };
+        MonitoringExportField: {
+            name: string;
+            type: string;
+            nullable: boolean;
+        };
+        MonitoringExportManifest: {
+            /** Format: uuid */
+            id: string;
+            snapshot: components["schemas"]["MonitoringSnapshot"];
+            query: components["schemas"]["MonitoringQuery"];
+            kind: string;
+            format: string;
+            csv_mode: string;
+            escaping: string;
+            parquet_version: string;
+            fields: components["schemas"]["MonitoringExportField"][];
+            files: components["schemas"]["MonitoringExportFile"][];
+            row_count: string;
+            /** Format: date-time */
+            expires_at: string;
+            authorized_ranges: {
+                [key: string]: components["schemas"]["MonitoringRange"][];
+            };
+            ordering: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -44471,6 +46184,6824 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:access.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；修订号及计数使用十进制字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringGrantPage"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:access.grant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringGrantInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；修订号及计数使用十进制字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringGrantResult"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:access.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；修订号及计数使用十进制字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringGrantPreview"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:access.revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevokeInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；修订号及计数使用十进制字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringGrantResult"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并核对当前权限和修订。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringImportInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:upload.part": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Expected-Revision": string;
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringUploadPart"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:upload.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringUploadComplete"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringMappingInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.issues": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringIssuePage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringResolveInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:selections.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringSelectionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringSelection"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringDetailPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:snapshots.renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringSnapshot"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:jobs.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJobPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:jobs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJob"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:jobs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJob"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringImportInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:upload.part": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Expected-Revision": string;
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringUploadPart"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:upload.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringUploadComplete"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.mapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringMappingInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.issues": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringIssuePage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringResolveInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:selections.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringSelectionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringSelection"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringDetailPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:snapshots.renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringSnapshot"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:jobs.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJobPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:jobs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJob"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:jobs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringJob"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:batches.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:batches.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringBatchRevokePreview"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:batches.revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevokeInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringBatchRevokeResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:imports.readopt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringReadoptInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:sources.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:batches.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:batches.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringBatchRevokePreview"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:batches.revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringRevokeInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringBatchRevokeResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:imports.readopt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringReadoptInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringImportBatch"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:sources.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:points.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                search?: string;
+                facility_id?: string;
+                point_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringPointPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:channels.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                channel_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringChannelPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringQuery"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 所需快照的后台计算进行中；结果未完成时不返回伪零值。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringAnalyticResult"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:points.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                search?: string;
+                facility_id?: string;
+                point_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringPointPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:channels.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                channel_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringChannelPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:exports.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringExportInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringExportRecord"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringExportManifest"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:exports.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MonitoringExportInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringExportRecord"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringExportManifest"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；当前范围与资格已核对。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 导出结果已过期。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
                 };
             };
         };

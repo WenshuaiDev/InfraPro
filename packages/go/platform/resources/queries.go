@@ -117,6 +117,16 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 		out.Actions.CreateComponent = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
 		out.Actions.CreatePoint = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
 		out.Actions.CreateChannel = out.Actions.Add && r.Kind == Point
+		if out.Actions.Delete && s.external != nil {
+			impact, err := s.external.ResourceImpactTx(ctx, tx, scope, target)
+			if err != nil {
+				return err
+			}
+			if impact.Referenced {
+				out.Actions.Delete = false
+				out.Actions.Reason = "资源存在需要保留的业务引用。"
+			}
+		}
 		out.Shared, e = sharedTx(ctx, tx, auth, t)
 		if e != nil {
 			return e

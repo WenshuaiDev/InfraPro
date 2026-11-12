@@ -2,7 +2,7 @@
 
 整理日期：2026-11-12。状态：**Awaiting acceptance（文档自检通过，待用户验收）**。
 
-除尚未开发的监测数据外，项目文档统一维护在以下三份主文档中，不再按每次迭代分别保存需求、页面改造和运行手册。
+除正在独立实施的监测数据外，项目文档统一维护在以下三份主文档中，不再按每次迭代分别保存需求、页面改造和运行手册。
 
 | 主文档 | 内容 |
 | --- | --- |
@@ -14,8 +14,11 @@
 
 - [监测数据完整需求与总体方案](requirements/monitoring-data-foundation-plan.md)
 - [监测数据详细开发方案](requirements/monitoring-data-development-plan.md)
+- [监测使用与维护](operations/monitoring-data.md)
+- [本机人工验收](operations/monitoring-data-acceptance.md)
+- [监测开发与自验证据](verification/monitoring-data.md)
 
-两份文档的路径和内容均保持不变，仍属尚未开发的独立范围。它们引用的[旧项目资源方案地址](requirements/project-resource-management-refactor-plan.md)仅保留跳转说明，正文已并入主文档。
+两份方案继续独立维护；用户已确认实施并调整为优先本机功能，[开发与自验记录](verification/monitoring-data.md)分别记录阶段结果和待验证事项。它们引用的[旧项目资源方案地址](requirements/project-resource-management-refactor-plan.md)仅保留跳转说明，正文已并入主文档。
 
 ## 内容归属
 

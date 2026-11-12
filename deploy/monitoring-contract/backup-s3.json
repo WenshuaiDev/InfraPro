@@ -1,0 +1,1 @@
+{"identities":[{"name":"monitoring-backup","credentials":[{"accessKey":"backup-local","secretKey":"backup-local-test-only"}],"actions":["Read:monitoring-backups","Write:monitoring-backups","List:monitoring-backups"]},{"name":"backup-admin","credentials":[{"accessKey":"backup-admin","secretKey":"backup-admin-test-only"}],"actions":["Admin","Read","Write","List"]}]}

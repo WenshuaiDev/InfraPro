@@ -1,6 +1,6 @@
 # InfraPro 技术选型
 
-基线：2026-11-12。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。这次整理不升级依赖，也不把待开发的监测数据技术方案纳入当前运行栈。
+基线：2026-11-12。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据依用户确认方案新增的组件见第8节；本机验证及目标部署待验证项另行记录。
 
 ## 1 选型原则
 
@@ -77,8 +77,22 @@
 3. 工程位置使用受校验的结构化字段；当前未采用 PostGIS、地图引擎或坐标转换库。桩号及局部坐标只是业务资料，不能推导虚构 GIS 结果。
 4. 权限和来源变更使用 PostgreSQL 短事务及共享协调锁，不引入分布式锁、跨库授权同步或隐式最终一致放行。
 5. 模板和产品采用不可变版本、独立启停和固定依赖；没有审批引擎、任意公式解释器或在线协议执行器。
-6. 监测数据的存储、导入、趋势、统计及集群方案继续以[原总体方案](requirements/monitoring-data-foundation-plan.md)和[原详细方案](requirements/monitoring-data-development-plan.md)为准。两份文档保持原样，本文不替它们重新选型。
+6. 监测数据的存储、导入、趋势、统计及集群方案以[总体方案](requirements/monitoring-data-foundation-plan.md)和[详细方案](requirements/monitoring-data-development-plan.md)为准。实施与用户的本机优先调整记录在原路径，目标规模与部署验证仍未完成。
 
 ## 7 选型变更规则
 
 技术替换或版本升级应先说明业务原因、影响模块、数据／接口兼容与验收，再同步清单、锁文件和对应设计。保留当前可复用接口；未出现实际需求时不预建空应用、空命令、空数据表或未启用的权限。实际构建、测试、迁移和用户验收分别记录，依赖已安装不等同于功能已交付。
+
+## 8 监测数据本轮实现
+
+| 技术 | 锁定版本／来源 | 实际用途与边界 |
+| --- | --- | --- |
+| ClickHouse + Keeper | 26.8.36.3；本机 Compose 锁定镜像 digest | 双副本类型化不可变采用载荷，按月分区；PG 清单决定业务可见性，不靠最终去重。单主机 Keeper 不代表生产容灾。 |
+| SeaweedFS S3 | 4.53；本机 Compose 锁定镜像 digest | 原文件、不可变摘要、导出和 CH 在线历史磁盘；本地缓存256 MiB／副本。备份使用独立服务与身份，仍在同一主机。 |
+| clickhouse-go / minio-go | platform go.mod | CH 原生精确读写、取消及逐副本核验；S3 流式、multipart、条件写。 |
+| Excelize / 有界 XML 解析 | v2.11.1 | 工作簿元数据和合成样本，实际行与共享字符串使用有界流／磁盘处理，不执行公式。 |
+| Apache Arrow Go | v18.8.0 | 后台 Parquet 2.6 分卷，保留 UTC 纳秒、Int64、Decimal(38,12) 和枚举。 |
+| math/big / shopspring decimal | Go 标准库／v1.6.0 | 精确整数矩、38位原值、总体标准差和half-even舍入，大数不经过JS Number。 |
+| ECharts Canvas | 6.1.0；console package.json | 按需加载的监测趋势模块、固定视窗、真实极值点、精确tooltip和键盘等价明细。普通图表继续使用共享Recharts。 |
+
+监测原始明细不写入 PostgreSQL；PG 只保存控制元数据、授权、清单、版本和任务。存储许可、兼容性与故障行为见[契约证据](verification/monitoring-data.md)，启动和恢复见[维护手册](operations/monitoring-data.md)。镜像及依赖锁定不代表生产容量保证。

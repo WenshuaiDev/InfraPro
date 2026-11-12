@@ -22,3 +22,32 @@ ip_request_limit: '120'
 credential_request_limit: '20'
 password_failures: '5'
 audit_retention: 2160h
+# Monitoring is optional until configured. API and the independent worker share
+# these settings. Use environment variables for real credentials.
+monitoring_clickhouse_replicas: '' # Comma-separated native endpoints; at least two.
+monitoring_clickhouse_database: infrapro_monitoring
+monitoring_clickhouse_user: default
+monitoring_clickhouse_password: ''
+monitoring_clickhouse_policy: monitoring_tiered
+monitoring_clickhouse_tls: 'false'
+monitoring_object_endpoint: ''
+monitoring_object_access_key: ''
+monitoring_object_secret_key: ''
+monitoring_source_bucket: ''
+monitoring_temp_directory: '' # Empty uses the OS temporary directory; 8 GiB per task.
+monitoring_export_rows_per_file: "1000000"
+monitoring_export_bytes_per_file: "268435456" # CSV bytes; Parquet may finish its bounded 8 MiB row group.
+
+# Event-time placement target in days; never a deletion/retention TTL.
+monitoring_hot_days: "90"
+monitoring_online_volume: online
+# Additional physical shards share CH credentials/TLS and the source bucket.
+# JSON array: [{"name":"second","database":"infrapro_monitoring_second","replicas":["ch3:9000","ch4:9000"]}]
+monitoring_physical_shards: "[]"
+
+# Independent backup namespace/credentials; required only by backup/restore CLI.
+monitoring_backup_endpoint: ""
+monitoring_backup_access_key: ""
+monitoring_backup_secret_key: ""
+monitoring_backup_bucket: ""
+monitoring_backup_named_collection: monitoring_backups

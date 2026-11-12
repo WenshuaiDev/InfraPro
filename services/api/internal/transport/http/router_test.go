@@ -238,7 +238,9 @@ func TestE2EServer(t *testing.T) {
 	if address == "" {
 		address = "127.0.0.1:18080"
 	}
-	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config), ReadHeaderTimeout: 5 * time.Second}
+	storage, cleanupMonitoring := browserMonitoring(t, ctx, env)
+	defer cleanupMonitoring()
+	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config, storage), ReadHeaderTimeout: 5 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()
 	jobs, stopJobs := context.WithCancel(ctx)

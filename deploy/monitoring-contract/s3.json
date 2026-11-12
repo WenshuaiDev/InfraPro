@@ -1,0 +1,7 @@
+{
+  "identities": [
+    {"name": "contract-admin", "credentials": [{"accessKey": "contract-admin", "secretKey": "contract-admin-test-only"}], "actions": ["Admin", "Read", "Write", "List", "Tagging"]},
+    {"name": "contract-source", "credentials": [{"accessKey": "contract-source", "secretKey": "contract-source-test-only"}], "actions": ["Read:contract-source", "Write:contract-source", "List:contract-source"]},
+    {"name": "contract-ch", "credentials": [{"accessKey": "contract-ch", "secretKey": "contract-ch-test-only"}], "actions": ["Read:contract-ch", "Write:contract-ch", "List:contract-ch"]}
+  ]
+}

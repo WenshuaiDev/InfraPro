@@ -36,7 +36,7 @@ const ProjectAdminKey = "project_admin"
 const ProjectMemberKey = "project_member"
 
 func Builtins() []Builtin {
-	return append(baseBuiltins(), []Builtin{
+	out := append(baseBuiltins(), []Builtin{
 		{ProjectAdminKey, "项目管理员", "仅通过创建、交接和失管恢复任命。", "project", append(append(projectResourceCodes(), projectDeviceCodes()...), []Code{ProjectProfileRead, ProjectProfileUpdate, ProjectMemberRead, ProjectMemberAdd, ProjectMemberSuspend, ProjectMemberResume, ProjectMemberRemove, ProjectRoleRead, ProjectPermissionRead, ProjectAuthorizationRead, ProjectAuditRead, ProjectRoleCreate, ProjectRoleUpdate, ProjectRoleSetPermissions, ProjectRoleSetStatus, ProjectRoleDelete, ProjectMemberAssignRoles, ProjectAdministratorTransfer, ProjectOwnerChange, ProjectArchive, ProjectRestore}...), "administrator_transfer_only"},
 		{"project_resource_reader", "项目资源查看员", "查看获准资源及公共历史。", "project", []Code{ProjectProfileRead, ProjectEngineeringResourceRead, ProjectEngineeringResourceHistoryRead}, "manual"},
 		{"project_resource_maintainer", "项目资源维护员", "在租户明确授权范围内创建和维护统一资源。", "project", append(projectResourceCodes(), ProjectProfileRead), "manual"},
@@ -45,4 +45,13 @@ func Builtins() []Builtin {
 		{"project_member_manager", "项目成员管理人员", "在授予范围内管理普通成员。", "project", []Code{ProjectProfileRead, ProjectMemberRead, ProjectMemberAdd, ProjectMemberSuspend, ProjectMemberResume, ProjectMemberRemove, ProjectAuthorizationRead}, "manual"},
 		{"project_auditor", "项目审计查看员", "查看项目授权及操作记录。", "project", []Code{ProjectProfileRead, ProjectMemberRead, ProjectRoleRead, ProjectPermissionRead, ProjectAuthorizationRead, ProjectAuditRead}, "manual"},
 	}...)
+	for i := range out {
+		if out[i].Key == TenantAdminKey {
+			out[i].Permissions = append(out[i].Permissions, monitoringCodes("tenant")...)
+		}
+		if out[i].Key == ProjectAdminKey {
+			out[i].Permissions = append(out[i].Permissions, monitoringCodes("project")...)
+		}
+	}
+	return out
 }

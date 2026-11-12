@@ -76,6 +76,7 @@ func (s *Service) deviceTargetTx(ctx context.Context, tx pgx.Tx, a access.Actor,
 type ExternalImpact struct {
 	Hash                                           string
 	Referenced, CurrentInstallation, CurrentSource bool
+	DeviceReferenced, MonitoringReferenced         bool
 }
 type ExternalReferences interface {
 	ResourceImpactTx(context.Context, pgx.Tx, Scope, Target) (ExternalImpact, error)

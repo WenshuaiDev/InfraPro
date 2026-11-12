@@ -39,6 +39,7 @@ import { Route as AuthenticatedPlatformDeviceProductsProductIdRouteImport } from
 import { Route as AuthenticatedTTenantIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/roles/index'
 import { Route as AuthenticatedTTenantIdResourceAccessIndexRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/index'
 import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './routes/_authenticated/t/$tenantId/projects/index'
+import { Route as AuthenticatedTTenantIdMonitoringIndexRouteImport } from './routes/_authenticated/t/$tenantId/monitoring/index'
 import { Route as AuthenticatedTTenantIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/members/index'
 import { Route as AuthenticatedTTenantIdInvitationsIndexRouteImport } from './routes/_authenticated/t/$tenantId/invitations/index'
 import { Route as AuthenticatedTTenantIdDevicesIndexRouteImport } from './routes/_authenticated/t/$tenantId/devices/index'
@@ -47,6 +48,7 @@ import { Route as AuthenticatedTTenantIdRolesRoleIdRouteImport } from './routes/
 import { Route as AuthenticatedTTenantIdProjectsNewRouteImport } from './routes/_authenticated/t/$tenantId/projects/new'
 import { Route as AuthenticatedTTenantIdProjectsProjectIdRouteImport } from './routes/_authenticated/t/$tenantId/projects/$projectId'
 import { Route as AuthenticatedTTenantIdPProjectIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId'
+import { Route as AuthenticatedTTenantIdMonitoringJobsRouteImport } from './routes/_authenticated/t/$tenantId/monitoring/jobs'
 import { Route as AuthenticatedTTenantIdMembersMembershipIdRouteImport } from './routes/_authenticated/t/$tenantId/members/$membershipId'
 import { Route as AuthenticatedTTenantIdInvitationsInvitationIdRouteImport } from './routes/_authenticated/t/$tenantId/invitations/$invitationId'
 import { Route as AuthenticatedTTenantIdEngineeringTemplatesRouteImport } from './routes/_authenticated/t/$tenantId/engineering/templates'
@@ -55,22 +57,31 @@ import { Route as AuthenticatedTTenantIdDeviceProductsProductIdRouteImport } fro
 import { Route as AuthenticatedTTenantIdResourcesFacilitiesIndexRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/index'
 import { Route as AuthenticatedTTenantIdResourceAccessProjectIdIndexRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/$projectId/index'
 import { Route as AuthenticatedTTenantIdPProjectIdIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/index'
+import { Route as AuthenticatedTTenantIdMonitoringImportsIndexRouteImport } from './routes/_authenticated/t/$tenantId/monitoring/imports/index'
 import { Route as AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resources/facilities/$facilityId'
+import { Route as AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRouteImport } from './routes/_authenticated/t/$tenantId/projects/$projectId_/monitoring-access'
 import { Route as AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRouteImport } from './routes/_authenticated/t/$tenantId/projects/$projectId_/device-access'
 import { Route as AuthenticatedTTenantIdPProjectIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/profile'
 import { Route as AuthenticatedTTenantIdPProjectIdPermissionsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/permissions'
 import { Route as AuthenticatedTTenantIdPProjectIdAuditRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/audit'
+import { Route as AuthenticatedTTenantIdMonitoringImportsBatchIdRouteImport } from './routes/_authenticated/t/$tenantId/monitoring/imports/$batchId'
+import { Route as AuthenticatedTTenantIdMonitoringBatchesBatchIdRouteImport } from './routes/_authenticated/t/$tenantId/monitoring/batches/$batchId'
 import { Route as AuthenticatedTTenantIdEngineeringCatalogKindRouteImport } from './routes/_authenticated/t/$tenantId/engineering/catalog/$kind'
 import { Route as AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/index'
+import { Route as AuthenticatedTTenantIdPProjectIdMonitoringIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/index'
 import { Route as AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/index'
 import { Route as AuthenticatedTTenantIdPProjectIdDevicesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/devices/index'
 import { Route as AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
 import { Route as AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+import { Route as AuthenticatedTTenantIdPProjectIdMonitoringJobsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
 import { Route as AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
 import { Route as AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/devices/$deviceId'
 import { Route as AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/device-outputs/$outputId'
 import { Route as AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/resources/facilities/index'
+import { Route as AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/index'
 import { Route as AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+import { Route as AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
+import { Route as AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -237,6 +248,12 @@ const AuthenticatedTTenantIdProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdMonitoringIndexRoute =
+  AuthenticatedTTenantIdMonitoringIndexRouteImport.update({
+    id: '/monitoring/',
+    path: '/monitoring/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdMembersIndexRoute =
   AuthenticatedTTenantIdMembersIndexRouteImport.update({
     id: '/members/',
@@ -283,6 +300,12 @@ const AuthenticatedTTenantIdPProjectIdRoute =
   AuthenticatedTTenantIdPProjectIdRouteImport.update({
     id: '/p/$projectId',
     path: '/p/$projectId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdMonitoringJobsRoute =
+  AuthenticatedTTenantIdMonitoringJobsRouteImport.update({
+    id: '/monitoring/jobs',
+    path: '/monitoring/jobs',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
 const AuthenticatedTTenantIdMembersMembershipIdRoute =
@@ -333,10 +356,22 @@ const AuthenticatedTTenantIdPProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdMonitoringImportsIndexRoute =
+  AuthenticatedTTenantIdMonitoringImportsIndexRouteImport.update({
+    id: '/monitoring/imports/',
+    path: '/monitoring/imports/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute =
   AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport.update({
     id: '/resources/facilities/$facilityId',
     path: '/resources/facilities/$facilityId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute =
+  AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRouteImport.update({
+    id: '/projects/$projectId_/monitoring-access',
+    path: '/projects/$projectId/monitoring-access',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
 const AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute =
@@ -363,6 +398,18 @@ const AuthenticatedTTenantIdPProjectIdAuditRoute =
     path: '/audit',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdMonitoringImportsBatchIdRoute =
+  AuthenticatedTTenantIdMonitoringImportsBatchIdRouteImport.update({
+    id: '/monitoring/imports/$batchId',
+    path: '/monitoring/imports/$batchId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute =
+  AuthenticatedTTenantIdMonitoringBatchesBatchIdRouteImport.update({
+    id: '/monitoring/batches/$batchId',
+    path: '/monitoring/batches/$batchId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdEngineeringCatalogKindRoute =
   AuthenticatedTTenantIdEngineeringCatalogKindRouteImport.update({
     id: '/engineering/catalog/$kind',
@@ -373,6 +420,12 @@ const AuthenticatedTTenantIdPProjectIdRolesIndexRoute =
   AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport.update({
     id: '/roles/',
     path: '/roles/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute =
+  AuthenticatedTTenantIdPProjectIdMonitoringIndexRouteImport.update({
+    id: '/monitoring/',
+    path: '/monitoring/',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
 const AuthenticatedTTenantIdPProjectIdMembersIndexRoute =
@@ -401,6 +454,12 @@ const AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute =
     path: '/roles/$roleId',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute =
+  AuthenticatedTTenantIdPProjectIdMonitoringJobsRouteImport.update({
+    id: '/monitoring/jobs',
+    path: '/monitoring/jobs',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
 const AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute =
   AuthenticatedTTenantIdPProjectIdMembersMembershipIdRouteImport.update({
     id: '/members/$membershipId',
@@ -425,6 +484,12 @@ const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute =
     path: '/resources/facilities/',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
   } as any)
+const AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute =
+  AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRouteImport.update({
+    id: '/monitoring/imports/',
+    path: '/monitoring/imports/',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
 const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute =
   AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport.update(
     {
@@ -433,6 +498,18 @@ const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute =
       getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
     } as any,
   )
+const AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute =
+  AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRouteImport.update({
+    id: '/monitoring/imports/$batchId',
+    path: '/monitoring/imports/$batchId',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute =
+  AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRouteImport.update({
+    id: '/monitoring/batches/$batchId',
+    path: '/monitoring/batches/$batchId',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -465,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
   '/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
   '/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/t/$tenantId/monitoring/jobs': typeof AuthenticatedTTenantIdMonitoringJobsRoute
   '/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
@@ -473,27 +551,37 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/devices/': typeof AuthenticatedTTenantIdDevicesIndexRoute
   '/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/t/$tenantId/monitoring/': typeof AuthenticatedTTenantIdMonitoringIndexRoute
   '/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
   '/t/$tenantId/resource-access/': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/t/$tenantId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute
+  '/t/$tenantId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdMonitoringImportsBatchIdRoute
   '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
   '/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
   '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/t/$tenantId/projects/$projectId/device-access': typeof AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute
+  '/t/$tenantId/projects/$projectId/monitoring-access': typeof AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute
   '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/monitoring/imports/': typeof AuthenticatedTTenantIdMonitoringImportsIndexRoute
   '/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
   '/t/$tenantId/resource-access/$projectId/': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/t/$tenantId/p/$projectId/device-outputs/$outputId': typeof AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute
   '/t/$tenantId/p/$projectId/devices/$deviceId': typeof AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute
   '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/jobs': typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
   '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   '/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/devices/': typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
   '/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/t/$tenantId/p/$projectId/monitoring/': typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute
   '/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/t/$tenantId/p/$projectId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute
   '/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/imports/': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute
   '/t/$tenantId/p/$projectId/resources/facilities/': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -526,6 +614,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
   '/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
   '/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/t/$tenantId/monitoring/jobs': typeof AuthenticatedTTenantIdMonitoringJobsRoute
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
   '/t/$tenantId/roles/$roleId': typeof AuthenticatedTTenantIdRolesRoleIdRoute
@@ -533,27 +622,37 @@ export interface FileRoutesByTo {
   '/t/$tenantId/devices': typeof AuthenticatedTTenantIdDevicesIndexRoute
   '/t/$tenantId/invitations': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/t/$tenantId/members': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/t/$tenantId/monitoring': typeof AuthenticatedTTenantIdMonitoringIndexRoute
   '/t/$tenantId/projects': typeof AuthenticatedTTenantIdProjectsIndexRoute
   '/t/$tenantId/resource-access': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/t/$tenantId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute
+  '/t/$tenantId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdMonitoringImportsBatchIdRoute
   '/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
   '/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
   '/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/t/$tenantId/projects/$projectId/device-access': typeof AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute
+  '/t/$tenantId/projects/$projectId/monitoring-access': typeof AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute
   '/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/monitoring/imports': typeof AuthenticatedTTenantIdMonitoringImportsIndexRoute
   '/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
   '/t/$tenantId/resource-access/$projectId': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/t/$tenantId/resources/facilities': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/t/$tenantId/p/$projectId/device-outputs/$outputId': typeof AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute
   '/t/$tenantId/p/$projectId/devices/$deviceId': typeof AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute
   '/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/jobs': typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
   '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   '/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/devices': typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
   '/t/$tenantId/p/$projectId/members': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/t/$tenantId/p/$projectId/monitoring': typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute
   '/t/$tenantId/p/$projectId/roles': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/t/$tenantId/p/$projectId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute
   '/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/t/$tenantId/p/$projectId/monitoring/imports': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute
   '/t/$tenantId/p/$projectId/resources/facilities': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRoutesById {
@@ -590,6 +689,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/engineering/templates': typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
   '/_authenticated/t/$tenantId/invitations/$invitationId': typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
   '/_authenticated/t/$tenantId/members/$membershipId': typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  '/_authenticated/t/$tenantId/monitoring/jobs': typeof AuthenticatedTTenantIdMonitoringJobsRoute
   '/_authenticated/t/$tenantId/p/$projectId': typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
   '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/_authenticated/t/$tenantId/projects/new': typeof AuthenticatedTTenantIdProjectsNewRoute
@@ -598,27 +698,37 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/devices/': typeof AuthenticatedTTenantIdDevicesIndexRoute
   '/_authenticated/t/$tenantId/invitations/': typeof AuthenticatedTTenantIdInvitationsIndexRoute
   '/_authenticated/t/$tenantId/members/': typeof AuthenticatedTTenantIdMembersIndexRoute
+  '/_authenticated/t/$tenantId/monitoring/': typeof AuthenticatedTTenantIdMonitoringIndexRoute
   '/_authenticated/t/$tenantId/projects/': typeof AuthenticatedTTenantIdProjectsIndexRoute
   '/_authenticated/t/$tenantId/resource-access/': typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   '/_authenticated/t/$tenantId/roles/': typeof AuthenticatedTTenantIdRolesIndexRoute
   '/_authenticated/t/$tenantId/engineering/catalog/$kind': typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  '/_authenticated/t/$tenantId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute
+  '/_authenticated/t/$tenantId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdMonitoringImportsBatchIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/audit': typeof AuthenticatedTTenantIdPProjectIdAuditRoute
   '/_authenticated/t/$tenantId/p/$projectId/permissions': typeof AuthenticatedTTenantIdPProjectIdPermissionsRoute
   '/_authenticated/t/$tenantId/p/$projectId/profile': typeof AuthenticatedTTenantIdPProjectIdProfileRoute
   '/_authenticated/t/$tenantId/projects/$projectId_/device-access': typeof AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute
+  '/_authenticated/t/$tenantId/projects/$projectId_/monitoring-access': typeof AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute
   '/_authenticated/t/$tenantId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  '/_authenticated/t/$tenantId/monitoring/imports/': typeof AuthenticatedTTenantIdMonitoringImportsIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/': typeof AuthenticatedTTenantIdPProjectIdIndexRoute
   '/_authenticated/t/$tenantId/resource-access/$projectId/': typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   '/_authenticated/t/$tenantId/resources/facilities/': typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/device-outputs/$outputId': typeof AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/devices/$deviceId': typeof AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId': typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs': typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
   '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/devices/': typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/members/': typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  '/_authenticated/t/$tenantId/p/$projectId/monitoring/': typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/roles/': typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  '/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute
   '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 export interface FileRouteTypes {
@@ -654,6 +764,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/engineering/templates'
     | '/t/$tenantId/invitations/$invitationId'
     | '/t/$tenantId/members/$membershipId'
+    | '/t/$tenantId/monitoring/jobs'
     | '/t/$tenantId/p/$projectId'
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/projects/new'
@@ -662,27 +773,37 @@ export interface FileRouteTypes {
     | '/t/$tenantId/devices/'
     | '/t/$tenantId/invitations/'
     | '/t/$tenantId/members/'
+    | '/t/$tenantId/monitoring/'
     | '/t/$tenantId/projects/'
     | '/t/$tenantId/resource-access/'
     | '/t/$tenantId/roles/'
     | '/t/$tenantId/engineering/catalog/$kind'
+    | '/t/$tenantId/monitoring/batches/$batchId'
+    | '/t/$tenantId/monitoring/imports/$batchId'
     | '/t/$tenantId/p/$projectId/audit'
     | '/t/$tenantId/p/$projectId/permissions'
     | '/t/$tenantId/p/$projectId/profile'
     | '/t/$tenantId/projects/$projectId/device-access'
+    | '/t/$tenantId/projects/$projectId/monitoring-access'
     | '/t/$tenantId/resources/facilities/$facilityId'
+    | '/t/$tenantId/monitoring/imports/'
     | '/t/$tenantId/p/$projectId/'
     | '/t/$tenantId/resource-access/$projectId/'
     | '/t/$tenantId/resources/facilities/'
     | '/t/$tenantId/p/$projectId/device-outputs/$outputId'
     | '/t/$tenantId/p/$projectId/devices/$deviceId'
     | '/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/t/$tenantId/p/$projectId/monitoring/jobs'
     | '/t/$tenantId/p/$projectId/roles/$roleId'
     | '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/devices/'
     | '/t/$tenantId/p/$projectId/members/'
+    | '/t/$tenantId/p/$projectId/monitoring/'
     | '/t/$tenantId/p/$projectId/roles/'
+    | '/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
+    | '/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
     | '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId/monitoring/imports/'
     | '/t/$tenantId/p/$projectId/resources/facilities/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -715,6 +836,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/engineering/templates'
     | '/t/$tenantId/invitations/$invitationId'
     | '/t/$tenantId/members/$membershipId'
+    | '/t/$tenantId/monitoring/jobs'
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/projects/new'
     | '/t/$tenantId/roles/$roleId'
@@ -722,27 +844,37 @@ export interface FileRouteTypes {
     | '/t/$tenantId/devices'
     | '/t/$tenantId/invitations'
     | '/t/$tenantId/members'
+    | '/t/$tenantId/monitoring'
     | '/t/$tenantId/projects'
     | '/t/$tenantId/resource-access'
     | '/t/$tenantId/roles'
     | '/t/$tenantId/engineering/catalog/$kind'
+    | '/t/$tenantId/monitoring/batches/$batchId'
+    | '/t/$tenantId/monitoring/imports/$batchId'
     | '/t/$tenantId/p/$projectId/audit'
     | '/t/$tenantId/p/$projectId/permissions'
     | '/t/$tenantId/p/$projectId/profile'
     | '/t/$tenantId/projects/$projectId/device-access'
+    | '/t/$tenantId/projects/$projectId/monitoring-access'
     | '/t/$tenantId/resources/facilities/$facilityId'
+    | '/t/$tenantId/monitoring/imports'
     | '/t/$tenantId/p/$projectId'
     | '/t/$tenantId/resource-access/$projectId'
     | '/t/$tenantId/resources/facilities'
     | '/t/$tenantId/p/$projectId/device-outputs/$outputId'
     | '/t/$tenantId/p/$projectId/devices/$deviceId'
     | '/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/t/$tenantId/p/$projectId/monitoring/jobs'
     | '/t/$tenantId/p/$projectId/roles/$roleId'
     | '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/devices'
     | '/t/$tenantId/p/$projectId/members'
+    | '/t/$tenantId/p/$projectId/monitoring'
     | '/t/$tenantId/p/$projectId/roles'
+    | '/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
+    | '/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
     | '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/t/$tenantId/p/$projectId/monitoring/imports'
     | '/t/$tenantId/p/$projectId/resources/facilities'
   id:
     | '__root__'
@@ -778,6 +910,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/engineering/templates'
     | '/_authenticated/t/$tenantId/invitations/$invitationId'
     | '/_authenticated/t/$tenantId/members/$membershipId'
+    | '/_authenticated/t/$tenantId/monitoring/jobs'
     | '/_authenticated/t/$tenantId/p/$projectId'
     | '/_authenticated/t/$tenantId/projects/$projectId'
     | '/_authenticated/t/$tenantId/projects/new'
@@ -786,27 +919,37 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/devices/'
     | '/_authenticated/t/$tenantId/invitations/'
     | '/_authenticated/t/$tenantId/members/'
+    | '/_authenticated/t/$tenantId/monitoring/'
     | '/_authenticated/t/$tenantId/projects/'
     | '/_authenticated/t/$tenantId/resource-access/'
     | '/_authenticated/t/$tenantId/roles/'
     | '/_authenticated/t/$tenantId/engineering/catalog/$kind'
+    | '/_authenticated/t/$tenantId/monitoring/batches/$batchId'
+    | '/_authenticated/t/$tenantId/monitoring/imports/$batchId'
     | '/_authenticated/t/$tenantId/p/$projectId/audit'
     | '/_authenticated/t/$tenantId/p/$projectId/permissions'
     | '/_authenticated/t/$tenantId/p/$projectId/profile'
     | '/_authenticated/t/$tenantId/projects/$projectId_/device-access'
+    | '/_authenticated/t/$tenantId/projects/$projectId_/monitoring-access'
     | '/_authenticated/t/$tenantId/resources/facilities/$facilityId'
+    | '/_authenticated/t/$tenantId/monitoring/imports/'
     | '/_authenticated/t/$tenantId/p/$projectId/'
     | '/_authenticated/t/$tenantId/resource-access/$projectId/'
     | '/_authenticated/t/$tenantId/resources/facilities/'
     | '/_authenticated/t/$tenantId/p/$projectId/device-outputs/$outputId'
     | '/_authenticated/t/$tenantId/p/$projectId/devices/$deviceId'
     | '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
+    | '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
     | '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
     | '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/_authenticated/t/$tenantId/p/$projectId/devices/'
     | '/_authenticated/t/$tenantId/p/$projectId/members/'
+    | '/_authenticated/t/$tenantId/p/$projectId/monitoring/'
     | '/_authenticated/t/$tenantId/p/$projectId/roles/'
+    | '/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
+    | '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
     | '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
+    | '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/'
     | '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/'
   fileRoutesById: FileRoutesById
 }
@@ -1027,6 +1170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/monitoring/': {
+      id: '/_authenticated/t/$tenantId/monitoring/'
+      path: '/monitoring'
+      fullPath: '/t/$tenantId/monitoring/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMonitoringIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/members/': {
       id: '/_authenticated/t/$tenantId/members/'
       path: '/members'
@@ -1081,6 +1231,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$projectId'
       fullPath: '/t/$tenantId/p/$projectId'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/monitoring/jobs': {
+      id: '/_authenticated/t/$tenantId/monitoring/jobs'
+      path: '/monitoring/jobs'
+      fullPath: '/t/$tenantId/monitoring/jobs'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMonitoringJobsRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
     '/_authenticated/t/$tenantId/members/$membershipId': {
@@ -1139,11 +1296,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
+    '/_authenticated/t/$tenantId/monitoring/imports/': {
+      id: '/_authenticated/t/$tenantId/monitoring/imports/'
+      path: '/monitoring/imports'
+      fullPath: '/t/$tenantId/monitoring/imports/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMonitoringImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/resources/facilities/$facilityId': {
       id: '/_authenticated/t/$tenantId/resources/facilities/$facilityId'
       path: '/resources/facilities/$facilityId'
       fullPath: '/t/$tenantId/resources/facilities/$facilityId'
       preLoaderRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/projects/$projectId_/monitoring-access': {
+      id: '/_authenticated/t/$tenantId/projects/$projectId_/monitoring-access'
+      path: '/projects/$projectId/monitoring-access'
+      fullPath: '/t/$tenantId/projects/$projectId/monitoring-access'
+      preLoaderRoute: typeof AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
     '/_authenticated/t/$tenantId/projects/$projectId_/device-access': {
@@ -1174,6 +1345,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdAuditRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
+    '/_authenticated/t/$tenantId/monitoring/imports/$batchId': {
+      id: '/_authenticated/t/$tenantId/monitoring/imports/$batchId'
+      path: '/monitoring/imports/$batchId'
+      fullPath: '/t/$tenantId/monitoring/imports/$batchId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMonitoringImportsBatchIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/monitoring/batches/$batchId': {
+      id: '/_authenticated/t/$tenantId/monitoring/batches/$batchId'
+      path: '/monitoring/batches/$batchId'
+      fullPath: '/t/$tenantId/monitoring/batches/$batchId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdMonitoringBatchesBatchIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/engineering/catalog/$kind': {
       id: '/_authenticated/t/$tenantId/engineering/catalog/$kind'
       path: '/engineering/catalog/$kind'
@@ -1186,6 +1371,13 @@ declare module '@tanstack/react-router' {
       path: '/roles'
       fullPath: '/t/$tenantId/p/$projectId/roles/'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/monitoring/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/'
+      path: '/monitoring'
+      fullPath: '/t/$tenantId/p/$projectId/monitoring/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
     '/_authenticated/t/$tenantId/p/$projectId/members/': {
@@ -1216,6 +1408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
+    '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
+      path: '/monitoring/jobs'
+      fullPath: '/t/$tenantId/p/$projectId/monitoring/jobs'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
     '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId': {
       id: '/_authenticated/t/$tenantId/p/$projectId/members/$membershipId'
       path: '/members/$membershipId'
@@ -1244,11 +1443,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
+    '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/'
+      path: '/monitoring/imports'
+      fullPath: '/t/$tenantId/p/$projectId/monitoring/imports/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
     '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId': {
       id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
       path: '/resources/facilities/$facilityId'
       fullPath: '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
+      path: '/monitoring/imports/$batchId'
+      fullPath: '/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
+    '/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
+      path: '/monitoring/batches/$batchId'
+      fullPath: '/t/$tenantId/p/$projectId/monitoring/batches/$batchId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
     }
   }
@@ -1300,11 +1520,16 @@ interface AuthenticatedTTenantIdPProjectIdRouteChildren {
   AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute: typeof AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute
   AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute: typeof AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute
   AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute: typeof AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute
+  AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
   AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   AuthenticatedTTenantIdPProjectIdDevicesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
   AuthenticatedTTenantIdPProjectIdMembersIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
+  AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute
   AuthenticatedTTenantIdPProjectIdRolesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdRolesIndexRoute
+  AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute
+  AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute
   AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute
   AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 
@@ -1324,16 +1549,26 @@ const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProj
       AuthenticatedTTenantIdPProjectIdDevicesDeviceIdRoute,
     AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute:
       AuthenticatedTTenantIdPProjectIdMembersMembershipIdRoute,
+    AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute:
+      AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute,
     AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute:
       AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute,
     AuthenticatedTTenantIdPProjectIdDevicesIndexRoute:
       AuthenticatedTTenantIdPProjectIdDevicesIndexRoute,
     AuthenticatedTTenantIdPProjectIdMembersIndexRoute:
       AuthenticatedTTenantIdPProjectIdMembersIndexRoute,
+    AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute:
+      AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute,
     AuthenticatedTTenantIdPProjectIdRolesIndexRoute:
       AuthenticatedTTenantIdPProjectIdRolesIndexRoute,
+    AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute:
+      AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute,
+    AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute:
+      AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute,
     AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute:
       AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute:
+      AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute,
     AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute:
       AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute,
   }
@@ -1353,6 +1588,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdEngineeringTemplatesRoute: typeof AuthenticatedTTenantIdEngineeringTemplatesRoute
   AuthenticatedTTenantIdInvitationsInvitationIdRoute: typeof AuthenticatedTTenantIdInvitationsInvitationIdRoute
   AuthenticatedTTenantIdMembersMembershipIdRoute: typeof AuthenticatedTTenantIdMembersMembershipIdRoute
+  AuthenticatedTTenantIdMonitoringJobsRoute: typeof AuthenticatedTTenantIdMonitoringJobsRoute
   AuthenticatedTTenantIdPProjectIdRoute: typeof AuthenticatedTTenantIdPProjectIdRouteWithChildren
   AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   AuthenticatedTTenantIdProjectsNewRoute: typeof AuthenticatedTTenantIdProjectsNewRoute
@@ -1360,11 +1596,16 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdDevicesIndexRoute: typeof AuthenticatedTTenantIdDevicesIndexRoute
   AuthenticatedTTenantIdInvitationsIndexRoute: typeof AuthenticatedTTenantIdInvitationsIndexRoute
   AuthenticatedTTenantIdMembersIndexRoute: typeof AuthenticatedTTenantIdMembersIndexRoute
+  AuthenticatedTTenantIdMonitoringIndexRoute: typeof AuthenticatedTTenantIdMonitoringIndexRoute
   AuthenticatedTTenantIdProjectsIndexRoute: typeof AuthenticatedTTenantIdProjectsIndexRoute
   AuthenticatedTTenantIdResourceAccessIndexRoute: typeof AuthenticatedTTenantIdResourceAccessIndexRoute
   AuthenticatedTTenantIdEngineeringCatalogKindRoute: typeof AuthenticatedTTenantIdEngineeringCatalogKindRoute
+  AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute: typeof AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute
+  AuthenticatedTTenantIdMonitoringImportsBatchIdRoute: typeof AuthenticatedTTenantIdMonitoringImportsBatchIdRoute
   AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute: typeof AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute
+  AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute: typeof AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute
   AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdMonitoringImportsIndexRoute: typeof AuthenticatedTTenantIdMonitoringImportsIndexRoute
   AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute
   AuthenticatedTTenantIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdResourcesFacilitiesIndexRoute
   AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
@@ -1388,6 +1629,8 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdInvitationsInvitationIdRoute,
     AuthenticatedTTenantIdMembersMembershipIdRoute:
       AuthenticatedTTenantIdMembersMembershipIdRoute,
+    AuthenticatedTTenantIdMonitoringJobsRoute:
+      AuthenticatedTTenantIdMonitoringJobsRoute,
     AuthenticatedTTenantIdPProjectIdRoute:
       AuthenticatedTTenantIdPProjectIdRouteWithChildren,
     AuthenticatedTTenantIdProjectsProjectIdRoute:
@@ -1402,16 +1645,26 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdInvitationsIndexRoute,
     AuthenticatedTTenantIdMembersIndexRoute:
       AuthenticatedTTenantIdMembersIndexRoute,
+    AuthenticatedTTenantIdMonitoringIndexRoute:
+      AuthenticatedTTenantIdMonitoringIndexRoute,
     AuthenticatedTTenantIdProjectsIndexRoute:
       AuthenticatedTTenantIdProjectsIndexRoute,
     AuthenticatedTTenantIdResourceAccessIndexRoute:
       AuthenticatedTTenantIdResourceAccessIndexRoute,
     AuthenticatedTTenantIdEngineeringCatalogKindRoute:
       AuthenticatedTTenantIdEngineeringCatalogKindRoute,
+    AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute:
+      AuthenticatedTTenantIdMonitoringBatchesBatchIdRoute,
+    AuthenticatedTTenantIdMonitoringImportsBatchIdRoute:
+      AuthenticatedTTenantIdMonitoringImportsBatchIdRoute,
     AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute:
       AuthenticatedTTenantIdProjectsProjectIdDeviceAccessRoute,
+    AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute:
+      AuthenticatedTTenantIdProjectsProjectIdMonitoringAccessRoute,
     AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute:
       AuthenticatedTTenantIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdMonitoringImportsIndexRoute:
+      AuthenticatedTTenantIdMonitoringImportsIndexRoute,
     AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute:
       AuthenticatedTTenantIdResourceAccessProjectIdIndexRoute,
     AuthenticatedTTenantIdResourcesFacilitiesIndexRoute:

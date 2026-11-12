@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/projects"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
@@ -11,6 +12,7 @@ import (
 	devicecataloghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecatalog"
 	deviceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devices"
 	engineeringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/engineering"
+	monitoringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/monitoring"
 	projectshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/projects"
 	resourceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/resources"
 	sourceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/sources"
@@ -28,7 +30,7 @@ import (
 	"github.com/gorilla/csrf"
 )
 
-func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config) http.Handler {
+func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config, storage ...*monitoring.Storage) http.Handler {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	handler := identityhttp.New(service, cfg)
@@ -102,7 +104,8 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		handler.Register(r)
 		accesshttp.Register(r, service)
 		projectshttp.Register(r, service, projects.New(service.Access()))
-		business := runtime.Compose(service.Access())
+		business := runtime.Compose(service.Access(), storage...)
+		monitoringhttp.Register(r, service, business.Monitoring)
 		resourceshttp.Register(r, service, business.Resources)
 		engineeringhttp.Register(r, service, business.Engineering)
 		devicecataloghttp.Register(r, service, business.DeviceCatalog)

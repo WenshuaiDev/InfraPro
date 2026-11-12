@@ -16,6 +16,7 @@ type ImpactProject struct {
 }
 type MutationPreview struct {
 	DeviceReferences       bool                     `json:"device_references"`
+	MonitoringReferences   bool                     `json:"monitoring_references"`
 	PreservesInstallations bool                     `json:"preserves_installations"`
 	PreservesSources       bool                     `json:"preserves_sources"`
 	Hash                   string                   `json:"preview_hash"`
@@ -68,7 +69,8 @@ func (s *Service) mutationImpact(ctx context.Context, tx pgx.Tx, auth authorizat
 			return out, e
 		}
 		state = fingerprint([]any{state, external.Hash})
-		out.DeviceReferences = external.Referenced
+		out.DeviceReferences = external.DeviceReferenced
+		out.MonitoringReferences = external.MonitoringReferenced
 		out.PreservesInstallations = external.CurrentInstallation
 		out.PreservesSources = external.CurrentSource
 	}

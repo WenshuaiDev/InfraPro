@@ -10,14 +10,16 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
 type Resources struct {
-	Pool     *pgxpool.Pool
-	Redis    *redis.Client
-	Identity *identity.Service
+	Pool       *pgxpool.Pool
+	Redis      *redis.Client
+	Identity   *identity.Service
+	Monitoring *monitoring.Storage
 }
 
 func Open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool) (*Resources, error) {
@@ -63,6 +65,19 @@ func Open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRe
 		client.Close()
 		return fail(e)
 	}
-	return &Resources{Pool: pool, Redis: client, Identity: service}, nil
+	var storage *monitoring.Storage
+	if len(cfg.Monitoring.Replicas) > 0 {
+		storage, e = monitoring.OpenStorage(ctx, MonitoringStorageConfig(cfg.Monitoring))
+		if e != nil {
+			client.Close()
+			return fail(e)
+		}
+		if e = storage.Check(ctx); e != nil {
+			storage.Close()
+			client.Close()
+			return fail(fmt.Errorf("monitoring storage not ready; run infrapro monitoring storage check"))
+		}
+	}
+	return &Resources{Pool: pool, Redis: client, Identity: service, Monitoring: storage}, nil
 }
-func (r *Resources) Close() { _ = r.Redis.Close(); r.Pool.Close() }
+func (r *Resources) Close() { r.Monitoring.Close(); _ = r.Redis.Close(); r.Pool.Close() }

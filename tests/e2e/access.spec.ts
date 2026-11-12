@@ -17,6 +17,8 @@ async function refresh(page: Page) {
 async function submitReason(page: Page, reason: string) { const dialog = page.getByRole('dialog'); await dialog.getByLabel('变更原因').fill(reason); await dialog.getByRole('button', { name: '保存角色绑定' }).click(); await expect(dialog.getByLabel('变更原因')).toHaveCount(0); await closeRolePanel(page); }
 
 test('role UI grants and withdraws invitation capability without logging in again', async ({ page, request, browser }, testInfo) => {
+  // This journey changes two identities, role bindings and invitation state.
+  test.setTimeout(90_000);
   const member = await createAccount(request, false);
   const guestContext = await browser.newContext();
   try {

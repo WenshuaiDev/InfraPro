@@ -37,7 +37,7 @@ func Run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
 		return fmt.Errorf("listen on %s: %w", cfg.HTTPAddr, err)
 	}
 	server := &http.Server{
-		Handler:           httptransport.NewRouter(logger, resources.Identity, cfg),
+		Handler:           httptransport.NewRouter(logger, resources.Identity, cfg, resources.Monitoring),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,

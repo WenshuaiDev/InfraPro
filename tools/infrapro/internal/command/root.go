@@ -28,6 +28,7 @@ const rootHelp = `InfraPro 项目统一运维工具
   access      权限目录与管理员角色维护
   database    项目数据库迁移
   account     账号初始化、查找、恢复、状态维护及审计
+  monitoring  监测存储检查与维护
 
 使用 infrapro <命令组> --help 查看可用子命令。
 配置：INFRAPRO_CONFIG 指定 YAML，环境变量覆盖同名配置。
@@ -78,6 +79,8 @@ func (a *App) Run(ctx context.Context, args []string) error {
 		return a.database(ctx, args[1:])
 	case "account":
 		return a.account(ctx, args[1:])
+	case "monitoring":
+		return a.monitoring(ctx, args[1:])
 	default:
 		return fmt.Errorf("未知命令组 %q；使用 infrapro --help 查看帮助", args[0])
 	}

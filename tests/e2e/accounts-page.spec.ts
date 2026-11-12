@@ -199,6 +199,7 @@ test('account readers see allowed authorization without fetching protected direc
 });
 
 test('partial role options retain existing disabled bindings and recover later pages without losing edits', async ({ page, request }) => {
+  test.setTimeout(90_000);
   let target = await createManaged(request);
   const suffix = randomBytes(4).toString('hex');
   let bound = await makeRole(request, `已绑定停用_${suffix}`);

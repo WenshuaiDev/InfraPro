@@ -6,6 +6,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
 	"github.com/jackc/pgx/v5"
@@ -13,6 +14,7 @@ import (
 
 // Business is the composition root for the finite cross-module reference readers.
 type Business struct {
+	Monitoring    *monitoring.Service
 	Sources       *sources.Service
 	Devices       *devices.Service
 	Engineering   *engineering.Service
@@ -20,12 +22,16 @@ type Business struct {
 	DeviceCatalog *devicecatalog.Service
 }
 
-func Compose(a *access.Service) Business {
+func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 	r := resources.New(a)
 	c := devicecatalog.New(a)
 	d := devices.New(a, installationResources{r})
-	r.WithExternalReferences(deviceReferences{d})
-	return Business{Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c}), Resources: r, DeviceCatalog: c}
+	m := monitoring.New(a)
+	if len(storage) > 0 {
+		m.WithStorage(storage[0])
+	}
+	r.WithExternalReferences(resourceReferences{deviceReferences{d}, monitoringReferences{m}})
+	return Business{Monitoring: m, Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c, m}), Resources: r, DeviceCatalog: c}
 }
 
 type usageReaders []engineering.UsageReader

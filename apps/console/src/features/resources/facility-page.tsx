@@ -59,7 +59,7 @@ function FacilityBody({
   selection: Selection;
   select: (s: Selection) => void;
 }) {
-  const { client, scope, paths, prefix, canManage, available, canHistory, canGovern } = useResources();
+  const { client, scope, paths, prefix, canManage, available, canHistory, canGovern, canMonitor } = useResources();
   const navigate = useNavigate();
   const [panel, setPanel] = useState<Panel>();
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -504,6 +504,7 @@ function FacilityBody({
               {object.isPending && <p role="status">正在读取资料…</p>}
               {object.data && !object.error ? (
                 <section className="space-y-5 rounded-lg border p-5">
+                  {canMonitor && (detailKind==='point'||detailKind==='channel') && <Button variant="outline" onClick={()=>void navigate({to:scope.kind==='project'?'/t/$tenantId/p/$projectId/monitoring':'/t/$tenantId/monitoring',params:{tenantId:scope.tenantId,...(scope.kind==='project'?{projectId:scope.projectId}:{})},search:{point:detailKind==='point'?object.data!.id:selection.point,channel:detailKind==='channel'?object.data!.id:undefined}})}>查看监测数据</Button>}
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h2 className="break-words text-lg font-semibold">
                       {labels[detailKind]}：{object.data.name}
