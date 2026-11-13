@@ -24,6 +24,7 @@ type Filter struct {
 	SlotKey          string `json:"slot_key,omitempty"`
 	Kind             string `json:"kind,omitempty"`
 	Installation     string `json:"installation,omitempty"`
+	FacilityID       string `json:"facility_id,omitempty"`
 	MetricID         string `json:"metric_version_id,omitempty"`
 	UnitID           string `json:"unit_version_id,omitempty"`
 	CompatibleOnly   *bool  `json:"compatible_only,omitempty"`
@@ -37,7 +38,7 @@ func (f *Filter) Validate() error {
 	if f.Limit < 1 || f.Limit > 100 || utf8.RuneCountInString(f.Query) > 200 {
 		return Problem("invalid_request", "分页大小为 1–100，搜索最多 200 字符。", 400)
 	}
-	for _, id := range []string{f.ParentID, f.ManufacturerID, f.ProductID, f.ProductVersionID, f.DeviceID, f.MetricID, f.UnitID} {
+	for _, id := range []string{f.ParentID, f.ManufacturerID, f.ProductID, f.ProductVersionID, f.DeviceID, f.FacilityID, f.MetricID, f.UnitID} {
 		if id != "" && !access.ValidID(id) {
 			return Problem("invalid_request", "筛选身份无效。", 400)
 		}

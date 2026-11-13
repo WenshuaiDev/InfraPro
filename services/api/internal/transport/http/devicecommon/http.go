@@ -49,6 +49,7 @@ func Meta(ctx *gin.Context) access.Meta {
 func Filter(ctx *gin.Context, allowed ...string) (c.Filter, error) {
 	f := c.Filter{Query: ctx.Query("q"), Cursor: ctx.Query("cursor"), ManufacturerID: ctx.Query("manufacturer_id"), ProductID: ctx.Query("product_id"), ProductVersionID: ctx.Query("product_version_id"), DeviceID: ctx.Query("device_id"), Status: ctx.Query("status"), Source: ctx.Query("source"), State: ctx.Query("state"), SlotKey: ctx.Query("slot_key"), Kind: ctx.Query("kind"), Installation: ctx.Query("installation"), MetricID: ctx.Query("metric_version_id"), UnitID: ctx.Query("unit_version_id")}
 	f.Level, f.ParentID = ctx.Query("level"), ctx.Query("parent_id")
+	f.FacilityID = ctx.Query("facility_id")
 	for key, values := range ctx.Request.URL.Query() {
 		if len(values) != 1 || !slices.Contains(allowed, key) {
 			return f, Invalid("不支持或重复的查询参数。")

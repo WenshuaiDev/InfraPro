@@ -48,6 +48,9 @@ func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
 					allowed = append(allowed, "level", "parent_id", "manufacturer_id", "product_id", "source", "status")
 				case "device:list":
 					allowed = append(allowed, "manufacturer_id", "product_id", "product_version_id", "status", "installation", "source")
+					if entry == "tenant" {
+						allowed = append(allowed, "facility_id")
+					}
 				case "device:product-candidates":
 					allowed = append(allowed, "product_id")
 				case "output:list":

@@ -8,6 +8,7 @@ import type { AdminLayoutMode, WorkspaceSwitcherRenderer, Brand, LayoutUser, Lin
 import { CommandSearch } from './command-search';
 import { ThemeSwitch } from './theme-switch';
 import { UserMenu } from './user-menu';
+import { NavigationMenuItem } from './navigation-menu';
 
 type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; mode: AdminLayoutMode; renderWorkspaceSwitcher?: WorkspaceSwitcherRenderer; workspaceSwitcherOpen?: boolean; children: ReactNode };
 
@@ -30,11 +31,7 @@ function AppSidebar({ brand, groups, renderLink, renderWorkspaceSwitcher, worksp
           <SidebarGroupLabel className="mb-1 px-3 group-data-[collapsible=icon]:mb-0">{group.title}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2 md:gap-1">
-              {group.items.map((item) => <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={item.active} tooltip={item.title} className="h-11 gap-3 px-3 text-sidebar-foreground md:h-10">
-                  {renderLink({ href: item.href, 'aria-current': item.active ? 'page' : undefined, onClick: () => setOpenMobile(false), children: <>{item.icon && <item.icon className="size-4" aria-hidden="true" />}<span>{item.title}</span></> })}
-                </SidebarMenuButton>
-              </SidebarMenuItem>)}
+              {group.items.map((item) => <NavigationMenuItem key={'items' in item ? item.title : item.href} item={item} renderLink={renderLink} />)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>)}
@@ -45,7 +42,7 @@ function AppSidebar({ brand, groups, renderLink, renderWorkspaceSwitcher, worksp
 }
 
 function Toolbar(props: Props) {
-  const accountItems = props.userNavigation.filter((item) => !props.groups.some((group) => group.items.some((entry) => entry.href === item.href)));
+  const accountItems = props.userNavigation.filter((item) => !props.groups.some((group) => group.items.some((entry) => 'items' in entry ? entry.items.some((child) => child.href === item.href) : entry.href === item.href)));
   const searchGroups = accountItems.length ? [...props.groups, { title: '账号快捷入口', items: accountItems }] : props.groups;
   return <header className="sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className={`flex h-full min-w-0 items-center px-4 sm:gap-4 ${props.mode === 'workspace' ? 'gap-3' : 'gap-2'}`}>
     {props.mode === 'workspace' ? <><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /></> : <div className="min-w-0 max-w-64 flex-1">{props.renderWorkspaceSwitcher?.({ placement: 'header', nestedInDrawer: false, ready: true, onSelected: () => {} }) ?? props.renderLink({ href: '/', className: 'flex min-h-11 items-center gap-2 font-semibold', children: <><span className="[&>svg]:size-5">{props.brand.logo}</span>{props.brand.name}</> })}</div>}

@@ -53,6 +53,7 @@ async function checkConnection(page: Page) {
 for (const platform of [false, true]) {
   test(`identity outage preserves and disables ${platform ? 'platform catalog' : 'tenant device'} portal draft`, async ({ page }) => {
     const f = await recoveryFixture(page, platform);
+    if (platform) await page.getByRole('button', { name: '管理厂家', exact: true }).click();
     await page.getByRole('button', { name: platform ? '新建厂家' : '编辑档案', exact: true }).click();
     const field = page.getByLabel(platform ? '厂家名称 *' : '设备名称 *', { exact: true });
     await field.fill('故障期间保留的输入');
@@ -78,7 +79,8 @@ for (const platform of [false, true]) {
 
 test('tenant outage blocks an already previewed confirmation and preserves its reason', async ({ page }) => {
   const f = await recoveryFixture(page);
-  await page.getByRole('button', { name: '停用设备', exact: true }).click();
+  await page.getByRole('button', { name: '设备的操作', exact: true }).click();
+  await page.getByRole('menuitem', { name: '停用设备', exact: true }).click();
   await page.getByLabel('操作原因 *', { exact: true }).fill('保留的停用原因');
   await page.getByRole('button', { name: '预览变更', exact: true }).click();
   const confirm = page.getByRole('button', { name: '确认提交', exact: true });

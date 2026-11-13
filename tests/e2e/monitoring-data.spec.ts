@@ -31,14 +31,22 @@ async function importAPI(page: Page, f: Awaited<ReturnType<typeof prepare>>, csv
   return batch;
 }
 async function selectPoint(page: Page) {
-  await expect(page.getByRole('heading', {name:'监测数据',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading', { name: '监测数据', exact: true })).toBeVisible();
   const mobile = (page.viewportSize()?.width ?? 1440) < 1024;
-  if (mobile) await page.getByRole('button', { name: '测点与通道', exact: true }).click();
-  const area = mobile ? page.getByRole('dialog') : page.locator('aside').filter({ has: page.getByRole('heading', { name: '选择测点与通道' }) });
-  await area.getByRole('button', { name: /孔 A 深度 10 m/ }).click();
-  await expect(area.getByRole('checkbox', { name: /位移通道/ })).toBeChecked();
-  if (mobile) { await area.getByRole('button', { name: '查看已选 1 个通道' }).click(); await expect(page.getByRole('button', { name: '测点与通道', exact: true })).toBeFocused(); }
-  await expect(page.getByRole('heading', { name: '已选通道 · 全历史概况' })).toBeVisible();
+  if (mobile) await page.getByRole('button', { name: '设施构件树', exact: true }).click();
+  const area = mobile ? page.getByRole('dialog', { name: '设施构件树', exact: true }) : page.getByRole('complementary', { name: '监测设施构件树' });
+  for (const name of ['合成监测设施，设施', '孔 A 深度 10 m，测点']) {
+    const row = area.getByRole('treeitem', { name, exact: true });
+    if (await row.getAttribute('aria-expanded') !== 'true') await row.locator('[data-select-resource]').first().click();
+  }
+  await expect(area.getByRole('checkbox')).toHaveCount(0);
+  await area.getByRole('treeitem', { name: '位移通道，业务通道', exact: true }).click();
+  if (mobile) await expect(page.getByRole('button', { name: '设施构件树', exact: true })).toBeFocused();
+  await expect(page.getByRole('heading', { name: '最新观测', exact: true })).toBeVisible();
+}
+async function allHistory(page: Page) {
+  await page.getByRole('button', { name: '自定义时间', exact: true }).click();
+  await page.getByRole('dialog', { name: '查阅时间范围', exact: true }).getByRole('button', { name: '全部历史范围', exact: true }).click();
 }
 
 test('real upload mapping validation publish, exact browsing, export and revocation are usable by keyboard and narrow screen', async ({ page, request }, info) => {
@@ -70,26 +78,26 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await expect(page.getByText('已生效', { exact: true })).toBeVisible({ timeout: 30_000 });
   await page.goto(f.root); await selectPoint(page);
   await expect(page.getByRole('img', { name: /监测趋势/ })).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('button', { name: '全部历史范围', exact: true }).click();
+  await allHistory(page);
   await expect(page.getByRole('button', { name: '明细', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '明细', exact: true }).click();
   await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('999999999999999999.000000000001');
   await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('2020-01-01T00:00:00.000000001Z');
   await expect(page.getByRole('table', { name: '监测原始明细' }).getByRole('row')).toHaveCount(3);
-  await page.getByRole('button', { name: '统计', exact: true }).click();
+  await page.getByRole('button', { name: '数据概况', exact: true }).click();
   await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('999999999999999999.000000000002');
   await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('0.000000000001');
   await page.getByRole('button', { name: '导出当前统计', exact: true }).click();
-  await page.getByRole('dialog').getByLabel('导出用途 / 原因').fill('核对精确统计导出');
+  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByLabel('导出用途 / 原因').fill('核对精确统计导出');
   const exportRequests:string[]=[];
   await page.route('**/monitoring/exports',async route=>{exportRequests.push(route.request().postDataJSON().request_id);const response=await route.fetch();if(exportRequests.length===1)await route.abort('failed');else await route.fulfill({response});});
-  await page.getByRole('dialog').getByRole('button', { name: '创建后台导出任务' }).click();
-  await expect(page.getByRole('dialog').getByRole('heading',{name:'未能完成请求',exact:true})).toBeVisible();
-  await page.getByRole('dialog').getByRole('button', { name: '创建后台导出任务' }).click();
+  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('button', { name: '创建后台导出任务' }).click();
+  await expect(page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('heading',{name:'未能完成请求',exact:true})).toBeVisible();
+  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('button', { name: '创建后台导出任务' }).click();
   await expect.poll(()=>exportRequests.length).toBe(2);expect(exportRequests[1]).toBe(exportRequests[0]);
-  await expect(page.getByRole('dialog').getByRole('link', { name: '查看任务与下载' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('link', { name: '查看任务与下载' })).toBeVisible();
   await page.unroute('**/monitoring/exports');
-  await page.getByRole('dialog').getByRole('link', { name: '查看任务与下载' }).click();
+  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('link', { name: '查看任务与下载' }).click();
   await page.getByRole('button', { name: '数据导出', exact: true }).first().click();
   await expect(page.getByRole('dialog').getByRole('heading', { name: '完整导出结果' })).toBeVisible({ timeout: 30_000 });
   const downloadPromise = page.waitForEvent('download'); await page.getByRole('dialog').getByRole('link', { name: /\.parquet$/ }).click();
@@ -129,10 +137,10 @@ test('cursor pages, bounded trends and last complete results survive service fai
   await expect.poll(()=>table.getByRole('row').nth(1).innerText()).toBe(first);
   await page.getByRole('button', { name: '趋势', exact: true }).click();
   await page.route('**/monitoring/queries/overview', route => route.fulfill({ status: 503, json: { code: 'unavailable', message: '自验期间模拟存储暂不可用' } }));
-  await page.getByRole('button',{name:'重读当前快照',exact:true}).click();
+  await page.getByRole('button',{name:'刷新监测数据',exact:true}).click();
   await expect(page.getByText('自验期间模拟存储暂不可用',{exact:true})).toBeVisible();
   await expect(page.getByText(/当前读取失败，保留上次完整结果/)).toBeVisible();
-  await expect(page.getByRole('heading', { name: '已选通道 · 全历史概况' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '最新观测' })).toBeVisible();
   await page.unroute('**/monitoring/queries/overview');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('monitoring-data-window.png'), fullPage: true });
@@ -151,7 +159,7 @@ test('project data grants, archive reading and revocation clear cached and late 
  const projectPage=await page.context().newPage();
  try{
  const root=`${consoleURL}/t/${f.tenant}/p/${pid}/monitoring`;
- await projectPage.goto(root);await expect(projectPage.getByText('0 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible();
+ await projectPage.goto(root);await expect(projectPage.getByText('选择一个通道，开始查阅',{exact:true})).toBeVisible();
  await page.goto(`${consoleURL}/t/${f.tenant}/projects/${pid}/monitoring-access`);
  await page.getByRole('button',{name:'新增数据授权',exact:true}).click();
  const panel=page.getByRole('dialog');await panel.getByRole('button',{name:/合成监测设施/}).click();
@@ -176,7 +184,7 @@ test('project data grants, archive reading and revocation clear cached and late 
  await projectPage.getByRole('button',{name:'明细',exact:true}).click();await waiting;
  await page.reload();await page.getByRole('button',{name:'预览撤销',exact:true}).click();await page.getByRole('dialog').getByLabel('撤销授权原因').fill('当前会话立即收回');await page.getByRole('dialog').getByRole('button',{name:'撤销此数据授权',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
  await projectPage.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});
- await expect(projectPage.getByText('0 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible({timeout:35000});release();
+ await expect(projectPage.getByText('此通道在当前工作空间不可读，请从目录选择其他通道。',{exact:true})).toBeVisible({timeout:35000});release();
  await expect(projectPage.getByRole('table',{name:'监测原始明细'})).toHaveCount(0);await expect(projectPage.getByText('22.000000000000',{exact:true})).toHaveCount(0);
  expect(await projectPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await projectPage.screenshot({path:info.outputPath('monitoring-project-revoked.png'),fullPage:true});
@@ -214,29 +222,26 @@ test('point deep links, comparison, enum samples and keyboard window controls us
   await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${f.facility}?point=${f.point}&channel=${f.channel}`);
   await page.getByRole('button', { name: '查看监测数据', exact: true }).click();
   await expect(page).toHaveURL(`${f.root}?point=${f.point}&channel=${f.channel}`);
-  await expect(page.getByRole('heading',{name:'已选通道 · 全历史概况'})).toBeVisible();
-  const mobile=(page.viewportSize()?.width??1440)<1024;
-  if(mobile)await page.getByRole('button',{name:'测点与通道',exact:true}).click();
-  const area=mobile?page.getByRole('dialog'):page.locator('aside').filter({has:page.getByRole('heading',{name:'选择测点与通道'})});
-  const target=area.getByRole('button',{name:/孔 A 深度 20 m/});await target.focus();await page.keyboard.press('Enter');
-  const choose=area.getByRole('checkbox',{name:/深层位移/});await choose.focus();await page.keyboard.press('Space');await expect(choose).toBeChecked();
-  const enumBox=area.getByRole('checkbox',{name:/状态样本/});await enumBox.focus();await page.keyboard.press('Space');
-  if(mobile){await area.getByRole('button',{name:'查看已选 3 个通道'}).focus();await page.keyboard.press('Enter');}
-  await expect(page.getByText('3 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible();
-  const all=page.getByRole('button',{name:'全部历史范围',exact:true});await all.focus();await page.keyboard.press('Enter');
-  await expect(page.getByLabel('窗口开始（含）')).toHaveValue('2020-01-01T00:00:00Z');
-  await expect(all).toBeFocused();
-  const original=await page.getByLabel('窗口开始（含）').inputValue();
-  const shift=page.getByRole('button',{name:'向前半窗',exact:true});await shift.focus();await page.keyboard.press('Enter');
-  await expect(page.getByLabel('窗口开始（含）')).not.toHaveValue(original);await expect(shift).toBeFocused();
-  await all.focus();await page.keyboard.press('Enter');
-  await expect(page.getByRole('img',{name:/监测趋势/})).toBeVisible({timeout:30000});
-  const legend=page.locator('[aria-label="图例开关"]');await expect(legend.getByRole('button')).toHaveCount(2);
+  await expect(page.getByRole('heading',{name:'最新观测',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'多通道比较',exact:true}).click();
+  const panel=page.getByRole('dialog',{name:'多通道比较',exact:true});
+  const target=panel.getByRole('button',{name:/孔 A 深度 20 m/});await target.focus();await page.keyboard.press('Enter');
+  const choose=panel.getByRole('checkbox',{name:/深层位移/});await choose.focus();await page.keyboard.press('Space');await expect(choose).toBeChecked();
+  await panel.getByRole('checkbox',{name:/状态样本/}).check();
+  if ((page.viewportSize()?.width ?? 1440) < 1280) await panel.getByRole('button',{name:'查看 3 个通道的比较',exact:true}).click();
+  await allHistory(page);
+  await expect(panel.getByRole('img',{name:/监测趋势/})).toBeVisible({timeout:30000});
+  const legend=panel.locator('[aria-label="图例开关"]');await expect(legend.getByRole('button')).toHaveCount(2);
   const toggle=legend.getByRole('button').first();await toggle.focus();await page.keyboard.press('Enter');await expect(toggle).toHaveAttribute('aria-pressed','false');await page.keyboard.press('Enter');
-  const enumGroup=page.getByRole('button',{name:/枚举 · 第 2 组/});await enumGroup.focus();await page.keyboard.press('Enter');await expect(legend).toContainText('状态样本');
-  await page.getByRole('button',{name:'统计',exact:true}).focus();await page.keyboard.press('Enter');
-  await expect(page.getByRole('table',{name:'监测基础统计'})).toContainText('yes');
-  await expect(page.getByRole('table',{name:'监测基础统计'})).toContainText('no');
+  await panel.getByRole('button',{name:/枚举 · 第 2 组/}).click();await expect(legend).toContainText('状态样本');
+  await panel.getByRole('button',{name:'数据概况',exact:true}).click();
+  const overview=page.getByRole('dialog',{name:'数据概况',exact:true});
+  await expect(overview.getByRole('table',{name:'监测基础统计'})).toContainText('yes');
+  await expect(overview.getByRole('table',{name:'监测基础统计'})).toContainText('no');
+  await page.keyboard.press('Escape');await expect(panel.getByRole('button',{name:'数据概况',exact:true})).toBeFocused();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:info.outputPath('monitoring-comparison-keyboard.png'),fullPage:true});
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button',{name:'多通道比较',exact:true})).toBeFocused();
+  await expect(page).toHaveURL(`${f.root}?point=${f.point}&channel=${f.channel}`);
 });

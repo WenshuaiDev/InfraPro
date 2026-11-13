@@ -96,6 +96,20 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 			if namespace == "ProjectResource" {
 				scope = resources.ProjectScope(c.Param("tenant_id"), c.Param("project_id"))
 			}
+			if namespace == "Resource" && kind == "tree" {
+				if e := query(c, []string{"q", "status", "type_definition_id", "deleted", "facility_id", "parent_kind", "parent_id", "cursor", "limit"}); e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				limit, e := number(c, "limit")
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				v, e := s.Tree(ctx, a, scope.Tenant, resources.TreeFilter{Filter: resources.Filter{Query: c.Query("q"), Status: c.Query("status"), TypeDefinition: c.Query("type_definition_id"), Deleted: c.Query("deleted"), Cursor: c.Query("cursor"), Limit: limit}, FacilityID: c.Query("facility_id"), ParentKind: resources.Kind(c.Query("parent_kind")), ParentID: c.Query("parent_id")})
+				reply(c, 200, v, e)
+				return
+			}
 			if slices.Contains([]string{"type-definitions", "metrics", "units"}, kind) {
 				allowed := []string{}
 				if action == "list" {
@@ -214,7 +228,10 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 		allowed = []string{"cursor", "limit"}
 	}
 	if action == "detail" && kind == "facility" {
-		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner")
+		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner", "candidate_point_id")
+	}
+	if action == "detail" && (kind == "access" || kind == "facility") {
+		allowed = append(allowed, "q")
 	}
 	if e := query(c, allowed); e != nil {
 		reply(c, 0, nil, e)
@@ -242,7 +259,7 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 			reply(c, 0, nil, e)
 			return
 		}
-		f := resources.AccessFilter{Limit: limit, Cursor: c.Query("cursor"), GrantCursor: c.Query("grant_cursor"), CandidateKind: resources.Kind(c.Query("candidate_kind")), Candidate: resources.Filter{Limit: candidateLimit, Cursor: c.Query("candidate_cursor"), Query: c.Query("candidate_q"), Status: c.Query("candidate_status"), Parent: c.Query("candidate_parent_id"), Owner: c.Query("candidate_owner")}}
+		f := resources.AccessFilter{Limit: limit, Cursor: c.Query("cursor"), Query: c.Query("q"), GrantCursor: c.Query("grant_cursor"), CandidatePoint: c.Query("candidate_point_id"), CandidateKind: resources.Kind(c.Query("candidate_kind")), Candidate: resources.Filter{Limit: candidateLimit, Cursor: c.Query("candidate_cursor"), Query: c.Query("candidate_q"), Status: c.Query("candidate_status"), Parent: c.Query("candidate_parent_id"), Owner: c.Query("candidate_owner")}}
 		if action == "changes" {
 			v, e := s.AccessChanges(ctx, a, tenant, project, f)
 			reply(c, 200, v, e)

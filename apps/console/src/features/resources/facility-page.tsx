@@ -6,12 +6,6 @@ import { ApiError, type Resource, type ResourceDetail, type ResourceTarget } fro
 import { PageHeader } from '@infrapro/layouts';
 import { Button } from '@infrapro/ui/components/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@infrapro/ui/components/dropdown-menu';
-import {
   DirectoryTable,
   DirectorySearch,
   DirectoryReset,
@@ -20,7 +14,7 @@ import {
 import { ListFilter, ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { Tabs, TabsList, TabsTrigger } from '@infrapro/ui/components/tabs';
 import { Badge } from '@infrapro/ui/components/badge';
-import { Plus, ArrowLeft, MoreHorizontal } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import { useCursorList } from '../../hooks/use-cursor-list';
 import { SelectControl, TextControl } from '../engineering-fields/controls';
 import { FacilityUsage } from '../resource-access/pages';
@@ -30,7 +24,7 @@ import { useResources } from './context';
 import { ResourceEditor } from './editor';
 import { ResourceHistory } from './history';
 import { LifecycleForm } from './lifecycle';
-import { PositionView } from '../location-fields/position-editor';
+import { ObjectActions, ResourceInfo } from './resource-details';
 export type Selection = {
   component?: string;
   point?: string;
@@ -617,160 +611,5 @@ function FacilityBody({
           ))}
       </ResponsivePanel>
     </section>
-  );
-}
-function ObjectActions({
-  resource,
-  disabled,
-  choose,
-}: {
-  resource: ResourceDetail;
-  disabled: boolean;
-  choose: (mode: 'edit' | 'retire' | 'restore' | 'delete', trigger: HTMLElement | null) => void;
-}) {
-  const trigger = useRef<HTMLButtonElement>(null);
-  const pendingMode = useRef<'edit' | 'retire' | 'restore' | 'delete' | null>(null);
-  if (!['edit', 'retire', 'restore', 'delete'].some((k) => resource.actions[k as 'edit'])) return null;
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          ref={trigger}
-          id={`resource-actions-${resource.id}`}
-          variant="outline"
-          size="icon"
-          aria-label={`${resource.name} 操作`}
-          disabled={disabled}
-        >
-          <MoreHorizontal aria-hidden="true" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        onCloseAutoFocus={(event) => {
-          const mode = pendingMode.current;
-          pendingMode.current = null;
-          if (!mode) return;
-          // Finish menu teardown before the panel takes focus; exit pointer events can still refocus the menu.
-          event.preventDefault();
-          choose(mode, trigger.current);
-        }}
-      >
-        {(['edit', 'retire', 'restore', 'delete'] as const)
-          .filter((k) => resource.actions[k])
-          .map((mode) => (
-            <DropdownMenuItem
-              key={mode}
-              onSelect={() => {
-                pendingMode.current = mode;
-              }}
-            >
-              {modes[mode]}
-              {labels[resource.kind]}
-            </DropdownMenuItem>
-          ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-function ResourceInfo({ resource: r }: { resource: ResourceDetail }) {
-  const type = r.definitions.find((v) => v.kind === 'type-definitions');
-  const fields =
-    r.kind === 'facility'
-      ? type?.content.fields
-      : type?.content.components?.find((c) => c.key === r.category_key)?.fields;
-  const metric = r.definitions.find((v) => v.id === r.metric_version_id);
-  const unit = r.definitions.find((v) => v.id === r.unit_version_id);
-  return (
-    <div className="min-w-0 space-y-4 text-sm">
-      <p className="break-words text-muted-foreground">
-        归属路径：{[...r.ancestors.map((a) => a.name), r.name].join(' / ')}
-      </p>
-      <p className="break-all">
-        编号：{r.code} · {r.status === 'normal' ? '正常' : '已退役'}
-      </p>
-      {r.actions.reason && <p className="text-muted-foreground">{r.actions.reason}</p>}
-      {!!fields?.length && (
-        <dl className="grid gap-3 sm:grid-cols-2">
-          {fields.map((f) => (
-            <div key={f.key} className="min-w-0">
-              <dt className="text-muted-foreground">{f.name}</dt>
-              <dd className="break-words">
-                {r.values?.[f.key] === undefined
-                  ? '未填写'
-                  : typeof r.values[f.key] === 'boolean'
-                    ? r.values[f.key]
-                      ? '是'
-                      : '否'
-                    : Array.isArray(r.values[f.key])
-                      ? (r.values[f.key] as unknown[]).join('、')
-                      : String(r.values[f.key])}
-                {f.unit_version && ` ${r.definitions.find((v) => v.id === f.unit_version)?.content.unit?.symbol ?? ''}`}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      )}
-      {(
-        [
-          ['业务说明', r.description],
-          ['监测目的', r.purpose],
-          ['方向说明', r.direction_description],
-          ['参考基准', r.reference_description],
-          ['资料来源', r.source_reference],
-        ] as const
-      )
-        .filter(([, v]) => v)
-        .map(([label, value]) => (
-          <div key={label}>
-            <p className="text-muted-foreground">{label}</p>
-            <p className="whitespace-pre-wrap break-words">{value}</p>
-          </div>
-        ))}
-      {r.kind !== 'channel' ? (
-        <details>
-          <summary className="cursor-pointer font-medium">本对象位置资料</summary>
-          <div className="mt-3">
-            <PositionView position={r.position} />
-          </div>
-        </details>
-      ) : (
-        <div className="space-y-2">
-          <p>
-            指标：{metric?.content.name} · V{metric?.number} ·{' '}
-            {metric?.content.metric?.shape === 'enum'
-              ? '枚举'
-              : metric?.content.metric?.shape === 'integer'
-                ? '整数'
-                : '数值'}
-          </p>
-          <p>固定单位：{unit ? `${unit.content.name}（${unit.content.unit?.symbol}）V${unit.number}` : '无单位'}</p>
-          {metric?.content.metric?.shape === 'enum' && (
-            <p>选项：{metric.content.metric.options.map((o) => `${o.name}（${o.key}）`).join('、')}</p>
-          )}
-          <p>时间含义：{r.timestamp_meaning === 'interval_end' ? '统计区间结束时刻' : '观测时刻'}</p>
-          {r.aggregation_description && <p className="break-words">统计含义：{r.aggregation_description}</p>}
-          <p className="break-words">
-            观测方向：{r.observation_direction || '未填写'}；观测基准：{r.reference_basis || '未填写'}
-          </p>
-          <p>
-            计划采样：
-            {r.sampling
-              ? `${{ periodic: '周期', event: '事件', manual: '人工' }[r.sampling.mode]}${r.sampling.mode === 'periodic' ? ` · ${r.sampling.interval_seconds} 秒` : ''}`
-              : '未填写'}
-          </p>
-          {r.sampling?.description && <p className="break-words">{r.sampling.description}</p>}
-          <p className="text-muted-foreground">尚无数据来源</p>
-        </div>
-      )}
-      {r.kind !== 'facility' && r.ancestors[0] && (
-        <details>
-          <summary className="cursor-pointer text-muted-foreground">所属设施的位置参照（不代表本对象坐标）</summary>
-          <div className="mt-3">
-            <PositionView position={'position' in r.ancestors[0] ? r.ancestors[0].position : undefined} />
-          </div>
-        </details>
-      )}
-      <p className="text-xs text-muted-foreground">更新于 {new Date(r.updated_at).toLocaleString()}</p>
-    </div>
   );
 }

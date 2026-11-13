@@ -1,6 +1,6 @@
 # InfraPro 技术选型
 
-基线：2026-11-12。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据依用户确认方案新增的组件见第8节；本机验证及目标部署待验证项另行记录。
+基线：2026-11-12。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据依用户确认方案新增的组件见第8节；本机验证及目标部署待验证项另行记录。[第9节](#spatial-technology)单独列出下一轮空间可视化的规划选型，尚未安装或实现。
 
 ## 1 选型原则
 
@@ -74,7 +74,7 @@
 
 1. 当前认证属于 InfraPro，本项目不接入跨系统身份平台、OIDC、SSO 或新的 MFA 流程。
 2. 当前交付为 HTTP 同源部署，Cookie 的 `Secure=false`；HTTPS、证书和传输加密升级是另行需求，不能只改 Cookie 选项而声称已支持。
-3. 工程位置使用受校验的结构化字段；当前未采用 PostGIS、地图引擎或坐标转换库。桩号及局部坐标只是业务资料，不能推导虚构 GIS 结果。
+3. 工程位置使用受校验的结构化字段；当前未采用 PostGIS、地图引擎或坐标转换库。下一轮计划见[空间选型](#spatial-technology)；桩号及未知局部坐标仍不能推导虚构 GIS 结果。
 4. 权限和来源变更使用 PostgreSQL 短事务及共享协调锁，不引入分布式锁、跨库授权同步或隐式最终一致放行。
 5. 模板和产品采用不可变版本、独立启停和固定依赖；没有审批引擎、任意公式解释器或在线协议执行器。
 6. 监测数据的存储、导入、趋势、统计及集群方案以[总体方案](requirements/monitoring-data-foundation-plan.md)和[详细方案](requirements/monitoring-data-development-plan.md)为准。实施与用户的本机优先调整记录在原路径，目标规模与部署验证仍未完成。
@@ -96,3 +96,28 @@
 | ECharts Canvas | 6.1.0；console package.json | 按需加载的监测趋势模块、固定视窗、真实极值点、精确tooltip和键盘等价明细。普通图表继续使用共享Recharts。 |
 
 监测原始明细不写入 PostgreSQL；PG 只保存控制元数据、授权、清单、版本和任务。存储许可、兼容性与故障行为见[契约证据](verification/monitoring-data.md)，启动和恢复见[维护手册](operations/monitoring-data.md)。镜像及依赖锁定不代表生产容量保证。
+
+<a id="spatial-technology"></a>
+
+## 9 工程空间可视化规划选型（未实现）
+
+总体方向已获用户认可，本次仅整理方案。范围见[SV-01–SV-10](requirements.md#spatial-scope)，具体数据流和接口见[空间详细设计](architecture.md#spatial-design)。以下为后续开发采用的技术方向，不表示依赖已安装、版本已锁定或兼容性已验证。
+
+| 技术 | 使用位置与方式 | 选择理由及明确限制 |
+| --- | --- | --- |
+| React／TypeScript、TanStack、既有 shadcn/ui | console 空间资料、授权及浏览工作台；三视图共享业务对象选择与受控查询。 | 沿用项目现有栈，保留 scope、修订、取消、主题和可访问性；不新增应用或状态库。 |
+| OpenLayers | 二维地图／GeoJSON 图层，以及使用独立图面坐标的布设图浏览。 | 同一引擎承担图层、缩放、选中和定位；官方有自定义图片坐标示例，不把图面位置当成经纬度。[官方示例](https://openlayers.org/en/latest/examples/static-image.html) |
+| OpenLayers `ol/proj` | EPSG:4326／3857 显示转换及明确坐标对象。 | 只接入本轮声明的转换；其他工程 CRS、垂直基准和供应商偏移不作隐式等价。[投影 API](https://openlayers.org/en/latest/apidoc/module-ol_proj.html) |
+| Three.js、GLTFLoader、Raycaster | 设施级 GLB 显示、相机、命中、对象高亮、模型标记和基础剖切。 | 前端只渲染与交互，持久业务身份由版本映射解释；解码器／纹理同源托管。[GLTFLoader](https://threejs.org/docs/pages/GLTFLoader.html)、[Raycaster](https://threejs.org/docs/pages/Raycaster.html) |
+| Python＋IfcOpenShell／IfcConvert | 独立转换进程解析 IFC，生成 GLB、源构件树、属性索引及命中映射；同时制作合成 IFC 资料。 | 几何与语义分别保留、同版封存；不能只靠文件转 GLB 就声称保留 BIM。[转换文档](https://docs.ifcopenshell.org/ifcconvert/usage)、[属性 API](https://docs.ifcopenshell.org/autoapi/ifcopenshell/util/element/index.html#ifcopenshell.util.element.get_psets) |
+| pypdfium2／PDFium | 在隔离处理进程将 PDF 页渲染成归一化图面及浏览图片。 | 浏览无需获得原 PDF，便于独立原件权限；PDFium 不允许并发多线程调用，采用进程并发。[官方 API](https://pypdfium2.readthedocs.io/en/stable/python_api.html) |
+| Go、pgx、Goose、PostgreSQL | 现有 API module 增加 spatial 领域包与独立 worker；元数据、关系、版本、任务、授权和审计采用 PG 事务。 | 保留当前身份和授权规则；本轮不增加 PostGIS，普通包围框候选与地理显示不冒充专业空间分析。 |
+| 现有 S3 兼容服务／minio-go | 保存来源及浏览产物；以独立空间命名和清单管理，不复用监测原文件的访问授权。 | 复用实际 SeaweedFS 基础设施，提取有限 BlobStore 适配；受控同源流式读取，不提供长期裸对象地址。 |
+| 现有 monitoring／派生 Provider／ECharts | 按获准对象查询原始或派生最新值、趋势和状态；成果由分析模块公开读取。 | ClickHouse继续由监测模块拥有；空间模块不另建序列、计算器或图表统计口径。 |
+| Go test、Playwright、既有契约检查 | 格式／坐标／引用与权限集成、真实浏览、撤权竞争、换版与恢复。 | Codex 自制真实文件经过正式处理管线；模拟器只能用于故障注入，不能代替端到端结果。 |
+
+新增第三方依赖和转换环境将在实际实施时锁定版本及镜像／构建摘要，核对原生依赖与许可证，更新第三方来源清单。当前不为规划修改 package.json、锁文件、Go module、镜像或权限目录；新技术也不构成升级现有框架的理由。
+
+MapLibre 和 web-ifc 是可行替代路线，本轮不同时引入。CesiumJS／3D Tiles 留给完整三维地理场景；它们不是设施局部模型浏览的必备依赖。相关能力及官方来源保留在[研究说明](requirements/spatial-visualization-technical-research.md)，研究中的候选说明不覆盖本节的规划选择。
+
+**交付不依赖用户提供资料。** 后续 Codex 使用工程几何定义／脚本生成 PNG、JPEG、PDF、GLB、IFC、GeoJSON、本地示例瓦片和多版本样本。图纸／模型生成是开发与演示准备，不是产品提供建模功能。成果标识合成示例；无第三方地图密钥时仍有完整的本地演示路径，外部商业底图配置不作为这轮功能验收前提。

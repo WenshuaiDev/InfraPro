@@ -19,6 +19,18 @@ export async function querySlot<T>(signal: AbortSignal, run: () => Promise<T>): 
   try { if (signal.aborted) throw signal.reason; return await run(); }
   finally { active--; queue.shift()?.(); }
 }
+// Each completed refresh creates a new snapshot; only unfinished jobs reuse one.
+export function useLiveLatest(selection: string | undefined, timezone: string, enabled: boolean) {
+  const { client, scope, prefix, available } = useMonitoring(), cache = useQueryClient();
+  const queryKey = [...prefix, 'live-latest', selection, timezone];
+  return useQuery({ queryKey, enabled: available && !!selection, retry: false, staleTime: 30_000, gcTime: 120_000,
+    queryFn: ({ signal }) => querySlot(signal, () => {
+      const previous = cache.getQueryData<MonitoringAnalyticResult>(queryKey);
+      return client.monitoringQuery(scope, 'latest', { selection_id: selection!, all_history: true, qualities: ['good', 'unmarked', 'suspect', 'bad'], timezone, limit: 50, ...(previous?.state === 'pending' ? { snapshot_id: previous.snapshot.id } : {}) }, signal);
+    }), refetchInterval: q => q.state.data?.state === 'pending' ? 1500 : enabled ? 30_000 : false,
+    refetchOnWindowFocus: enabled ? 'always' : false,
+  });
+}
 export function useAnalytic(kind: 'overview' | 'latest' | 'statistics' | 'trends', input: MonitoringQuery | undefined, generation = 0) {
   const { client, scope, prefix, available } = useMonitoring(), cache = useQueryClient();
   const queryKey = [...prefix, 'analytic', kind, input, generation];

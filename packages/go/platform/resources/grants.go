@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -708,6 +709,13 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		kind = "facility"
 	}
 	e := s.transact(ctx, a, access.ResourceAccessOperation(kind, "detail"), TenantScope(tenant), false, func(tx pgx.Tx, auth authorization) error {
+		if facility != "" && !access.ValidID(facility) {
+			return notFound()
+		}
+		f.Query = strings.TrimSpace(f.Query)
+		if utf8.RuneCountInString(f.Query) > 200 {
+			return problem("invalid_request", "搜索内容最多 200 个字符。", 400)
+		}
 		if f.Limit == 0 {
 			f.Limit = 25
 		}
@@ -719,12 +727,18 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		if e != nil {
 			return e
 		}
-		id, e := accessPageCursor(auth, out.Policy, facility, "links", f.Cursor)
+		categoryLinks := "links:" + fingerprint(f.Query)
+		id, e := accessPageCursor(auth, out.Policy, facility, categoryLinks, f.Cursor)
+		if e != nil {
+			return e
+		}
+		var summaries map[string]AccessSummary
+		out.Summary, summaries, e = accessSummaries(ctx, tx, tenant, project, facility)
 		if e != nil {
 			return e
 		}
 		if facility == "" {
-			rows, e := tx.Query(ctx, `SELECT l.id::text,l.tenant_id::text,l.project_id::text,l.facility_id::text,f.name,f.code,l.status,l.revision::text,l.created_at FROM project_facility_links l JOIN engineering_facilities f ON f.id=l.facility_id WHERE l.tenant_id=$1 AND l.project_id=$2 AND l.status='active' AND ($3='' OR l.id>NULLIF($3,'')::uuid) ORDER BY l.id LIMIT $4`, tenant, project, id, f.Limit+1)
+			rows, e := tx.Query(ctx, `SELECT l.id::text,l.tenant_id::text,l.project_id::text,l.facility_id::text,f.name,f.code,l.status,l.revision::text,l.created_at FROM project_facility_links l JOIN engineering_facilities f ON f.id=l.facility_id WHERE l.tenant_id=$1 AND l.project_id=$2 AND l.status='active' AND ($3='' OR l.id>NULLIF($3,'')::uuid) AND ($5='' OR f.name ILIKE '%'||$5||'%' OR f.code ILIKE '%'||$5||'%') ORDER BY l.id LIMIT $4`, tenant, project, id, f.Limit+1, f.Query)
 			if e != nil {
 				return e
 			}
@@ -734,11 +748,13 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 				if e = rows.Scan(&v.ID, &v.TenantID, &v.ProjectID, &v.FacilityID, &v.FacilityName, &v.FacilityCode, &v.Status, &v.Revision, &v.CreatedAt); e != nil {
 					return e
 				}
+				summary := summaries[v.ID]
+				v.Summary = &summary
 				out.Links = append(out.Links, v)
 			}
 			if len(out.Links) > f.Limit {
 				out.Links = out.Links[:f.Limit]
-				out.NextCursor = accessNextCursor(auth, out.Policy, facility, "links", out.Links[f.Limit-1].ID)
+				out.NextCursor = accessNextCursor(auth, out.Policy, facility, categoryLinks, out.Links[f.Limit-1].ID)
 			}
 			return rows.Err()
 		}
@@ -751,6 +767,10 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		out.Link, e = linkTx(ctx, tx, tenant, project, facility)
 		if e != nil {
 			return e
+		}
+		if out.Link != nil {
+			summary := summaries[out.Link.ID]
+			out.Link.Summary = &summary
 		}
 		gid, e := accessPageCursor(auth, out.Policy, facility, "grants", f.GrantCursor)
 		if e != nil {
@@ -788,7 +808,7 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		if e = normalizeFilter(&f.Candidate); e != nil {
 			return e
 		}
-		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner})
+		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner, f.CandidatePoint})
 		cid, e := accessPageCursor(auth, out.Policy, facility, category, f.Candidate.Cursor)
 		if e != nil {
 			return e
@@ -827,6 +847,13 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 				args = append(args, owner)
 			}
 			where = " AND EXISTS(SELECT 1 FROM engineering_points p WHERE p.tenant_id=r.tenant_id AND p.facility_id=r.facility_id AND p.id=r.point_id AND p.deleted_at IS NULL AND " + pointOwner + ")"
+		}
+		if f.CandidatePoint != "" {
+			if f.CandidateKind != Channel || !access.ValidID(f.CandidatePoint) {
+				return problem("invalid_request", "请选择有效的通道所属测点。", 400)
+			}
+			args = append(args, f.CandidatePoint)
+			where += fmt.Sprintf(" AND r.point_id=$%d", len(args))
 		}
 		rows, e := tx.Query(ctx, `SELECT to_jsonb(r) FROM `+tables[f.CandidateKind]+` r WHERE r.tenant_id=$1 AND `+facilityCol+`=$2 AND r.deleted_at IS NULL AND ($3='' OR r.id>NULLIF($3,'')::uuid) AND ($5='' OR r.name ILIKE '%'||$5||'%' OR r.code ILIKE '%'||$5||'%') AND ($6='all' OR r.status=$6)`+where+` ORDER BY r.id LIMIT $4`, args...)
 		if e != nil {

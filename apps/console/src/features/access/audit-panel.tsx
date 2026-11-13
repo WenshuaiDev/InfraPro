@@ -14,7 +14,7 @@ export function AuditOutcome({ event }: { event: AccessAuditEvent }) {
 function Values({ values, empty = '未设置' }: { values: string[]; empty?: string }) {
   return values.length ? <ul className="space-y-1.5">{values.map((value, index) => <li key={`${index}:${value}`} className="break-words whitespace-pre-wrap">{value}</li>)}</ul> : <span className="text-muted-foreground">{empty}</span>;
 }
-function Change({ change, full }: { change: AuditChange; full: boolean }) {
+export function AuditChangeCard({ change, full }: { change: AuditChange; full: boolean }) {
   return <section aria-label={`${change.label}变化`} className="overflow-hidden rounded-lg border">
     <h4 className="border-b bg-muted/30 px-4 py-2.5 text-sm font-medium">{change.label}</h4>
     {change.added && !full ? <div className="space-y-4 p-4 text-sm">
@@ -52,7 +52,7 @@ export function AuditPanel({ event, close, returnFocus, initialTab = 'details' }
         <section className="space-y-2"><h3 className="text-sm font-semibold">操作原因</h3><p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">{event.reason || (event.display?.category === 'security' ? '此类账号安全操作不要求填写原因。' : '这条记录未填写原因。')}</p></section>
         <section className="space-y-3"><h3 className="text-sm font-semibold">{event.display?.category === 'security' ? '事件说明' : '变更内容'}</h3>
           {changes.some((change) => change.added) && <label className="flex min-h-11 items-center gap-3 text-sm"><Switch checked={full} onCheckedChange={setFull} />显示完整前后内容</label>}
-          {changes.length ? changes.map((change) => <Change key={change.label} change={change} full={full} />) : <p className="rounded-lg border border-dashed p-4 text-sm leading-6 text-muted-foreground">{auditExplanation(event)}</p>}
+          {changes.length ? changes.map((change) => <AuditChangeCard key={change.label} change={change} full={full} />) : <p className="rounded-lg border border-dashed p-4 text-sm leading-6 text-muted-foreground">{auditExplanation(event)}</p>}
           {changes.some((change) => change.label === '权限') && !Array.isArray(event.details.permission_definitions) && <p className="text-xs leading-5 text-muted-foreground">权限名称由当前权限目录解释；具体权限编码保留在技术信息中。</p>}
         </section>
       </TabsContent>

@@ -17,6 +17,7 @@ func ResourceOperation(kind, action string) Operation {
 func resourcePolicies() []Policy {
 	out := []Policy{}
 	base := "/api/v1/tenants/:tenant_id/engineering/resources"
+	out = append(out, Policy{ResourceOperation("tree", "list"), "GET", base + "/tree", "tenant", []Code{TenantEngineeringResourceRead}, false, false})
 	for _, v := range []struct{ kind, path string }{
 		{"facility", base + "/facilities"}, {"component", base + "/facilities/:facility_id/components"}, {"point", base + "/facilities/:facility_id/points"}, {"channel", base + "/facilities/:facility_id/points/:point_id/channels"},
 	} {

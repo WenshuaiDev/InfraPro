@@ -12,15 +12,23 @@ type AccessPolicy struct {
 	Revision            string `json:"revision"`
 }
 type Link struct {
-	ID           string    `json:"id"`
-	TenantID     string    `json:"tenant_id"`
-	ProjectID    string    `json:"project_id"`
-	FacilityID   string    `json:"facility_id"`
-	FacilityName string    `json:"facility_name"`
-	FacilityCode string    `json:"facility_code"`
-	Status       string    `json:"status"`
-	Revision     string    `json:"revision"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           string         `json:"id"`
+	TenantID     string         `json:"tenant_id"`
+	ProjectID    string         `json:"project_id"`
+	FacilityID   string         `json:"facility_id"`
+	FacilityName string         `json:"facility_name"`
+	FacilityCode string         `json:"facility_code"`
+	Status       string         `json:"status"`
+	Revision     string         `json:"revision"`
+	CreatedAt    time.Time      `json:"created_at"`
+	Summary      *AccessSummary `json:"summary,omitempty"`
+}
+type AccessSummary struct {
+	Facilities   int `json:"facilities"`
+	Components   int `json:"components"`
+	Points       int `json:"points"`
+	Channels     int `json:"channels"`
+	Maintainable int `json:"maintainable"`
 }
 type Grant struct {
 	ID           string   `json:"id"`
@@ -37,14 +45,15 @@ type Grant struct {
 	Revision     string   `json:"revision"`
 }
 type AccessDetail struct {
-	Policy          AccessPolicy `json:"policy"`
-	Links           []Link       `json:"links"`
-	NextCursor      string       `json:"next_cursor"`
-	Link            *Link        `json:"link"`
-	Grants          []Grant      `json:"grants"`
-	GrantNextCursor string       `json:"grant_next_cursor"`
-	Candidates      Page         `json:"candidates"`
-	CandidateGrants []Grant      `json:"candidate_grants"`
+	Summary         AccessSummary `json:"summary"`
+	Policy          AccessPolicy  `json:"policy"`
+	Links           []Link        `json:"links"`
+	NextCursor      string        `json:"next_cursor"`
+	Link            *Link         `json:"link"`
+	Grants          []Grant       `json:"grants"`
+	GrantNextCursor string        `json:"grant_next_cursor"`
+	Candidates      Page          `json:"candidates"`
+	CandidateGrants []Grant       `json:"candidate_grants"`
 }
 type GrantInput struct {
 	Kind         Kind     `json:"kind"`
@@ -81,7 +90,7 @@ type AccessInput struct {
 	SelectCurrent       *CurrentSelection `json:"select_current,omitempty"`
 }
 type AccessPreview struct {
-	Before  []Grant       `json:"-"`
+	Before  []Grant       `json:"before"`
 	Hash    string        `json:"preview_hash"`
 	Policy  AccessPolicy  `json:"policy"`
 	Link    *Link         `json:"link"`
@@ -100,11 +109,13 @@ type AccessResult struct {
 	Replayed       bool   `json:"replayed"`
 }
 type AccessFilter struct {
-	Cursor        string
-	Limit         int
-	GrantCursor   string
-	CandidateKind Kind
-	Candidate     Filter
+	Query          string
+	Cursor         string
+	Limit          int
+	GrantCursor    string
+	CandidateKind  Kind
+	CandidatePoint string
+	Candidate      Filter
 }
 type AccessChange struct {
 	ID         string    `json:"id"`

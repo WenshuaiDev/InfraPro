@@ -17,8 +17,19 @@
 - [监测使用与维护](operations/monitoring-data.md)
 - [本机人工验收](operations/monitoring-data-acceptance.md)
 - [监测开发与自验证据](verification/monitoring-data.md)
+- [派生监测指标与分析成果：已确认需求及验收基线](requirements/derived-monitoring-and-analysis-plan.md)
+- [派生监测指标与分析成果：正式详细开发方案](requirements/derived-monitoring-and-analysis-development-plan.md)
 
-两份方案继续独立维护；用户已确认实施并调整为优先本机功能，[开发与自验记录](verification/monitoring-data.md)分别记录阶段结果和待验证事项。它们引用的[旧项目资源方案地址](requirements/project-resource-management-refactor-plan.md)仅保留跳转说明，正文已并入主文档。
+两份基础监测方案继续独立维护；用户已确认实施并调整为优先本机功能，[开发与自验记录](verification/monitoring-data.md)分别记录阶段结果和待验证事项。它们引用的[旧项目资源方案地址](requirements/project-resource-management-refactor-plan.md)仅保留跳转说明，正文已并入主文档。派生监测需求基线已获用户确认，正式开发方案细化数据、计算、接口、界面和验证约定；派生功能尚未开始实现，不改变基础监测的本机交付与待验收状态。
+
+## 下一轮：工程空间可视化方案
+
+- [交付范围与详细方案入口](requirements/spatial-visualization-proposal.md)：总体方向已获认可，本次只整理文档，暂不开发。
+- [交付范围与业务规则](requirements.md#spatial-scope)：图模版本、测点挂载、项目授权和派生监测／成果联动。
+- [详细架构设计](architecture.md#spatial-design)、[规划技术选型](technology-selection.md#spatial-technology)：数据、任务、权限、接口、页面和运行约定。
+- [空间可视化技术研究](requirements/spatial-visualization-technical-research.md)：保留一手技术依据，不另维护功能正文。
+
+原讨论稿已归入三份主文档，旧路径保留为入口。**用户没有图模资料，后续开发自验及用户操作所需的图纸、模型、BIM、地图参考数据和多版本样本由 Codex 准备**，不以用户供件、购买资料或配置第三方密钥为交付前提。总体方向确认、详细文档审阅、功能实现和用户验收分别记录，当前未开始实现。
 
 ## 内容归属
 
@@ -33,6 +44,7 @@
 | 项目资源授权重构及操作手册 | [项目资源](requirements.md#project-resources) | [资源授权设计](architecture.md#resources)、[迁移](architecture.md#migrations) |
 | 设备产品总体／详细方案及操作手册 | [设备与来源](requirements.md#devices) | [设备设计](architecture.md#devices)、[迁移](architecture.md#migrations) |
 | 工作空间导航、居中选择器及操作手册 | [工作空间交互](requirements.md#interaction) | [前端与入口](architecture.md#frontend) |
+| 下一轮地图／GIS、图模管理、测点挂载及数据联动 | [空间业务范围](requirements.md#spatial-scope) | [空间设计](architecture.md#spatial-design)、[规划选型](technology-selection.md#spatial-technology) |
 | 前端重构、前端开发约定、后端组织、原架构说明 | [通用交互和质量](requirements.md#quality) | [模块](architecture.md#modules)、[前端](architecture.md#frontend)、[技术选型](technology-selection.md) |
 
 重复的迭代背景、逐文件实施清单、相同部署命令和旧阶段权限总数已归并；后续已确认规则覆盖早期阶段描述。人工验收条件统一保存，既有验收状态单独记录，不把历史测试计划写成新的通过结果。

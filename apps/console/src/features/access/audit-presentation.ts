@@ -1,6 +1,8 @@
 import type { AccessAuditEvent } from '@infrapro/api-client';
 import { tenantActions } from '../tenancy/labels';
 
+type AuditSnapshot = Pick<AccessAuditEvent, 'event_type' | 'details' | 'display'>;
+
 export const auditActions: Record<string, string> = {
   ...tenantActions,
   login: '登录账号', logout: '退出登录', logout_all: '退出全部会话', session_revoked: '撤销登录会话',
@@ -39,7 +41,7 @@ export function targetLabel(event: AccessAuditEvent) {
   if (event.object_type === 'tenant_invitation') return '租户成员邀请';
   return event.display?.target_name || '对象名称未记录';
 }
-export function actionLabel(event: AccessAuditEvent) {
+export function actionLabel(event: AuditSnapshot) {
   const after = snapshot(event.details.after);
   if (event.event_type === 'engineering.state') return after.enabled === true ? '恢复工程版本' : '停用工程版本';
   if (['RoleSetStatus', 'tenant.role.status_changed'].includes(event.event_type) && ['active', 'disabled'].includes(text(after.status))) return after.status === 'active' ? '启用角色' : '停用角色';
@@ -61,14 +63,14 @@ function setChange(label: string, before: NamedValue[], after: NamedValue[]): Au
   if (!added.length && !removed.length) return undefined;
   return { label, before: before.map((value) => value.name), after: after.map((value) => value.name), added, removed };
 }
-function permissions(event: AccessAuditEvent, value: unknown): NamedValue[] {
+function permissions(event: AuditSnapshot, value: unknown): NamedValue[] {
   const historical = new Map<string, string>();
   if (Array.isArray(event.details.permission_definitions)) for (const entry of event.details.permission_definitions) {
     const item = record(entry); if (text(item.code) && text(item.name)) historical.set(text(item.code), text(item.name));
   }
   return Array.isArray(value) ? value.filter((code): code is string => typeof code === 'string').map((code) => ({ id: code, name: historical.get(code) || event.display?.permission_names[code] || `未收录权限（${code}）` })) : [];
 }
-function roles(event: AccessAuditEvent, value: unknown): NamedValue[] {
+function roles(event: AuditSnapshot, value: unknown): NamedValue[] {
   if (!Array.isArray(value)) return [];
   return value.filter((entry) => !record(entry).revoked_at).map((entry) => {
     const item = record(entry), id = text(item.role_id) || text(item.id) || text(entry);
@@ -88,16 +90,17 @@ function fieldValue(key: string, value: unknown): string[] {
   return [];
 }
 
-export function auditChanges(event: AccessAuditEvent): AuditChange[] {
+export function auditChanges(event: AuditSnapshot): AuditChange[] {
   if (event.display?.outcome && event.display.outcome !== 'success') return [];
-  if (['RoleDelete', 'tenant.role.deleted'].includes(event.event_type)) return [{ label: '角色', before: [targetLabel(event)], after: ['已删除'] }];
+  if (['RoleDelete', 'tenant.role.deleted'].includes(event.event_type)) return [{ label: '角色', before: [event.display?.target_name || text(snapshot(event.details.before).name) || '对象名称未记录'], after: ['已删除'] }];
   if (event.event_type === 'catalog_synced') return [];
   const before = snapshot(event.details.before), after = snapshot(event.details.after);
   const changes: AuditChange[] = [];
   for (const [key, label] of Object.entries(fieldLabels)) {
     if (!(key in before) && !(key in after)) continue;
     const old = fieldValue(key, before[key]), next = fieldValue(key, after[key]);
-    if (JSON.stringify(old) !== JSON.stringify(next)) changes.push({ label, before: old, after: next });
+    const fieldLabel = key === 'code' && event.event_type.startsWith('resource.') ? '资源编号' : key === 'code' && event.event_type.startsWith('engineering.') ? '定义编号' : label;
+    if (JSON.stringify(old) !== JSON.stringify(next)) changes.push({ label: fieldLabel, before: old, after: next });
   }
   const oldAdmin = person(before.administrator), nextAdmin = person(after.administrator);
   if (oldAdmin !== nextAdmin && (oldAdmin || nextAdmin)) changes.push({ label: '租户管理员', before: oldAdmin ? [oldAdmin] : [], after: nextAdmin ? [nextAdmin] : [] });
@@ -142,7 +145,7 @@ export function auditSummary(event: AccessAuditEvent, changes = auditChanges(eve
   return '已记录本次操作；可在详情中查看原因与上下文。';
 }
 
-export function auditExplanation(event: AccessAuditEvent) {
+export function auditExplanation(event: AuditSnapshot) {
   if (securityEvents.has(event.event_type)) return '这是一条账号安全事件，没有业务字段的前后差异。';
   if (event.event_type === 'catalog_synced') {
     const after = record(event.details.after);

@@ -38,5 +38,5 @@ export function useResources() {
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export function refreshResources(cache: import('@tanstack/react-query').QueryClient, prefix: readonly unknown[], facility?: string) {
- return cache.invalidateQueries({ predicate: (query) => prefix.every((v,i) => query.queryKey[i] === v) && (query.queryKey[prefix.length] === 'facilities' || (query.queryKey[prefix.length] === 'detail' ? query.queryKey[prefix.length+2] === facility : query.queryKey[prefix.length+1] === facility)) });
+ return cache.invalidateQueries({ predicate: (query) => prefix.every((v,i) => query.queryKey[i] === v) && (['facilities', 'tree'].includes(String(query.queryKey[prefix.length])) || (query.queryKey[prefix.length] === 'detail' ? query.queryKey[prefix.length+2] === facility : query.queryKey[prefix.length+1] === facility)) });
 }

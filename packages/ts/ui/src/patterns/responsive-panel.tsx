@@ -12,9 +12,10 @@ type Props = {
   children: ReactNode;
   returnFocus?: RefObject<HTMLElement | null>;
   fallbackFocusSelector?: string;
+  size?: 'default' | 'wide' | 'workspace';
 };
 
-export function ResponsivePanel({ open, onOpenChange, title, description, children, returnFocus, fallbackFocusSelector }: Props) {
+export function ResponsivePanel({ open, onOpenChange, title, description, children, returnFocus, fallbackFocusSelector, size = 'default' }: Props) {
   const mobile = useIsMobile();
   const previous = useRef<HTMLElement | null>(null);
   const popup = useRef<HTMLDivElement | null>(null);
@@ -36,7 +37,7 @@ export function ResponsivePanel({ open, onOpenChange, title, description, childr
     return target ?? true;
   };
   return <Drawer open={open} onOpenChange={onOpenChange} swipeDirection={mobile ? 'down' : 'right'} showSwipeHandle={mobile}>
-    <DrawerContent ref={popup} className="bg-background shadow-xl [--drawer-bleed-background:transparent] data-[swipe-axis=x]:h-[calc(100dvh-1.5rem)] data-[swipe-axis=x]:w-[min(35rem,calc(100vw-1.5rem))] data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-direction=right]:rounded-2xl data-[swipe-direction=right]:border data-[swipe-axis=y]:h-[92dvh] data-[swipe-axis=y]:max-h-[92dvh] data-[swipe-direction=down]:rounded-t-2xl" initialFocus={captureFocus} finalFocus={restoreFocus}>
+    <DrawerContent ref={popup} className={`bg-background shadow-xl [--drawer-bleed-background:transparent] data-[swipe-axis=x]:h-[calc(100dvh-1.5rem)] ${size === 'workspace' ? 'data-[swipe-axis=x]:w-[min(86rem,calc(100vw-1.5rem))]' : size === 'wide' ? 'data-[swipe-axis=x]:w-[min(60rem,calc(100vw-1.5rem))]' : 'data-[swipe-axis=x]:w-[min(35rem,calc(100vw-1.5rem))]'} data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-direction=right]:rounded-2xl data-[swipe-direction=right]:border data-[swipe-axis=y]:h-[92dvh] data-[swipe-axis=y]:max-h-[92dvh] data-[swipe-direction=down]:rounded-t-2xl`} initialFocus={captureFocus} finalFocus={restoreFocus}>
       <DrawerHeader className="relative border-b px-5 py-5 pr-16 group-data-[swipe-axis=y]/drawer-popup:text-left sm:px-6 sm:pr-16">
         <DrawerTitle className="break-words text-lg font-semibold">{title}</DrawerTitle>
         <DrawerDescription>{description}</DrawerDescription>

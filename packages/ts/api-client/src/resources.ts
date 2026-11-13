@@ -9,6 +9,10 @@ export type ResourcePosition = Schema<'ResourcePosition'>;
 export type ResourceSampling = Schema<'ResourceSampling'>;
 export type ResourceResult = Schema<'ResourceResult'>;
 export type ResourceKind = Resource['kind'];
+export type ResourceTreeRef = Schema<'ResourceTreeRef'>;
+export type ResourceTreeNode = Schema<'ResourceTreeNode'>;
+export type ResourceTreePage = Schema<'ResourceTreePage'>;
+export type ResourceTreeFilter = Pick<ResourceFilter, 'q' | 'status' | 'type_definition_id' | 'deleted' | 'limit' | 'cursor'> & { facility_id?: string; parent_kind?: 'facility' | 'component' | 'point'; parent_id?: string };
 export type ResourceTarget = { kind: ResourceKind; facility?: string; point?: string; id?: string };
 export type ResourceFilter = { q?: string; status?: 'normal' | 'retired' | 'all'; type_definition_id?: string; deleted?: 'only'; parent_id?: string; owner?: string; limit?: number; cursor?: string };
 export type ResourceCreate = Schema<'ResourceFacilityCreate'> | Schema<'ResourceComponentCreate'> | Schema<'ResourcePointCreate'> | Schema<'ResourceChannelCreate'>;
@@ -22,7 +26,7 @@ export type ResourceAccessPreview = Schema<'ProjectResourceAccessPreview'>;
 export type ResourceAccessResult = Schema<'ProjectResourceAccessResult'>;
 export type ResourceGrant = Schema<'ProjectResourceGrant'>;
 export type ResourceGrantInput = Schema<'ProjectResourceGrantInput'>;
-export type ResourceAccessFilter = { cursor?: string; limit?: number; grant_cursor?: string; candidate_kind?: ResourceKind; candidate_cursor?: string; candidate_limit?: number; candidate_q?: string; candidate_status?: string; candidate_parent_id?: string; candidate_owner?: string };
+export type ResourceAccessFilter = { q?: string; candidate_point_id?: string; cursor?: string; limit?: number; grant_cursor?: string; candidate_kind?: ResourceKind; candidate_cursor?: string; candidate_limit?: number; candidate_q?: string; candidate_status?: string; candidate_parent_id?: string; candidate_owner?: string };
 type Request = <T>(path: string, method?: string, body?: unknown, notify?: boolean, signal?: AbortSignal) => Promise<T>;
 const workspace = (scope: ResourceScope | string) => typeof scope === 'string' ? `/tenants/${encodeURIComponent(scope)}` : `/tenants/${encodeURIComponent(scope.tenantId)}${scope.kind === 'project' ? `/projects/${encodeURIComponent(scope.projectId)}` : ''}`;
 const base = (scope: ResourceScope | string) => `${workspace(scope)}/engineering/resources`;
@@ -31,6 +35,7 @@ function path(tenant: ResourceScope | string, t: ResourceTarget) { const root = 
 const query = (f: object) => new URLSearchParams(Object.entries(f).filter(([,v]) => v !== undefined && v !== '').map(([k,v]) => [k,String(v)])).toString();
 export function resourceMethods(request: Request) {
  return {
+  resourceTree: (tenant: string, filter: ResourceTreeFilter = {}, signal?: AbortSignal) => request<ResourceTreePage>(`${base(tenant)}/tree?${query(filter)}`, 'GET', undefined, true, signal),
   resourcePreview: (scope: ResourceScope | string, t: ResourceTarget, action: 'update' | 'retire' | 'restore' | 'delete', body: object) => request<ResourceMutationPreview>(`${path(scope,t)}/mutation-preview`, 'POST', { ...body, action }),
   resourceList: (tenant: ResourceScope | string, t: ResourceTarget, f: ResourceFilter = {}, signal?: AbortSignal) => request<Schema<'ResourcePage'>>(`${path(tenant,t)}?${query(f)}`, 'GET', undefined, true, signal),
   resourceDetail: (tenant: ResourceScope | string, t: ResourceTarget, signal?: AbortSignal) => request<ResourceDetail>(path(tenant,t), 'GET', undefined, true, signal),

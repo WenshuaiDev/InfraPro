@@ -17,19 +17,30 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, f Filte
 		if e := f.Validate(); e != nil {
 			return e
 		}
-		if !slices.Contains([]string{"", "all", "public", "private"}, f.Source) || !slices.Contains([]string{"", "enabled", "disabled"}, f.Status) || !slices.Contains([]string{"", "recorded", "unrecorded"}, f.Installation) {
+		if !slices.Contains([]string{"", "all", "public", "private"}, f.Source) || !slices.Contains([]string{"", "enabled", "disabled"}, f.Status) || !slices.Contains([]string{"", "recorded", "unrecorded", "location", "resource"}, f.Installation) {
 			return k.Problem("invalid_request", "设备筛选条件无效。", 400)
+		}
+		if f.FacilityID != "" {
+			if scope.Entry != "tenant" {
+				return k.Problem("invalid_request", "设施筛选仅用于租户设备台账。", 400)
+			}
+			if e := access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation("facility", "list"), auth.Tenant); e != nil {
+				return e
+			}
 		}
 		cursor, e := k.DecodeCursor(f.Cursor, k.CursorContext(auth, f, "devices"))
 		if e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT `+deviceJSON+deviceFrom+` WHERE d.tenant_id=$1 AND d.deleted_at IS NULL
+		rows, e := tx.Query(ctx, `SELECT `+deviceJSON+`||jsonb_build_object('current_installation', installation.value)`+deviceFrom+`
+   LEFT JOIN LATERAL (SELECT i.target_kind,i.facility_id,to_jsonb(i)||jsonb_build_object('revision',i.revision::text) AS value FROM device_installations i WHERE i.tenant_id=d.tenant_id AND i.device_id=d.id AND i.uninstalled_at IS NULL) installation ON true
+   WHERE d.tenant_id=$1 AND d.deleted_at IS NULL
    AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM project_device_grants g WHERE g.tenant_id=d.tenant_id AND g.project_id=$2 AND g.device_id=d.id AND g.kind='device' AND g.ended_at IS NULL))
    AND ($3='' OR d.name ILIKE '%'||$3||'%' OR d.code ILIKE '%'||$3||'%' OR d.serial_number ILIKE '%'||$3||'%') AND ($4='' OR d.status=$4)
    AND ($5::uuid IS NULL OR p.manufacturer_id=$5) AND ($6::uuid IS NULL OR d.product_id=$6) AND ($7::uuid IS NULL OR d.product_version_id=$7)
-   AND ($8='' OR ($8='recorded')=EXISTS(SELECT 1 FROM device_installations i WHERE i.device_id=d.id AND i.uninstalled_at IS NULL))
-   AND ($12 IN ('','all') OR ($12='public')=(p.owner_tenant_id IS NULL)) AND ($9::timestamptz IS NULL OR (d.created_at,d.id)>($9,$10::uuid)) ORDER BY d.created_at,d.id LIMIT $11`, auth.Tenant, k.Nullable(auth.Project), f.Query, f.Status, k.Nullable(f.ManufacturerID), k.Nullable(f.ProductID), k.Nullable(f.ProductVersionID), f.Installation, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1, f.Source)
+   AND ($8='' OR ($8='recorded' AND installation.value IS NOT NULL) OR ($8='unrecorded' AND installation.value IS NULL) OR ($8='location' AND installation.target_kind='location') OR ($8='resource' AND installation.target_kind IN ('facility','component','point')))
+   AND ($13::uuid IS NULL OR installation.facility_id=$13)
+   AND ($12 IN ('','all') OR ($12='public')=(p.owner_tenant_id IS NULL)) AND ($9::timestamptz IS NULL OR (d.created_at,d.id)>($9,$10::uuid)) ORDER BY d.created_at,d.id LIMIT $11`, auth.Tenant, k.Nullable(auth.Project), f.Query, f.Status, k.Nullable(f.ManufacturerID), k.Nullable(f.ProductID), k.Nullable(f.ProductVersionID), f.Installation, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1, f.Source, k.Nullable(f.FacilityID))
 		if e != nil {
 			return e
 		}
@@ -50,12 +61,37 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, f Filte
 		if e = rows.Err(); e != nil {
 			return e
 		}
+		rows.Close()
 		if len(out.Items) > f.Limit {
 			out.Items = out.Items[:f.Limit]
 			last := out.Items[f.Limit-1]
 			cursor.At = last.CreatedAt
 			cursor.ID = last.ID
 			out.NextCursor = cursor.Encode()
+		}
+		installations := []Installation{}
+		for _, device := range out.Items {
+			if device.CurrentInstallation != nil {
+				installations = append(installations, *device.CurrentInstallation)
+			}
+		}
+		if len(installations) > 0 {
+			if s.resources == nil {
+				return k.Problem("unavailable", "安装目标读取暂不可用。", 503)
+			}
+			projected, e := s.resources.ProjectInstallationsTx(ctx, tx, a, scope, installations)
+			if e != nil {
+				return e
+			}
+			byDevice := make(map[string]Installation, len(projected))
+			for _, installation := range projected {
+				byDevice[installation.DeviceID] = installation
+			}
+			for index := range out.Items {
+				if installation, ok := byDevice[out.Items[index].ID]; ok {
+					out.Items[index].CurrentInstallation = &installation
+				}
+			}
 		}
 		return nil
 	})

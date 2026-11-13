@@ -31756,6 +31756,14 @@
               "minimum": 1,
               "maximum": 100
             }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
           }
         ],
         "security": [
@@ -32404,6 +32412,22 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "candidate_point_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -40655,8 +40679,15 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "enum": [
+                "recorded",
+                "unrecorded",
+                "location",
+                "resource"
+              ]
+            },
+            "description": "按当前安装筛选：有记录、无记录、独立位置、设施及其构件或测点。历史安装不参与筛选。"
           },
           {
             "name": "source",
@@ -40668,6 +40699,16 @@
                 "public",
                 "private"
               ]
+            }
+          },
+          {
+            "name": "facility_id",
+            "in": "query",
+            "required": false,
+            "description": "按当前安装所属设施筛选，包含其构件与测点；需要租户工程资源读取权限。",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -44388,8 +44429,15 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "enum": [
+                "recorded",
+                "unrecorded",
+                "location",
+                "resource"
+              ]
+            },
+            "description": "按当前安装筛选：有记录、无记录、独立位置、设施及其构件或测点。历史安装不参与筛选。"
           },
           {
             "name": "source",
@@ -59479,6 +59527,211 @@
           }
         }
       }
+    },
+    "/api/v1/tenants/{tenant_id}/engineering/resources/tree": {
+      "get": {
+        "operationId": "Resource:tree:list",
+        "tags": [
+          "Engineering resources"
+        ],
+        "summary": "租户设施工作台：分页浏览直属资源或搜索完整归属路径",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "retired",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 2000
+            }
+          },
+          {
+            "name": "type_definition_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "only"
+              ]
+            }
+          },
+          {
+            "name": "facility_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "parent_kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "facility",
+                "component",
+                "point"
+              ]
+            }
+          },
+          {
+            "name": "parent_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "x-permissions": [
+          "tenant.engineering.resource.read"
+        ],
+        "responses": {
+          "200": {
+            "description": "分页资源节点、祖先路径、当前查询计数和本租户已使用的设施类型。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceTreePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "请求未完成；冲突或临时错误保留输入，写请求不得自动重试。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceError"
+                }
+              }
+            }
+          }
+        },
+        "description": "未指定父对象时列设施，有 q 时搜索全部资源种类；指定父对象时仅查询直属子项。祖先与计数采用同一查询快照。删除筛选仅返回设施身份与历史入口。"
+      }
     }
   },
   "components": {
@@ -69397,6 +69650,9 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ProjectResourceAccessSummary"
           }
         },
         "required": [
@@ -69539,6 +69795,9 @@
             "items": {
               "$ref": "#/components/schemas/ProjectResourceGrant"
             }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ProjectResourceAccessSummary"
           }
         },
         "required": [
@@ -69549,7 +69808,8 @@
           "grants",
           "grant_next_cursor",
           "candidates",
-          "candidate_grants"
+          "candidate_grants",
+          "summary"
         ]
       },
       "ProjectResourceGrantInput": {
@@ -69869,6 +70129,12 @@
           },
           "changed": {
             "type": "boolean"
+          },
+          "before": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectResourceGrant"
+            }
           }
         },
         "required": [
@@ -69879,7 +70145,8 @@
           "update",
           "end",
           "retained_context",
-          "changed"
+          "changed",
+          "before"
         ]
       },
       "ProjectResourceAccessResult": {
@@ -78425,6 +78692,295 @@
           "expires_at",
           "authorized_ranges",
           "ordering"
+        ]
+      },
+      "ResourceTreeRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "facility",
+              "component",
+              "point",
+              "channel"
+            ]
+          },
+          "facility_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent_kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "facility",
+              "component",
+              "point",
+              null
+            ]
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "retired"
+            ]
+          },
+          "deleted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "facility_id",
+          "parent_kind",
+          "parent_id",
+          "name",
+          "code",
+          "status",
+          "deleted_at"
+        ]
+      },
+      "ResourceTreeNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "facility",
+              "component",
+              "point",
+              "channel"
+            ]
+          },
+          "facility_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parent_kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "facility",
+              "component",
+              "point",
+              null
+            ]
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "retired"
+            ]
+          },
+          "deleted_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "has_children": {
+            "type": "boolean"
+          },
+          "ancestors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceTreeRef"
+            }
+          },
+          "type_definition_id": {
+            "type": "string"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "type_number": {
+            "type": "integer"
+          },
+          "metric_name": {
+            "type": "string"
+          },
+          "unit_symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "facility_id",
+          "parent_kind",
+          "parent_id",
+          "name",
+          "code",
+          "status",
+          "deleted_at",
+          "created_at",
+          "has_children",
+          "ancestors",
+          "type_definition_id",
+          "type_name",
+          "type_number",
+          "metric_name",
+          "unit_symbol"
+        ]
+      },
+      "ResourceTreePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceTreeNode"
+            }
+          },
+          "next_cursor": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "facility": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "component": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "point": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "channel": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "facility",
+              "component",
+              "point",
+              "channel"
+            ]
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor",
+          "total",
+          "counts",
+          "types"
+        ]
+      },
+      "ProjectResourceAccessSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "facilities": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "components": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "points": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "channels": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maintainable": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "facilities",
+          "components",
+          "points",
+          "channels",
+          "maintainable"
         ]
       }
     }

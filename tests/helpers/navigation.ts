@@ -64,6 +64,21 @@ export async function navigateTo(page: Page, name: string) {
     await page.getByRole('banner').getByRole('button', { name: '切换侧栏', exact: true }).click();
     await expect(navigation).toBeVisible();
   }
+  const section = ({ '设施管理': '工程资源', '项目资源授权': '工程资源', '设备产品目录': '设备管理', '设备台账': '设备管理', '设施类型定义': '工程配置', '指标目录': '工程配置', '单位目录': '工程配置', '公共监测模板': '工程配置' } as Record<string, string>)[name];
+  if (section) {
+    const trigger = navigation.getByRole('button', { name: section, exact: true });
+    await expect(trigger.or(navigation.getByRole('link', { name, exact: true })).first()).toBeVisible();
+    // A single authorized destination is flat; multiple destinations use a
+    // collapsible section or, in icon mode, a menu beside the sidebar.
+    if (await trigger.count()) {
+      if (await trigger.getAttribute('aria-haspopup') === 'menu') {
+        await trigger.click();
+        await page.getByRole('menu').getByRole('menuitem', { name, exact: true }).click();
+        return;
+      }
+      if (await trigger.getAttribute('aria-expanded') === 'false') await trigger.click();
+    }
+  }
   await navigation.getByRole('link', { name, exact: true }).click();
 }
 

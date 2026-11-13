@@ -7219,6 +7219,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 租户设施工作台：分页浏览直属资源或搜索完整归属路径
+         * @description 未指定父对象时列设施，有 q 时搜索全部资源种类；指定父对象时仅查询直属子项。祖先与计数采用同一查询快照。删除筛选仅返回设施身份与历史入口。
+         */
+        get: operations["Resource:tree:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -9708,6 +9728,7 @@ export interface components {
             revision: string;
             /** Format: date-time */
             created_at: string;
+            summary?: components["schemas"]["ProjectResourceAccessSummary"];
         };
         ProjectResourceGrant: {
             /** Format: uuid */
@@ -9740,6 +9761,7 @@ export interface components {
             grant_next_cursor: string;
             candidates: components["schemas"]["ResourcePage"];
             candidate_grants: components["schemas"]["ProjectResourceGrant"][];
+            summary: components["schemas"]["ProjectResourceAccessSummary"];
         };
         ProjectResourceGrantInput: {
             /** @enum {string} */
@@ -9799,6 +9821,7 @@ export interface components {
             end: components["schemas"]["ProjectResourceGrant"][];
             retained_context: components["schemas"]["ResourceContext"][];
             changed: boolean;
+            before: components["schemas"]["ProjectResourceGrant"][];
         };
         ProjectResourceAccessResult: {
             /** Format: uuid */
@@ -11893,6 +11916,74 @@ export interface components {
                 [key: string]: components["schemas"]["MonitoringRange"][];
             };
             ordering: string;
+        };
+        ResourceTreeRef: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
+            /** Format: uuid */
+            facility_id: string;
+            /** @enum {string|null} */
+            parent_kind: "facility" | "component" | "point" | null;
+            /** Format: uuid */
+            parent_id: string | null;
+            name: string;
+            code: string;
+            /** @enum {string} */
+            status: "normal" | "retired";
+            /** Format: date-time */
+            deleted_at: string | null;
+        };
+        ResourceTreeNode: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "facility" | "component" | "point" | "channel";
+            /** Format: uuid */
+            facility_id: string;
+            /** @enum {string|null} */
+            parent_kind: "facility" | "component" | "point" | null;
+            /** Format: uuid */
+            parent_id: string | null;
+            name: string;
+            code: string;
+            /** @enum {string} */
+            status: "normal" | "retired";
+            /** Format: date-time */
+            deleted_at: string | null;
+            /** Format: date-time */
+            created_at: string;
+            has_children: boolean;
+            ancestors: components["schemas"]["ResourceTreeRef"][];
+            type_definition_id: string;
+            type_name: string;
+            type_number: number;
+            metric_name: string;
+            unit_symbol: string;
+        };
+        ResourceTreePage: {
+            items: components["schemas"]["ResourceTreeNode"][];
+            next_cursor: string;
+            total: number;
+            counts: {
+                facility: number;
+                component: number;
+                point: number;
+                channel: number;
+            };
+            types: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+            }[];
+        };
+        ProjectResourceAccessSummary: {
+            facilities: number;
+            components: number;
+            points: number;
+            channels: number;
+            maintainable: number;
         };
     };
     responses: never;
@@ -34392,6 +34483,7 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                q?: string;
             };
             header?: never;
             path: {
@@ -34796,6 +34888,8 @@ export interface operations {
                 candidate_status?: string;
                 candidate_parent_id?: string;
                 candidate_owner?: string;
+                q?: string;
+                candidate_point_id?: string;
             };
             header?: never;
             path: {
@@ -40494,8 +40588,11 @@ export interface operations {
                 product_id?: string;
                 product_version_id?: string;
                 status?: string;
-                installation?: string;
+                /** @description 按当前安装筛选：有记录、无记录、独立位置、设施及其构件或测点。历史安装不参与筛选。 */
+                installation?: "recorded" | "unrecorded" | "location" | "resource";
                 source?: "all" | "public" | "private";
+                /** @description 按当前安装所属设施筛选，包含其构件与测点；需要租户工程资源读取权限。 */
+                facility_id?: string;
             };
             header?: never;
             path: {
@@ -42889,7 +42986,8 @@ export interface operations {
                 product_id?: string;
                 product_version_id?: string;
                 status?: string;
-                installation?: string;
+                /** @description 按当前安装筛选：有记录、无记录、独立位置、设施及其构件或测点。历史安装不参与筛选。 */
+                installation?: "recorded" | "unrecorded" | "location" | "resource";
                 source?: "all" | "public" | "private";
             };
             header?: never;
@@ -53002,6 +53100,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Resource:tree:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                status?: "normal" | "retired" | "all";
+                limit?: number;
+                cursor?: string;
+                type_definition_id?: string;
+                deleted?: "only";
+                facility_id?: string;
+                parent_kind?: "facility" | "component" | "point";
+                parent_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 分页资源节点、祖先路径、当前查询计数和本租户已使用的设施类型。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceTreePage"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
                 };
             };
         };

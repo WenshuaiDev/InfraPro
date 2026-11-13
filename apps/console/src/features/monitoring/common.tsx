@@ -12,7 +12,7 @@ export function MonitoringTabs({ current }: { current: 'data' | 'imports' | 'job
   const m = useMonitoring();
   return <nav aria-label="监测数据导航" className="flex flex-wrap gap-2 border-b pb-3">{[[m.canRead, 'data', '监测浏览', m.paths.root], [m.canImportRead, 'imports', '导入与批次', m.paths.imports], [true, 'jobs', '任务中心', m.paths.jobs]].map(([show, key, label, to]) => show && <Button key={String(key)} variant={current === key ? 'secondary' : 'ghost'} asChild><Link to={String(to)} aria-current={current === key ? 'page' : undefined}>{label}</Link></Button>)}{m.archived && <span className="self-center text-sm text-muted-foreground">项目已归档 · 可读取和导出获准数据</span>}</nav>;
 }
-export function Field({ label, value, onChange, hint, children, ...props }: { label: string; value?: string; onChange?: (value: string) => void; hint?: string; children?: ReactNode; disabled?: boolean; required?: boolean; type?: string; placeholder?: string; maxLength?: number }) {
+export function Field({ label, value, onChange, hint, children, ...props }: { label: string; value?: string; onChange?: (value: string) => void; hint?: string; children?: ReactNode; disabled?: boolean; required?: boolean; type?: string; placeholder?: string; maxLength?: number; step?: number | string }) {
   const id = useId();
   return <div className="min-w-0 space-y-2"><Label htmlFor={id}>{label}</Label>{children ?? <Input id={id} value={value ?? ''} onChange={e => onChange?.(e.target.value)} aria-describedby={hint ? `${id}-hint` : undefined} {...props} />}{hint && <p id={`${id}-hint`} className="text-xs text-muted-foreground">{hint}</p>}</div>;
 }

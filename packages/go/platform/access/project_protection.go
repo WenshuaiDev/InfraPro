@@ -216,11 +216,35 @@ func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, previous
 				}
 			}
 			if !initial {
+				initial, e = initialProjectMonitoringPublication(ctx, tx, before, added, previousCatalog)
+				if e != nil {
+					return e
+				}
+			}
+			if !initial {
 				report.Conflicts = append(report.Conflicts, "归档项目或停用租户禁止预置扩权："+v.tenant+" / "+v.project)
 			}
 		}
 	}
 	return nil
+}
+
+// The v11 -> v12 release adds monitoring operations, but data access remains
+// denied until a separate channel/time grant exists. Permit only the first
+// complete publication into an untouched, empty monitoring authorization scope.
+func initialProjectMonitoringPublication(ctx context.Context, tx pgx.Tx, before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) (bool, error) {
+	codes := monitoringCodes("project")
+	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
+		return false, nil
+	}
+	for _, code := range added {
+		if _, exists := previousCatalog[code]; exists || !slices.Contains(codes, code) {
+			return false, nil
+		}
+	}
+	var initial bool
+	e := tx.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM monitoring_access_states WHERE tenant_id=$1 AND project_id=$2 AND revision<>1) AND NOT EXISTS(SELECT 1 FROM monitoring_data_grants WHERE tenant_id=$1 AND project_id=$2) AND NOT EXISTS(SELECT 1 FROM monitoring_import_batches WHERE tenant_id=$1 AND project_id=$2)`, before.TenantID, before.ProjectID).Scan(&initial)
+	return initial, e
 }
 
 // The device release grants only four new role permissions. Object access must
