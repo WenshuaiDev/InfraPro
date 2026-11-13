@@ -12,13 +12,15 @@ export const kinds: Record<ResourceKind, string> = {
 };
 export type Capability = ResourceGrant['capabilities'][number];
 export const capabilities: Record<ResourceKind, Capability[]> = {
-  facility: ['read', 'update', 'create_component', 'create_point'],
-  component: ['read', 'update', 'create_component', 'create_point', 'lifecycle'],
-  point: ['read', 'update', 'create_channel', 'lifecycle'],
-  channel: ['read', 'update', 'lifecycle', 'source_manage'],
+  facility: ['read', 'update', 'create_component', 'create_point', 'create_derived_channel'],
+  component: ['read', 'update', 'create_component', 'create_point', 'create_derived_channel', 'lifecycle'],
+  point: ['read', 'update', 'create_channel', 'create_derived_channel', 'lifecycle'],
+  channel: ['read', 'update', 'lifecycle', 'source_manage', 'manage_calculation'],
 };
 export const capNames: Record<Capability, string> = {
   source_manage: '维护通道来源',
+  create_derived_channel: '新增直属派生通道',
+  manage_calculation: '维护派生计算（仅派生通道）',
   read: '查看',
   update: '编辑资料',
   create_component: '新增构件',
@@ -32,6 +34,7 @@ export type Choice = {
   name: string;
   code: string;
   status?: string;
+  source_kind?: 'direct' | 'derived';
   capabilities: Capability[];
   grant?: ResourceGrant;
   end?: boolean;
@@ -55,6 +58,7 @@ export const asChoice = (g: ResourceGrant): Choice => ({
   id: g.resource_id,
   name: g.name,
   code: g.code,
+  source_kind: g.source_kind,
   capabilities: g.capabilities,
   grant: g,
 });

@@ -51,3 +51,35 @@ monitoring_backup_access_key: ""
 monitoring_backup_secret_key: ""
 monitoring_backup_bucket: ""
 monitoring_backup_named_collection: monitoring_backups
+
+# One shared durable queue for raw and derived monitoring. A stalled lease can
+# be taken over; the old fencing token cannot publish or replace checkpoints.
+monitoring_task_lease: 30s
+monitoring_task_heartbeat: 5s
+monitoring_task_attempts: "5"
+# Deployment limits apply to API, worker and CLI. They never change a rule's
+# matching/window/precision semantics. INFRAPRO_DERIVED_<UPPERCASE_KEY> overrides.
+derived:
+  foreground_workers: "1"
+  historical_workers: "1"
+  rule_inputs: "16"
+  rule_nodes: "32"
+  rule_parameters: "32"
+  graph_depth: "8"
+  trial_rows: "100000"
+  trial_examples: "2000"
+  trial_range: 24h
+  trial_deadline: 3s
+  trial_ttl: 30m
+  window_samples: "1000000"
+  output_rows: "1000000"
+  write_rows: "100000"
+  memory_bytes: "1073741824"
+  temporary_bytes: "21474836480"
+  read_bytes: "268435456"
+  write_bytes: "67108864"
+  schedule_batch: "100"
+  tenant_batch: "16"
+  event_batch: "100"
+  export_ttl: 168h
+  temporary_ttl: 24h

@@ -56,6 +56,7 @@ type monitoringRoute struct {
 var monitoringRoutes = []monitoringRoute{
 	{"points.list", "GET", "/points", []int{0}, true},
 	{"channels.list", "GET", "/points/:id/channels", []int{0}, true},
+	{"channels.directory", "GET", "/channels", []int{0}, true},
 	{"selections.create", "POST", "/selections", []int{0}, true},
 	{"overview", "POST", "/queries/overview", []int{0}, true},
 	{"latest", "POST", "/queries/latest", []int{0}, true},

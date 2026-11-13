@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	"log/slog"
 	"time"
 
@@ -76,6 +77,11 @@ func Open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRe
 			storage.Close()
 			client.Close()
 			return fail(fmt.Errorf("monitoring storage not ready; run infrapro monitoring storage check"))
+		}
+		if e = derivedmonitoring.CheckStorage(ctx, storage); e != nil {
+			storage.Close()
+			client.Close()
+			return fail(fmt.Errorf("derived result storage not ready; run infrapro monitoring storage init: %w", e))
 		}
 	}
 	return &Resources{Pool: pool, Redis: client, Identity: service, Monitoring: storage}, nil

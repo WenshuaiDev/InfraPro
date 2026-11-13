@@ -36,7 +36,10 @@ services:
     mem_limit: 512m
   s3:
     image: chrislusf/seaweedfs:4.53@sha256:ccad23e18639c8b98cee17e7100b95830a06077b56d8e5b006d6dcf8ec5e94a0
-    command: [server, -ip=s3, -dir=/data, -s3, -s3.config=/etc/contract/s3.json, -volume.max=20, -master.volumeSizeLimitMB=128]
+    command: [server, -ip=s3, -dir=/data, -s3, -s3.config=/etc/contract/s3.json, -volume.max=64, -master.volumeSizeLimitMB=128, -s3.readerCacheSizeMB=128, -s3.concurrentUploadLimitMB=128, -s3.concurrentFileUploadLimit=8, -volume.concurrentDownloadLimitMB=128]
+    environment:
+      GOMEMLIMIT: 512MiB
+      GOGC: '50'
     ports: ['127.0.0.1:58333:8333']
     volumes: ['./s3.json:/etc/contract/s3.json:ro']
     mem_limit: 768m

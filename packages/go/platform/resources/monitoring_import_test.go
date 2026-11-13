@@ -98,11 +98,19 @@ func (f monitoringFixture) uploadBytes(t *testing.T, name string, content []byte
 	must(t, e)
 	sum := sha256.Sum256(content)
 	hash := hex.EncodeToString(sum[:])
-	_, e = f.service.UploadPart(ctx, f.actor, f.scope, batch.ID, batch.Revision, 1, hash, bytes.NewReader(content))
-	must(t, e)
-	// Resending the same part keeps the file identity and has no revision race.
-	_, e = f.service.UploadPart(ctx, f.actor, f.scope, batch.ID, batch.Revision, 1, hash, bytes.NewReader(content))
-	must(t, e)
+	for offset, part := 0, 1; offset < len(content); offset, part = offset+int(md.UploadPartSize), part+1 {
+		chunk := content[offset:min(offset+int(md.UploadPartSize), len(content))]
+		partSum := sha256.Sum256(chunk)
+		partHash := hex.EncodeToString(partSum[:])
+		_, e = f.service.UploadPart(ctx, f.actor, f.scope, batch.ID, batch.Revision, part, partHash, bytes.NewReader(chunk))
+		must(t, e)
+		// Small fixtures also verify idempotent retransmission. Large load
+		// fixtures follow the same bounded multipart protocol as the browser.
+		if len(content) <= int(md.UploadPartSize) {
+			_, e = f.service.UploadPart(ctx, f.actor, f.scope, batch.ID, batch.Revision, part, partHash, bytes.NewReader(chunk))
+			must(t, e)
+		}
+	}
 	batch, e = f.service.CompleteUpload(ctx, f.actor, f.scope, batch.ID, md.UploadComplete{WriteMeta: f.meta(batch.Revision), SHA256: hash})
 	must(t, e)
 	batch, e = f.service.SetMapping(ctx, f.actor, f.scope, batch.ID, md.MappingInput{WriteMeta: f.meta(batch.Revision), Mapping: mapping})
@@ -113,7 +121,7 @@ func (f monitoringFixture) validate(t *testing.T, b md.ImportBatch) md.ImportBat
 	t.Helper()
 	queued, e := f.service.QueueImport(ctx, f.actor, f.scope, b.ID, "validate", f.meta(b.Revision))
 	must(t, e)
-	worked, e := f.service.RunOne(ctx, "integration-worker")
+	worked, e := f.service.RunTask(ctx, "integration-worker", f.tenant, queued.JobID)
 	must(t, e)
 	if !worked {
 		t.Fatal("worker did not claim validation")
@@ -129,9 +137,9 @@ func (f monitoringFixture) validate(t *testing.T, b md.ImportBatch) md.ImportBat
 }
 func (f monitoringFixture) publish(t *testing.T, b md.ImportBatch) md.ImportBatch {
 	t.Helper()
-	_, e := f.service.QueueImport(ctx, f.actor, f.scope, b.ID, "publish", f.meta(b.Revision))
+	queued, e := f.service.QueueImport(ctx, f.actor, f.scope, b.ID, "publish", f.meta(b.Revision))
 	must(t, e)
-	worked, e := f.service.RunOne(ctx, "integration-worker")
+	worked, e := f.service.RunTask(ctx, "integration-worker", f.tenant, queued.JobID)
 	must(t, e)
 	if !worked {
 		t.Fatal("worker did not claim publication")

@@ -13,6 +13,8 @@ const resolver = registerHooks({ resolve(specifier, context, nextResolve) {
 } });
 const { latestRange, observedAge, selectedQualities } = await import('../../apps/console/src/features/monitoring/workspace-model.ts');
 const { plotObservations, plotBaseline } = await import('../../apps/console/src/features/monitoring/trend-points.ts');
+const { facilityWorkspaceSearch, selectedTarget, resourceSelection } = await import('../../apps/console/src/features/resources/workspace-search.ts');
+const { plotCoefficient } = await import('../../apps/console/src/features/monitoring/detail-format.ts');
 const { projectTreePage } = await import('../../apps/console/src/features/resources/project-tree-query.ts');
 resolver.deregister();
 
@@ -56,6 +58,7 @@ test('project tree retains component ownership and independently paginates only 
   const client={async resourceList(actual, target, filter) {
     calls.push({scope:actual,target,filter});
     assert.deepEqual(actual,scope);
+    if(target.kind==='channel')return {items:[{kind:'channel',id:'derived',facility_id:'f',owner_kind:filter.owner_kind,component_id:filter.owner_kind==='component'?filter.owner_id:null,point_id:null,name:'派生通道',code:'D',status:'normal'}],next_cursor:''};
     if(target.kind==='component')return {items:[{kind:'component',id:'c',facility_id:'f',parent_component_id:null,name:'主梁',code:'C',status:'active'}],next_cursor:''};
     return {items:[{kind:'point',id:filter.cursor?'p2':'p1',facility_id:'f',component_id:null,name:'测点',code:'P',status:'active'}],next_cursor:filter.cursor?'':'next-point'};
   }};
@@ -63,10 +66,34 @@ test('project tree retains component ownership and independently paginates only 
   const first=await projectTreePage({client,scope},filter,signal);
   assert.equal(first.items[0].parent_id,'f');assert.equal(first.items[1].parent_kind,'facility');
   assert.equal(calls[0].filter.parent_id,'root');assert.equal(calls[1].filter.owner,'root');
+  assert.equal(calls[2].filter.owner_kind,'facility');assert.equal(calls[2].filter.owner_id,'f');assert.equal(calls[2].target.point,undefined);
+  assert.equal(first.items[2].parent_kind,'facility');assert.equal(first.items[2].parent_id,'f');
   const second=await projectTreePage({client,scope},{...filter,cursor:first.next_cursor},signal);
-  assert.equal(calls.length,3);assert.equal(calls[2].filter.cursor,'next-point');assert.equal(second.next_cursor,'');
+  assert.equal(calls.length,4);assert.equal(calls[3].filter.cursor,'next-point');assert.equal(second.next_cursor,'');
   assert.equal(second.items[0].id,'p2');
   calls.length=0;
-  await projectTreePage({client,scope},{parent_kind:'component',parent_id:'c',facility_id:'f'},signal);
+  const component = await projectTreePage({client,scope},{parent_kind:'component',parent_id:'c',facility_id:'f'},signal);
   assert.equal(calls[0].filter.parent_id,'c');assert.equal(calls[1].filter.owner,'c');
+  assert.equal(component.items[2].parent_kind,'component');assert.equal(component.items[2].parent_id,'c');
+});
+
+
+test('derived curves retain null output gaps and differences beyond direct observation scale', () => {
+ const row=(s,value)=>({source_kind:'derived',output_at:`2020-01-01T00:00:0${s}Z`,value});
+ const a=row(0,'123456789012345678.000000000000000001'), gap=row(1,null), b=row(2,'123456789012345678.000000000000000002');
+ assert.deepEqual(plotObservations({summary:false,buckets:[{points:[b,a,gap],discontinuous:false}]}),[a,gap,b]);
+ const baseline=plotBaseline(a,18);
+ assert.equal(Number(plotCoefficient(b.value,18)-baseline)/1e18,1e-18);
+ assert.equal(plotBaseline(gap,18),0n);
+});
+
+test('facility and component channel deep links retain their identity without inventing a point', () => {
+ const facility='aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa', channel='bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb';
+ for(const parent_kind of ['facility','component']) {
+  const selection=resourceSelection({kind:'channel',id:channel,parent_kind,parent_id:facility,deleted_at:null});
+  assert.equal(selection.point,undefined);
+  const search=facilityWorkspaceSearch(selection);
+  assert.equal(search.channel,channel);
+  assert.deepEqual(selectedTarget(facility,search),{kind:'channel',facility,point:undefined,id:channel});
+ }
 });

@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	dm "github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	md "github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	res "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/jackc/pgx/v5"
@@ -48,6 +49,7 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	b, e = f.service.ResolveImport(ctx, f.actor, f.scope, b.ID, md.ResolveInput{WriteMeta: f.meta(b.Revision), PreviewHash: b.ValidationHash, ConfirmSameObservation: true})
 	must(t, e)
 	b = f.publish(t, b)
+	derivedProof := prepareDerivedRestore(t, f, base)
 	preview, e := f.service.PreviewRevokeBatch(ctx, f.actor, f.scope, a.ID, a.Revision)
 	must(t, e)
 	_, e = f.service.RevokeBatch(ctx, f.actor, f.scope, a.ID, md.RevokeInput{WriteMeta: f.meta(a.Revision), PreviewHash: preview.Hash})
@@ -65,6 +67,17 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	from, to := base.Add(100*time.Nanosecond).Format(time.RFC3339Nano), base.Add(110*time.Nanosecond).Format(time.RFC3339Nano)
 	_, e = f.service.GrantData(ctx, f.actor, f.tenant, project.id, md.GrantInput{WriteMeta: f.meta("0"), ChannelID: f.channel, ResourceGrantID: resource, Range: &md.Range{From: &from, To: &to}, Capabilities: []string{"read", "export", "source"}})
 	must(t, e)
+	for _, channel := range derivedProof.channels {
+		change := f.accessInput(t, project, facility, "change_grants")
+		change.Add = []res.GrantInput{{Kind: res.Channel, ChannelID: &channel, Capabilities: []string{"read"}}}
+		f.grant(t, project, facility, change)
+		var grant string
+		must(t, f.env.Pool.QueryRow(ctx, `SELECT id::text FROM project_resource_grants WHERE project_id=$1 AND channel_id=$2 AND ended_at IS NULL`, project.id, channel).Scan(&grant))
+		var revision string
+		must(t, f.env.Pool.QueryRow(ctx, `SELECT revision::text FROM monitoring_access_states WHERE tenant_id=$1 AND project_id=$2`, f.tenant, project.id).Scan(&revision))
+		_, e = f.service.GrantData(ctx, f.actor, f.tenant, project.id, md.GrantInput{WriteMeta: f.meta(revision), ChannelID: channel, ResourceGrantID: grant, Range: &md.Range{}, Capabilities: []string{"read", "history", "export", "source"}})
+		must(t, e)
+	}
 	q := f.query(t)
 	q.Limit = 1000
 	before, e := f.service.Details(ctx, f.actor, f.scope, q)
@@ -76,6 +89,9 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 		t.Fatal(len(before.Items), len(history.Items))
 	}
 	proofTables := []string{"monitoring_source_files", "monitoring_import_mappings", "monitoring_batch_resolutions", "monitoring_chunks", "monitoring_write_attempts", "monitoring_publications", "monitoring_publication_chunks", "monitoring_data_grants", "monitoring_routes", "project_resource_grants"}
+	derivedProof.freeze(t, f)
+	proofTables = append(proofTables, "derived_metric_versions", "derived_channel_configs", "derived_config_assignments", "derived_execution_mandates", "derived_channel_heads", "derived_generations", "derived_fixed_baselines", "derived_input_sources", "derived_publication_receipts", "monitoring_raw_snapshots", "monitoring_change_consumers")
+	proofTables = append(proofTables, "analysis_configs", "analysis_config_versions", "analysis_artifacts", "analysis_artifact_versions", "analysis_artifact_input_ranges", "analysis_runs")
 	hashes := map[string]string{}
 	for _, table := range proofTables {
 		var hash string
@@ -91,8 +107,12 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	}
 	dir := filepath.Join(os.Getenv("INFRAPRO_RESTORE_ARTIFACTS"), "archive")
 	opt := md.BackupOptions{Directory: dir, DatabaseURL: f.env.Config.DatabaseURL, PGContainer: "infrapro-account-tests-postgres-1", Reason: "独立本机恢复合成样本", Store: md.BackupConfig{Endpoint: "http://127.0.0.1:58334", AccessKey: "backup-local", SecretKey: "backup-local-test-only", Bucket: "monitoring-backups", NamedCollection: "monitoring_backups"}}
+	opt.Calculations = dm.NewRecovery(f.storage)
 	backup, e := md.Backup(ctx, f.env.Pool, f.storage, opt)
 	must(t, e)
+	if backup.Build == nil || backup.Build.GoVersion == "" || len(backup.Build.BinarySHA256) != 64 || backup.Build.BinaryBytes <= 0 || backup.Calculations == nil || len(backup.Calculations.FixtureSHA256) != 64 || len(backup.Calculations.Fixtures) == 0 {
+		t.Fatal("backup omitted executable identity or exact numeric recovery fixtures")
+	}
 	t.Cleanup(func() {
 		for v := range admin.ListObjects(context.Background(), "monitoring-backups", minio.ListObjectsOptions{Prefix: backup.ID + "/", Recursive: true}) {
 			if v.Err != nil {
@@ -141,6 +161,7 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	opt.DatabaseURL = targetURL
 	opt.PGContainer = os.Getenv("INFRAPRO_RESTORE_PG_CONTAINER")
 	opt.Store = md.BackupConfig{Endpoint: "http://127.0.0.1:59333", AccessKey: "restore-backup", SecretKey: "restore-backup-test-only", Bucket: "restore-backups", NamedCollection: "monitoring_backups"}
+	opt.Calculations = dm.NewRecovery(storage)
 	_, e = md.Restore(ctx, pool, storage, opt, strings.TrimSpace(string(seal)))
 	must(t, e)
 	service := md.New(access.New(pool, slog.Default())).WithStorage(storage)
@@ -203,7 +224,8 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	}
 	_, e = service.CreateImport(ctx, tenantActor, f.scope, md.ImportInput{WriteMeta: f.meta("0"), Name: "blocked.csv", Size: "20"})
 	monitoringCode(t, e, "monitoring_restoring")
-	must(t, md.OpenRestoredWrites(ctx, pool, storage, backup.ID, "恢复对账已通过，开放本机写入"))
+	must(t, md.OpenRestoredWrites(ctx, pool, storage, backup.ID, "恢复对账已通过，开放本机写入", dm.NewRecovery(storage)))
+	derivedProof.verify(t, f, pool, storage, tenantActor, projectActor, project.id, service)
 	afterFixture := f
 	afterFixture.service = service
 	afterFixture.actor = tenantActor
@@ -218,6 +240,10 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	command("unpause")
 	paused = false
 	report := map[string]any{"status": "passed", "backup_id": backup.ID, "backup_files": backup.Files, "backup_bytes": backup.Bytes, "backup_seconds": backup.Completed.Sub(backup.Started).Seconds(), "restore_and_verify_seconds": time.Since(start).Seconds(), "active_before": "22", "history_before": "122", "active_after_new_publication": "23", "project_visible": "10", "source_components_paused": true, "scope": "synthetic P-0, independent PG/CH/Keeper/S3/Redis containers on one local host; no production failure-domain or PITR claim"}
+	report["build"] = backup.Build
+	report["calculations"] = backup.Calculations
+	report["derived_generations_replayed"] = "4"
+	report["analysis_rows_preserved"] = "40"
 	raw, e := json.MarshalIndent(report, "", "  ")
 	must(t, e)
 	must(t, os.WriteFile(filepath.Join(os.Getenv("INFRAPRO_RESTORE_ARTIFACTS"), "restore-proof.json"), raw, 0600))

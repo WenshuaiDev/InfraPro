@@ -28,6 +28,13 @@ func ancestorsTx(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facility Res
 	case Point:
 		parent = ptrValue(r.ComponentID)
 	case Channel:
+		if r.OwnerKind == "facility" {
+			break
+		}
+		if r.OwnerKind == "component" {
+			parent = ptrValue(r.ComponentID)
+			break
+		}
 		p, e := load(ctx, tx, scoped(t.Scope, Target{Facility: t.Facility, Kind: Point, ID: r.PointID}), false)
 		if e != nil {
 			return nil, e
@@ -104,7 +111,7 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 			return e
 		}
 		refs := map[string]engineering.Kind{f.TypeVersionID: engineering.TypeDefinition}
-		if r.Kind == Channel {
+		if r.Kind == Channel && r.SourceKind != "derived" {
 			refs[r.MetricVersionID] = engineering.MetricDefinition
 		}
 		out.Definitions, e = fixedDefinitions(ctx, tx, refs)
@@ -141,6 +148,8 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 				return e
 			}
 		} else {
+			out.Actions.CreateDerivedChannel = out.Actions.Add && access.RequireScopedTx(ctx, tx, a.ID, access.DerivedOperation("tenant", "channels.create"), t.Tenant) == nil && access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation("channel", "create"), t.Tenant) == nil
+			out.Actions.ManageCalculation = r.SourceKind == "derived" && actionAllowed(r, out.Ancestors, true).Edit && access.RequireScopedTx(ctx, tx, a.ID, access.DerivedOperation("tenant", "channels.configs.create"), t.Tenant) == nil
 			for i := range out.Ancestors {
 				out.Ancestors[i] = sourceProjection(out.Ancestors[i], auth)
 			}
@@ -217,6 +226,11 @@ func normalizeFilter(f *Filter) error {
 	if f.Deleted != "" && f.Deleted != "only" {
 		return problem("invalid_request", "删除筛选无效。", 400)
 	}
+	if f.OwnerKind != "" || f.OwnerID != "" {
+		if !slices.Contains([]string{"facility", "component", "point"}, f.OwnerKind) || !access.ValidID(f.OwnerID) {
+			return problem("invalid_request", "请选择完整的通道所属对象。", 400)
+		}
+	}
 	for _, id := range []string{f.TypeDefinition, f.ID} {
 		if id != "" && !access.ValidID(id) {
 			return problem("invalid_request", "筛选引用无效。", 400)
@@ -285,7 +299,7 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target 
 				return e
 			}
 		}
-		if t.Kind == Channel {
+		if t.Kind == Channel && t.Point != "" {
 			if auth.Entry == "project" {
 				if _, _, e := projectGrantTx(ctx, tx, auth, scoped(t.Scope, Target{Kind: Point, Facility: t.Facility, ID: t.Point}), false); e != nil {
 					return e
@@ -322,9 +336,12 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target 
 				args = append(args, owner)
 			}
 		}
-		if t.Kind == Channel {
+		if t.Kind == Channel && t.Point != "" {
 			where += " AND r.point_id::text=$8"
 			args = append(args, t.Point)
+		}
+		if t.Kind == Channel && f.OwnerKind != "" {
+			where, args = channelOwnerFilter(where, args, f)
 		}
 		children := "false"
 		if t.Kind == Component {
@@ -455,7 +472,7 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, targ
 			refs[facility.TypeVersionID] = engineering.TypeDefinition
 		}
 		for _, change := range out.Items {
-			if change.ResourceKind == Channel {
+			if change.ResourceKind == Channel && change.After.SourceKind != "derived" {
 				refs[change.After.MetricVersionID] = engineering.MetricDefinition
 			}
 		}
@@ -482,4 +499,12 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, targ
 		return nil
 	})
 	return out, e
+}
+
+// Owner filters are independent of legacy point/component browsing filters.
+// Values remain query parameters; the owner column comes from this fixed map.
+func channelOwnerFilter(where string, args []any, f Filter) (string, []any) {
+	column := map[string]string{"facility": "facility_id", "component": "component_id", "point": "point_id"}[f.OwnerKind]
+	args = append(args, f.OwnerKind, f.OwnerID)
+	return where + fmt.Sprintf(" AND r.owner_kind=$%d AND r.%s::text=$%d", len(args)-1, column, len(args)), args
 }

@@ -77,9 +77,16 @@ type ExternalImpact struct {
 	Hash                                           string
 	Referenced, CurrentInstallation, CurrentSource bool
 	DeviceReferenced, MonitoringReferenced         bool
+	CalculationReferenced, ActiveDerivedDependents bool
 }
 type ExternalReferences interface {
 	ResourceImpactTx(context.Context, pgx.Tx, Scope, Target) (ExternalImpact, error)
+}
+
+// ResourceLifecycle participates in the existing resource transaction; adapters
+// must not acquire catalog/tenant/graph locks after the facility locks.
+type ResourceLifecycle interface {
+	ResourceChangedTx(context.Context, pgx.Tx, access.Actor, Scope, *Resource, Resource, string, string, access.Meta) error
 }
 
 func (s *Service) WithExternalReferences(r ExternalReferences) *Service { s.external = r; return s }

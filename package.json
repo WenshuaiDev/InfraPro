@@ -33,7 +33,14 @@
     "test:monitoring": "node scripts/test-monitoring.mjs",
     "test:monitoring:client": "node --test tests/unit/monitoring-*.test.mjs",
     "test:monitoring:restore": "node scripts/test-monitoring-restore.mjs",
-    "monitoring:local": "node scripts/monitoring-local.mjs"
+    "monitoring:local": "node scripts/monitoring-local.mjs",
+    "test:derived": "node scripts/test-derived.mjs",
+    "test:derived:contract": "node scripts/test-derived.mjs --contract --database",
+    "test:derived:load": "node scripts/test-derived.mjs --calculator-load",
+    "test:derived:pipeline": "node scripts/test-derived-load.mjs",
+    "test:derived:soak": "node scripts/test-derived-soak.mjs",
+    "derived:demo": "node scripts/derived-demo.mjs",
+    "test:derived:database": "node scripts/test-derived.mjs --database"
   },
   "devDependencies": {
     "@infrapro/eslint-config": "workspace:*",

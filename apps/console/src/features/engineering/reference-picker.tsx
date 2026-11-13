@@ -23,6 +23,7 @@ export function VersionPicker({
   const tenant = useOptionalTenant();
   const current = known.find((v) => v.id === value);
   const [choice, setChoice] = useState(current?.definition_id ?? '');
+  const selectedChoice=choice||current?.definition_id||'';
   const [q, setQ] = useState('');
   const [offset, setOffset] = useState(0);
   const scope = { kind, tenant: tenant?.tenant.id, catalog: !!tenant };
@@ -34,20 +35,20 @@ export function VersionPicker({
     queryFn: ({ signal }) => client.engineeringList(scope, { q, status: 'usable', offset, limit: 20 }, signal),
   });
   const detail = useQuery({
-    queryKey: [...prefix, 'picker-detail', kind, choice],
-    queryFn: ({ signal }) => client.engineeringDetail(scope, choice, signal),
-    enabled: !!choice,
+    queryKey: [...prefix, 'picker-detail', kind, selectedChoice],
+    queryFn: ({ signal }) => client.engineeringDetail(scope, selectedChoice, signal),
+    enabled: !!selectedChoice,
   });
   const options = (list.data?.items ?? []).map((v) => ({ value: v.id, label: `${v.name} · ${v.code}` }));
   if (current && !options.some((v) => v.value === current.definition_id))
     options.unshift({ value: current.definition_id, label: `${current.content.name} · ${current.code}` });
-  if (detail.data && !options.some((v) => v.value === choice))
+  if (detail.data && !options.some((v) => v.value === selectedChoice))
     options.unshift({
-      value: choice,
+      value: selectedChoice,
       label: `${detail.data.versions[0]?.content.name ?? detail.data.code} · ${detail.data.code}`,
     });
   const versions = (detail.data?.versions ?? []).filter((v) => v.usable || v.id === value);
-  if (current && current.definition_id === choice && !versions.some((v) => v.id === current.id))
+  if (current && current.definition_id === selectedChoice && !versions.some((v) => v.id === current.id))
     versions.unshift(current);
   return (
     <div className="space-y-3 rounded-lg bg-muted/30 p-3">
@@ -69,7 +70,7 @@ export function VersionPicker({
         />
         <SelectControl
           label={`${label}定义`}
-          value={choice}
+          value={selectedChoice}
           onChange={(id) => {
             setChoice(id);
             onChange('');

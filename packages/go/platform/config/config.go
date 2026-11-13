@@ -17,6 +17,7 @@ import (
 )
 
 type Config struct {
+	Derived Derived
 	foundation.Config
 	Monitoring                                                                                Monitoring
 	DatabaseURL, RedisURL, RedisKeyPrefix                                                     string
@@ -31,6 +32,10 @@ type Config struct {
 }
 
 type input struct {
+	Derived                    derivedInput `yaml:"derived"`
+	MonitoringTaskLease        string       `yaml:"monitoring_task_lease"`
+	MonitoringTaskHeartbeat    string       `yaml:"monitoring_task_heartbeat"`
+	MonitoringTaskAttempts     string       `yaml:"monitoring_task_attempts"`
 	foundation.Input           `yaml:",inline"`
 	DatabaseURL                string `yaml:"database_url"`
 	RedisURL                   string `yaml:"redis_url"`
@@ -77,7 +82,7 @@ type input struct {
 }
 
 func loadInput(path string) (input, error) {
-	raw := input{Input: foundation.Defaults(), RedisKeyPrefix: "infrapro:dev:identity:v1:",
+	raw := input{Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
 		MonitoringHotDays: "90", MonitoringOnlineVolume: "online", MonitoringDatabase: "infrapro_monitoring", MonitoringUser: "default", MonitoringPolicy: "monitoring_tiered", MonitoringTLS: "false", MonitoringExportRows: "1000000", MonitoringExportBytes: "268435456",
 		PublicConsoleURL: "http://127.0.0.1:5173/",
 		TrustedOrigins:   "http://127.0.0.1:5173", CookieSecure: "false",
@@ -101,13 +106,14 @@ func loadInput(path string) (input, error) {
 	v := reflect.ValueOf(&raw).Elem()
 	typ := v.Type()
 	for i := 1; i < v.NumField(); i++ {
-		if typ.Field(i).Tag.Get("yaml") == "public_screen_url" {
+		if v.Field(i).Kind() != reflect.String || typ.Field(i).Tag.Get("yaml") == "public_screen_url" {
 			continue
 		}
 		if value, ok := os.LookupEnv("INFRAPRO_" + strings.ToUpper(typ.Field(i).Tag.Get("yaml"))); ok {
 			v.Field(i).SetString(value)
 		}
 	}
+	derivedEnvironment(&raw.Derived)
 	return raw, nil
 }
 
@@ -146,6 +152,10 @@ func Load(path string) (Config, error) {
 		return Config{}, err
 	}
 	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	c.Derived, err = resolveDerived(raw.Derived)
+	if err != nil {
+		return c, err
+	}
 	c.Monitoring, err = resolveMonitoring(raw)
 	if err != nil {
 		return c, err

@@ -26,8 +26,13 @@ func (f monitoringFixture) analyticAs(t *testing.T, actor access.Actor, scope md
 			t.Fatal("analytic task failed", out)
 		}
 		in.Snapshot = out.Snapshot.ID
-		worked, e := f.service.RunOne(ctx, "analytic-test-worker")
-		must(t, e)
+		// Fair scheduling may claim an unrelated maintenance or obsolete
+		// snapshot job first. Exercise this request's durable job explicitly.
+		worked, e := f.service.RunTask(ctx, "analytic-test-worker", scope.Tenant, out.JobID)
+		if e != nil {
+			pending, lookupErr := f.service.Job(ctx, actor, scope, out.JobID)
+			t.Fatalf("worker failed while awaiting analytic job %s (state=%s lookup=%v): %v", out.JobID, pending.State, lookupErr, e)
+		}
 		if !worked {
 			t.Fatal("no worker for pending analytic")
 		}

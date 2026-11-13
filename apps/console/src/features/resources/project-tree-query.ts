@@ -6,12 +6,13 @@ import { navigationRef } from './resource-navigation';
 export async function projectTreePage(context: Pick<ReturnType<typeof useResources>, 'client' | 'scope'>, filter: ResourceTreeFilter, signal: AbortSignal): Promise<ResourceTreePage> {
   const { client, scope } = context;
   const cursors: Record<string, string | null> = filter.cursor ? JSON.parse(filter.cursor) : {};
-  const kinds = !filter.parent_kind ? ['facility'] as const : filter.parent_kind === 'point' ? ['channel'] as const : ['component', 'point'] as const;
+  const kinds = !filter.parent_kind ? ['facility'] as const : filter.parent_kind === 'point' ? ['channel'] as const : ['component', 'point', 'channel'] as const;
   const pages = await Promise.all(kinds.map(async kind => {
     if (cursors[kind] === null) return { kind, items: [], next_cursor: '' };
-    const page = await client.resourceList(scope, { kind, facility: filter.facility_id, point: kind === 'channel' ? filter.parent_id : undefined }, {
+    const page = await client.resourceList(scope, { kind, facility: filter.facility_id, point: kind === 'channel' && filter.parent_kind === 'point' ? filter.parent_id : undefined }, {
       q: filter.q, status: 'all', limit: 25, cursor: cursors[kind] ?? undefined,
       ...(kind === 'component' ? { parent_id: filter.parent_kind === 'facility' ? 'root' : filter.parent_id } : {}),
+      ...(kind === 'channel' ? { owner_kind: filter.parent_kind, owner_id: filter.parent_id } : {}),
       ...(kind === 'point' ? { owner: filter.parent_kind === 'facility' ? 'root' : filter.parent_id } : {}),
     }, signal);
     return { kind, ...page };

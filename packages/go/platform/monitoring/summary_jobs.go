@@ -49,6 +49,9 @@ func enqueueSummariesTx(ctx context.Context, tx pgx.Tx, tenant string, channels 
 	return nil
 }
 func (s *Service) jobTransaction(ctx context.Context, j Job, fn func(pgx.Tx) error) error {
+	if executor := s.executors[j.Kind]; executor != nil {
+		return s.executionTransaction(ctx, j, executor, fn)
+	}
 	if j.actor != "" {
 		return s.transact(ctx, workerActor(j.actor), j.scope(), j.action(), false, false, func(tx pgx.Tx, _ authorization) error { return fn(tx) })
 	}
@@ -114,6 +117,29 @@ func (s *Service) cachedAnalytic(ctx context.Context, a access.Actor, scope Scop
 	if e = s.storage.summaryObject(ctx, key, &out, true); e != nil {
 		return out, false, storageError(e)
 	}
+	for i := range out.Channels {
+		if out.Channels[i].SourceKind == "" {
+			out.Channels[i].SourceKind = "direct"
+		}
+	}
+	for i := range out.Groups {
+		if out.Groups[i].SourceKind == "" {
+			out.Groups[i].SourceKind = "direct"
+		}
+	}
+	if len(plan.vector.Calculated) > 0 {
+		heads := map[string]CalculationHead{}
+		for _, part := range out.Coverage {
+			heads[part.Channel] = plan.vector.Calculated[part.Channel]
+		}
+		coverage, e := s.calculationReader.CheckCalculated(ctx, a, scope, CalculationQuery{Heads: heads, Windows: plan.windows, Range: queryWindow(in), Qualities: allQualities, History: in.Status == "history"})
+		if e != nil {
+			return AnalyticResult{}, false, e
+		}
+		if digest(coverage) != digest(out.Coverage) {
+			return AnalyticResult{}, false, nil
+		}
+	}
 	if _, e = s.queryPlan(ctx, a, scope, in, action, "read"); e != nil {
 		return AnalyticResult{}, false, e
 	}
@@ -153,6 +179,9 @@ func (s *Service) summaryJob(ctx context.Context, j Job) error {
 	}
 	watermark, _ := revisionNumber(plan.snapshot.Watermark)
 	for _, channel := range plan.channels {
+		if _, derived := plan.vector.Calculated[channel]; derived {
+			continue
+		}
 		if e = s.jobTransaction(ctx, j, func(tx pgx.Tx) error { return assertJobTx(ctx, tx, j) }); e != nil {
 			return e
 		}
@@ -160,7 +189,7 @@ func (s *Service) summaryJob(ctx context.Context, j Job) error {
 			return e
 		}
 	}
-	out, e := s.computeAnalytic(ctx, j.tenant, in.Action, query, plan, true)
+	out, e := s.computeAnalytic(ctx, a, j.scope(), in.Action, query, plan, true)
 	if e != nil {
 		return e
 	}

@@ -296,7 +296,7 @@ test('tenant and project device workspaces share presentation and retain separat
   if (isMobile) await page.getByRole('banner').getByRole('button', { name: '切换侧栏', exact: true }).click();
   const group = page.getByRole('navigation', { name: '主导航', exact: true }).getByRole('group', { name: '监测业务', exact: true });
   await expect(group.getByRole('link', { name: '项目设备', exact: true })).toBeVisible();
-  await expect(group.getByRole('button')).toHaveCount(0);
+  await expect(group.getByRole('button', { name: '项目设备', exact: true })).toHaveCount(0);
   if (isMobile) await page.getByRole('button', { name: '关闭导航', exact: true }).click();
   await page.getByRole('link', { name: '分层展示的现场设备', exact: true }).click();
   await expect(page.getByText('SERIAL-FULL-GRANT', { exact: true })).toBeVisible();

@@ -52,6 +52,7 @@ export function CapabilityPicker({
   disabled,
   original,
   archived = false,
+  sourceKind,
 }: {
   kind: ResourceKind;
   value: Capability[];
@@ -59,8 +60,10 @@ export function CapabilityPicker({
   disabled?: boolean;
   original?: Capability[];
   archived?: boolean;
+  sourceKind?: 'direct' | 'derived';
 }) {
   const sourceManage = useTenant().permissions.includes(P.TenantMonitoringSourceManage);
+  const allowed = capabilities[kind].filter(c => c !== 'source_manage' || sourceKind !== 'derived').filter(c => c !== 'manage_calculation' || sourceKind === 'derived');
   const field = (c: Capability) => (
     <label key={c} className="flex min-h-11 items-center gap-3 rounded-md border px-3 py-2 text-sm">
       <Checkbox
@@ -79,12 +82,12 @@ export function CapabilityPicker({
   );
   return (
     <div className="space-y-3">
-      {capabilities[kind].filter((c) => c !== 'lifecycle' && c !== 'source_manage').map(field)}
+      {allowed.filter((c) => c !== 'lifecycle' && c !== 'source_manage').map(field)}
       {kind !== 'facility' && (
         <details className="rounded-lg border px-3 py-2">
           <summary className="cursor-pointer py-1 text-sm">更多操作权限</summary>
           <div className="mt-3 space-y-2">
-            {capabilities[kind].filter((c) => c === 'lifecycle' || c === 'source_manage').map(field)}
+            {allowed.filter((c) => c === 'lifecycle' || c === 'source_manage').map(field)}
             <p className="text-xs leading-relaxed text-muted-foreground">
               退役与恢复受资源状态和共享使用限制。维护通道来源还需独立的设备输出授权。
               {!sourceManage && kind === 'channel' && '你没有调整来源权限的资格。'}

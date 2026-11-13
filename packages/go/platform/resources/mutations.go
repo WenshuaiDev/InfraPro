@@ -43,6 +43,12 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 		}
 
 		r := Resource{Kind: t.Kind, TenantID: t.Tenant, FacilityID: t.Facility, PointID: t.Point, Status: "normal", Revision: 1, CreatedBy: a.ID, UpdatedBy: a.ID}
+		if t.Kind == Channel && action == "create" {
+			r.SourceKind, r.OwnerKind = "direct", "point"
+			if t.Point == "" {
+				return notFound()
+			}
+		}
 		var facility Resource
 		var before *Resource
 		if action != "create" || t.Kind != Facility {
@@ -88,6 +94,9 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			return problem("structure_revision_conflict", "构件结构已变化，请刷新结构后核对重试。", 409)
 		}
 		if action == "create" || action == "update" {
+			if r.SourceKind == "derived" && hasKey(in, "sampling") {
+				return invalid("/sampling", "calculation_config_required", "派生时间轴请通过计算配置修改。")
+			}
 			r, e = apply(r, in)
 			if e != nil {
 				return e
@@ -105,6 +114,17 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			}
 		}
 		if action == "retire" {
+			if s.external != nil {
+				impact, err := s.external.ResourceImpactTx(ctx, tx, t.Scope, t.Target)
+				if err != nil {
+					return err
+				}
+				if impact.ActiveDerivedDependents {
+					if err = previewBlock(problem("active_derived_dependents", "存在仍启用的依赖计算，请先暂停或处理下游。", 409), &preview, dryRun); err != nil {
+						return err
+					}
+				}
+			}
 			r.Status = "retired"
 		}
 		if action == "restore" {
@@ -168,6 +188,11 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			}
 			if e = storeResource(ctx, tx, r, before == nil); e != nil {
 				return e
+			}
+			if lifecycle, ok := s.external.(ResourceLifecycle); ok {
+				if e = lifecycle.ResourceChangedTx(ctx, tx, a, t.Scope, before, r, m.RequestID, m.Reason, meta); e != nil {
+					return e
+				}
 			}
 			// Property edits do not advance structure; parent moves do, even at the root.
 			structureChanged := t.Kind == Component && (before == nil || action != "update" || ptrValue(before.ParentComponentID) != ptrValue(r.ParentComponentID))
@@ -299,7 +324,7 @@ func validateResource(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facilit
 		}
 		return invalid("/parent_component_id", "relation", "类型不允许该父子类别关系。")
 	}
-	if r.Kind == Channel {
+	if r.Kind == Channel && r.SourceKind != "derived" {
 		v, _, e := engineering.ResolvePublicTx(ctx, tx, r.MetricVersionID, engineering.MetricDefinition, newUse)
 		if e != nil {
 			return definitionError(e, "/metric_version_id")
@@ -347,7 +372,7 @@ func (s *Service) checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarg
 			return e
 		}
 		if impact.Referenced {
-			return problem("resource_referenced", "资源存在安装或来源履历，不能删除。", 409)
+			return problem("resource_referenced", "资源存在需要保留的业务引用，不能删除。", 409)
 		}
 	}
 	var referenced bool
@@ -361,9 +386,9 @@ func (s *Service) checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarg
 	queries := map[string]string{}
 	switch r.Kind {
 	case Facility:
-		queries = map[string]string{"components": "engineering_components WHERE facility_id=$2", "points": "engineering_points WHERE facility_id=$2"}
+		queries = map[string]string{"components": "engineering_components WHERE facility_id=$2", "points": "engineering_points WHERE facility_id=$2", "channels": "engineering_channels WHERE facility_id=$2 AND owner_kind='facility'"}
 	case Component:
-		queries = map[string]string{"components": "engineering_components WHERE parent_component_id=$2", "points": "engineering_points WHERE component_id=$2"}
+		queries = map[string]string{"components": "engineering_components WHERE parent_component_id=$2", "points": "engineering_points WHERE component_id=$2", "channels": "engineering_channels WHERE component_id=$2"}
 	case Point:
 		queries = map[string]string{"channels": "engineering_channels WHERE point_id=$2"}
 	}

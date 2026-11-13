@@ -14,7 +14,7 @@ export type ResourceTreeNode = Schema<'ResourceTreeNode'>;
 export type ResourceTreePage = Schema<'ResourceTreePage'>;
 export type ResourceTreeFilter = Pick<ResourceFilter, 'q' | 'status' | 'type_definition_id' | 'deleted' | 'limit' | 'cursor'> & { facility_id?: string; parent_kind?: 'facility' | 'component' | 'point'; parent_id?: string };
 export type ResourceTarget = { kind: ResourceKind; facility?: string; point?: string; id?: string };
-export type ResourceFilter = { q?: string; status?: 'normal' | 'retired' | 'all'; type_definition_id?: string; deleted?: 'only'; parent_id?: string; owner?: string; limit?: number; cursor?: string };
+export type ResourceFilter = { q?: string; status?: 'normal' | 'retired' | 'all'; type_definition_id?: string; deleted?: 'only'; parent_id?: string; owner?: string; owner_kind?: 'facility' | 'component' | 'point'; owner_id?: string; limit?: number; cursor?: string };
 export type ResourceCreate = Schema<'ResourceFacilityCreate'> | Schema<'ResourceComponentCreate'> | Schema<'ResourcePointCreate'> | Schema<'ResourceChannelCreate'>;
 export type ResourceUpdate = Schema<'ResourceFacilityUpdate'> | Schema<'ResourceComponentUpdate'> | Schema<'ResourcePointUpdate'> | Schema<'ResourceChannelUpdate'>;
 export type ResourceState = Schema<'ResourceFacilityState'> | Schema<'ResourceComponentState'>;
@@ -26,12 +26,12 @@ export type ResourceAccessPreview = Schema<'ProjectResourceAccessPreview'>;
 export type ResourceAccessResult = Schema<'ProjectResourceAccessResult'>;
 export type ResourceGrant = Schema<'ProjectResourceGrant'>;
 export type ResourceGrantInput = Schema<'ProjectResourceGrantInput'>;
-export type ResourceAccessFilter = { q?: string; candidate_point_id?: string; cursor?: string; limit?: number; grant_cursor?: string; candidate_kind?: ResourceKind; candidate_cursor?: string; candidate_limit?: number; candidate_q?: string; candidate_status?: string; candidate_parent_id?: string; candidate_owner?: string };
+export type ResourceAccessFilter = { q?: string; candidate_point_id?: string; cursor?: string; limit?: number; grant_cursor?: string; candidate_kind?: ResourceKind; candidate_cursor?: string; candidate_limit?: number; candidate_q?: string; candidate_status?: string; candidate_parent_id?: string; candidate_owner?: string; candidate_owner_kind?: 'facility' | 'component' | 'point'; candidate_owner_id?: string };
 type Request = <T>(path: string, method?: string, body?: unknown, notify?: boolean, signal?: AbortSignal) => Promise<T>;
 const workspace = (scope: ResourceScope | string) => typeof scope === 'string' ? `/tenants/${encodeURIComponent(scope)}` : `/tenants/${encodeURIComponent(scope.tenantId)}${scope.kind === 'project' ? `/projects/${encodeURIComponent(scope.projectId)}` : ''}`;
 const base = (scope: ResourceScope | string) => `${workspace(scope)}/engineering/resources`;
 const governance = (tenant: string, project: string, facility?: string) => `/tenants/${encodeURIComponent(tenant)}/projects/${encodeURIComponent(project)}/resource-access${facility ? `/facilities/${encodeURIComponent(facility)}` : ''}`;
-function path(tenant: ResourceScope | string, t: ResourceTarget) { const root = `${base(tenant)}/facilities`; const list = t.kind === 'facility' ? root : `${root}/${encodeURIComponent(t.facility!)}/${t.kind === 'component' ? 'components' : t.kind === 'point' ? 'points' : `points/${encodeURIComponent(t.point!)}/channels`}`; return t.id ? `${list}/${encodeURIComponent(t.id)}` : list; }
+function path(tenant: ResourceScope | string, t: ResourceTarget) { const root = `${base(tenant)}/facilities`; const list = t.kind === 'facility' ? root : `${root}/${encodeURIComponent(t.facility!)}/${t.kind === 'component' ? 'components' : t.kind === 'point' ? 'points' : t.point ? `points/${encodeURIComponent(t.point)}/channels` : 'channels'}`; return t.id ? `${list}/${encodeURIComponent(t.id)}` : list; }
 const query = (f: object) => new URLSearchParams(Object.entries(f).filter(([,v]) => v !== undefined && v !== '').map(([k,v]) => [k,String(v)])).toString();
 export function resourceMethods(request: Request) {
  return {
@@ -51,6 +51,7 @@ export function resourceMethods(request: Request) {
   resourceAccessChanges: (tenant: string, project: string, filter: {cursor?: string;limit?: number} = {}, signal?: AbortSignal) => request<Schema<'ProjectResourceAccessChanges'>>(`${governance(tenant,project)}/changes?${query(filter)}`, 'GET', undefined, true, signal),
   resourceAccessReceipt: (tenant: string, project: string, id: string) => request<ResourceAccessResult>(`${governance(tenant,project)}/requests/${encodeURIComponent(id)}`),
   projectResourceCatalog: (scope: Extract<ResourceScope, {kind:'project'}>, kind: 'type-definitions' | 'metrics' | 'units', filter: {q?: string;offset?: number;limit?: number}, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogPage'>>(`${workspace(scope)}/engineering/catalog/${kind}?${query(filter)}`, 'GET', undefined, true, signal),
+  resourceCatalogVersion: (scope: ResourceScope, kind: 'type-definitions' | 'metrics' | 'units', id: string, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogVersion'>>(`${workspace(scope)}/engineering/catalog/${kind}/versions/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
   projectResourceCatalogVersion: (scope: Extract<ResourceScope, {kind:'project'}>, kind: 'type-definitions' | 'metrics' | 'units', id: string, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogVersion'>>(`${workspace(scope)}/engineering/catalog/${kind}/versions/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
  };
 }

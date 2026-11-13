@@ -26,12 +26,12 @@ func (s *Service) CatalogList(ctx context.Context, a access.Actor, scope Scope, 
 }
 func (s *Service) CatalogVersion(ctx context.Context, a access.Actor, scope Scope, kind engineering.Kind, id string) (CatalogVersion, error) {
 	out := CatalogVersion{Dependencies: []engineering.Version{}}
-	if scope.Entry != "project" {
+	if !scope.valid() {
 		return out, access.ErrDenied
 	}
-	e := s.transact(ctx, a, access.ProjectResourceOperation(string(kind), "version"), scope, false, func(tx pgx.Tx, _ authorization) error {
+	e := s.transact(ctx, a, scope.operation(string(kind), "version"), scope, false, func(tx pgx.Tx, _ authorization) error {
 		var e error
-		out.Version, out.Dependencies, e = engineering.ResolvePublicTx(ctx, tx, id, kind, true)
+		out.Version, out.Dependencies, e = engineering.ResolvePublicTx(ctx, tx, id, kind, false)
 		return e
 	})
 	return out, e

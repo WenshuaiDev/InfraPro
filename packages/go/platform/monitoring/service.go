@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicecoord"
@@ -12,11 +13,20 @@ import (
 )
 
 type Service struct {
-	access  *access.Service
-	storage *Storage
+	workers                WorkerOptions
+	resultExportTTL        time.Duration
+	access                 *access.Service
+	storage                *Storage
+	rawSystem              RawSystemAuthorizer
+	executors              map[string]TaskExecutor
+	calculationReader      CalculationReader
+	calculationMaintenance CalculationMaintenance
+	scheduler              TaskScheduler
 }
 
-func New(a *access.Service) *Service                     { return &Service{access: a} }
+func New(a *access.Service) *Service {
+	return &Service{access: a, workers: DefaultWorkerOptions(), resultExportTTL: 7 * 24 * time.Hour}
+}
 func (s *Service) WithStorage(storage *Storage) *Service { s.storage = storage; return s }
 func (s *Service) requireStorage() error {
 	if s.storage == nil {

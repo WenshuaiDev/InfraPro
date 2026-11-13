@@ -99,7 +99,13 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 	}
 	s := &Storage{config: cfg, objects: client, shards: map[string]*Storage{}}
 	for _, addr := range cfg.Replicas {
-		opt := &clickhouse.Options{Addr: []string{addr}, Auth: clickhouse.Auth{Username: cfg.User, Password: cfg.Password}, DialTimeout: 5 * time.Second, ReadTimeout: 2 * time.Minute, MaxOpenConns: 6, MaxIdleConns: 2, Settings: clickhouse.Settings{"max_execution_time": 120, "max_memory_usage": 536870912, "max_threads": 2, "skip_unavailable_shards": 0}}
+		opt := &clickhouse.Options{Addr: []string{addr}, Auth: clickhouse.Auth{Username: cfg.User, Password: cfg.Password}, DialTimeout: 5 * time.Second, ReadTimeout: 2 * time.Minute, MaxOpenConns: 6, MaxIdleConns: 2, Settings: clickhouse.Settings{
+			"max_execution_time": 120, "max_memory_usage": 512 << 20, "max_threads": 2, "skip_unavailable_shards": 0,
+			"max_block_size": 8192, "preferred_block_size_bytes": 1 << 20, "max_streams_to_max_threads_ratio": 1,
+			// Authorization joins can require a sort even when the underlying
+			// primary key is ordered. Spill before the hard query memory limit.
+			"max_bytes_before_external_sort": 64 << 20, "max_temporary_data_on_disk_size_for_query": 2 << 30,
+		}}
 		if cfg.TLS {
 			opt.TLS = &tls.Config{MinVersion: tls.VersionTLS12}
 		}
@@ -443,6 +449,8 @@ type rawRead struct {
 	Limit     int
 	Boundary  *rawObservation
 	Reverse   bool
+	// The fixed input Reader separately seals and authorizes full intervals.
+	EndpointOnly bool
 }
 
 func (s *Storage) readOne(ctx context.Context, q rawRead, consume func(rawObservation) error) error {
@@ -478,7 +486,38 @@ func (s *Storage) readOne(ctx context.Context, q rawRead, consume func(rawObserv
 	}
 	ctx = clickhouse.Context(ctx, clickhouse.WithExternalTable(table, ranges), clickhouse.WithQueryID("monitoring_"+TraceID(ctx)+"_"+uuid.NewString()))
 	where := ` WHERE r.tenant_id=? AND (r.chunk_id,r.attempt_id) IN (SELECT chunk_id,attempt_id FROM selected_manifest) AND (isNull(w.lo) OR toUnixTimestamp64Nano(coalesce(r.interval_start,r.observed_at))>=w.lo) AND (isNull(w.hi) OR toUnixTimestamp64Nano(r.observed_at)<w.hi)`
+	if q.EndpointOnly {
+		where = strings.Replace(where, "coalesce(r.interval_start,r.observed_at)", "r.observed_at", 1)
+	}
 	args := []any{uuid.MustParse(q.Tenant)}
+	// These redundant bounds let MergeTree prune data before the authorization
+	// join. The join still enforces every disjoint interval and whole-interval
+	// permission. An interval endpoint cannot precede its interval start.
+	where += " AND r.channel_id IN (SELECT channel_id FROM authorized_windows)"
+	var lower, upper *int64
+	openLower, openUpper := false, false
+	for _, windows := range q.Windows {
+		for _, w := range windows {
+			if w.From == nil {
+				openLower = true
+			} else if lower == nil || *w.From < *lower {
+				lower = w.From
+			}
+			if w.To == nil {
+				openUpper = true
+			} else if upper == nil || *w.To > *upper {
+				upper = w.To
+			}
+		}
+	}
+	if !openLower && lower != nil {
+		where += " AND r.observed_at>=fromUnixTimestamp64Nano(?)"
+		args = append(args, *lower)
+	}
+	if !openUpper && upper != nil {
+		where += " AND r.observed_at<fromUnixTimestamp64Nano(?)"
+		args = append(args, *upper)
+	}
 	if len(q.Qualities) > 0 {
 		where += " AND has(?,r.quality)"
 		args = append(args, q.Qualities)

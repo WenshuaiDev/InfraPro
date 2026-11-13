@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import type { ResourceDetail, ResourceKind, ResourceTarget, ResourceTreeNode, ResourceTreeRef } from '@infrapro/api-client';
 import { ChevronDown, ChevronRight, FolderTree, Pencil, Plus } from 'lucide-react';
 import { Badge } from '@infrapro/ui/components/badge';
@@ -14,6 +14,7 @@ import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { ChannelSource } from '../devices/source-panel';
 import { FacilityUsage } from '../resource-access/pages';
 import { useResources } from './context';
+import { OwnerDerivedChannels } from './owner-derived-channels';
 import { ResourceEditor } from './editor';
 import { ResourceHistory } from './history';
 import { LifecycleForm } from './lifecycle';
@@ -29,7 +30,7 @@ const modeLabels = { create: '新增', edit: '编辑', retire: '退役', restore
 const tabClass = 'h-full rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 data-[state=active]:border-foreground data-[state=active]:shadow-none';
 
 export function WorkspaceDetail({ resource, facility, view, onView, select, onDeleted, blocked, failure, retry }: Props) {
-  const { scope, available, canManage, canHistory, canGovern, canMonitor } = useResources();
+  const { scope, available, canManage, canHistory, canGovern, canMonitor, canDerivedRead } = useResources();
   const navigate = useNavigate();
   const [panel, setPanel] = useState<Panel>();
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -49,7 +50,9 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
   const openPanel = (p: Panel, trigger: HTMLElement | null) => { returnFocus.current = trigger; setPanel(p); };
   const create = (kind: 'component' | 'point' | 'channel', trigger: HTMLElement | null) => openPanel({ mode: 'create', target: { kind, facility: node.facility_id, point: kind === 'channel' ? node.id : undefined }, owner: resource }, trigger);
   const canAdd = canManage ? (['component', 'point', 'channel'] as const).filter((kind) => resource.actions[`create_${kind}`]) : [];
-  const source = () => <ChannelSource target={{ facility_id: node.facility_id, point_id: resource.point_id!, channel_id: resource.id }} />;
+  const derived = resource.kind === 'channel' && resource.source_kind === 'derived';
+  const derivedPath: string = `${scope.kind === 'project' ? `/t/${scope.tenantId}/p/${scope.projectId}` : `/t/${scope.tenantId}`}/monitoring/derived/${resource.id}`;
+  const source = () => derived ? <section className="space-y-3"><h3 className="font-semibold">派生计算</h3><p className="text-sm text-muted-foreground">此通道通过固定版本的规则和输入绑定计算。可在派生通道详情中查看配置、最新输出及历史依据。</p>{canDerivedRead && <Button asChild variant="outline"><Link to={derivedPath}>查看派生计算</Link></Button>}</section> : <ChannelSource target={{ facility_id: node.facility_id, point_id: resource.point_id!, channel_id: resource.id }} />;
   const counts = children.summary?.counts;
   return <>
     <article className="min-w-0 overflow-hidden rounded-lg border bg-card" aria-label="当前资源详情">
@@ -67,22 +70,23 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
           </div>
         </div>
         {failure && <FormNotice error>暂时无法读取，输入已保留。{failure} <Button size="sm" variant="link" onClick={retry}>重新读取资源</Button></FormNotice>}
-        {resource.kind !== 'channel' && <div className="grid grid-cols-3 divide-x rounded-md border bg-muted/20 py-3" aria-label="直属资源数量">{(resource.kind === 'point' ? [['channel', '业务通道']] : [['component', '直属构件'], ['point', '直属测点']]).map(([kind, label]) => <div className="px-3 sm:px-4" key={kind}><span className="block text-xs text-muted-foreground sm:inline">{label}</span><span className="text-lg font-semibold tabular-nums sm:ml-3">{counts ? counts[kind as ResourceKind] : '—'}</span></div>)}<div className="px-3 sm:px-4"><span className="block text-xs text-muted-foreground sm:inline">直属合计</span><span className="text-lg font-semibold tabular-nums sm:ml-3">{children.summary?.total ?? '—'}</span></div></div>}
+        {resource.kind !== 'channel' && <div className={`grid ${resource.kind === 'point' ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'} divide-x rounded-md border bg-muted/20 py-3`} aria-label="直属资源数量">{(resource.kind === 'point' ? [['channel', '业务通道']] : [['component', '直属构件'], ['point', '直属测点'], ['channel', '直属通道']]).map(([kind, label]) => <div className="px-3 sm:px-4" key={kind}><span className="block text-xs text-muted-foreground sm:inline">{label}</span><span className="text-lg font-semibold tabular-nums sm:ml-3">{counts ? counts[kind as ResourceKind] : '—'}</span></div>)}<div className="px-3 sm:px-4"><span className="block text-xs text-muted-foreground sm:inline">直属合计</span><span className="text-lg font-semibold tabular-nums sm:ml-3">{children.summary?.total ?? '—'}</span></div></div>}
       </div>
       <Tabs value={currentView} onValueChange={(value) => onView(value as FacilityWorkspaceSearch['view'])} className="gap-0">
         <div className="overflow-x-auto border-b px-4 sm:px-5"><TabsList className="h-11 gap-5 rounded-none bg-transparent p-0" aria-label="资源详情视图">
           <TabsTrigger className={tabClass} value="details">基本资料</TabsTrigger>
           {resource.kind !== 'channel' && <TabsTrigger className={tabClass} value="children">{resource.kind === 'point' ? '业务通道' : '下级资源'}</TabsTrigger>}
-          {resource.kind === 'channel' && <TabsTrigger className={tabClass} value="source">数据来源</TabsTrigger>}
+          {resource.kind === 'channel' && <TabsTrigger className={tabClass} value="source">{derived ? '派生计算' : '数据来源'}</TabsTrigger>}
           {canGovern && resource.kind === 'facility' && <TabsTrigger className={tabClass} value="usage">项目使用</TabsTrigger>}
           {canHistory && <TabsTrigger className={tabClass} value="changes">{resource.kind === 'facility' ? '设施变更记录' : '变更记录'}</TabsTrigger>}
         </TabsList></div>
         <TabsContent value="details" className="space-y-5 p-4 sm:p-5">
           <ResourceInfo resource={resource} showIdentity={false} />
+          {resource.kind !== 'channel' && <OwnerDerivedChannels owner={resource} />}
           {resource.kind === 'channel' ? source() : <div className="space-y-3 border-t pt-4"><div className="flex items-center justify-between gap-2"><h3 className="text-sm font-semibold">直属资源 <span className="ml-1 font-normal text-muted-foreground">{children.summary?.total ?? '—'}</span></h3><Button variant="ghost" size="sm" onClick={() => onView('children')}>查看全部<ChevronRight className="size-3.5" aria-hidden="true" /></Button></div>{children.isPending ? <LoadingState label="正在读取直属资源…" /> : children.error ? <ErrorState message={children.error.message} onRetry={() => void children.refetch()} /> : <ChildrenList items={children.items.slice(0, 4)} select={select} empty={resource.kind === 'point' ? '暂无业务通道' : '暂无直属资源'} />}</div>}
         </TabsContent>
         <TabsContent value="children" className="space-y-4 p-4 sm:p-5">
-          <p className="text-sm text-muted-foreground">直属于「{resource.name}」的{resource.kind === 'point' ? '业务通道' : '构件与测点'}，点击名称继续向下浏览。</p>
+          <p className="text-sm text-muted-foreground">直属于「{resource.name}」的{resource.kind === 'point' ? '业务通道' : '构件、测点与派生通道'}，点击名称继续向下浏览。</p>
           <div className="flex flex-wrap items-center gap-2"><DirectorySearch label="搜索直属资源名称或编号" value={query} onChange={setQuery} /><ListFilter label="直属资源状态" caption="状态" value={status} onChange={(value) => setStatus(value as typeof status)} options={[{ value: 'all', label: '全部状态' }, { value: 'normal', label: '正常' }, { value: 'retired', label: '已退役' }]} />{filtered && <Button variant="ghost" size="sm" onClick={() => { setQuery(''); setStatus('all'); }}>重置下级筛选</Button>}</div>
           {list.isPending ? <LoadingState /> : list.error && !list.isFetchNextPageError ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : <><ChildrenList items={list.items} select={select} empty={filtered ? '没有符合条件的直属资源' : resource.kind === 'point' ? '暂无业务通道' : '暂无直属资源'} /><div className="text-xs text-muted-foreground" role="status">已显示 {list.items.length} / {list.summary?.total ?? 0} 项</div><TreeMore query={list} /></>}
         </TabsContent>

@@ -255,6 +255,7 @@ function GrantEditor({
           </p>
           <CapabilityPicker
             kind={active.kind}
+            sourceKind={active.source_kind}
             value={selected.capabilities}
             onChange={(capabilities) => put({ ...selected, capabilities, end: false })}
             disabled={!canWrite || bulk.isPending}

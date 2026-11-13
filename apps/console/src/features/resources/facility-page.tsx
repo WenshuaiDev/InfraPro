@@ -21,6 +21,7 @@ import { FacilityUsage } from '../resource-access/pages';
 import { ErrorState } from '@infrapro/ui/patterns/feedback';
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { useResources } from './context';
+import { OwnerDerivedChannels } from './owner-derived-channels';
 import { ResourceEditor } from './editor';
 import { ResourceHistory } from './history';
 import { LifecycleForm } from './lifecycle';
@@ -299,6 +300,7 @@ function FacilityBody({
             <section className="space-y-4 rounded-lg border p-5">
               <h2 className="font-semibold">设施资料</h2>
               <ResourceInfo resource={facility.data} />
+              <OwnerDerivedChannels owner={facility.data}/>
             </section>
           )}
           {tab === 'components' && !selection.component && (
@@ -506,7 +508,8 @@ function FacilityBody({
                     {actions(object.data)}
                   </div>
                   <ResourceInfo resource={object.data} />
-                  {detailKind === 'channel' && selection.point && channel && <ChannelSource target={{facility_id:facilityId,point_id:selection.point,channel_id:channel}}/>}
+                  {detailKind!=='channel'&&<OwnerDerivedChannels owner={object.data}/>}
+                  {detailKind === 'channel' && object.data.source_kind!=='derived' && selection.point && channel && <ChannelSource target={{facility_id:facilityId,point_id:selection.point,channel_id:channel}}/>}
                   <div className="flex flex-wrap gap-2">
                     {detailKind === 'component' && (
                       <>

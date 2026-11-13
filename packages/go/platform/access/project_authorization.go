@@ -137,6 +137,9 @@ func ExplainProject(v *ProjectAuthorization, catalog map[Code]Permission) {
 	}
 }
 func ProjectActiveOnly(op Operation) bool {
+	if strings.HasPrefix(string(op), "Derived:") {
+		return !DerivedReadOperation(op)
+	}
 	if strings.HasPrefix(string(op), "Monitoring:project:") {
 		return !MonitoringReadOperation(op)
 	}

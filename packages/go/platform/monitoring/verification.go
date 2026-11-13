@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
@@ -21,17 +22,18 @@ type VerificationFinding struct {
 	Code    string `json:"code"`
 }
 type VerificationReport struct {
-	checkpoints []SummaryRepairPlan
-	Tenant      string                `json:"tenant_id"`
-	Started     time.Time             `json:"started_at"`
-	Finished    time.Time             `json:"finished_at"`
-	State       string                `json:"state"`
-	Channels    string                `json:"channels"`
-	Chunks      string                `json:"chunks"`
-	Rows        string                `json:"rows"`
-	Files       string                `json:"source_files"`
-	Bytes       string                `json:"source_bytes"`
-	Findings    []VerificationFinding `json:"findings"`
+	Calculations json.RawMessage `json:"calculations,omitempty"`
+	checkpoints  []SummaryRepairPlan
+	Tenant       string                `json:"tenant_id"`
+	Started      time.Time             `json:"started_at"`
+	Finished     time.Time             `json:"finished_at"`
+	State        string                `json:"state"`
+	Channels     string                `json:"channels"`
+	Chunks       string                `json:"chunks"`
+	Rows         string                `json:"rows"`
+	Files        string                `json:"source_files"`
+	Bytes        string                `json:"source_bytes"`
+	Findings     []VerificationFinding `json:"findings"`
 }
 
 func (s *Service) verifyChannelSources(ctx context.Context, tenant, channel string) error {

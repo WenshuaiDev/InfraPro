@@ -11,7 +11,7 @@ import { MonitoringNavigator, useCurrentChannel } from './workspace-navigation';
 import { MonitoringReader } from './workspace-reader';
 import { WorkspaceOverview } from './workspace-overview';
 
-export function MonitoringDataPage({ initialPoint, initialChannel, onSelect }: { initialPoint?: string; initialChannel?: string; onSelect: (point: string, channel: string) => void }) {
+export function MonitoringDataPage({ initialPoint, initialChannel, onSelect }: { initialPoint?: string; initialChannel?: string; onSelect: (point: string | undefined, channel: string) => void }) {
   const m = useMonitoring();
   const [directory, setDirectory] = useState(false), [comparison, setComparison] = useState(false), [compared, setCompared] = useState<SelectedChannel[]>([]);
   const [comparePicker, setComparePicker] = useState(true);
@@ -19,17 +19,17 @@ export function MonitoringDataPage({ initialPoint, initialChannel, onSelect }: {
   const pickerToggle = useRef<HTMLButtonElement>(null);
   const current = useCurrentChannel(initialPoint, initialChannel);
   if (!m.canRead) return <ErrorState title="没有监测数据查看权限" message="请在当前工作空间配置监测数据查看权限。" />;
-  const select = (point: string, channel: string) => { onSelect(point, channel); setDirectory(false); };
+  const select = (point: string | undefined, channel: string) => { onSelect(point, channel); setDirectory(false); };
   const navigator = <MonitoringNavigator current={current.data} initialPoint={initialPoint} select={select} />;
-  return <section className="min-w-0 space-y-5">
+  return <section className="@container/monitoring min-w-0 space-y-5">
     <PageHeader title="监测数据" description="按工程位置查阅最新观测与历史趋势。" actions={<div className="flex flex-wrap gap-2">
-      <Button id="monitoring-directory" variant="outline" className="lg:hidden" onClick={() => setDirectory(true)}><FolderTree aria-hidden />设施构件树</Button>
+      <Button id="monitoring-directory" variant="outline" className="@[44rem]/monitoring:hidden" onClick={() => setDirectory(true)}><FolderTree aria-hidden />设施构件树</Button>
       <Button id="monitoring-workspace-overview" variant="outline" disabled={!m.available} onClick={() => setWorkspaceOverview(true)}><Database aria-hidden />工作空间统计</Button>
       <Button id="monitoring-compare" variant="outline" disabled={!m.available || !m.canNavigate} onClick={() => { if (!compared.length && current.data) setCompared([current.data]); setComparison(true); }}><ChartNoAxesCombined aria-hidden />多通道比较</Button>
     </div>} />
     <MonitoringTabs current="data" />
-    <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
-      <aside aria-label="监测设施构件树" className="sticky top-4 hidden h-[calc(100dvh-17rem)] min-h-[30rem] min-w-0 flex-col overflow-hidden rounded-lg border lg:flex">{navigator}</aside>
+    <div className="grid min-w-0 items-start gap-4 @[44rem]/monitoring:grid-cols-[18rem_minmax(0,1fr)]">
+      <aside aria-label="监测设施构件树" className="sticky top-4 hidden h-[calc(100dvh-17rem)] min-h-[30rem] min-w-0 flex-col overflow-hidden rounded-lg border @[44rem]/monitoring:flex">{navigator}</aside>
       <div className="min-w-0 space-y-4">
         {!m.canNavigate ? <EmptyState title="无法读取通道目录" description="查阅通道需要工程资源查看权限，请联系管理员配置。" /> : current.error ? <MonitoringError error={current.error} retry={() => void current.refetch()} /> : initialChannel && current.isPending ? <LoadingState label="正在读取当前通道…" /> : current.data ? <MonitoringReader key={current.data.id} channels={[current.data]} /> : <EmptyState title="选择一个通道，开始查阅" description="展开左侧设施、构件和测点，点击监测通道即可查看最新值与趋势。多个通道的比较在“多通道比较”中进行。" />}
       </div>

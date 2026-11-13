@@ -89,6 +89,25 @@ func (s *Service) verifyJob(ctx context.Context, j Job) error {
 		}
 		repairs = append(repairs, id)
 	}
+	if s.calculationMaintenance != nil {
+		report.Calculations, e = s.calculationMaintenance.MaintainCalculations(ctx, TaskLease{s, j})
+		if e != nil {
+			return e
+		}
+		var calculations struct {
+			State string `json:"state"`
+		}
+		if e = json.Unmarshal(report.Calculations, &calculations); e != nil {
+			return e
+		}
+		if calculations.State == "failed" {
+			report.State = "failed"
+			report.Findings = append(report.Findings, VerificationFinding{Code: "calculation_result_integrity_unavailable"})
+		}
+	}
+	if e = s.pruneExpiredExports(ctx, TaskLease{s, j}); e != nil {
+		return e
+	}
 	key, e := s.storage.putSummary(ctx, j.tenant, report)
 	if e != nil {
 		return e

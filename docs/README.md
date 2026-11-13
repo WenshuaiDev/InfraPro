@@ -31,6 +31,16 @@
 
 原讨论稿已归入三份主文档，旧路径保留为入口。**用户没有图模资料，后续开发自验及用户操作所需的图纸、模型、BIM、地图参考数据和多版本样本由 Codex 准备**，不以用户供件、购买资料或配置第三方密钥为交付前提。总体方向确认、详细文档审阅、功能实现和用户验收分别记录，当前未开始实现。
 
+## 派生监测与分析：独立实施
+
+- [已确认范围与验收方案](requirements/derived-monitoring-and-analysis-plan.md)
+- [详细开发方案](requirements/derived-monitoring-and-analysis-development-plan.md)
+- [实施、自验与需求完成账本](verification/derived-monitoring-and-analysis.md)
+- [派生监测与分析使用、维护说明](operations/derived-monitoring-and-analysis.md)
+- [派生监测与分析人工验收手册](acceptance/derived-monitoring-and-analysis.md)
+
+2026-11-13 全部派生监测与分析功能及必要功能自验完成，功能状态为 **Awaiting acceptance**，待用户人工验收。2026-11-13用户明确暂缓性能、压力与长时观察，本轮继续完成全部功能和必要功能自验。验证记录区分软件自验、暂缓未验证项及人工验收；基础监测两份方案保持独立维护。
+
 ## 内容归属
 
 | 原文档主题 | 需求归入 | 设计／运行归入 |

@@ -53,6 +53,9 @@ func (s *Service) channelTx(ctx context.Context, tx pgx.Tx, a access.Actor, scop
 		return out, semantic, access.ErrDenied
 	}
 	v := out.Resource
+	if v.SourceKind == "derived" {
+		return out, semantic, k.Problem("direct_channel_required", "派生通道使用计算配置，不支持设备来源绑定。", 422)
+	}
 	semantic = c.Semantics{MetricVersionID: v.MetricVersionID, UnitVersionID: v.UnitVersionID, TimestampMeaning: v.TimestampMeaning, AggregationDescription: v.AggregationDescription, ObservationDirection: v.ObservationDirection, ReferenceBasis: v.ReferenceBasis}
 	semantic, _, e = c.ResolveSemanticsTx(ctx, tx, semantic, false)
 	return out, semantic, e

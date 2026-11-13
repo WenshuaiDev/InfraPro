@@ -85,6 +85,9 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 			continue
 		}
 		namespace, kind, action := parts[0], parts[1], parts[2]
+		if kind == "channel-object" {
+			kind = "channel"
+		}
 		r.Handle(p.Method, p.Path, func(c *gin.Context) {
 			if namespace == "ProjectResourceAccess" {
 				accessHandler(c, i, s, kind, action)
@@ -149,6 +152,8 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 					}
 				case "component":
 					allowed = append(allowed, "parent_id")
+				case "channel":
+					allowed = append(allowed, "owner_kind", "owner_id")
 				case "point":
 					allowed = append(allowed, "owner")
 				}
@@ -171,7 +176,7 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 				reply(c, 0, nil, e)
 				return
 			}
-			f := resources.Filter{Query: c.Query("q"), Status: c.Query("status"), TypeDefinition: c.Query("type_definition_id"), Deleted: c.Query("deleted"), Parent: c.Query("parent_id"), Owner: c.Query("owner"), Cursor: c.Query("cursor"), Limit: limit, Kind: c.Query("kind"), ID: c.Query("id")}
+			f := resources.Filter{Query: c.Query("q"), Status: c.Query("status"), TypeDefinition: c.Query("type_definition_id"), Deleted: c.Query("deleted"), Parent: c.Query("parent_id"), Owner: c.Query("owner"), OwnerKind: c.Query("owner_kind"), OwnerID: c.Query("owner_id"), Cursor: c.Query("cursor"), Limit: limit, Kind: c.Query("kind"), ID: c.Query("id")}
 			switch action {
 			case "list":
 				v, e := s.List(ctx, a, scope, t, f)
@@ -228,7 +233,7 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 		allowed = []string{"cursor", "limit"}
 	}
 	if action == "detail" && kind == "facility" {
-		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner", "candidate_point_id")
+		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner", "candidate_point_id", "candidate_owner_kind", "candidate_owner_id")
 	}
 	if action == "detail" && (kind == "access" || kind == "facility") {
 		allowed = append(allowed, "q")
@@ -259,7 +264,7 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 			reply(c, 0, nil, e)
 			return
 		}
-		f := resources.AccessFilter{Limit: limit, Cursor: c.Query("cursor"), Query: c.Query("q"), GrantCursor: c.Query("grant_cursor"), CandidatePoint: c.Query("candidate_point_id"), CandidateKind: resources.Kind(c.Query("candidate_kind")), Candidate: resources.Filter{Limit: candidateLimit, Cursor: c.Query("candidate_cursor"), Query: c.Query("candidate_q"), Status: c.Query("candidate_status"), Parent: c.Query("candidate_parent_id"), Owner: c.Query("candidate_owner")}}
+		f := resources.AccessFilter{Limit: limit, Cursor: c.Query("cursor"), Query: c.Query("q"), GrantCursor: c.Query("grant_cursor"), CandidatePoint: c.Query("candidate_point_id"), CandidateKind: resources.Kind(c.Query("candidate_kind")), Candidate: resources.Filter{Limit: candidateLimit, Cursor: c.Query("candidate_cursor"), Query: c.Query("candidate_q"), Status: c.Query("candidate_status"), Parent: c.Query("candidate_parent_id"), Owner: c.Query("candidate_owner"), OwnerKind: c.Query("candidate_owner_kind"), OwnerID: c.Query("candidate_owner_id")}}
 		if action == "changes" {
 			v, e := s.AccessChanges(ctx, a, tenant, project, f)
 			reply(c, 200, v, e)

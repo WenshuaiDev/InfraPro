@@ -44,42 +44,48 @@ type Result struct {
 	Replayed          bool   `json:"replayed"`
 }
 type Resource struct {
-	CreatedProjectID        *string        `json:"created_project_id,omitempty"`
-	Visibility              string         `json:"visibility,omitempty"`
-	HistoricalContextHidden bool           `json:"historical_context_hidden,omitempty"`
-	ID                      string         `json:"id"`
-	TenantID                string         `json:"tenant_id"`
-	FacilityID              string         `json:"facility_id,omitempty"`
-	Kind                    Kind           `json:"kind"`
-	Code                    string         `json:"code"`
-	Name                    string         `json:"name"`
-	Status                  string         `json:"status"`
-	Revision                int            `json:"revision"`
-	StructureRevision       int            `json:"structure_revision,omitempty"`
-	CreatedAt               time.Time      `json:"created_at"`
-	UpdatedAt               time.Time      `json:"updated_at"`
-	CreatedBy               string         `json:"created_by,omitempty"`
-	UpdatedBy               string         `json:"updated_by,omitempty"`
-	DeletedAt               *time.Time     `json:"deleted_at"`
-	TypeVersionID           string         `json:"type_version_id,omitempty"`
-	CategoryKey             string         `json:"category_key,omitempty"`
-	ParentComponentID       *string        `json:"parent_component_id"`
-	ComponentID             *string        `json:"component_id"`
-	PointID                 string         `json:"point_id,omitempty"`
-	Values                  map[string]any `json:"values,omitempty"`
-	Position                *Position      `json:"position,omitempty"`
-	Description             string         `json:"description"`
-	SourceReference         string         `json:"source_reference"`
-	Purpose                 string         `json:"purpose"`
-	DirectionDescription    string         `json:"direction_description"`
-	ReferenceDescription    string         `json:"reference_description"`
-	MetricVersionID         string         `json:"metric_version_id,omitempty"`
-	UnitVersionID           *string        `json:"unit_version_id"`
-	ObservationDirection    string         `json:"observation_direction"`
-	ReferenceBasis          string         `json:"reference_basis"`
-	TimestampMeaning        string         `json:"timestamp_meaning"`
-	AggregationDescription  string         `json:"aggregation_description"`
-	Sampling                *Sampling      `json:"sampling"`
+	SourceKind              string          `json:"source_kind,omitempty"`
+	OwnerKind               string          `json:"owner_kind,omitempty"`
+	DerivedMetricVersionID  string          `json:"derived_metric_version_id,omitempty"`
+	QuantitySpec            json.RawMessage `json:"quantity_spec,omitempty"`
+	OutputContractHash      string          `json:"output_contract_hash,omitempty"`
+	OutputSemantics         json.RawMessage `json:"output_semantics,omitempty"`
+	CreatedProjectID        *string         `json:"created_project_id,omitempty"`
+	Visibility              string          `json:"visibility,omitempty"`
+	HistoricalContextHidden bool            `json:"historical_context_hidden,omitempty"`
+	ID                      string          `json:"id"`
+	TenantID                string          `json:"tenant_id"`
+	FacilityID              string          `json:"facility_id,omitempty"`
+	Kind                    Kind            `json:"kind"`
+	Code                    string          `json:"code"`
+	Name                    string          `json:"name"`
+	Status                  string          `json:"status"`
+	Revision                int             `json:"revision"`
+	StructureRevision       int             `json:"structure_revision,omitempty"`
+	CreatedAt               time.Time       `json:"created_at"`
+	UpdatedAt               time.Time       `json:"updated_at"`
+	CreatedBy               string          `json:"created_by,omitempty"`
+	UpdatedBy               string          `json:"updated_by,omitempty"`
+	DeletedAt               *time.Time      `json:"deleted_at"`
+	TypeVersionID           string          `json:"type_version_id,omitempty"`
+	CategoryKey             string          `json:"category_key,omitempty"`
+	ParentComponentID       *string         `json:"parent_component_id"`
+	ComponentID             *string         `json:"component_id"`
+	PointID                 string          `json:"point_id,omitempty"`
+	Values                  map[string]any  `json:"values,omitempty"`
+	Position                *Position       `json:"position,omitempty"`
+	Description             string          `json:"description"`
+	SourceReference         string          `json:"source_reference"`
+	Purpose                 string          `json:"purpose"`
+	DirectionDescription    string          `json:"direction_description"`
+	ReferenceDescription    string          `json:"reference_description"`
+	MetricVersionID         string          `json:"metric_version_id,omitempty"`
+	UnitVersionID           *string         `json:"unit_version_id"`
+	ObservationDirection    string          `json:"observation_direction"`
+	ReferenceBasis          string          `json:"reference_basis"`
+	TimestampMeaning        string          `json:"timestamp_meaning"`
+	AggregationDescription  string          `json:"aggregation_description"`
+	Sampling                *Sampling       `json:"sampling"`
 }
 type Sampling struct {
 	Mode            string   `json:"mode"`
@@ -87,16 +93,18 @@ type Sampling struct {
 	Description     string   `json:"description"`
 }
 type Actions struct {
-	Read            bool   `json:"read"`
-	CreateComponent bool   `json:"create_component"`
-	CreatePoint     bool   `json:"create_point"`
-	CreateChannel   bool   `json:"create_channel"`
-	Edit            bool   `json:"edit"`
-	Add             bool   `json:"add"`
-	Retire          bool   `json:"retire"`
-	Restore         bool   `json:"restore"`
-	Delete          bool   `json:"delete"`
-	Reason          string `json:"reason"`
+	CreateDerivedChannel bool   `json:"create_derived_channel"`
+	ManageCalculation    bool   `json:"manage_calculation"`
+	Read                 bool   `json:"read"`
+	CreateComponent      bool   `json:"create_component"`
+	CreatePoint          bool   `json:"create_point"`
+	CreateChannel        bool   `json:"create_channel"`
+	Edit                 bool   `json:"edit"`
+	Add                  bool   `json:"add"`
+	Retire               bool   `json:"retire"`
+	Restore              bool   `json:"restore"`
+	Delete               bool   `json:"delete"`
+	Reason               string `json:"reason"`
 }
 type Item struct {
 	Resource
@@ -122,8 +130,8 @@ type Page struct {
 	NextCursor        string `json:"next_cursor"`
 }
 type Filter struct {
-	Query, Status, TypeDefinition, Deleted, Parent, Owner, Cursor, Kind, ID string
-	Limit                                                                   int
+	Query, Status, TypeDefinition, Deleted, Parent, Owner, OwnerKind, OwnerID, Cursor, Kind, ID string
+	Limit                                                                                       int
 }
 type Change struct {
 	ActorScope               string    `json:"actor_scope"`

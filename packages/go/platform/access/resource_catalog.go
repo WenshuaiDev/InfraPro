@@ -1,5 +1,7 @@
 package access
 
+import "strings"
+
 const (
 	TenantEngineeringResourceRead   Code = "tenant.engineering.resource.read"
 	TenantEngineeringResourceManage Code = "tenant.engineering.resource.manage"
@@ -36,5 +38,18 @@ func resourcePolicies() []Policy {
 		}
 	}
 	out = append(out, Policy{ResourceOperation("facility", "changes"), "GET", base + "/facilities/:facility_id/changes", "tenant", []Code{TenantEngineeringResourceRead}, false, false}, Policy{ResourceOperation("request", "detail"), "GET", base + "/requests/:request_id", "tenant", []Code{TenantEngineeringResourceRead}, false, false})
+	// Existing point paths remain stable. Resource lifecycle for a channel also
+	// has an owner-neutral path for facility and component ownership.
+	for _, policy := range append([]Policy(nil), out...) {
+		if strings.HasPrefix(string(policy.Operation), "Resource:channel:") && policy.Operation != ResourceOperation("channel", "create") {
+			policy.Operation = Operation(strings.Replace(string(policy.Operation), ":channel:", ":channel-object:", 1))
+			policy.Path = strings.Replace(policy.Path, "/points/:point_id/channels", "/channels", 1)
+			out = append(out, policy)
+		}
+	}
+	for _, kind := range []string{"type-definitions", "metrics", "units"} {
+		out = append(out, Policy{ResourceOperation(kind, "version"), "GET", "/api/v1/tenants/:tenant_id/engineering/catalog/" + kind + "/versions/:version_id", "tenant", []Code{TenantEngineeringCatalogRead}, false, false})
+	}
+
 	return out
 }

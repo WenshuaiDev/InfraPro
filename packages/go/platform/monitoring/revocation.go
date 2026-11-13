@@ -285,6 +285,7 @@ func (s *Service) RevokeBatch(ctx context.Context, a access.Actor, scope Scope, 
 		if _, e = tx.Exec(ctx, `UPDATE monitoring_publications SET revoke_sequence=$3,revoked_at=clock_timestamp(),revoked_by=$4,revoke_reason=$5 WHERE tenant_id=$1 AND id=$2 AND revoke_sequence IS NULL`, scope.Tenant, proof.publication, seq, a.ID, in.Reason); e != nil {
 			return e
 		}
+		changes := []ChangeRange{}
 		for _, c := range proof.preview.Coverage {
 			if _, e = tx.Exec(ctx, `UPDATE monitoring_channel_versions SET content_revision=content_revision+1,revoke_revision=revoke_revision+1 WHERE tenant_id=$1 AND channel_id=$2`, scope.Tenant, c.Channel); e != nil {
 				return e
@@ -298,9 +299,13 @@ func (s *Service) RevokeBatch(ctx context.Context, a access.Actor, scope Scope, 
 				hi = &value
 			}
 			w := Window{From: &lo, To: hi}
+			changes = append(changes, ChangeRange{Channel: c.Channel, From: w.From, To: w.To})
 			if _, e = tx.Exec(ctx, `INSERT INTO monitoring_dirty_ranges(tenant_id,channel_id,affected,target_sequence) VALUES($1,$2,$3::int8range,$4)`, scope.Tenant, c.Channel, w.pg(), seq); e != nil {
 				return e
 			}
+		}
+		if _, e = AppendChangeTx(ctx, tx, scope.Tenant, seq, "raw_revoke", "direct", proof.publication, changes); e != nil {
+			return e
 		}
 		if e = enqueueSummariesTx(ctx, tx, scope.Tenant, proof.channels, seq); e != nil {
 			return e

@@ -44,7 +44,7 @@ function AppSidebar({ brand, groups, renderLink, renderWorkspaceSwitcher, worksp
 function Toolbar(props: Props) {
   const accountItems = props.userNavigation.filter((item) => !props.groups.some((group) => group.items.some((entry) => 'items' in entry ? entry.items.some((child) => child.href === item.href) : entry.href === item.href)));
   const searchGroups = accountItems.length ? [...props.groups, { title: '账号快捷入口', items: accountItems }] : props.groups;
-  return <header className="sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className={`flex h-full min-w-0 items-center px-4 sm:gap-4 ${props.mode === 'workspace' ? 'gap-3' : 'gap-2'}`}>
+  return <header className="@container/app-header sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className={`flex h-full min-w-0 items-center px-4 sm:gap-4 ${props.mode === 'workspace' ? 'gap-3' : 'gap-2'}`}>
     {props.mode === 'workspace' ? <><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /></> : <div className="min-w-0 max-w-64 flex-1">{props.renderWorkspaceSwitcher?.({ placement: 'header', nestedInDrawer: false, ready: true, onSelected: () => {} }) ?? props.renderLink({ href: '/', className: 'flex min-h-11 items-center gap-2 font-semibold', children: <><span className="[&>svg]:size-5">{props.brand.logo}</span>{props.brand.name}</> })}</div>}
     <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-2"><CommandSearch groups={searchGroups} onNavigate={props.onNavigate} /><ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div>
   </div></header>;

@@ -36,6 +36,7 @@ type BackupConfig struct{ Endpoint, AccessKey, SecretKey, Bucket, NamedCollectio
 type BackupOptions struct {
 	Directory, DatabaseURL, PGContainer, Reason string
 	Store                                       BackupConfig
+	Calculations                                CalculationRecovery
 }
 type ArchiveFile struct {
 	Kind   string `json:"kind"`
@@ -51,20 +52,22 @@ type NativeBackup struct {
 	Operation string `json:"operation_id"`
 }
 type BackupManifest struct {
-	Version         int            `json:"version"`
-	ID              string         `json:"id"`
-	State           string         `json:"state"`
-	Schema          string         `json:"control_schema"`
-	Started         time.Time      `json:"started_at"`
-	Completed       time.Time      `json:"completed_at"`
-	PostgresVersion string         `json:"postgres_version"`
-	LSN             string         `json:"checkpoint_lsn"`
-	IndexSHA        string         `json:"file_index_sha256"`
-	Files           string         `json:"files"`
-	Bytes           string         `json:"bytes"`
-	Native          []NativeBackup `json:"native_backups"`
-	Tenants         []string       `json:"tenant_ids"`
-	Reason          string         `json:"reason"`
+	Build           *BackupBuild                   `json:"build,omitempty"`
+	Calculations    *CalculationRecoveryDescriptor `json:"calculations,omitempty"`
+	Version         int                            `json:"version"`
+	ID              string                         `json:"id"`
+	State           string                         `json:"state"`
+	Schema          string                         `json:"control_schema"`
+	Started         time.Time                      `json:"started_at"`
+	Completed       time.Time                      `json:"completed_at"`
+	PostgresVersion string                         `json:"postgres_version"`
+	LSN             string                         `json:"checkpoint_lsn"`
+	IndexSHA        string                         `json:"file_index_sha256"`
+	Files           string                         `json:"files"`
+	Bytes           string                         `json:"bytes"`
+	Native          []NativeBackup                 `json:"native_backups"`
+	Tenants         []string                       `json:"tenant_ids"`
+	Reason          string                         `json:"reason"`
 }
 type checkpointAttempt struct {
 	Tenant string
@@ -234,8 +237,20 @@ func Backup(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Backu
 	if storage == nil {
 		return m, fmt.Errorf("monitoring storage is required")
 	}
+	build, buildError := backupBuild(ctx)
+	if buildError != nil {
+		return m, buildError
+	}
+	m.Build = build
 	if e := storage.Check(ctx); e != nil {
 		return m, e
+	}
+	if opt.Calculations != nil {
+		if e := opt.Calculations.Check(ctx); e != nil {
+			return m, e
+		}
+		d := opt.Calculations.Descriptor()
+		m.Calculations, m.Version = &d, 3
 	}
 	client, e := backupClient(opt.Store)
 	if e != nil {
@@ -273,6 +288,9 @@ func Backup(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Backu
 		return m, e
 	}
 	defer tx.Rollback(context.WithoutCancel(ctx))
+	if e = requireCalculationRecovery(ctx, tx, opt.Calculations); e != nil {
+		return m, e
+	}
 	var snapshot string
 	if e = tx.QueryRow(ctx, `SELECT pg_export_snapshot(),current_schema(),current_setting('server_version'),pg_current_wal_lsn()::text`).Scan(&snapshot, &m.Schema, &m.PostgresVersion, &m.LSN); e != nil {
 		return m, e
@@ -497,6 +515,11 @@ func Backup(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Backu
 	if e != nil {
 		return m, e
 	}
+	if opt.Calculations != nil {
+		if e = opt.Calculations.Checkpoint(ctx, tx); e != nil {
+			return m, fmt.Errorf("calculation checkpoint verification failed: %w", e)
+		}
+	}
 	if e = tx.Commit(ctx); e != nil {
 		return m, e
 	}
@@ -547,7 +570,7 @@ func ReadBackupManifest(dir, expectedHash string) (BackupManifest, error) {
 	if e = json.Unmarshal(raw, &m); e != nil {
 		return m, e
 	}
-	if m.Version != 2 || m.State != "complete" || !access.ValidID(m.ID) || !regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]{0,62}$`).MatchString(m.Schema) {
+	if (m.Version != 2 && m.Version != 3) || (m.Version == 3 && m.Calculations == nil) || m.State != "complete" || !access.ValidID(m.ID) || !regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]{0,62}$`).MatchString(m.Schema) {
 		return m, fmt.Errorf("unsupported or incomplete backup")
 	}
 	hash, _, e = hashLocal(filepath.Join(dir, "files.ndjson"))
@@ -627,6 +650,9 @@ func Restore(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Back
 	m, e := ReadBackupManifest(opt.Directory, expectedHash)
 	if e != nil {
 		return m, e
+	}
+	if m.Calculations != nil && (opt.Calculations == nil || !compatibleCalculationRecovery(*m.Calculations, opt.Calculations.Descriptor())) {
+		return m, fmt.Errorf("backup calculation engine or layout is not supported by this build")
 	}
 	if e = access.ValidReason(opt.Reason); e != nil {
 		return m, e
@@ -708,6 +734,11 @@ func Restore(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Back
 	if e = storage.Initialize(ctx); e != nil {
 		return m, e
 	}
+	if m.Calculations != nil {
+		if e = opt.Calculations.Initialize(ctx); e != nil {
+			return m, e
+		}
+	}
 	e = walkArchive(opt.Directory, func(v ArchiveFile) error {
 		var dest *minio.Client
 		var bucket string
@@ -755,6 +786,21 @@ func Restore(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Back
 		for _, c := range p.replicas {
 			if e = c.Exec(ctx, "SYSTEM SYNC REPLICA "+p.config.Database+".observations"); e != nil {
 				return m, e
+			}
+		}
+		if m.Calculations != nil {
+			for _, table := range m.Calculations.Tables {
+				if !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(table) {
+					return m, fmt.Errorf("invalid calculation table descriptor")
+				}
+				if _, e = p.nativeOperation(ctx, "RESTORE TABLE "+b.Database+"."+table+" AS "+p.config.Database+"."+table+" FROM", opt.Store.NamedCollection, b.Prefix); e != nil {
+					return m, e
+				}
+				for _, c := range p.replicas {
+					if e = c.Exec(ctx, "SYSTEM SYNC REPLICA "+p.config.Database+"."+table); e != nil {
+						return m, e
+					}
+				}
 			}
 		}
 	}
@@ -837,10 +883,24 @@ func Restore(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Back
 			return m, fmt.Errorf("restored environment failed reconciliation")
 		}
 	}
+	if m.Calculations != nil {
+		if e = opt.Calculations.Check(ctx); e != nil {
+			return m, e
+		}
+		tx, err := pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+		if err != nil {
+			return m, err
+		}
+		e = opt.Calculations.Checkpoint(ctx, tx)
+		_ = tx.Rollback(context.WithoutCancel(ctx))
+		if e != nil {
+			return m, fmt.Errorf("restored calculation evidence failed verification: %w", e)
+		}
+	}
 	_, e = pool.Exec(ctx, `UPDATE monitoring_environment_state SET mode='read_only',verified_at=clock_timestamp() WHERE id=1 AND backup_id=$1 AND access_revoked`, m.ID)
 	return m, e
 }
-func OpenRestoredWrites(ctx context.Context, pool *pgxpool.Pool, storage *Storage, backupID, reason string) error {
+func OpenRestoredWrites(ctx context.Context, pool *pgxpool.Pool, storage *Storage, backupID, reason string, calculations ...CalculationRecovery) error {
 	if !access.ValidID(backupID) {
 		return fmt.Errorf("backup ID is required")
 	}
@@ -848,6 +908,25 @@ func OpenRestoredWrites(ctx context.Context, pool *pgxpool.Pool, storage *Storag
 		return e
 	}
 	if e := storage.Check(ctx); e != nil {
+		return e
+	}
+	var recovery CalculationRecovery
+	if len(calculations) > 0 {
+		recovery = calculations[0]
+	}
+	verify, e := pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	if e != nil {
+		return e
+	}
+	e = requireCalculationRecovery(ctx, verify, recovery)
+	if e == nil && recovery != nil {
+		e = recovery.Check(ctx)
+		if e == nil {
+			e = recovery.Checkpoint(ctx, verify)
+		}
+	}
+	_ = verify.Rollback(context.WithoutCancel(ctx))
+	if e != nil {
 		return e
 	}
 	tx, e := pool.Begin(ctx)

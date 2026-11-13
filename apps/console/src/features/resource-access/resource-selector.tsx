@@ -104,6 +104,8 @@ function CandidateList({
   kind,
   parent,
   point,
+  ownerKind,
+  ownerID,
   q = '',
   depth = 0,
   flat = false,
@@ -112,6 +114,8 @@ function CandidateList({
   kind: ResourceKind;
   parent?: string;
   point?: string;
+  ownerKind?: 'facility' | 'component' | 'point';
+  ownerID?: string;
   q?: string;
   depth?: number;
   flat?: boolean;
@@ -125,6 +129,8 @@ function CandidateList({
     candidate_parent_id: parent ?? 'all',
     candidate_owner: parent ?? 'all',
     candidate_point_id: point,
+    candidate_owner_kind: ownerKind,
+    candidate_owner_id: ownerID,
   };
   const query = useInfiniteQuery({
     queryKey: [...prefix, 'facility', props.facility, props.revision, props.generation, 'tree', filter],
@@ -155,6 +161,7 @@ function CandidateList({
             name: r.name,
             code: r.code,
             status: r.status,
+            source_kind: 'source_kind' in r ? r.source_kind : undefined,
             grant: p.candidate_grants.find((g) => g.resource_id === r.id),
             capabilities: p.candidate_grants.find((g) => g.resource_id === r.id)?.capabilities ?? ['read'],
           }) satisfies Choice,
@@ -223,6 +230,7 @@ function ResourceBranch({ value, depth = 0, ...props }: SelectorProps & { value:
             parent={value.kind === 'facility' ? 'root' : value.id}
             depth={depth + 1}
           />
+          <CandidateList {...props} kind="channel" ownerKind={value.kind} ownerID={value.id} depth={depth + 1} />
         </>
       )}
       {expanded && value.kind === 'point' && (

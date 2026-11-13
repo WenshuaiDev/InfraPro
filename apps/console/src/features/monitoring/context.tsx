@@ -29,15 +29,23 @@ function MonitoringBoundary({ value, children }: { value: Range; children: React
     if (code !== 'revision') void cache.invalidateQueries({ queryKey: project ? projectContextKey(account?.id, tenant, project) : ['tenant', account?.id, tenant, 'context'] });
   }), [account?.id, cache, client, tenant, project]);
   const revision = useSyncExternalStore(subscribe, () => client.monitoringRevision(tenant, project));
-  const prefix = [...value.prefix, revision], stamp = JSON.stringify(prefix);
+  // The first successful response establishes a revision without invalidating
+  // already authorized results. Only a changed/restricted scope advances the
+  // client epoch. Key caches by that epoch so initial discovery cannot unmount
+  // a form or history tab while the user is entering its range.
+  const authorityEpoch = revision.split(':').at(-1);
+  const prefix = [...value.prefix, authorityEpoch], stamp = JSON.stringify(prefix);
   useEffect(() => {
     const queryKey: unknown[] = JSON.parse(stamp);
     return () => { void cache.cancelQueries({ queryKey }); cache.removeQueries({ queryKey }); };
   }, [cache, stamp]);
   useEffect(() => () => client.invalidateMonitoringScope(tenant, project), [client, tenant, project]);
   // A lightweight metadata poll discovers revocation while a fixed snapshot is idle.
-  useQuery({ queryKey: [...prefix, 'qualification'], queryFn: ({ signal }) => client.monitoringJobs(value.scope, undefined, signal), enabled: value.available, refetchInterval: 30_000, refetchOnWindowFocus: 'always', retry: false });
-  return <Context value={{ ...value, prefix }}>{notice && <p role="status" className="mb-4 rounded-lg border bg-muted/50 p-3 text-sm">数据或授权已变化，已清空此前选择与缓存。请重新选择当前获准的范围。</p>}<div key={`${JSON.stringify(value.prefix)}:${revision.split(':').at(-1)}`}>{children}</div></Context>;
+  const tenantScope=value.scope.kind==='tenant';
+  const permission=(suffix:string)=>value.can(`${value.scope.kind}.derived.${suffix}` as PermissionCode);
+  const poll:((signal:AbortSignal)=>Promise<unknown>)|undefined=value.can(tenantScope?P.TenantMonitoringDataRead:P.ProjectMonitoringDataRead)||value.can(tenantScope?P.TenantMonitoringImportsRead:P.ProjectMonitoringImportsRead)?signal=>client.monitoringJobs(value.scope,undefined,signal):permission('runs.read')?signal=>client.derivedRuns(value.scope,{limit:1},signal):permission('channels.read')?signal=>client.derivedChannels(value.scope,{limit:1},signal):permission('analysis.read')?signal=>client.analysisConfigs(value.scope,{limit:1},signal):permission('metrics.read')?signal=>client.derivedMetrics(value.scope,{limit:1},signal):permission('analysis.results.read')?signal=>client.analysisArtifacts(value.scope,{limit:1},signal):undefined;
+  useQuery({ queryKey: [...prefix, 'qualification'], queryFn: ({signal})=>poll?.(signal)??Promise.resolve(null), enabled: value.available&&!!poll, refetchInterval: 30_000, refetchOnWindowFocus: 'always', retry: false });
+  return <Context value={{ ...value, prefix }}>{notice && <p role="status" className="mb-4 rounded-lg border bg-muted/50 p-3 text-sm">数据或授权已变化，已清空此前选择与缓存。请重新选择当前获准的范围。</p>}<div key={`${JSON.stringify(value.prefix)}:${authorityEpoch}`}>{children}</div></Context>;
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export function useMonitoring() {

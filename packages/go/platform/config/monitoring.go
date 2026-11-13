@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type PhysicalShard struct {
@@ -18,6 +19,8 @@ type PhysicalShard struct {
 	Replicas []string `json:"replicas"`
 }
 type Monitoring struct {
+	TaskLease, TaskHeartbeat                                                time.Duration
+	TaskAttempts                                                            int
 	Shards                                                                  []PhysicalShard
 	HotDays                                                                 int
 	OnlineVolume                                                            string
@@ -41,6 +44,19 @@ func LoadMonitoring(path string) (Monitoring, error) {
 }
 func resolveMonitoring(raw input) (Monitoring, error) {
 	c := Monitoring{OnlineVolume: raw.MonitoringOnlineVolume, Database: raw.MonitoringDatabase, User: raw.MonitoringUser, Password: raw.MonitoringPassword, Policy: raw.MonitoringPolicy, ObjectEndpoint: raw.MonitoringObjectEndpoint, ObjectAccessKey: raw.MonitoringObjectAccessKey, ObjectSecretKey: raw.MonitoringObjectSecretKey, Bucket: raw.MonitoringBucket, TempDirectory: raw.MonitoringTemp}
+	var taskError error
+	c.TaskLease, taskError = time.ParseDuration(raw.MonitoringTaskLease)
+	if taskError != nil || c.TaskLease < 10*time.Second || c.TaskLease > 5*time.Minute {
+		return c, fmt.Errorf("monitoring_task_lease must be 10s-5m")
+	}
+	c.TaskHeartbeat, taskError = time.ParseDuration(raw.MonitoringTaskHeartbeat)
+	if taskError != nil || c.TaskHeartbeat < time.Second || 3*c.TaskHeartbeat > c.TaskLease {
+		return c, fmt.Errorf("monitoring_task_heartbeat must be at least 1s and at most a third of the lease")
+	}
+	c.TaskAttempts, taskError = strconv.Atoi(raw.MonitoringTaskAttempts)
+	if taskError != nil || c.TaskAttempts < 1 || c.TaskAttempts > 10 {
+		return c, fmt.Errorf("monitoring_task_attempts must be 1-10")
+	}
 	if raw.MonitoringShards != "" {
 		d := json.NewDecoder(bytes.NewBufferString(raw.MonitoringShards))
 		d.DisallowUnknownFields()

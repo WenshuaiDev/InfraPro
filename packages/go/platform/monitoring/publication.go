@@ -241,6 +241,7 @@ func (s *Service) publishJob(ctx context.Context, j Job) error {
 					return e
 				}
 			}
+			changes := []ChangeRange{}
 			for _, id := range ids {
 				// Only actual contributions dirty a channel. Ignored duplicate sources do
 				// not acquire a new adoption and cannot be revived by revoking this batch.
@@ -257,9 +258,21 @@ func (s *Service) publishJob(ctx context.Context, j Job) error {
 					upper = &v
 				}
 				w := Window{From: &cover.First, To: upper}
+				changes = append(changes, ChangeRange{Channel: id, From: w.From, To: w.To})
 				if _, e = tx.Exec(ctx, `INSERT INTO monitoring_dirty_ranges(tenant_id,channel_id,affected,target_sequence) VALUES($1,$2,$3::int8range,$4)`, j.tenant, id, w.pg(), seq); e != nil {
 					return e
 				}
+			}
+			var readopt bool
+			if e = tx.QueryRow(ctx, `SELECT readopt_batch_id IS NOT NULL FROM monitoring_import_batches WHERE tenant_id=$1 AND id=$2`, j.tenant, j.Target).Scan(&readopt); e != nil {
+				return e
+			}
+			kind := "raw_publish"
+			if readopt {
+				kind = "raw_readopt"
+			}
+			if _, e = AppendChangeTx(ctx, tx, j.tenant, seq, kind, "direct", publication, changes); e != nil {
+				return e
 			}
 		}
 		if len(entries) > 0 {

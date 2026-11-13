@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -9,6 +10,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
+	derivedmonitoringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/derivedmonitoring"
 	devicecataloghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecatalog"
 	deviceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devices"
 	engineeringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/engineering"
@@ -31,6 +33,7 @@ import (
 )
 
 func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config, storage ...*monitoring.Storage) http.Handler {
+	var calculationReady func(context.Context) error
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	handler := identityhttp.New(service, cfg)
@@ -98,14 +101,24 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 			identityhttp.RespondError(c, e)
 			return
 		}
+		if calculationReady != nil {
+			if e := calculationReady(c.Request.Context()); e != nil {
+				identityhttp.RespondError(c, identity.ErrUnavailable)
+				return
+			}
+		}
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 	if service != nil {
 		handler.Register(r)
 		accesshttp.Register(r, service)
 		projectshttp.Register(r, service, projects.New(service.Access()))
-		business := runtime.Compose(service.Access(), storage...)
+		business := runtime.Compose(service.Access(), storage...).Configure(cfg)
+		if len(storage) > 0 && storage[0] != nil {
+			calculationReady = business.DerivedMonitoring.Ready
+		}
 		monitoringhttp.Register(r, service, business.Monitoring)
+		derivedmonitoringhttp.Register(r, service, business.DerivedMonitoring)
 		resourceshttp.Register(r, service, business.Resources)
 		engineeringhttp.Register(r, service, business.Engineering)
 		devicecataloghttp.Register(r, service, business.DeviceCatalog)

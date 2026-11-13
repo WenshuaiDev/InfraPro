@@ -15,14 +15,14 @@ import (
 )
 
 var kindCapabilities = map[Kind][]string{
-	Facility:  {"read", "update", "create_component", "create_point"},
-	Component: {"read", "update", "create_component", "create_point", "lifecycle"},
-	Point:     {"read", "update", "create_channel", "lifecycle"},
-	Channel:   {"read", "update", "lifecycle", "source_manage"},
+	Facility:  {"read", "update", "create_component", "create_point", "create_derived_channel"},
+	Component: {"read", "update", "create_component", "create_point", "lifecycle", "create_derived_channel"},
+	Point:     {"read", "update", "create_channel", "lifecycle", "create_derived_channel"},
+	Channel:   {"read", "update", "lifecycle", "source_manage", "manage_calculation"},
 }
 
 func capabilities(kind Kind, cs []string) ([]string, error) {
-	if !slices.Contains(cs, "read") || len(cs) > 6 || tables[kind] == "" {
+	if !slices.Contains(cs, "read") || len(cs) > len(kindCapabilities[kind]) || tables[kind] == "" {
 		return nil, problem("grant_capability_invalid", "每个对象须包含读取及该类型适用的能力。", 422)
 	}
 	out := []string{}
@@ -80,16 +80,16 @@ func linkTx(ctx context.Context, tx pgx.Tx, tenant, project, facility string) (*
 	return &v, e
 }
 
-const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle,g.can_source_manage FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)`
+const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle,g.can_source_manage,g.can_create_derived_channel,g.can_manage_calculation,COALESCE((SELECT source_kind FROM engineering_channels c WHERE c.tenant_id=g.tenant_id AND c.id=g.channel_id),'') FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)`
 
 func scanGrant(row pgx.Row) (Grant, error) {
 	g := Grant{Capabilities: []string{"read"}}
-	var update, component, point, channel, lifecycle, sourceManage bool
-	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle, &sourceManage)
+	var update, component, point, channel, lifecycle, sourceManage, createDerived, manageCalculation bool
+	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle, &sourceManage, &createDerived, &manageCalculation, &g.SourceKind)
 	for _, c := range []struct {
 		yes  bool
 		name string
-	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}, {sourceManage, "source_manage"}} {
+	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}, {sourceManage, "source_manage"}, {createDerived, "create_derived_channel"}, {manageCalculation, "manage_calculation"}} {
 		if c.yes {
 			g.Capabilities = append(g.Capabilities, c.name)
 		}
@@ -509,7 +509,7 @@ func expandCurrent(ctx context.Context, tx pgx.Tx, tenant, facility string, sel 
 func saveGrant(ctx context.Context, tx pgx.Tx, tenant, project, facility, link, actor, source string, g Grant) (Grant, error) {
 	cs := g.Capabilities
 	var e error
-	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,can_source_manage,source,granted_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), source, actor).Scan(&g.ID, &g.Revision)
+	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,can_source_manage,source,granted_by,can_create_derived_channel,can_manage_calculation) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), source, actor, slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation")).Scan(&g.ID, &g.Revision)
 	g.LinkID = link
 	g.Source = source
 	return g, e
@@ -608,7 +608,7 @@ func (s *Service) ChangeAccess(ctx context.Context, a access.Actor, tenant, proj
 				}
 				for i, g := range plan.Update {
 					cs := g.Capabilities
-					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,can_source_manage=$7,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage")).Scan(&plan.Update[i].Revision); e != nil {
+					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,can_source_manage=$7,can_create_derived_channel=$8,can_manage_calculation=$9,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation")).Scan(&plan.Update[i].Revision); e != nil {
 						return e
 					}
 				}
@@ -808,7 +808,7 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		if e = normalizeFilter(&f.Candidate); e != nil {
 			return e
 		}
-		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner, f.CandidatePoint})
+		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner, f.CandidatePoint, f.Candidate.OwnerKind, f.Candidate.OwnerID})
 		cid, e := accessPageCursor(auth, out.Policy, facility, category, f.Candidate.Cursor)
 		if e != nil {
 			return e
@@ -854,6 +854,12 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 			}
 			args = append(args, f.CandidatePoint)
 			where += fmt.Sprintf(" AND r.point_id=$%d", len(args))
+		}
+		if f.Candidate.OwnerKind != "" {
+			if f.CandidateKind != Channel {
+				return problem("invalid_request", "通道所属对象筛选仅适用于通道。", 400)
+			}
+			where, args = channelOwnerFilter(where, args, f.Candidate)
 		}
 		rows, e := tx.Query(ctx, `SELECT to_jsonb(r) FROM `+tables[f.CandidateKind]+` r WHERE r.tenant_id=$1 AND `+facilityCol+`=$2 AND r.deleted_at IS NULL AND ($3='' OR r.id>NULLIF($3,'')::uuid) AND ($5='' OR r.name ILIKE '%'||$5||'%' OR r.code ILIKE '%'||$5||'%') AND ($6='all' OR r.status=$6)`+where+` ORDER BY r.id LIMIT $4`, args...)
 		if e != nil {

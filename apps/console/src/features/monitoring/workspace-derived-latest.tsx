@@ -1,0 +1,15 @@
+import type { MonitoringChannelStatistic } from '@infrapro/api-client';
+import { Badge } from '@infrapro/ui/components/badge';
+import type { SelectedChannel } from './channel-picker';
+import { calculationStatusNames, reasonNames } from './detail-format';
+import { qualityNames, rangeLabel } from './format';
+import { displayTime } from './workspace-model';
+
+// A failed latest output must never be replaced by an older successful value.
+export function DerivedLatest({ channel: c, row, timezone, comparing }: { channel: SelectedChannel; row?: MonitoringChannelStatistic; timezone: string; comparing: boolean }) {
+  const latest = row?.latest_output, valid = row?.last_valid_output;
+  return <article className={comparing ? 'min-w-0 rounded-md border p-3' : 'grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(16rem,1fr)]'}>
+    <div className="min-w-0"><p className="mb-1 break-words text-xs text-muted-foreground">{c.facility_name} / {c.owner_name}</p><h3 className="space-y-1 font-medium"><span className="block break-all">{c.name}</span><span className="flex flex-wrap items-center gap-2"><Badge variant="outline">派生通道</Badge><span className="break-all text-xs font-normal text-muted-foreground">{c.code}</span></span></h3><p className="my-2 break-all font-semibold tabular-nums"><span className={comparing ? 'text-2xl' : 'text-3xl'}>{latest?.value?.replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1') ?? (latest ? '无结果' : '尚无输出')}</span><span className="ml-2 text-sm font-normal text-muted-foreground">{c.unit}</span></p><p className="text-sm">最新输出：{latest ? calculationStatusNames[latest.calculation_status] : '尚未计算或当前范围等待更新'}</p>{latest && <p className="mt-1 text-xs text-muted-foreground">{displayTime(latest.output_at, timezone)} · {qualityNames[latest.data_quality]}{latest.reason_flags.length > 0 && ` · ${latest.reason_flags.map(reason => reasonNames[reason] ?? reason).join('、')}`}</p>}</div>
+    <div className="min-w-0 space-y-2 text-sm"><p>上一有效值：<span className="break-all font-mono">{valid?.value ?? '—'} {c.unit}</span>{valid && <time className="block text-xs text-muted-foreground" dateTime={valid.output_at}>{displayTime(valid.output_at, timezone)}</time>}</p><p className="text-xs text-muted-foreground">已计算至：{row?.computed_through ? displayTime(row.computed_through, timezone) : '尚未计算'}</p><p className="text-xs text-muted-foreground">输入已到达：{row?.input_through ? displayTime(row.input_through, timezone) : '范围内尚无输入'}</p>{!!row?.pending_ranges?.length && <p role="status" className="text-xs">等待更新：{row.pending_ranges.map(rangeLabel).join('；')}</p>}<details className="break-all text-xs text-muted-foreground"><summary className="min-h-11 cursor-pointer py-3">通道信息与精确结果</summary><p>{c.metric_name} · {c.observation_direction || '方向未填'} · {c.reference_basis || '基准未填'}</p>{latest && <><p>精确输出时刻：{latest.output_at}</p><p>精确结果：{latest.value ?? '无结果'} {c.unit}</p><p>计算配置：{latest.config_id}</p><p>结果代次：{latest.generation_id}</p></>}<p>可读范围：{c.read_ranges.map(rangeLabel).join('；')}</p></details></div>
+  </article>;
+}
