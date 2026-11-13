@@ -9,6 +9,7 @@ import (
 // Progress records completed work only. Its lease/fence check is the same as a
 // result commit, so a superseded worker cannot overwrite its successor's state.
 func (s *Service) recordProgress(ctx context.Context, j Job, progress map[string]string) error {
+	recordTaskProgress(ctx, progress)
 	return s.jobTransaction(ctx, j, func(tx pgx.Tx) error {
 		if err := assertJobTx(ctx, tx, j); err != nil {
 			return err

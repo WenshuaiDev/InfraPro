@@ -4,10 +4,10 @@ package observation
 
 import (
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoringvalue"
 	"math/big"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 const DecimalScale = 12
@@ -72,19 +72,7 @@ func Decimal(text string) (*big.Int, error) {
 	return c, nil
 }
 
-func Format(c *big.Int, scale int) string {
-	s := new(big.Int).Abs(c).String()
-	if scale > 0 {
-		if len(s) <= scale {
-			s = strings.Repeat("0", scale+1-len(s)) + s
-		}
-		s = s[:len(s)-scale] + "." + s[len(s)-scale:]
-	}
-	if c.Sign() < 0 {
-		s = "-" + s
-	}
-	return s
-}
+func Format(c *big.Int, scale int) string { return monitoringvalue.Format(c, scale) }
 
 func pow10(n int) *big.Int { return new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(n)), nil) }
 

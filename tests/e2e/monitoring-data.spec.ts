@@ -34,7 +34,8 @@ async function selectPoint(page: Page) {
   await expect(page.getByRole('heading', {name:'监测数据',exact:true})).toBeVisible();
   const mobile = (page.viewportSize()?.width ?? 1440) < 1024;
   if (mobile) await page.getByRole('button', { name: '测点与通道', exact: true }).click();
-  const area = mobile ? page.getByRole('dialog') : page.locator('aside').filter({ has: page.getByRole('heading', { name: '选择测点与通道' }) });
+  const area = mobile ? page.getByRole('dialog') : page.locator('aside').filter({ has: page.getByRole('heading', { name: '选择监测通道' }) });
+  await area.getByRole('button', { name: '按测点浏览', exact: true }).click();
   await area.getByRole('button', { name: /孔 A 深度 10 m/ }).click();
   await expect(area.getByRole('checkbox', { name: /位移通道/ })).toBeChecked();
   if (mobile) { await area.getByRole('button', { name: '查看已选 1 个通道' }).click(); await expect(page.getByRole('button', { name: '测点与通道', exact: true })).toBeFocused(); }
@@ -54,6 +55,10 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   const batchID = page.url().split('/').at(-1)!;
   await page.getByLabel('质量列名（可选）', { exact: true }).fill('quality');
   await page.getByRole('button', { name: '选择映射目标' }).click();
+  const mappingTargets = page.getByRole('region', { name: '选择监测通道', exact: true });
+  await expect(mappingTargets.getByRole('combobox', { name: '来源类型', exact: true })).toBeDisabled();
+  await expect(mappingTargets.getByRole('combobox', { name: '来源类型', exact: true })).toHaveValue('direct');
+  await mappingTargets.getByRole('button', { name: '按测点浏览', exact: true }).click();
   await page.getByRole('button', { name: /孔 A 深度 10 m/ }).click();
   await page.getByRole('checkbox', { name: /位移通道/ }).check();
   await page.getByRole('button', { name: '采用所选 1 个通道' }).click();
@@ -73,9 +78,9 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await page.getByRole('button', { name: '全部历史范围', exact: true }).click();
   await expect(page.getByRole('button', { name: '明细', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '明细', exact: true }).click();
-  await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('999999999999999999.000000000001');
-  await expect(page.getByRole('table', { name: '监测原始明细' })).toContainText('2020-01-01T00:00:00.000000001Z');
-  await expect(page.getByRole('table', { name: '监测原始明细' }).getByRole('row')).toHaveCount(3);
+  await expect(page.getByRole('table', { name: '监测明细' })).toContainText('999999999999999999.000000000001');
+  await expect(page.getByRole('table', { name: '监测明细' })).toContainText('2020-01-01T00:00:00.000000001Z');
+  await expect(page.getByRole('table', { name: '监测明细' }).getByRole('row')).toHaveCount(3);
   await page.getByRole('button', { name: '统计', exact: true }).click();
   await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('999999999999999999.000000000002');
   await expect(page.getByRole('table', { name: '监测基础统计' })).toContainText('0.000000000001');
@@ -119,7 +124,7 @@ test('cursor pages, bounded trends and last complete results survive service fai
   await page.goto(f.root); await selectPoint(page);
   await expect(page.getByRole('img', { name: /监测趋势/ })).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: '明细', exact: true }).click();
-  const table = page.getByRole('table', { name: '监测原始明细' });
+  const table = page.getByRole('table', { name: '监测明细' });
   await expect(table.getByRole('row')).toHaveCount(201);
   const first = await table.getByRole('row').nth(1).innerText();
   await page.getByRole('button', { name: '下一页', exact: true }).last().click();
@@ -162,7 +167,7 @@ test('project data grants, archive reading and revocation clear cached and late 
  await panel.getByLabel('授权原因').fill('只授权中间一天');await panel.getByRole('button',{name:'授予上述通道与时间范围'}).click();await expect(panel).toHaveCount(0);
  await expect(page.getByRole('table',{name:'项目监测数据授权'})).toContainText('当前有效');
  await projectPage.reload();await selectPoint(projectPage);
- await projectPage.getByRole('button',{name:'明细',exact:true}).click();const table=projectPage.getByRole('table',{name:'监测原始明细'});
+ await projectPage.getByRole('button',{name:'明细',exact:true}).click();const table=projectPage.getByRole('table',{name:'监测明细'});
  await expect(table).toContainText('22.000000000000');await expect(table.getByRole('row')).toHaveCount(2);await expect(table).not.toContainText('2020-01-01');
  // Real project lifecycle must retain reads/exports but remove import/revoke controls.
  await projectPage.goto(`${consoleURL}/t/${f.tenant}/p/${pid}/profile`);await projectPage.getByRole('button',{name:'归档项目',exact:true}).click();
@@ -177,7 +182,7 @@ test('project data grants, archive reading and revocation clear cached and late 
  await page.reload();await page.getByRole('button',{name:'预览撤销',exact:true}).click();await page.getByRole('dialog').getByLabel('撤销授权原因').fill('当前会话立即收回');await page.getByRole('dialog').getByRole('button',{name:'撤销此数据授权',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
  await projectPage.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});
  await expect(projectPage.getByText('0 个获准通道 · 不随视窗移动',{exact:true})).toBeVisible({timeout:35000});release();
- await expect(projectPage.getByRole('table',{name:'监测原始明细'})).toHaveCount(0);await expect(projectPage.getByText('22.000000000000',{exact:true})).toHaveCount(0);
+ await expect(projectPage.getByRole('table',{name:'监测明细'})).toHaveCount(0);await expect(projectPage.getByText('22.000000000000',{exact:true})).toHaveCount(0);
  expect(await projectPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await projectPage.screenshot({path:info.outputPath('monitoring-project-revoked.png'),fullPage:true});
  }finally{await projectPage.close();}
@@ -217,7 +222,7 @@ test('point deep links, comparison, enum samples and keyboard window controls us
   await expect(page.getByRole('heading',{name:'已选通道 · 全历史概况'})).toBeVisible();
   const mobile=(page.viewportSize()?.width??1440)<1024;
   if(mobile)await page.getByRole('button',{name:'测点与通道',exact:true}).click();
-  const area=mobile?page.getByRole('dialog'):page.locator('aside').filter({has:page.getByRole('heading',{name:'选择测点与通道'})});
+  const area=mobile?page.getByRole('dialog'):page.locator('aside').filter({has:page.getByRole('heading',{name:'选择监测通道'})});
   const target=area.getByRole('button',{name:/孔 A 深度 20 m/});await target.focus();await page.keyboard.press('Enter');
   const choose=area.getByRole('checkbox',{name:/深层位移/});await choose.focus();await page.keyboard.press('Space');await expect(choose).toBeChecked();
   const enumBox=area.getByRole('checkbox',{name:/状态样本/});await enumBox.focus();await page.keyboard.press('Space');

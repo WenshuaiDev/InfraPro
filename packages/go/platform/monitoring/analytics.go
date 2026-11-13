@@ -17,12 +17,13 @@ import (
 )
 
 type Overview struct {
-	Ever      string            `json:"ever_published_count"`
-	Active    string            `json:"active_count"`
-	Samples   string            `json:"sample_count"`
-	Qualities map[string]string `json:"quality_counts"`
-	Earliest  *string           `json:"earliest"`
-	Latest    *string           `json:"latest"`
+	Ever      string             `json:"ever_published_count"`
+	Active    string             `json:"active_count"`
+	Samples   string             `json:"sample_count"`
+	Qualities map[string]string  `json:"quality_counts"`
+	Earliest  *string            `json:"earliest"`
+	Latest    *string            `json:"latest"`
+	Derived   *CalculationCounts `json:"derived,omitempty"`
 }
 type EnumStatistic struct {
 	Value      string `json:"value"`
@@ -32,10 +33,14 @@ type EnumStatistic struct {
 	Last       string `json:"last_at"`
 }
 type ChannelStatistic struct {
-	N        string `json:"n"`
-	Scale    int    `json:"scale"`
-	Rounding string `json:"rounding"`
-	Channel  string `json:"channel_id"`
+	*CalculationStatus
+	SourceKind    string                 `json:"source_kind"`
+	LatestOutput  *CalculatedObservation `json:"latest_output,omitempty"`
+	NumericIssues map[string]string      `json:"numeric_issues,omitempty"`
+	N             string                 `json:"n"`
+	Scale         int                    `json:"scale"`
+	Rounding      string                 `json:"rounding"`
+	Channel       string                 `json:"channel_id"`
 	Overview
 	First    *Observation    `json:"first"`
 	Last     *Observation    `json:"last"`
@@ -58,16 +63,17 @@ type CalendarStatistic struct {
 	Partial  bool   `json:"partial"`
 }
 type AnalyticResult struct {
-	State       string              `json:"state"`
-	Snapshot    Snapshot            `json:"snapshot"`
-	JobID       string              `json:"job_id,omitempty"`
-	Overview    *Overview           `json:"overview,omitempty"`
-	Channels    []ChannelStatistic  `json:"channels,omitempty"`
-	Groups      []CalendarStatistic `json:"groups,omitempty"`
-	Trends      []TrendSeries       `json:"trends,omitempty"`
-	HasMore     bool                `json:"has_more"`
-	NextCursor  string              `json:"next_cursor,omitempty"`
-	Computation string              `json:"computation"`
+	State       string                `json:"state"`
+	Snapshot    Snapshot              `json:"snapshot"`
+	JobID       string                `json:"job_id,omitempty"`
+	Overview    *Overview             `json:"overview,omitempty"`
+	Channels    []ChannelStatistic    `json:"channels,omitempty"`
+	Groups      []CalendarStatistic   `json:"groups,omitempty"`
+	Trends      []TrendSeries         `json:"trends,omitempty"`
+	HasMore     bool                  `json:"has_more"`
+	NextCursor  string                `json:"next_cursor,omitempty"`
+	Computation string                `json:"computation"`
+	Coverage    []CalculationCoverage `json:"coverage,omitempty"`
 }
 
 func overviewOf(v summaryTotals, in QueryInput) Overview {
@@ -86,6 +92,7 @@ func overviewOf(v summaryTotals, in QueryInput) Overview {
 func statisticOf(channel string, v summaryTotals, in QueryInput) (ChannelStatistic, error) {
 	s := v.samples(in.Qualities, in.Status == "history")
 	out := ChannelStatistic{N: decimalCount(s.N), Scale: queryDigits(in), Rounding: "half_even", Channel: channel, Overview: overviewOf(v, in), First: s.First.dto(channel), Last: s.Last.dto(channel), Min: s.Min.dto(channel), Max: s.Max.dto(channel), MinCount: decimalCount(s.MinCount), MaxCount: decimalCount(s.MaxCount), States: []EnumStatistic{}}
+	out.SourceKind = "direct"
 	if len(s.States) == 0 {
 		var e error
 		out.Mean, out.Stddev, e = s.moments(queryDigits(in))
@@ -147,7 +154,7 @@ func (s *Service) Analytics(ctx context.Context, a access.Actor, scope Scope, ac
 	} else if ok {
 		return cached, nil
 	}
-	out, e := s.computeAnalytic(ctx, scope.Tenant, action, in, plan, false)
+	out, e := s.computeAnalytic(ctx, a, scope, action, in, plan, false)
 	if errors.Is(e, errSummaryPending) || errors.Is(e, errQueryBudget) {
 		return s.queueAnalytic(ctx, a, scope, action, in, plan)
 	}
@@ -195,7 +202,8 @@ func decodeAnalyticCursor(plan queryPlan, action string, in QueryInput) (analyti
 	}
 	return c, nil
 }
-func (s *Service) computeAnalytic(ctx context.Context, tenant, action string, in QueryInput, plan queryPlan, background bool) (AnalyticResult, error) {
+func (s *Service) computeAnalytic(ctx context.Context, a access.Actor, scope Scope, action string, in QueryInput, plan queryPlan, background bool) (AnalyticResult, error) {
+	tenant := scope.Tenant
 	out := AnalyticResult{State: "ready", Snapshot: plan.snapshot, Computation: "immutable-minute-tree-v1"}
 	r := summaryReader{service: s, plan: plan, tenant: tenant, budget: 2048, rawBudget: 100000, nodes: map[string]*summaryNode{}}
 	if background {
@@ -207,6 +215,11 @@ func (s *Service) computeAnalytic(ctx context.Context, tenant, action string, in
 		return out, e
 	}
 	total := summaryTotals{}
+	derivedCounts := newCalculationCounts()
+	var derivedFirst, derivedLast *string
+	if action == "trends" && len(plan.channels) > 50 {
+		return out, invalid("selection_id", "单图最多比较 50 个通道，请分组显示。")
+	}
 	processed := 0
 	for _, channel := range plan.channels {
 		if len(plan.windows[channel]) == 0 {
@@ -224,6 +237,52 @@ func (s *Service) computeAnalytic(ctx context.Context, tenant, action string, in
 			return out, errQueryBudget
 		}
 		processed++
+		if _, derived := plan.vector.Calculated[channel]; derived {
+			stat, coverage, e := s.calculationStatistic(ctx, a, scope, channel, in, plan, background)
+			if e != nil {
+				return out, e
+			}
+			if action == "latest" {
+				status, e := s.calculationReader.CurrentCalculationStatus(ctx, a, scope, CalculationQuery{Heads: map[string]CalculationHead{channel: plan.vector.Calculated[channel]}, Windows: map[string][]Window{channel: plan.windows[channel]}, Range: queryWindow(in)}, coverage)
+				if e != nil {
+					return out, e
+				}
+				if stat.Last != nil {
+					status.LastValidOutput = stat.Last.Calculated
+				}
+				stat.CalculationStatus = &status
+			}
+			out.Coverage = append(out.Coverage, coverage...)
+			switch action {
+			case "overview":
+				derivedCounts.merge(*stat.Derived)
+				derivedFirst = earlierTime(derivedFirst, stat.Earliest)
+				derivedLast = laterTime(derivedLast, stat.Latest)
+			case "latest", "statistics":
+				if in.Period != "" {
+					groups, next, e := s.calculationCalendar(ctx, a, scope, channel, in, plan, background, stat, cursor.Start, in.Limit-len(out.Groups))
+					if e != nil {
+						return out, e
+					}
+					out.Groups = append(out.Groups, groups...)
+					if next != "" {
+						out.HasMore = true
+						out.NextCursor = encodeAnalyticCursor(plan, action, in, analyticCursor{Channel: channel, Start: next})
+						return out, nil
+					}
+					cursor.Start = ""
+				} else {
+					out.Channels = append(out.Channels, stat)
+				}
+			case "trends":
+				trend, e := s.calculationTrend(ctx, a, scope, channel, in, plan, background, stat, max(1, len(plan.channels)))
+				if e != nil {
+					return out, e
+				}
+				out.Trends = append(out.Trends, trend)
+			}
+			continue
+		}
 		root, e := s.readSummaryRoot(ctx, tenant, channel, plan.vector.Contents[channel])
 		if e != nil {
 			return out, e
@@ -268,6 +327,11 @@ func (s *Service) computeAnalytic(ctx context.Context, tenant, action string, in
 	}
 	if action == "overview" {
 		v := overviewOf(total, in)
+		if len(plan.vector.Calculated) > 0 {
+			v.Derived = &derivedCounts
+			v.Earliest = earlierTime(v.Earliest, derivedFirst)
+			v.Latest = laterTime(v.Latest, derivedLast)
+		}
 		out.Overview = &v
 	}
 	return out, nil

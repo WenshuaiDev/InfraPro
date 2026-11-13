@@ -28,6 +28,13 @@ func ancestorsTx(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facility Res
 	case Point:
 		parent = ptrValue(r.ComponentID)
 	case Channel:
+		if r.OwnerKind == "facility" {
+			break
+		}
+		if r.OwnerKind == "component" {
+			parent = ptrValue(r.ComponentID)
+			break
+		}
 		p, e := load(ctx, tx, scoped(t.Scope, Target{Facility: t.Facility, Kind: Point, ID: r.PointID}), false)
 		if e != nil {
 			return nil, e
@@ -104,7 +111,7 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 			return e
 		}
 		refs := map[string]engineering.Kind{f.TypeVersionID: engineering.TypeDefinition}
-		if r.Kind == Channel {
+		if r.Kind == Channel && r.SourceKind != "derived" {
 			refs[r.MetricVersionID] = engineering.MetricDefinition
 		}
 		out.Definitions, e = fixedDefinitions(ctx, tx, refs)
@@ -141,6 +148,8 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 				return e
 			}
 		} else {
+			out.Actions.CreateDerivedChannel = out.Actions.Add && access.RequireScopedTx(ctx, tx, a.ID, access.DerivedOperation("tenant", "channels.create"), t.Tenant) == nil && access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation("channel", "create"), t.Tenant) == nil
+			out.Actions.ManageCalculation = r.SourceKind == "derived" && actionAllowed(r, out.Ancestors, true).Edit && access.RequireScopedTx(ctx, tx, a.ID, access.DerivedOperation("tenant", "channels.configs.create"), t.Tenant) == nil
 			for i := range out.Ancestors {
 				out.Ancestors[i] = sourceProjection(out.Ancestors[i], auth)
 			}
@@ -285,7 +294,7 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target 
 				return e
 			}
 		}
-		if t.Kind == Channel {
+		if t.Kind == Channel && t.Point != "" {
 			if auth.Entry == "project" {
 				if _, _, e := projectGrantTx(ctx, tx, auth, scoped(t.Scope, Target{Kind: Point, Facility: t.Facility, ID: t.Point}), false); e != nil {
 					return e
@@ -322,7 +331,7 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target 
 				args = append(args, owner)
 			}
 		}
-		if t.Kind == Channel {
+		if t.Kind == Channel && t.Point != "" {
 			where += " AND r.point_id::text=$8"
 			args = append(args, t.Point)
 		}
@@ -455,7 +464,7 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, targ
 			refs[facility.TypeVersionID] = engineering.TypeDefinition
 		}
 		for _, change := range out.Items {
-			if change.ResourceKind == Channel {
+			if change.ResourceKind == Channel && change.After.SourceKind != "derived" {
 				refs[change.After.MetricVersionID] = engineering.MetricDefinition
 			}
 		}

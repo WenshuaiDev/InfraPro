@@ -1,5 +1,7 @@
 import { monitoringMethods, type MonitoringRequestOptions } from './monitoring';
 export type * from './monitoring';
+import { derivedMonitoringMethods } from './derived-monitoring';
+export type * from './derived-monitoring';
 import { deviceMethods } from './devices';
 export type * from './devices';
 import { resourceMethods } from './resources';
@@ -199,6 +201,7 @@ function accountMethods(base: string, timeoutMs: number) {
     ...engineeringMethods(request),
     ...resourceMethods(request),
     ...monitoringMethods(request,base),
+    ...derivedMonitoringMethods(request,base),
     invalidateMonitoringScope,
     monitoringRevision:(tenant:string,project?:string)=>`${monitoringRevisions.get(`${tenant}:${project??''}`)??''}:${monitoringEpochs.get(`${tenant}:${project??''}`)??0}`,
     onMonitoringRestriction(listener:(tenant:string,project:string|undefined,code:string,revision?:string)=>void){monitoringListeners.add(listener);return ()=>{monitoringListeners.delete(listener);};},

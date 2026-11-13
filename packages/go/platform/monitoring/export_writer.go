@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring/internal/observation"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoringvalue"
 	"github.com/apache/arrow-go/v18/parquet"
 	"github.com/apache/arrow-go/v18/parquet/file"
 	"github.com/apache/arrow-go/v18/parquet/schema"
@@ -114,6 +115,9 @@ func spreadsheetCell(v string) string {
 	return v
 }
 func exportNumeric(field ExportField, cells []exportCell) bool {
+	if field.Name == "value" && field.Type == "exact_text" && len(cells) >= len(detailExportFields) {
+		return cells[11].Text == "integer" || cells[11].Text == "decimal"
+	}
 	if field.Type == "int64" || field.Type == "decimal128_38_12" || field.Type == "computed_decimal_text" {
 		return true
 	}
@@ -148,7 +152,7 @@ func (w *exportWriter) write(cells []exportCell) error {
 			}
 			numeric := exportNumeric(w.fields[i], cells)
 			if w.fields[i].Type == "exact_text" && len(cells) != len(detailExportFields) {
-				_, e := observation.Coefficient(value, 12)
+				_, e := monitoringvalue.ParseDecimal(value)
 				numeric = e == nil
 			}
 			if w.mode == "spreadsheet_safe" && !numeric {

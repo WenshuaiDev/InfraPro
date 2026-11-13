@@ -12,6 +12,7 @@ import (
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
 	md "github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
@@ -19,6 +20,8 @@ import (
 )
 
 const monitoringHelp = `监测维护：infrapro monitoring <子命令> [选项]
+
+  derived                 派生计算检查、状态、对账、恢复核验及经业务 API 执行控制
 
   storage init/check/status        显式初始化或检查布局、双副本、在线对象层与缓存
   verify                    --tenant ID；只读对账
@@ -45,6 +48,9 @@ const monitoringHelp = `监测维护：infrapro monitoring <子命令> [选项]
 `
 
 func (a *App) monitoring(ctx context.Context, args []string) error {
+	if len(args) > 0 && args[0] == "derived" {
+		return a.monitoringDerived(ctx, args[1:])
+	}
 	if len(args) == 0 || slices.ContainsFunc(args, isHelp) {
 		return a.help(monitoringHelp)
 	}
@@ -124,8 +130,14 @@ func (a *App) monitoring(ctx context.Context, args []string) error {
 			if e == nil {
 				e = storage.Check(ctx)
 			}
+			if e == nil {
+				e = derivedmonitoring.InitializeStorage(ctx, storage)
+			}
 		} else {
 			e = storage.Check(ctx)
+			if e == nil {
+				e = derivedmonitoring.CheckStorage(ctx, storage)
+			}
 		}
 		if e != nil {
 			return e
@@ -146,7 +158,12 @@ func (a *App) monitoring(ctx context.Context, args []string) error {
 			return e
 		}
 	}
-	service := md.New(access.New(pool, slog.Default())).WithStorage(storage)
+	derivedCfg, e := config.LoadDerived(path)
+	if e != nil {
+		return e
+	}
+	business := runtime.Compose(access.New(pool, slog.Default()), storage).Configure(config.Config{Monitoring: cfg, Derived: derivedCfg})
+	service := business.Monitoring
 	waitJob := func(job string) error {
 		if !wait {
 			return output(map[string]string{"job_id": job, "state": "queued"})
@@ -288,7 +305,7 @@ func (a *App) monitoring(ctx context.Context, args []string) error {
 		return waitJob(job)
 	case "backup", "restore":
 		if action == "open" {
-			if e = md.OpenRestoredWrites(ctx, pool, storage, backupID, reason); e != nil {
+			if e = md.OpenRestoredWrites(ctx, pool, storage, backupID, reason, derivedmonitoring.NewRecovery(storage)); e != nil {
 				return e
 			}
 			return output(map[string]string{"backup_id": backupID, "state": "ready"})
@@ -297,7 +314,7 @@ func (a *App) monitoring(ctx context.Context, args []string) error {
 		if e != nil {
 			return e
 		}
-		opt := md.BackupOptions{Directory: directory, DatabaseURL: db.URL, PGContainer: pgContainer, Reason: reason, Store: md.BackupConfig{Endpoint: bc.Endpoint, AccessKey: bc.AccessKey, SecretKey: bc.SecretKey, Bucket: bc.Bucket, NamedCollection: bc.NamedCollection}}
+		opt := md.BackupOptions{Directory: directory, DatabaseURL: db.URL, PGContainer: pgContainer, Reason: reason, Store: md.BackupConfig{Endpoint: bc.Endpoint, AccessKey: bc.AccessKey, SecretKey: bc.SecretKey, Bucket: bc.Bucket, NamedCollection: bc.NamedCollection}, Calculations: derivedmonitoring.NewRecovery(storage)}
 		var v md.BackupManifest
 		if group == "backup" {
 			v, e = md.Backup(ctx, pool, storage, opt)

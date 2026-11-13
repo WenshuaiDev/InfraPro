@@ -65,6 +65,7 @@ const get=<T>(path:string,query:Record<string,string|undefined>={},signal?:Abort
 const post=<T>(path:string,input:unknown,signal?:AbortSignal)=>request<T>(path,'POST',input,true,signal,{timeoutMs:30000});
 return {
 monitoringPoints:(scope:MonitoringScope,query:{cursor?:string;search?:string;facility_id?:string;point_id?:string}={},signal?:AbortSignal)=>get<MonitoringPointPage>(`${monitoringRoot(scope)}/points`,query,signal),
+monitoringDirectory:(scope:MonitoringScope,query:{cursor?:string;search?:string;facility_id?:string;owner_kind?:'facility'|'component'|'point';owner_id?:string;source_kind?:'direct'|'derived';channel_id?:string}={},signal?:AbortSignal)=>get<MonitoringChannelPage>(`${monitoringRoot(scope)}/channels`,query,signal),
 monitoringChannels:(scope:MonitoringScope,point:string,cursor?:string,signal?:AbortSignal)=>get<MonitoringChannelPage>(`${monitoringRoot(scope)}/points/${id(point)}/channels`,{cursor},signal),
 monitoringChannelByID:(scope:MonitoringScope,point:string,channel:string,signal?:AbortSignal)=>get<MonitoringChannelPage>(`${monitoringRoot(scope)}/points/${id(point)}/channels`,{channel_id:channel},signal),
 monitoringSelect:(scope:MonitoringScope,input:MonitoringSelectionInput,signal?:AbortSignal)=>post<MonitoringSelection>(`${monitoringRoot(scope)}/selections`,input,signal),

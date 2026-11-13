@@ -85,9 +85,6 @@ func checkTarget(t scopedTarget) error {
 	if t.Kind != Facility && t.Facility == "" {
 		return notFound()
 	}
-	if t.Kind == Channel && t.Point == "" {
-		return notFound()
-	}
 	return nil
 }
 func notFound() *Error {
@@ -120,7 +117,7 @@ func load(ctx context.Context, tx pgx.Tx, t scopedTarget, deleted bool) (Resourc
 	if t.Kind != Facility {
 		where += " AND facility_id::text=$3"
 	}
-	if t.Kind == Channel {
+	if t.Kind == Channel && t.Point != "" {
 		where += " AND point_id::text=$4"
 	}
 	if !deleted {
@@ -130,7 +127,7 @@ func load(ctx context.Context, tx pgx.Tx, t scopedTarget, deleted bool) (Resourc
 	if t.Kind != Facility {
 		args = append(args, t.Facility)
 	}
-	if t.Kind == Channel {
+	if t.Kind == Channel && t.Point != "" {
 		args = append(args, t.Point)
 	}
 	var raw []byte

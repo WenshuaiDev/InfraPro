@@ -402,6 +402,18 @@ func TestStorageContract(t *testing.T) {
 			must(t, c.Exec(l.ctx, "ALTER TABLE "+l.db+".observations MOVE PARTITION 202401 TO DISK 'contract_s3'"))
 			must(t, l.verify(c, chunk, good, data))
 		}
+		// A bucket listing only checks filer metadata. After a restart the
+		// master and data volumes may still be recovering. Use a non-inline
+		// object written before the outage to qualify actual payload reads.
+		probeKey := "readiness/" + l.db
+		probe := strings.Repeat("restart-payload-", 8192)
+		_, err = client.PutObject(l.ctx, "contract-ch", probeKey, strings.NewReader(probe), int64(len(probe)), minio.PutObjectOptions{})
+		must(t, err)
+		t.Cleanup(func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = client.RemoveObject(ctx, "contract-ch", probeKey, minio.RemoveObjectOptions{})
+		})
 		compose(t, "stop", "s3")
 		defer compose(t, "start", "s3")
 		err = l.verify(l.ch[0], chunk, good, data)
@@ -410,7 +422,7 @@ func TestStorageContract(t *testing.T) {
 		}
 		t.Log("object outage fails explicitly")
 		compose(t, "start", "s3")
-		waitS3(t, client)
+		waitS3Object(t, client, "contract-ch", probeKey, probe)
 		must(t, l.verify(l.ch[0], chunk, good, data))
 	})
 }
@@ -475,6 +487,30 @@ func waitS3(t *testing.T, c *minio.Client) {
 		select {
 		case <-ctx.Done():
 			t.Fatal("S3 not ready", err)
+		case <-time.After(250 * time.Millisecond):
+		}
+	}
+}
+func waitS3Object(t *testing.T, c *minio.Client, bucket, key, expected string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(t.Context(), 20*time.Second)
+	defer cancel()
+	for {
+		object, err := c.GetObject(ctx, bucket, key, minio.GetObjectOptions{})
+		if err == nil {
+			var data []byte
+			data, err = io.ReadAll(object)
+			_ = object.Close()
+			if err == nil {
+				if string(data) != expected {
+					t.Fatal("S3 restart changed the readiness payload")
+				}
+				return
+			}
+		}
+		select {
+		case <-ctx.Done():
+			t.Fatal("S3 payload not ready after restart", err)
 		case <-time.After(250 * time.Millisecond):
 		}
 	}

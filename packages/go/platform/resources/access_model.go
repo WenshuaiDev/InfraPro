@@ -23,6 +23,7 @@ type Link struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 type Grant struct {
+	SourceKind   string   `json:"source_kind,omitempty"`
 	ID           string   `json:"id"`
 	LinkID       string   `json:"link_id"`
 	Kind         Kind     `json:"kind"`

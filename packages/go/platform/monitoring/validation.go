@@ -64,7 +64,7 @@ func semanticsTx(ctx context.Context, tx pgx.Tx, tenant string, ids []string, wr
 			return out, problem("resource_retired", "通道或祖先已退役，请按工程资源规则恢复后再补录。", 409)
 		}
 	}
-	rows, e := tx.Query(ctx, `SELECT c.id::text,c.metric_version_id::text,COALESCE(c.unit_version_id::text,''),COALESCE(u.content->'unit'->>'symbol',''),m.content->'metric'->>'shape',c.timestamp_meaning,c.observation_direction,c.reference_basis,m.content->'metric' FROM engineering_channels c JOIN engineering_versions m ON m.id=c.metric_version_id LEFT JOIN engineering_versions u ON u.id=c.unit_version_id WHERE c.tenant_id=$1 AND c.id=ANY($2::uuid[]) AND c.deleted_at IS NULL ORDER BY c.id`, tenant, ids)
+	rows, e := tx.Query(ctx, `SELECT c.id::text,c.metric_version_id::text,COALESCE(c.unit_version_id::text,''),COALESCE(u.content->'unit'->>'symbol',''),m.content->'metric'->>'shape',c.timestamp_meaning,c.observation_direction,c.reference_basis,m.content->'metric' FROM engineering_channels c JOIN engineering_versions m ON m.id=c.metric_version_id LEFT JOIN engineering_versions u ON u.id=c.unit_version_id WHERE c.tenant_id=$1 AND c.id=ANY($2::uuid[]) AND c.source_kind='direct' AND c.deleted_at IS NULL ORDER BY c.id`, tenant, ids)
 	if e != nil {
 		return out, e
 	}

@@ -1,0 +1,81 @@
+//go:build monitoringintegration
+
+// This test fixture is compiled only against the pinned v12 source archive.
+package resources_test
+
+import (
+ "encoding/json"
+ "log/slog"
+ "os"
+ "path/filepath"
+ "strings"
+ "testing"
+
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+ c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
+ d "github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
+ r "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+ "github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+ src "github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
+ "github.com/google/uuid"
+ "github.com/jackc/pgx/v5"
+ "github.com/jackc/pgx/v5/pgxpool"
+)
+
+func prepareLegacyUpgrade(t *testing.T, f monitoringFixture) map[string]string {
+ t.Helper()
+ b := runtime.Compose(f.env.Service.Access())
+ scope := d.TenantScope(f.tenant)
+ meta := func() c.Meta { return c.Meta{RequestID: uuid.NewString(), Reason:"旧版备份升级样本"} }
+ manufacturer,e := b.DeviceCatalog.CreateManufacturer(ctx,f.actor,c.TenantScope(f.tenant),c.ManufacturerCreate{Meta:meta(),Code:"LEGACY",Name:"旧设备厂家"},access.Meta{}); must(t,e)
+ product,e := b.DeviceCatalog.CreateProduct(ctx,f.actor,c.TenantScope(f.tenant),c.ProductCreate{Meta:meta(),ManufacturerID:manufacturer.ID,Code:"LEGACY",Name:"旧产品",Model:"L-12",OutputSlots:[]c.Slot{{Key:"x",Name:"位移",Mode:"fixed",MetricVersionID:f.metric,UnitVersionID:&f.unit,TimestampMeaning:"observation_time"}}},access.Meta{}); must(t,e)
+ product,e = b.DeviceCatalog.Publish(ctx,f.actor,c.TenantScope(f.tenant),product.ID,c.DraftRevision{Meta:meta(),Revision:"1"},access.Meta{}); must(t,e)
+ device,e := b.Devices.Create(ctx,f.actor,scope,d.DeviceCreate{Meta:meta(),Code:"LEGACY",Name:"旧版设备",ProductVersionID:product.VersionID},access.Meta{}); must(t,e)
+ slots,e := b.Devices.Slots(ctx,f.actor,scope,device.ID,d.Filter{}); must(t,e)
+ var facility,point string
+ must(t,f.env.Pool.QueryRow(ctx,`SELECT facility_id::text,point_id::text FROM engineering_channels WHERE id=$1`,f.channel).Scan(&facility,&point))
+ target := src.Target{FacilityID:facility,PointID:point,ChannelID:f.channel}
+ command := src.Bind(src.BindInput{Revisions:src.Revisions{Meta:meta(),SourceRevision:"0",ChannelRevision:"1"},NewEnd:src.NewEnd{OutputID:slots.Items[0].Current.ID,NewOutputRevision:"1",NewDeviceRevision:"1"}})
+ preview,e := b.Sources.Preview(ctx,f.actor,scope,target,command); must(t,e)
+ command.PreviewHash=preview.Hash
+ binding,e := b.Sources.Mutate(ctx,f.actor,scope,target,command,access.Meta{}); must(t,e)
+ retired := f.facility(t,"LEGACY-RETIRED")
+ _,e=f.write(t,r.Target{Kind:r.Facility,Facility:retired.ID,ID:retired.ID},"retire",map[string]any{"expected_revision":retired.Revision,"reason":"旧库退役历史"}); must(t,e)
+ deleted := f.facility(t,"LEGACY-DELETED")
+ _,e=f.write(t,r.Target{Kind:r.Facility,Facility:deleted.ID,ID:deleted.ID},"delete",map[string]any{"expected_revision":deleted.Revision,"reason":"旧库删除历史"}); must(t,e)
+ var role string
+ must(t,f.env.Pool.QueryRow(ctx,`INSERT INTO roles(name,name_normalized,description,binding_scope) VALUES('Legacy custom','legacy custom','upgrade preservation','platform') RETURNING id::text`).Scan(&role))
+ _,e=f.env.Pool.Exec(ctx,`INSERT INTO role_permissions(role_id,permission_code) VALUES($1,$2)`,role,access.ProfileRead); must(t,e)
+ return map[string]string{"device":device.ID,"binding":binding.BindingID,"facility":facility,"point":point,"retired":retired.ID,"deleted":deleted.ID,"custom_role":role}
+}
+
+func writeLegacyUpgradeProof(t *testing.T,f monitoringFixture,pool *pgxpool.Pool,proof map[string]string,actor access.Actor,projectActor,project string) {
+ t.Helper()
+ var schema string
+ must(t,pool.QueryRow(ctx,`SELECT current_schema()`).Scan(&schema))
+ proof["schema"],proof["tenant"],proof["channel"],proof["actor"],proof["project_actor"],proof["project"]=schema,f.tenant,f.channel,actor.ID,projectActor,project
+ rows,e:=pool.Query(ctx,`SELECT table_name,array_agg(column_name::text ORDER BY ordinal_position) FROM information_schema.columns WHERE table_schema=current_schema() AND table_name IN(SELECT tablename FROM pg_tables WHERE schemaname=current_schema()) AND table_name<>'goose_db_version' GROUP BY table_name ORDER BY table_name`); must(t,e)
+ type table struct { Columns []string `json:"columns"`; Hash string `json:"hash"`; Rows int64 `json:"rows"` }
+ tables:=map[string]table{}
+ for rows.Next(){var name string;var cols []string;must(t,rows.Scan(&name,&cols));tables[name]=table{Columns:cols}}
+ must(t,rows.Err());rows.Close()
+ for name,v:=range tables {
+  cols:=make([]string,len(v.Columns));for i,col:=range v.Columns{cols[i]=pgx.Identifier{col}.Sanitize()}
+  must(t,pool.QueryRow(ctx,`SELECT md5(COALESCE(jsonb_agg(to_jsonb(r) ORDER BY to_jsonb(r)::text)::text,'[]')),count(*) FROM (SELECT `+strings.Join(cols,",")+` FROM `+pgx.Identifier{name}.Sanitize()+`)r`).Scan(&v.Hash,&v.Rows));tables[name]=v
+ }
+ // Verify the restored hardware binding through the old public service too.
+ b:=runtime.Compose(access.New(pool,slog.Default()))
+ current,e:=b.Sources.Current(ctx,actor,d.TenantScope(f.tenant),src.Target{FacilityID:proof["facility"],PointID:proof["point"],ChannelID:f.channel});must(t,e)
+ if current.Source.ID!=proof["binding"]{t.Fatal("legacy backup lost device binding")}
+ raw,e:=json.MarshalIndent(map[string]any{"identity":proof,"tables":tables,"migration_version":12},"","  ");must(t,e)
+ must(t,os.WriteFile(filepath.Join(os.Getenv("INFRAPRO_RESTORE_ARTIFACTS"),"legacy-proof.json"),raw,0600))
+}
+
+func TestLegacyRejectsNewMigration(t *testing.T){
+ raw,e:=os.ReadFile(filepath.Join(os.Getenv("INFRAPRO_RESTORE_ARTIFACTS"),"legacy-proof.json"));must(t,e)
+ var proof struct{Identity map[string]string `json:"identity"`};must(t,json.Unmarshal(raw,&proof))
+ pool,e:=pgxpool.New(ctx,"postgres://restore_local:restore-local-test-only@127.0.0.1:57432/restore_local?search_path="+proof.Identity["schema"]);must(t,e);defer pool.Close()
+ if e=migrations.Check(ctx,pool);e==nil{t.Fatal("v12 instance accepted the upgraded database")}
+ t.Log("v12 readiness refuses the new migration; old write instance cannot start")
+}

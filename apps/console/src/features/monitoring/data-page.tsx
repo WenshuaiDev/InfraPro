@@ -49,7 +49,8 @@ function NewDataNotice({query,fixed}:{query:MonitoringQuery;fixed:MonitoringAnal
   return changed?<p role="status" className="rounded-lg border bg-muted/50 p-3 text-sm">有新数据。当前窗口仍保留固定快照；使用“刷新数据”查看最新结果。</p>:null;
 }
 function OverviewCards({ overview, compact = false }: { overview: MonitoringOverview; compact?: boolean }) {
-  const items = [['累计曾发布观测', overview.ever_published_count, '按原观测去重，撤销后仍保留'], ['当前在用观测', overview.active_count, '已采用且未撤销，包含全部质量'], ['当前筛选样本', overview.sample_count, '仅纳入所选质量的在用样本']];
+  const items = [['直接观测累计唯一数', overview.ever_published_count, '按原观测去重，撤销后仍保留'], ['直接观测在用数', overview.active_count, '已采用且未撤销，包含全部质量'], ['直接观测筛选样本', overview.sample_count, '仅纳入所选质量的在用样本']];
+  if (overview.derived) items.push(['派生逻辑输出', overview.derived.logical_output_count, '仅当前正式集合，不重复累计历史代次'], ['派生有效结果', overview.derived.valid_result_count, '计算有效且具有规范数值'], ['派生无结果', overview.derived.no_result_count, '明确的计算状态；不作为零值']);
   return <div className="space-y-3"><div className="grid gap-3 sm:grid-cols-3">{items.map(([label, value, hint]) => <div key={label} className={`min-w-0 rounded-xl border bg-card ${compact ? 'p-3' : 'p-4'}`}><h3 className="text-sm font-medium text-muted-foreground">{label}</h3><p className={`my-2 break-all font-semibold tabular-nums ${compact ? 'text-xl' : 'text-2xl'}`}>{count(value)}</p><p className="text-xs text-muted-foreground">{hint}</p></div>)}</div><div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">{Object.entries(overview.quality_counts).map(([q, n]) => <span key={q}>{qualityNames[q]} {count(n)}</span>)}</div><p className="break-words text-xs text-muted-foreground">当前覆盖：{overview.earliest ?? '无数据'} 至 {overview.latest ?? '无数据'}</p></div>;
 }
 function TimeWindow({ range, latest, earliest, onChange }: { range: MonitoringRange; latest?: string; earliest?: string; onChange: (range: MonitoringRange) => void }) {

@@ -28,7 +28,7 @@ export function decimalCoefficient(value: string): bigint {
   if (!/^\d+$/.test(integer ?? '') || !/^\d{0,12}$/.test(fraction)) throw new Error('不支持的十进制原值。');
   return (negative ? -1n : 1n) * BigInt(`${integer}${fraction.padEnd(12, '0')}`);
 }
-export const compatibility = (channel: MonitoringChannel) => JSON.stringify([channel.metric_version_id, channel.unit, channel.value_kind, channel.timestamp_meaning, channel.observation_direction, channel.reference_basis]);
+export const compatibility = (channel: MonitoringChannel) => JSON.stringify([channel.source_kind, channel.metric_version_id || channel.output_contract_hash, channel.unit, channel.value_kind, channel.timestamp_meaning, channel.observation_direction, channel.reference_basis]);
 
 export function shiftRange(range: MonitoringRange, shift: bigint): MonitoringRange {
   const from = range.from ? parseNS(range.from) : MIN_NS, to = range.to ? parseNS(range.to) : MAX_NS;

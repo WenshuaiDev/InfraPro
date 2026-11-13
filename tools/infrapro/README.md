@@ -26,3 +26,7 @@ GOWORK=off go build -o ../../build/bin/infrapro ./cmd/infrapro
 ## 权限维护
 
 `infrapro access sync` 同步目录和内置角色，`access check` 只读检查，`access recover-admin --username ... --reason ...` 为已有账号添加管理员角色绑定。首次 bootstrap 前必须同步目录；恢复角色不恢复停用状态或历史凭证。详见[架构设计：运行维护](../../docs/architecture.md#migrations)。
+
+## 派生监测与分析
+
+`pnpm infrapro monitoring derived --help` 提供就绪检查、状态、只读对账／恢复核对，以及通过真实 API 会话执行的暂停、恢复、历史回算和原依据回放。业务命令使用受保护的会话文件及预览收据，不能通过账号 ID 冒充登录。完整步骤和权限边界见[派生监测与分析使用、维护说明](../../docs/operations/derived-monitoring-and-analysis.md)。

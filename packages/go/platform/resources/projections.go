@@ -14,6 +14,20 @@ func (r Resource) MarshalJSON() ([]byte, error) {
 		return json.Marshal(ContextNode{ID: r.ID, Kind: r.Kind, Code: r.Code, Name: r.Name, CategoryKey: r.CategoryKey, ParentComponentID: r.ParentComponentID, ComponentID: r.ComponentID, PointID: r.PointID, FacilityID: r.FacilityID, Status: r.Status, Visibility: "context"})
 	}
 	type plain Resource
+	if r.Kind == Channel {
+		type metricRef struct {
+			Kind      string `json:"kind"`
+			VersionID string `json:"version_id"`
+		}
+		kind, version := "engineering", r.MetricVersionID
+		if r.SourceKind == "derived" {
+			kind, version = "derived", r.DerivedMetricVersionID
+		}
+		return json.Marshal(struct {
+			plain
+			MetricRef metricRef `json:"metric_ref"`
+		}{plain(r), metricRef{kind, version}})
+	}
 	return json.Marshal(plain(r))
 }
 

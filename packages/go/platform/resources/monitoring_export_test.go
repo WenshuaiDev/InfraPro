@@ -5,6 +5,7 @@ package resources_test
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"io"
 	"math/big"
 	"strings"
@@ -17,6 +18,8 @@ import (
 	"github.com/apache/arrow-go/v18/parquet"
 	"github.com/apache/arrow-go/v18/parquet/file"
 	"github.com/apache/arrow-go/v18/parquet/schema"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func (f monitoringFixture) completeExport(t *testing.T, in md.ExportInput) md.ExportManifest {
@@ -34,7 +37,7 @@ func (f monitoringFixture) completeExport(t *testing.T, in md.ExportInput) md.Ex
 		if job.State != "queued" && job.State != "running" {
 			t.Fatal(job)
 		}
-		worked, e := f.service.RunOne(ctx, "export-test-worker")
+		worked, e := f.service.RunTask(ctx, "export-test-worker", f.tenant, result.JobID)
 		must(t, e)
 		if !worked {
 			t.Fatal("export not claimed")
@@ -68,7 +71,7 @@ func TestMonitoringExportFixedSnapshotAndTypedParquet(t *testing.T) {
 	_, e = f.service.ExportFiles(ctx, f.actor, f.scope, queued.ID)
 	monitoringCode(t, e, "export_not_ready")
 	f.publish(t, f.validate(t, f.upload(t, "observed_at,value,quality\n2025-01-01T00:00:00Z,99,good\n")))
-	worked, e := f.service.RunOne(ctx, "export-fixed-test")
+	worked, e := f.service.RunTask(ctx, "export-fixed-test", f.tenant, queued.JobID)
 	must(t, e)
 	if !worked {
 		t.Fatal("no export worker")
@@ -192,7 +195,7 @@ func TestMonitoringExportCommitFailureAndArchivedProject(t *testing.T) {
 	must(t, e)
 	_, e = f.env.Pool.Exec(ctx, `CREATE FUNCTION test_export_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.manifest_object IS NOT NULL THEN RAISE EXCEPTION 'synthetic export manifest commit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER test_export_failure BEFORE UPDATE ON monitoring_exports FOR EACH ROW EXECUTE FUNCTION test_export_failure()`)
 	must(t, e)
-	worked, e := f.service.RunOne(ctx, "failed-export-commit")
+	worked, e := f.service.RunTask(ctx, "failed-export-commit", f.tenant, result.JobID)
 	if !worked || e == nil {
 		t.Fatal("fault did not block manifest publication", worked, e)
 	}
@@ -200,7 +203,7 @@ func TestMonitoringExportCommitFailureAndArchivedProject(t *testing.T) {
 	monitoringCode(t, e, "export_not_ready")
 	_, e = f.env.Pool.Exec(ctx, `DROP TRIGGER test_export_failure ON monitoring_exports; DROP FUNCTION test_export_failure(); UPDATE monitoring_jobs SET available_at=clock_timestamp()-interval '1 second' WHERE kind='export' AND state='retry_wait'`)
 	must(t, e)
-	worked, e = f.service.RunOne(ctx, "recovered-export")
+	worked, e = f.service.RunTask(ctx, "recovered-export", f.tenant, result.JobID)
 	must(t, e)
 	if !worked {
 		t.Fatal("export retry missing")
@@ -241,7 +244,22 @@ func TestMonitoringExportCommitFailureAndArchivedProject(t *testing.T) {
 		t.Fatal("archived export empty")
 	}
 	_, e = f.env.Pool.Exec(ctx, `UPDATE monitoring_exports SET expires_at=clock_timestamp()-interval '1 second' WHERE id=$1`, archived.ID)
-	must(t, e)
+	var guard *pgconn.PgError
+	if !errors.As(e, &guard) || guard.Code != "23514" {
+		t.Fatal("export expiry identity was mutable", e)
+	}
+	// Simulate seven days passing only in this disposable schema. Restore the
+	// exact guard in the same transaction; production never edits the expiry.
+	must(t, pgx.BeginFunc(ctx, f.env.Pool, func(tx pgx.Tx) error {
+		if _, e := tx.Exec(ctx, `ALTER TABLE monitoring_exports DISABLE TRIGGER monitoring_export_source_guard`); e != nil {
+			return e
+		}
+		if _, e := tx.Exec(ctx, `UPDATE monitoring_exports SET expires_at=clock_timestamp()-interval '1 second' WHERE id=$1`, archived.ID); e != nil {
+			return e
+		}
+		_, e := tx.Exec(ctx, `ALTER TABLE monitoring_exports ENABLE TRIGGER monitoring_export_source_guard`)
+		return e
+	}))
 	_, e = pf.service.ExportFiles(ctx, pf.actor, pf.scope, archived.ID)
 	monitoringCode(t, e, "export_expired")
 }

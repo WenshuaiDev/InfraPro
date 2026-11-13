@@ -15,19 +15,21 @@ type ImpactProject struct {
 	Status string `json:"status"`
 }
 type MutationPreview struct {
-	DeviceReferences       bool                     `json:"device_references"`
-	MonitoringReferences   bool                     `json:"monitoring_references"`
-	PreservesInstallations bool                     `json:"preserves_installations"`
-	PreservesSources       bool                     `json:"preserves_sources"`
-	Hash                   string                   `json:"preview_hash"`
-	Required               bool                     `json:"required"`
-	CanSubmit              bool                     `json:"can_submit"`
-	Shared                 bool                     `json:"shared"`
-	BlockedCode            string                   `json:"blocked_code,omitempty"`
-	BlockedReason          string                   `json:"blocked_reason,omitempty"`
-	Changes                []engineering.Difference `json:"changes"`
-	Projects               []ImpactProject          `json:"projects,omitempty"`
-	Dependencies           map[string]int           `json:"dependencies,omitempty"`
+	CalculationReferences   bool                     `json:"calculation_references"`
+	ActiveDerivedDependents bool                     `json:"active_derived_dependents"`
+	DeviceReferences        bool                     `json:"device_references"`
+	MonitoringReferences    bool                     `json:"monitoring_references"`
+	PreservesInstallations  bool                     `json:"preserves_installations"`
+	PreservesSources        bool                     `json:"preserves_sources"`
+	Hash                    string                   `json:"preview_hash"`
+	Required                bool                     `json:"required"`
+	CanSubmit               bool                     `json:"can_submit"`
+	Shared                  bool                     `json:"shared"`
+	BlockedCode             string                   `json:"blocked_code,omitempty"`
+	BlockedReason           string                   `json:"blocked_reason,omitempty"`
+	Changes                 []engineering.Difference `json:"changes"`
+	Projects                []ImpactProject          `json:"projects,omitempty"`
+	Dependencies            map[string]int           `json:"dependencies,omitempty"`
 }
 
 func (s *Service) PreviewMutation(ctx context.Context, a access.Actor, scope Scope, target Target, action string, raw json.RawMessage) (MutationPreview, error) {
@@ -71,6 +73,8 @@ func (s *Service) mutationImpact(ctx context.Context, tx pgx.Tx, auth authorizat
 		state = fingerprint([]any{state, external.Hash})
 		out.DeviceReferences = external.DeviceReferenced
 		out.MonitoringReferences = external.MonitoringReferenced
+		out.CalculationReferences = external.CalculationReferenced
+		out.ActiveDerivedDependents = external.ActiveDerivedDependents
 		out.PreservesInstallations = external.CurrentInstallation
 		out.PreservesSources = external.CurrentSource
 	}

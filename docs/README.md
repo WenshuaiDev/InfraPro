@@ -20,6 +20,16 @@
 
 两份方案继续独立维护；用户已确认实施并调整为优先本机功能，[开发与自验记录](verification/monitoring-data.md)分别记录阶段结果和待验证事项。它们引用的[旧项目资源方案地址](requirements/project-resource-management-refactor-plan.md)仅保留跳转说明，正文已并入主文档。
 
+## 派生监测与分析：独立实施
+
+- [已确认范围与验收方案](requirements/derived-monitoring-and-analysis-plan.md)
+- [详细开发方案](requirements/derived-monitoring-and-analysis-development-plan.md)
+- [实施、自验与需求完成账本](verification/derived-monitoring-and-analysis.md)
+- [派生监测与分析使用、维护说明](operations/derived-monitoring-and-analysis.md)
+- [派生监测与分析人工验收手册](acceptance/derived-monitoring-and-analysis.md)
+
+2026-11-13 全部派生监测与分析功能及必要功能自验完成，功能状态为 **Awaiting acceptance**，待用户人工验收。2026-11-13用户明确暂缓性能、压力与长时观察，本轮继续完成全部功能和必要功能自验。验证记录区分软件自验、暂缓未验证项及人工验收；基础监测两份方案保持独立维护。
+
 ## 内容归属
 
 | 原文档主题 | 需求归入 | 设计／运行归入 |

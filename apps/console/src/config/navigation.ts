@@ -7,7 +7,7 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string') return '/';
- if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?monitoring(?:/imports(?:/${uuid})?|/batches/${uuid}|/jobs)?$`).test(value) || new RegExp(`^/t/${uuid}/projects/${uuid}/monitoring-access$`).test(value)) return value;
+ if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?monitoring(?:/imports(?:/${uuid})?|/batches/${uuid}|/jobs|/derived(?:/${uuid})?|/derived-definitions|/derived-runs|/analysis(?:/${uuid})?)?$`).test(value) || new RegExp(`^/t/${uuid}/projects/${uuid}/monitoring-access$`).test(value)) return value;
  if (new RegExp(`^/platform/device-products(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/(?:device-products(?:/${uuid})?|devices(?:/${uuid})?|projects/${uuid}/device-access|p/${uuid}/(?:devices(?:/${uuid})?|device-outputs/${uuid}))$`).test(value)) return value;
  if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?resources/facilities(?:/${uuid})?$`).test(value) || new RegExp(`^/t/${uuid}/resource-access(?:/${uuid}(?:/facilities/${uuid})?)?$`).test(value)) return value;
  if (/^\/platform\/engineering\/(type-definitions|metrics|units|monitoring-templates)$/.test(value) || new RegExp(`^/t/${uuid}/engineering/(templates|catalog/(type-definitions|metrics|units|monitoring-templates))$`).test(value)) return value;
@@ -128,5 +128,9 @@ function monitoringNavigation(base: string, path: string, can: (permission: Perm
  ...(read?[{title:"监测浏览",href:`${base}/monitoring`,icon:Activity,active:path===`${base}/monitoring`||path===`${base}/monitoring/`}]:[]),
  ...(imports?[{title:"导入与批次",href:`${base}/monitoring/imports`,icon:Upload,active:path.startsWith(`${base}/monitoring/imports`)||path.startsWith(`${base}/monitoring/batches`)}]:[]),
  ...(read||imports?[{title:"监测任务",href:`${base}/monitoring/jobs`,icon:ListChecks,active:path===`${base}/monitoring/jobs`}]:[]),
+ ...(tenant&&can(P.TenantDerivedMetricsRead)?[{title:"派生指标定义",href:`${base}/monitoring/derived-definitions`,icon:BookOpen,active:path===`${base}/monitoring/derived-definitions`}]:[]),
+ ...(can(tenant?P.TenantDerivedChannelsRead:P.ProjectDerivedChannelsRead)?[{title:"派生通道",href:`${base}/monitoring/derived`,icon:Activity,active:path===`${base}/monitoring/derived`||path.startsWith(`${base}/monitoring/derived/`)}]:[]),
+ ...(can(tenant?P.TenantDerivedAnalysisRead:P.ProjectDerivedAnalysisRead)||can(tenant?P.TenantDerivedAnalysisResultsRead:P.ProjectDerivedAnalysisResultsRead)?[{title:"历史分析",href:`${base}/monitoring/analysis`,icon:ClipboardList,active:path.startsWith(`${base}/monitoring/analysis`)}]:[]),
+ ...((can(tenant?P.TenantDerivedRunsRead:P.ProjectDerivedRunsRead)||can(tenant?P.TenantDerivedAnalysisExport:P.ProjectDerivedAnalysisExport))?[{title:"计算运行",href:`${base}/monitoring/derived-runs`,icon:ListChecks,active:path===`${base}/monitoring/derived-runs`}]:[]),
  ];
 }

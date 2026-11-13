@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"math/rand/v2"
+	"slices"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -96,6 +99,19 @@ func assertJobTx(ctx context.Context, tx pgx.Tx, j Job) error {
 // RunOne is shared by the standalone worker and integration fault tests. A claim
 // is durable; expired claims are fenced off before a replacement can execute.
 func (s *Service) RunOne(ctx context.Context, owner string) (bool, error) {
+	return s.runOne(ctx, owner, "", "")
+}
+
+// RunTask attempts one explicitly authorized run inline. The same claim,
+// heartbeat, executor and fencing protocol is used by background workers.
+// If another worker already owns it, the caller returns the pending job.
+func (s *Service) RunTask(ctx context.Context, owner, tenant, id string) (bool, error) {
+	if !access.ValidID(tenant) || !access.ValidID(id) {
+		return false, notFound()
+	}
+	return s.runOne(ctx, owner, tenant, id)
+}
+func (s *Service) runOne(ctx context.Context, owner, tenant, taskID string, queueFilter ...string) (bool, error) {
 	if e := s.requireStorage(); e != nil {
 		return false, e
 	}
@@ -103,20 +119,28 @@ func (s *Service) RunOne(ctx context.Context, owner string) (bool, error) {
 		return false, e
 	}
 	var j Job
+	queue := ""
+	if len(queueFilter) > 0 {
+		queue = queueFilter[0]
+	}
 	claimed := false
 	e := s.db(ctx, func(tx pgx.Tx) error {
 		var id string
-		e := tx.QueryRow(ctx, `SELECT id::text FROM monitoring_jobs WHERE kind IN ('validate','publish','summary','export','relocate','verify') AND ((SELECT mode FROM monitoring_environment_state WHERE id=1)='ready' OR actor_id IS NULL AND kind IN ('summary','verify')) AND attempts<5 AND NOT cancel_requested AND NOT (kind='summary' AND input->>'mode'='maintenance' AND EXISTS(SELECT 1 FROM monitoring_channel_versions v WHERE v.tenant_id=monitoring_jobs.tenant_id AND v.channel_id=target_id AND v.quarantined)) AND ((state IN ('queued','retry_wait') AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<clock_timestamp())) ORDER BY CASE WHEN kind='summary' AND input->>'mode'='rebuild' THEN -1 WHEN kind IN ('validate','publish') THEN 0 WHEN actor_id IS NOT NULL THEN 1 ELSE 2 END,available_at,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1`).Scan(&id)
+		e := tx.QueryRow(ctx, `SELECT id::text FROM monitoring_jobs WHERE kind=ANY($1::text[]) AND ($2::uuid IS NULL OR tenant_id=$2) AND ($3::uuid IS NULL OR id=$3) AND ($4='' OR `+taskQueueSQL+`=$4) AND ((SELECT mode FROM monitoring_environment_state WHERE id=1)='ready' OR actor_id IS NULL AND kind IN ('summary','verify')) AND attempts<$5 AND NOT cancel_requested AND NOT (kind='summary' AND input->>'mode'='maintenance' AND EXISTS(SELECT 1 FROM monitoring_channel_versions v WHERE v.tenant_id=monitoring_jobs.tenant_id AND v.channel_id=target_id AND v.quarantined)) AND ((state IN ('queued','retry_wait') AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<clock_timestamp())) ORDER BY CASE WHEN available_at<clock_timestamp()-interval '30 seconds' THEN 0 WHEN `+taskQueueSQL+`='foreground' THEN 1 ELSE 2 END,COALESCE((SELECT f.last_claimed_at FROM monitoring_queue_fairness f WHERE f.tenant_id=monitoring_jobs.tenant_id AND f.queue=`+taskQueueSQL+`),'-infinity'::timestamptz),CASE WHEN available_at<clock_timestamp()-interval '30 seconds' THEN -1 WHEN input->>'mode'='trial' THEN 0 WHEN kind IN ('validate','publish') THEN 1 ELSE 2 END,available_at,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1`, s.claimKinds(), nullable(tenant), nullable(taskID), queue, s.workers.MaxAttempts).Scan(&id)
 		if e == pgx.ErrNoRows {
 			return nil
 		}
 		if e != nil {
 			return e
 		}
-		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='running',fence=fence+1,attempts=attempts+1,lease_owner=$2,lease_until=clock_timestamp()+interval '30 seconds',revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id, owner); e != nil {
+		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='running',fence=fence+1,attempts=attempts+1,lease_owner=$2,lease_until=clock_timestamp()+($3::bigint * interval '1 millisecond'),revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id, owner, s.workers.Lease.Milliseconds()); e != nil {
 			return e
 		}
 		j, e = scanJob(tx.QueryRow(ctx, jobSelect+` WHERE id=$1`, id))
+		if e != nil {
+			return e
+		}
+		_, e = tx.Exec(ctx, `INSERT INTO monitoring_queue_fairness(tenant_id,queue,last_claimed_at) SELECT tenant_id,`+taskQueueSQL+`,clock_timestamp() FROM monitoring_jobs WHERE id=$1 ON CONFLICT(tenant_id,queue) DO UPDATE SET last_claimed_at=EXCLUDED.last_claimed_at`, id)
 		claimed = e == nil
 		return e
 	})
@@ -125,24 +149,33 @@ func (s *Service) RunOne(ctx context.Context, owner string) (bool, error) {
 	}
 	work, cancel := context.WithCancel(ctx)
 	work = TraceContext(work, j.TraceID)
+	RecordTaskIdentity(work, map[string]string{"task_id": j.ID, "fence": strconv.FormatInt(j.fence, 10)})
 	done := make(chan struct{})
 	heartbeatDone := make(chan struct{})
 	go func() {
 		defer close(heartbeatDone)
-		ticker := time.NewTicker(5 * time.Second)
+		ticker := time.NewTicker(s.workers.Heartbeat)
 		defer ticker.Stop()
+		cancellation := time.NewTicker(time.Second)
+		defer cancellation.Stop()
 		for {
 			select {
 			case <-done:
 				return
 			case <-work.Done():
 				return
+			case <-cancellation.C:
+				if e := s.db(work, func(tx pgx.Tx) error { return assertJobTx(work, tx, j) }); e != nil {
+					cancel()
+					return
+				}
 			case <-ticker.C:
+				observeTaskMemory(work)
 				e := s.jobTransaction(work, j, func(tx pgx.Tx) error {
 					if e := assertJobTx(work, tx, j); e != nil {
 						return e
 					}
-					_, e := tx.Exec(work, `UPDATE monitoring_jobs SET lease_until=clock_timestamp()+interval '30 seconds',updated_at=clock_timestamp() WHERE id=$1`, j.ID)
+					_, e := tx.Exec(work, `UPDATE monitoring_jobs SET lease_until=clock_timestamp()+($2::bigint * interval '1 millisecond'),updated_at=clock_timestamp() WHERE id=$1`, j.ID, s.workers.Lease.Milliseconds())
 					return e
 				})
 				if e != nil {
@@ -165,8 +198,27 @@ func (s *Service) RunOne(ctx context.Context, owner string) (bool, error) {
 		e = s.relocateJob(work, j)
 	case "verify":
 		e = s.verifyJob(work, j)
+	default:
+		if executor := s.executors[j.Kind]; executor != nil {
+			lease := TaskLease{s, j}
+			e = lease.Check(work)
+			if e == nil {
+				e = executor.ExecuteTask(work, lease)
+			}
+		} else {
+			e = access.ErrDenied
+		}
 	}
-	LogOperation(work, "job."+j.Kind, map[bool]int{true: 500, false: 200}[e != nil], 0, errors.Is(e, context.Canceled))
+	if e != nil && ctx.Value(interactiveTaskKey{}) == true && errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		e = &TaskError{Code: "background_required", Message: "完整试算已转后台执行。", Disposition: "background"}
+	}
+	status := map[bool]int{true: 500, false: 200}[e != nil]
+	var handoff *TaskError
+	if errors.As(e, &handoff) && handoff.Disposition == "background" {
+		status = 202
+	}
+	RecordTaskIdentity(work, map[string]string{"error_code": jobError(e)})
+	LogOperation(work, "job."+j.Kind, status, 0, errors.Is(e, context.Canceled))
 	close(done)
 	cancel()
 	<-heartbeatDone
@@ -184,7 +236,7 @@ func (s *Service) RunOne(ctx context.Context, owner string) (bool, error) {
 func (s *Service) reapExpiredJobs(ctx context.Context) error {
 	var candidates []Job
 	e := s.db(ctx, func(tx pgx.Tx) error {
-		rows, e := tx.Query(ctx, jobSelect+` WHERE state='running' AND lease_until<clock_timestamp() AND (attempts>=5 OR cancel_requested) ORDER BY id LIMIT 50`)
+		rows, e := tx.Query(ctx, jobSelect+` WHERE state='running' AND lease_until<clock_timestamp() AND (attempts>=$1 OR cancel_requested) ORDER BY id LIMIT 50`, s.workers.MaxAttempts)
 		if e != nil {
 			return e
 		}
@@ -217,7 +269,7 @@ func (s *Service) reapExpiredJobs(ctx context.Context) error {
 			if e := devicecoord.Tenant(ctx, tx, j.tenant, true); e != nil {
 				return e
 			}
-			result, e := tx.Exec(ctx, `UPDATE monitoring_jobs SET state=CASE WHEN cancel_requested THEN 'cancelled' ELSE 'failed' END,error_code='job_attempts_exhausted',lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1 AND state='running' AND fence=$2 AND lease_until<clock_timestamp() AND (attempts>=5 OR cancel_requested)`, j.ID, j.fence)
+			result, e := tx.Exec(ctx, `UPDATE monitoring_jobs SET state=CASE WHEN cancel_requested THEN 'cancelled' ELSE 'failed' END,error_code='job_attempts_exhausted',lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1 AND state='running' AND fence=$2 AND lease_until<clock_timestamp() AND (attempts>=$3 OR cancel_requested)`, j.ID, j.fence, s.workers.MaxAttempts)
 			if e != nil || result.RowsAffected() == 0 {
 				return e
 			}
@@ -233,37 +285,75 @@ func (s *Service) reapExpiredJobs(ctx context.Context) error {
 	return nil
 }
 func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
-	owner := uuid.NewString()
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	nextVerification := time.Time{}
-	for {
-		if time.Now().After(nextVerification) {
-			nextVerification = time.Now().Add(time.Minute)
-			if e := s.scheduleVerification(ctx); e != nil && ctx.Err() == nil {
-				logger.Warn("monitoring reconciliation scheduling incomplete", "code", jobError(e))
+	work, cancel := context.WithCancel(ctx)
+	defer cancel()
+	var workers sync.WaitGroup
+	workers.Go(func() {
+		tick := time.NewTicker(time.Second)
+		defer tick.Stop()
+		nextVerification := time.Time{}
+		for {
+			if work.Err() != nil {
+				return
+			}
+			if s.scheduler != nil {
+				if e := s.scheduler.Tick(work, time.Now()); e != nil && work.Err() == nil {
+					logger.Warn("monitoring calculation scheduling incomplete", "code", jobError(e))
+				}
+			}
+			if time.Now().After(nextVerification) {
+				nextVerification = time.Now().Add(time.Minute)
+				if e := s.scheduleVerification(work); e != nil && work.Err() == nil {
+					logger.Warn("monitoring reconciliation scheduling incomplete", "code", jobError(e))
+				}
+			}
+			select {
+			case <-work.Done():
+				return
+			case <-tick.C:
 			}
 		}
-		worked, e := s.RunOne(ctx, owner)
-		if ctx.Err() != nil {
-			return nil
-		}
-		if e != nil {
-			logger.Warn("monitoring task incomplete", "code", jobError(e))
-		}
-		if worked {
-			continue
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-ticker.C:
+	})
+	lane := func(queue string) {
+		owner := uuid.NewString()
+		tick := time.NewTicker(time.Second)
+		defer tick.Stop()
+		for {
+			if work.Err() != nil {
+				return
+			}
+			worked, e := s.runOne(work, owner, "", "", queue)
+			if e != nil && work.Err() == nil {
+				logger.Warn("monitoring task incomplete", "queue", queue, "code", jobError(e))
+			}
+			if worked {
+				continue
+			}
+			select {
+			case <-work.Done():
+				return
+			case <-tick.C:
+			}
 		}
 	}
+	for i := 0; i < s.workers.Foreground; i++ {
+		workers.Go(func() { lane("foreground") })
+	}
+	for i := 0; i < s.workers.Historical; i++ {
+		workers.Go(func() { lane("historical") })
+	}
+	<-work.Done()
+	cancel()
+	workers.Wait()
+	return nil
 }
 func jobError(e error) string {
 	if e == nil {
 		return ""
+	}
+	var task *TaskError
+	if errors.As(e, &task) {
+		return task.Code
 	}
 	var problem *Error
 	if errors.As(e, &problem) {
@@ -291,21 +381,43 @@ func (s *Service) finishJob(ctx context.Context, j Job, cause error) error {
 			return nil
 		}
 		next, code := "succeeded", jobError(cause)
+		waiting, background := false, false
 		if cancelled {
 			next = "cancelled"
 		} else if cause != nil {
 			next = "failed"
 			if code == "route_paused" || code == "route_changed" || code == "authorization_changed" || code == "content_changed" || code == "revision_changed" || code == "monitoring_not_found" || code == "resource_retired" || code == "snapshot_stale" || code == "snapshot_expired" || code == "export_invalidated" || code == "selection_stale" {
 				next = "needs_action"
-			} else if j.Attempts < 5 {
+			} else if j.Attempts < s.workers.MaxAttempts {
 				next = "retry_wait"
 			}
+			var task *TaskError
+			if errors.As(cause, &task) && (task.Disposition == "needs_action" || task.Disposition == "cancelled") {
+				next = task.Disposition
+			}
+			if errors.As(cause, &task) && task.Disposition == "waiting" {
+				next = "retry_wait"
+				waiting = true
+			}
+			if errors.As(cause, &task) && task.Disposition == "background" {
+				// Exceeding the interactive budget is a handoff, not a failed
+				// attempt. A worker can claim the same complete target now.
+				next, code, background = "queued", "", true
+			}
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state=$2,error_code=$3,lease_until=NULL,lease_owner=NULL,revision=revision+1,available_at=clock_timestamp()+($4::text||' seconds')::interval,updated_at=clock_timestamp() WHERE id=$1`, j.ID, next, nullable(code), strconv.Itoa(1<<min(j.Attempts, 5)))
+		delay := time.Second * time.Duration(1<<min(max(j.Attempts-1, 0), 4))
+		delay += time.Duration(rand.Int64N(int64(delay)/4 + 1))
+		if waiting {
+			delay = 30 * time.Second
+		}
+		if background {
+			delay = 0
+		}
+		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state=$2,error_code=$3,lease_until=NULL,lease_owner=NULL,revision=revision+1,available_at=clock_timestamp()+($4::bigint * interval '1 millisecond'),attempts=CASE WHEN $5 THEN greatest(attempts-1,0) ELSE attempts END,updated_at=clock_timestamp() WHERE id=$1`, j.ID, next, nullable(code), delay.Milliseconds(), waiting || background)
 		if e != nil {
 			return e
 		}
-		if next == "failed" || next == "needs_action" {
+		if (next == "failed" || next == "needs_action") && (j.Kind == "validate" || j.Kind == "publish") {
 			_, e = tx.Exec(ctx, `UPDATE monitoring_import_batches SET state='failed',error_code=$3,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2 AND revision=$4 AND state IN ('validating','preparing')`, j.tenant, j.Target, code, j.TargetRevision)
 		}
 		return e
@@ -341,7 +453,7 @@ func (s *Service) Jobs(ctx context.Context, a access.Actor, scope Scope, cursor 
 			jobs = jobs[:50]
 		}
 		for _, j := range jobs {
-			if e := jobPermissionTx(ctx, tx, auth, j); e != nil {
+			if e := s.jobPermissionTx(ctx, tx, auth, j); e != nil {
 				if isHidden(e) || errors.Is(e, access.ErrDenied) {
 					continue
 				}
@@ -357,7 +469,13 @@ func (s *Service) Jobs(ctx context.Context, a access.Actor, scope Scope, cursor 
 	})
 	return out, e
 }
-func jobPermissionTx(ctx context.Context, tx pgx.Tx, auth authorization, j Job) error {
+func (s *Service) jobPermissionTx(ctx context.Context, tx pgx.Tx, auth authorization, j Job, manage ...bool) error {
+	if executor := s.executors[j.Kind]; executor != nil {
+		return executor.AuthorizeTaskTx(ctx, tx, taskOf(j), workerActor(auth.Account), auth.Scope, len(manage) > 0 && manage[0])
+	}
+	if slices.Contains(calculationKinds, j.Kind) {
+		return notFound()
+	}
 	if j.actor != auth.Account {
 		return notFound()
 	}
@@ -430,7 +548,7 @@ func (s *Service) Job(ctx context.Context, a access.Actor, scope Scope, id strin
 		if e != nil {
 			return e
 		}
-		if e = jobPermissionTx(ctx, tx, auth, out); e != nil {
+		if e = s.jobPermissionTx(ctx, tx, auth, out); e != nil {
 			return e
 		}
 		return presentJobTx(ctx, tx, &out)
@@ -482,7 +600,7 @@ func (s *Service) CancelJob(ctx context.Context, a access.Actor, scope Scope, id
 		if e != nil {
 			return e
 		}
-		if e = jobPermissionTx(ctx, tx, auth, j); e != nil {
+		if e = s.jobPermissionTx(ctx, tx, auth, j, true); e != nil {
 			return e
 		}
 		if j.Revision != in.ExpectedRevision {

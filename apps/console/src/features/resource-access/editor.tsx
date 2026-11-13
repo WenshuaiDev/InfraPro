@@ -19,6 +19,7 @@ import { ComponentTree } from '../resources/component-tree';
 import { AccessCommit, CapabilityPicker, useResourceAccess } from './shared';
 import { capNames, kinds, type Capability } from './model';
 type Choice = {
+  source_kind?: 'direct' | 'derived';
   kind: ResourceKind;
   id: string;
   name: string;
@@ -155,6 +156,7 @@ function GrantEditor({
   const grantFor = (id: string) => loadedGrants.find((g) => g.resource_id === id);
   const asChoice = (g: ResourceGrant): Choice => ({
     kind: g.kind,
+    source_kind:g.source_kind,
     id: g.resource_id,
     name: g.name,
     code: g.code,
@@ -230,6 +232,7 @@ function GrantEditor({
                 {chosen && !chosen.end ? (
                   <CapabilityPicker
                     kind={v.kind}
+                    sourceKind={v.source_kind}
                     value={editing.capabilities}
                     onChange={(capabilities) => put({ ...editing, capabilities })}
                     disabled={!canWrite || revoke}
@@ -388,6 +391,7 @@ function GrantEditor({
               {rows(
                 (candidates.data?.pages.flatMap((p) => p.candidates.items) ?? []).map((r) => ({
                   kind: r.kind,
+                  source_kind:'source_kind' in r?r.source_kind:undefined,
                   id: r.id,
                   name: r.name,
                   code: r.code,

@@ -113,5 +113,5 @@ func TestMonitoringUpgradePreservesExistingRowsAndCustomRoles(t *testing.T) {
 			t.Fatal("migration seeded monitoring data", table)
 		}
 	}
-	t.Logf("v11→v12 preserved every row of %d existing tables; custom role unchanged; no monitoring samples/grants seeded", len(tables))
+	t.Logf("v11→v%d preserved every row of %d existing tables; custom role unchanged; no monitoring samples/grants seeded", Version, len(tables))
 }

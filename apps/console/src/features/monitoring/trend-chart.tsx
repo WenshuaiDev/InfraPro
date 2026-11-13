@@ -6,7 +6,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import type { MonitoringRange, MonitoringTrendSeries } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
 import type { SelectedChannel } from './channel-picker';
-import { compatibility, count, decimalCoefficient, formatNS, MAX_NS, MIN_NS, parseNS, shiftRange, qualityNames } from './format';
+import { observationTime, observationKind, observationQuality, observationRevoked, plotCoefficient, calculationStatusNames } from './detail-format';
+import { compatibility, count, formatNS, MAX_NS, MIN_NS, parseNS, shiftRange, qualityNames } from './format';
 registerCharts([ScatterChart, GridComponent, TooltipComponent, DataZoomComponent, AriaComponent, CanvasRenderer]);
 const symbols = ['circle', 'rect', 'triangle', 'diamond', 'pin', 'roundRect'];
 const marks = ['●', '■', '▲', '◆', '⬟', '▰'];
@@ -18,14 +19,15 @@ export default function TrendChart({ channels, series, range, timezone, onWindow
   const [groupIndex, setGroupIndex] = useState(0), [page, setPage] = useState(0), [hidden, setHidden] = useState<string[]>([]);
   const group = groups[Math.min(groupIndex, groups.length - 1)] ?? [], visible = group.slice(page * 6, (page + 1) * 6);
   const plotted = series.filter(s => visible.some(c => c.id === s.channel_id));
-  return <section className="min-w-0 space-y-3" aria-label="趋势图"><div className="flex flex-wrap gap-2" aria-label="兼容通道分组">{groups.map((g, i) => <Button key={compatibility(g[0]!)} size="sm" variant={i === groupIndex ? 'secondary' : 'outline'} aria-pressed={i === groupIndex} onClick={() => { setGroupIndex(i); setPage(0); }}>{g[0]!.metric_name} · {g[0]!.unit || '枚举'} · 第 {i + 1} 组（{g.length}）</Button>)}</div>{group[0] && <p className="text-xs text-muted-foreground">{group[0].observation_direction || '观测方向未填写'} · {group[0].reference_basis || '参考基准未填写'} · {group[0].timestamp_meaning === 'observation_time' ? '观测时刻' : '区间结束时刻'}{groups.length > 1 && '；不同指标、单位、方向或基准分开显示。'}</p>}<div className="flex flex-wrap gap-2" aria-label="图例开关">{visible.map((c, i) => <Button key={c.id} size="sm" variant={hidden.includes(c.id) ? 'outline' : 'secondary'} aria-pressed={!hidden.includes(c.id)} onClick={() => setHidden(h => h.includes(c.id) ? h.filter(id => id !== c.id) : [...h, c.id])}><span aria-hidden>{marks[i]}</span>{c.point_name} · {c.name}</Button>)}</div><CanvasPlot channels={visible} series={plotted.filter(s => !hidden.includes(s.channel_id))} range={range} timezone={timezone} onWindow={onWindow} onWidth={onWidth} /><p className="text-xs text-muted-foreground">原始窗口显示实际观测点；摘要窗口显示实际首、最小、最大、末值，不连接缺测区间。悬停查看精确原值，明细页可键盘读取等价数据。按住 Ctrl 滚轮缩放，横向拖动平移；也可使用上方时间按钮。</p><div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">{plotted.map(s => <span key={s.channel_id}>{channels.find(c => c.id === s.channel_id)?.name}：{s.summary ? `摘要 · ${s.resolution}` : '原始点'} · 时间块样本 {count(s.sample_count)}</span>)}</div>{group.length > 6 && <div className="flex items-center gap-3"><Button variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>上一组曲线</Button><span className="text-sm">每图最多 6 条，第 {page + 1} / {Math.ceil(group.length / 6)} 页</span><Button variant="outline" disabled={(page + 1) * 6 >= group.length} onClick={() => setPage(page + 1)}>下一组曲线</Button></div>}</section>;
+  return <section className="min-w-0 space-y-3" aria-label="趋势图"><div className="flex flex-wrap gap-2" aria-label="兼容通道分组">{groups.map((g, i) => <Button key={compatibility(g[0]!)} size="sm" variant={i === groupIndex ? 'secondary' : 'outline'} aria-pressed={i === groupIndex} onClick={() => { setGroupIndex(i); setPage(0); }}>{g[0]!.metric_name} · {g[0]!.unit || '枚举'} · 第 {i + 1} 组（{g.length}）</Button>)}</div>{group[0] && <p className="text-xs text-muted-foreground">{group[0].observation_direction || '观测方向未填写'} · {group[0].reference_basis || '参考基准未填写'} · {group[0].timestamp_meaning === 'observation_time' ? '观测时刻' : '区间结束时刻'}{groups.length > 1 && '；不同指标、单位、方向或基准分开显示。'}</p>}<div className="flex flex-wrap gap-2" aria-label="图例开关">{visible.map((c, i) => <Button key={c.id} size="sm" variant={hidden.includes(c.id) ? 'outline' : 'secondary'} aria-pressed={!hidden.includes(c.id)} onClick={() => setHidden(h => h.includes(c.id) ? h.filter(id => id !== c.id) : [...h, c.id])}><span aria-hidden>{marks[i]}</span>{c.owner_name} · {c.name}</Button>)}</div><CanvasPlot channels={visible} series={plotted.filter(s => !hidden.includes(s.channel_id))} range={range} timezone={timezone} onWindow={onWindow} onWidth={onWidth} /><p className="text-xs text-muted-foreground">原始窗口显示实际观测点；摘要窗口显示实际首、最小、最大、末值，不连接缺测区间。悬停查看精确原值，明细页可键盘读取等价数据。按住 Ctrl 滚轮缩放，横向拖动平移；也可使用上方时间按钮。</p><div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">{plotted.map(s => <span key={s.channel_id}>{channels.find(c => c.id === s.channel_id)?.name}：{s.summary ? `摘要 · ${s.resolution}` : '原始点'} · 时间块样本 {count(s.sample_count)}</span>)}</div>{group.length > 6 && <div className="flex items-center gap-3"><Button variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>上一组曲线</Button><span className="text-sm">每图最多 6 条，第 {page + 1} / {Math.ceil(group.length / 6)} 页</span><Button variant="outline" disabled={(page + 1) * 6 >= group.length} onClick={() => setPage(page + 1)}>下一组曲线</Button></div>}</section>;
 }
 function CanvasPlot({ channels, series, range, timezone, onWindow, onWidth }: { channels: SelectedChannel[]; series: MonitoringTrendSeries[]; range: MonitoringRange; timezone: string; onWindow: (range: MonitoringRange) => void; onWidth: (width: number) => void }) {
   const element = useRef<HTMLDivElement>(null), callback = useRef({ onWindow, onWidth });
   useEffect(() => { callback.current = { onWindow, onWidth }; }, [onWindow, onWidth]);
   const start = range.from ? parseNS(range.from) : MIN_NS, end = range.to ? parseNS(range.to) : MAX_NS;
-  const first = series.flatMap(s => s.buckets.flatMap(b => b.points)).find(p => p.value_kind !== 'enum');
-  const baseline = first ? decimalCoefficient(first.value) : 0n, isEnum = channels[0]?.value_kind === 'enum';
+  const numeric = series.flatMap(s => s.buckets.flatMap(b => b.points)).filter(p => observationKind(p) !== 'enum' && p.value !== null);
+  const first = numeric[0], precision = Math.max(12, ...numeric.map(p => (p.value?.split('.')[1] ?? '').length));
+  const baseline = first?.value ? plotCoefficient(first.value, precision) : 0n, isEnum = channels[0]?.value_kind === 'enum';
   useEffect(() => {
     const node = element.current;
     if (!node) return;
@@ -33,7 +35,7 @@ function CanvasPlot({ channels, series, range, timezone, onWindow, onWidth }: { 
     const render = () => {
       const styles = getComputedStyle(node), foreground = styles.color;
       const colors = Array.from({ length: 6 }, (_, i) => styles.getPropertyValue(`--chart-${i % 5 + 1}`).trim());
-      const stateValues = [...new Set(series.flatMap(s => s.buckets.flatMap(b => [...b.states.map(v => v.value), ...b.points.filter(v => v.value_kind === 'enum').map(v => v.value)])))].sort();
+      const stateValues = [...new Set(series.flatMap(s => s.buckets.flatMap(b => [...b.states.map(v => v.value), ...b.points.filter(v => observationKind(v) === 'enum').map(v => v.value)])))].sort();
       const axisDate = new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
       const option: EChartsCoreOption = {
         animation: false, backgroundColor: 'transparent', textStyle: { color: foreground, fontFamily: styles.fontFamily },
@@ -46,10 +48,10 @@ function CanvasPlot({ channels, series, range, timezone, onWindow, onWidth }: { 
         series: series.map(s => {
           const index = channels.findIndex(c => c.id === s.channel_id), c = channels[index];
           const data = s.buckets.flatMap(b => {
-            if (isEnum && b.states.length) return b.states.map(v => ({ value: [Number(parseNS(v.first_at) - start) / 1e9, v.value], name: `${c?.point_name} · ${c?.name}\n状态：${v.value}\n样本 ${v.count} · 占比 ${v.sample_proportion}\n首次 ${v.first_at}\n末次 ${v.last_at}` }));
-            return b.points.map(p => ({ value: [Number(parseNS(p.observed_at) - start) / 1e9, p.value_kind === 'enum' ? p.value : Number(decimalCoefficient(p.value) - baseline) / 1e12], name: `${c?.point_name} · ${c?.name}\n${p.observed_at}\n原值 ${p.value} ${c?.unit ?? ''}\n质量 ${qualityNames[p.quality]}${p.revoked ? ' · 已撤销' : ''}` }));
+            if (isEnum && b.states.length) return b.states.map(v => ({ value: [Number(parseNS(v.first_at) - start) / 1e9, v.value], name: `${c?.owner_name} · ${c?.name}\n状态：${v.value}\n样本 ${v.count} · 占比 ${v.sample_proportion}\n首次 ${v.first_at}\n末次 ${v.last_at}` }));
+            return b.points.filter(p => p.value !== null).map(p => ({ value: [Number(parseNS(observationTime(p)!) - start) / 1e9, observationKind(p) === 'enum' ? p.value : Number(plotCoefficient(p.value!, precision) - baseline) / 10 ** precision], name: `${c?.owner_name} · ${c?.name}\n${observationTime(p)}\n原值 ${p.value} ${c?.unit ?? ''}\n质量 ${qualityNames[observationQuality(p)]}${observationRevoked(p) ? ' · 已撤销' : ''}${p.source_kind === 'derived' ? ` · ${calculationStatusNames[p.calculation_status]}` : ''}` }));
           });
-          return { type: 'scatter', name: `${c?.point_name} · ${c?.name}`, symbol: symbols[index % 6], symbolSize: s.summary ? 7 : 5, itemStyle: { color: colors[index % 6], borderColor: foreground, borderWidth: .5 }, data, progressive: 1000, clip: true };
+          return { type: 'scatter', name: `${c?.owner_name} · ${c?.name}`, symbol: symbols[index % 6], symbolSize: s.summary ? 7 : 5, itemStyle: { color: colors[index % 6], borderColor: foreground, borderWidth: .5 }, data, progressive: 1000, clip: true };
         }),
       };
       chart.setOption(option, true);
@@ -71,6 +73,6 @@ function CanvasPlot({ channels, series, range, timezone, onWindow, onWidth }: { 
     const up = (e: PointerEvent) => { const d = drag; drag = undefined; if (!d || d.pointer !== e.pointerId || Math.abs(e.clientX - d.x) < 8 || Math.abs(e.clientX - d.x) < Math.abs(e.clientY - d.y)) return; const shift = (end - start) * BigInt(Math.round((d.x - e.clientX) * 1000)) / BigInt(Math.max(1, node.clientWidth - 100) * 1000); callback.current.onWindow(shiftRange(range, shift)); };
     node.addEventListener('pointerdown', down); window.addEventListener('pointerup', up);
     return () => { clearTimeout(timer); observer.disconnect(); theme.disconnect(); node.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', up); chart.dispose(); };
-  }, [baseline, channels, end, isEnum, range, series, start, timezone]);
+  }, [baseline, channels, end, isEnum, precision, range, series, start, timezone]);
   return <div className="min-w-0 space-y-2">{!isEnum && <p className="break-all text-xs text-muted-foreground">纵轴基准：{first?.value ?? '0'} {channels[0]?.unit}；坐标近似，提示与明细保留精确原值。</p>}<div ref={element} className="h-80 min-w-0 touch-pan-y rounded-lg border bg-card sm:h-96" role="img" aria-label="监测趋势，使用时间按钮缩放和平移，切换明细读取精确原值" /></div>;
 }

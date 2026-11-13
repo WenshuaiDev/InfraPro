@@ -25,7 +25,7 @@ func bind[T any, R any](c *gin.Context, status int, call func(T) (R, error)) {
 }
 func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 	implemented := map[string]bool{}
-	for _, name := range []string{"exports.create", "exports.files", "exports.download", "points.list", "channels.list", "overview", "latest", "statistics", "trends", "imports.list", "imports.detail", "imports.create", "upload.part", "upload.complete", "imports.mapping", "imports.validate", "imports.publish", "imports.issues", "imports.resolve", "imports.cancel", "imports.retry", "imports.readopt", "batches.detail", "batches.preview", "batches.revoke", "sources.download", "jobs.list", "jobs.detail", "jobs.cancel", "selections.create", "details", "snapshots.renew"} {
+	for _, name := range []string{"exports.create", "exports.files", "exports.download", "points.list", "channels.list", "channels.directory", "overview", "latest", "statistics", "trends", "imports.list", "imports.detail", "imports.create", "upload.part", "upload.complete", "imports.mapping", "imports.validate", "imports.publish", "imports.issues", "imports.resolve", "imports.cancel", "imports.retry", "imports.readopt", "batches.detail", "batches.preview", "batches.revoke", "sources.download", "jobs.list", "jobs.detail", "jobs.cancel", "selections.create", "details", "snapshots.renew"} {
 		implemented[name] = true
 	}
 	for _, policy := range access.Policies() {
@@ -49,9 +49,9 @@ func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 					return
 				}
 			}
-			paged := action == "imports.list" || action == "imports.issues" || action == "jobs.list" || action == "points.list" || action == "channels.list"
+			paged := action == "imports.list" || action == "imports.issues" || action == "jobs.list" || action == "points.list" || action == "channels.list" || action == "channels.directory"
 			for key, values := range c.Request.URL.Query() {
-				if len(values) != 1 || !(paged && key == "cursor" || action == "points.list" && (key == "search" || key == "facility_id" || key == "point_id") || action == "channels.list" && key == "channel_id") {
+				if len(values) != 1 || !(paged && key == "cursor" || action == "points.list" && (key == "search" || key == "facility_id" || key == "point_id") || action == "channels.list" && key == "channel_id" || action == "channels.directory" && (key == "search" || key == "facility_id" || key == "owner_kind" || key == "owner_id" || key == "source_kind" || key == "channel_id")) {
 					reply(c, 0, nil, invalid("不支持或重复的查询参数。"))
 					return
 				}
@@ -71,6 +71,9 @@ func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 			switch action {
 			case "points.list":
 				v, e := s.Points(ctx, a, scope, md.NavigationQuery{Cursor: c.Query("cursor"), Search: c.Query("search"), Facility: c.Query("facility_id"), Point: c.Query("point_id")})
+				reply(c, 200, v, e)
+			case "channels.directory":
+				v, e := s.ChannelDirectory(ctx, a, scope, md.ChannelNavigationQuery{Cursor: c.Query("cursor"), Search: c.Query("search"), Facility: c.Query("facility_id"), OwnerKind: c.Query("owner_kind"), OwnerID: c.Query("owner_id"), SourceKind: c.Query("source_kind"), Channel: c.Query("channel_id")})
 				reply(c, 200, v, e)
 			case "channels.list":
 				v, e := s.Channels(ctx, a, scope, id, c.Query("cursor"), c.Query("channel_id"))

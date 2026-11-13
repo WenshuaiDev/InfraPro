@@ -53,30 +53,34 @@ type Snapshot struct {
 	QueryHash     string    `json:"query_hash"`
 }
 type Observation struct {
-	ID            string  `json:"observation_id"`
-	Adoption      string  `json:"adoption_id"`
-	Channel       string  `json:"channel_id"`
-	Batch         string  `json:"batch_id"`
-	At            string  `json:"observed_at"`
-	Start         *string `json:"interval_start"`
-	Kind          string  `json:"value_kind"`
-	Value         string  `json:"value"`
-	Quality       string  `json:"quality"`
-	QualityReason string  `json:"quality_reason"`
-	Revoked       bool    `json:"revoked"`
+	SourceKind    string                 `json:"source_kind"`
+	Calculated    *CalculatedObservation `json:"-"`
+	ID            string                 `json:"observation_id"`
+	Adoption      string                 `json:"adoption_id"`
+	Channel       string                 `json:"channel_id"`
+	Batch         string                 `json:"batch_id"`
+	At            string                 `json:"observed_at"`
+	Start         *string                `json:"interval_start"`
+	Kind          string                 `json:"value_kind"`
+	Value         string                 `json:"value"`
+	Quality       string                 `json:"quality"`
+	QualityReason string                 `json:"quality_reason"`
+	Revoked       bool                   `json:"revoked"`
 }
 type DetailPage struct {
-	Items      []Observation `json:"items"`
-	Snapshot   Snapshot      `json:"snapshot"`
-	HasMore    bool          `json:"has_more"`
-	NextCursor string        `json:"next_cursor"`
-	PrevCursor string        `json:"prev_cursor"`
+	Items      []Observation         `json:"items"`
+	Snapshot   Snapshot              `json:"snapshot"`
+	HasMore    bool                  `json:"has_more"`
+	NextCursor string                `json:"next_cursor"`
+	PrevCursor string                `json:"prev_cursor"`
+	Coverage   []CalculationCoverage `json:"coverage,omitempty"`
 }
 type snapshotVector struct {
-	Integrity map[string]string `json:"integrity"`
-	Revokes   map[string]string `json:"revokes"`
-	Contents  map[string]string `json:"contents"`
-	Secret    string            `json:"cursor_secret"`
+	Integrity  map[string]string          `json:"integrity"`
+	Revokes    map[string]string          `json:"revokes"`
+	Contents   map[string]string          `json:"contents"`
+	Secret     string                     `json:"cursor_secret"`
+	Calculated map[string]CalculationHead `json:"calculated,omitempty"`
 }
 type queryPlan struct {
 	snapshot      Snapshot
@@ -257,14 +261,24 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 				plan.windows = intersectWindows(plan.windows, history)
 			}
 			if in.ValueKind != "" {
-				sem, e := semanticsTx(ctx, tx, scope.Tenant, plan.channels, false)
+				rows, e := tx.Query(ctx, `SELECT c.id::text,CASE WHEN c.source_kind='derived' THEN 'decimal' ELSE v.content->'metric'->>'shape' END FROM engineering_channels c LEFT JOIN engineering_versions v ON v.id=c.metric_version_id WHERE c.tenant_id=$1 AND c.id=ANY($2::uuid[]) AND c.deleted_at IS NULL`, scope.Tenant, plan.channels)
 				if e != nil {
 					return e
 				}
-				for id := range plan.windows {
-					if sem[id].Kind != in.ValueKind {
+				for rows.Next() {
+					var id, kind string
+					if e = rows.Scan(&id, &kind); e != nil {
+						rows.Close()
+						return e
+					}
+					if kind != in.ValueKind {
 						delete(plan.windows, id)
 					}
+				}
+				e = rows.Err()
+				rows.Close()
+				if e != nil {
+					return e
 				}
 			}
 
@@ -307,6 +321,12 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 				return e
 			}
 			plan.vector = snapshotVector{Integrity: integrity, Revokes: current, Contents: contents, Secret: base64.RawURLEncoding.EncodeToString(secret)}
+			if s.calculationReader != nil {
+				plan.vector.Calculated, e = s.calculationReader.FreezeCalculatedTx(ctx, tx, scope.Tenant, plan.channels)
+				if e != nil {
+					return e
+				}
+			}
 			plan.snapshot.QueryHash = filterHash(in)
 			e = tx.QueryRow(ctx, `INSERT INTO monitoring_snapshots(tenant_id,selection_id,actor_id,watermark,route_revision,query_hash,revision_vector,authorization_revision,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp()+interval '15 minutes') RETURNING id::text,watermark::text,route_revision::text,expires_at`, scope.Tenant, in.Selection, a.ID, seq, route, plan.snapshot.QueryHash, encodeJSON(plan.vector), plan.authorization).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt)
 			if e != nil {
@@ -430,6 +450,46 @@ func (s *Service) Details(ctx context.Context, a access.Actor, scope Scope, inpu
 	if e != nil {
 		return out, storageError(e)
 	}
+	type displayRow struct {
+		raw        rawObservation
+		calculated *CalculatedObservation
+	}
+	display := make([]displayRow, 0, len(raw))
+	for _, r := range raw {
+		display = append(display, displayRow{raw: r})
+	}
+	if len(plan.vector.Calculated) > 0 {
+		if s.calculationReader == nil {
+			return out, problem("calculation_unavailable", "派生结果读取服务尚未配置。", 503)
+		}
+		var after *CalculationBoundary
+		if boundary != nil {
+			after = &CalculationBoundary{At: boundary.At, Channel: boundary.Channel, Result: boundary.Observation, Generation: boundary.Adoption}
+		}
+		calculated, e := s.calculationReader.ReadCalculated(ctx, a, scope, CalculationQuery{Heads: plan.vector.Calculated, Windows: plan.windows, Range: queryWindow(in), Qualities: in.Qualities, Boundary: after, Limit: in.Limit + 1, Reverse: in.Direction == "forward", History: in.Status == "history"})
+		if e != nil {
+			return DetailPage{Items: []Observation{}}, e
+		}
+		out.Coverage = calculated.Coverage
+		for _, point := range calculated.Items {
+			display = append(display, displayRow{raw: rawObservation{At: point.AtNS, Channel: point.Channel, Observation: point.Result, Adoption: point.Generation}, calculated: &point})
+		}
+		slices.SortFunc(display, func(a, b displayRow) int {
+			v := compareRead(a.raw, b.raw, "")
+			if in.Direction == "forward" {
+				return -v
+			}
+			return v
+		})
+	}
+	raw = nil
+	calculatedByID := map[string]*CalculatedObservation{}
+	for _, row := range display {
+		raw = append(raw, row.raw)
+		if row.calculated != nil {
+			calculatedByID[row.raw.Observation+":"+row.raw.Adoption] = row.calculated
+		}
+	}
 	out.HasMore = len(raw) > in.Limit
 	if out.HasMore {
 		raw = raw[:in.Limit]
@@ -442,7 +502,12 @@ func (s *Service) Details(ctx context.Context, a access.Actor, scope Scope, inpu
 		revoked[entry.Batch] = entry.Revoked
 	}
 	for _, r := range raw {
-		out.Items = append(out.Items, observationDTO(r, revoked[r.Batch]))
+		item := observationDTO(r, revoked[r.Batch])
+		item.Calculated = calculatedByID[r.Observation+":"+r.Adoption]
+		if item.Calculated != nil {
+			item.SourceKind = "derived"
+		}
+		out.Items = append(out.Items, item)
 	}
 	if len(raw) > 0 {
 		out.NextCursor = signCursor(plan, raw[len(raw)-1], "forward")

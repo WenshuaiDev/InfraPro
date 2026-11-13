@@ -52,7 +52,9 @@ func projectActions(ctx context.Context, tx pgx.Tx, auth authorization, t scoped
 	out.CreateComponent = out.Add && has("create_component") && auth.can(Component, "create")
 	out.CreatePoint = out.Add && has("create_point") && auth.can(Point, "create")
 	out.CreateChannel = out.Add && has("create_channel") && auth.can(Channel, "create")
-	out.Add = out.CreateComponent || out.CreatePoint || out.CreateChannel
+	out.CreateDerivedChannel = out.Add && r.Kind != Channel && has("create_derived_channel") && auth.can(Channel, "create") && slices.Contains(auth.ProjectAuth.AllowedOperations, access.DerivedOperation("project", "channels.create"))
+	out.ManageCalculation = actionAllowed(r, ancestors, true).Edit && r.SourceKind == "derived" && has("manage_calculation") && slices.Contains(auth.ProjectAuth.AllowedOperations, access.DerivedOperation("project", "channels.configs.create"))
+	out.Add = out.CreateComponent || out.CreatePoint || out.CreateChannel || out.CreateDerivedChannel
 	out.Retire = out.Retire && r.Kind != Facility && has("lifecycle") && auth.can(r.Kind, "retire")
 	out.Restore = out.Restore && r.Kind != Facility && has("lifecycle") && auth.can(r.Kind, "restore")
 	if out.Retire || out.Restore {
@@ -188,7 +190,12 @@ func projectCreateGrant(ctx context.Context, tx pgx.Tx, auth authorization, r Re
 	}
 	g := Grant{Kind: r.Kind, ResourceID: r.ID, Capabilities: kindCapabilities[r.Kind], Name: r.Name, Code: r.Code}
 	// Creating a channel never grants authority over its shared source relation.
-	g.Capabilities = slices.DeleteFunc(slices.Clone(g.Capabilities), func(c string) bool { return c == "source_manage" })
+	g.Capabilities = slices.DeleteFunc(slices.Clone(g.Capabilities), func(c string) bool {
+		return c == "source_manage" || c == "create_derived_channel" || c == "manage_calculation"
+	})
+	if r.SourceKind == "derived" {
+		g.Capabilities = append(g.Capabilities, "manage_calculation")
+	}
 	switch r.Kind {
 	case Component:
 		g.ComponentID = &r.ID

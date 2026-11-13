@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"slices"
 	"strconv"
 	"time"
@@ -44,26 +43,29 @@ type ExportFile struct {
 	SHA256 string `json:"sha256"`
 }
 type ExportManifest struct {
-	ID             string             `json:"id"`
-	Snapshot       Snapshot           `json:"snapshot"`
-	Query          QueryInput         `json:"query"`
-	Kind           string             `json:"kind"`
-	Format         string             `json:"format"`
-	CSVMode        string             `json:"csv_mode"`
-	Escaping       string             `json:"escaping"`
-	ParquetVersion string             `json:"parquet_version"`
-	Fields         []ExportField      `json:"fields"`
-	Files          []ExportFile       `json:"files"`
-	Rows           string             `json:"row_count"`
-	ExpiresAt      time.Time          `json:"expires_at"`
-	Windows        map[string][]Range `json:"authorized_ranges"`
-	Ordering       string             `json:"ordering"`
+	ID                  string                     `json:"id"`
+	Snapshot            Snapshot                   `json:"snapshot"`
+	Query               QueryInput                 `json:"query"`
+	Kind                string                     `json:"kind"`
+	Format              string                     `json:"format"`
+	CSVMode             string                     `json:"csv_mode"`
+	Escaping            string                     `json:"escaping"`
+	ParquetVersion      string                     `json:"parquet_version"`
+	Fields              []ExportField              `json:"fields"`
+	Files               []ExportFile               `json:"files"`
+	Rows                string                     `json:"row_count"`
+	ExpiresAt           time.Time                  `json:"expires_at"`
+	Windows             map[string][]Range         `json:"authorized_ranges"`
+	Ordering            string                     `json:"ordering"`
+	CalculationCoverage []CalculationCoverage      `json:"calculation_coverage,omitempty"`
+	CalculationHeads    map[string]CalculationHead `json:"calculation_heads,omitempty"`
 }
 type sealedExport struct {
-	Manifest ExportManifest
-	Objects  map[string]string
+	Manifest          ExportManifest
+	Objects           map[string]string
+	CalculationProofs []json.RawMessage
 }
-type exportChannel struct{ Point, PointName, Name, Metric, Unit string }
+type exportChannel struct{ Point, PointName, Name, Metric, Unit, OwnerKind, OwnerID, OwnerName string }
 
 func normalizeExport(in ExportInput) (ExportInput, error) {
 	if e := in.WriteMeta.validate(); e != nil {
@@ -109,6 +111,9 @@ func (s *Service) CreateExport(ctx context.Context, a access.Actor, scope Scope,
 	}
 	plan, e := s.queryPlan(ctx, a, scope, in.Query, "exports.create", "export")
 	if e != nil {
+		return out, e
+	}
+	if e = s.preflightCalculatedExport(ctx, a, scope, plan, in.Query); e != nil {
 		return out, e
 	}
 	e = s.transact(ctx, a, scope, "exports.create", false, false, func(tx pgx.Tx, auth authorization) error {
@@ -160,7 +165,7 @@ func assertSnapshotTx(ctx context.Context, tx pgx.Tx, tenant, id, authorization 
 }
 func exportChannelsTx(ctx context.Context, tx pgx.Tx, tenant string, ids []string) (map[string]exportChannel, error) {
 	out := map[string]exportChannel{}
-	rows, e := tx.Query(ctx, `SELECT c.id::text,c.point_id::text,p.name,c.name,c.metric_version_id::text,COALESCE(u.content->'unit'->>'symbol','') FROM engineering_channels c JOIN engineering_points p ON p.id=c.point_id LEFT JOIN engineering_versions u ON u.id=c.unit_version_id WHERE c.tenant_id=$1 AND c.id=ANY($2::uuid[])`, tenant, ids)
+	rows, e := tx.Query(ctx, `SELECT c.id::text,COALESCE(c.point_id::text,''),COALESCE(p.name,''),c.name,COALESCE(c.metric_version_id::text,''),COALESCE(u.content->'unit'->>'symbol',''),c.owner_kind,CASE c.owner_kind WHEN 'facility' THEN c.facility_id::text WHEN 'component' THEN c.component_id::text ELSE c.point_id::text END,CASE c.owner_kind WHEN 'facility' THEN f.name WHEN 'component' THEN co.name ELSE p.name END,c.source_kind,COALESCE(c.quantity_spec,'null'::jsonb) FROM engineering_channels c LEFT JOIN engineering_points p ON p.id=c.point_id JOIN engineering_facilities f ON f.id=c.facility_id LEFT JOIN engineering_components co ON co.id=c.component_id LEFT JOIN engineering_versions u ON u.id=COALESCE(c.unit_version_id,NULLIF(c.quantity_spec->>'base_unit_version_id','')::uuid) WHERE c.tenant_id=$1 AND c.id=ANY($2::uuid[])`, tenant, ids)
 	if e != nil {
 		return out, e
 	}
@@ -168,8 +173,16 @@ func exportChannelsTx(ctx context.Context, tx pgx.Tx, tenant string, ids []strin
 	for rows.Next() {
 		var id string
 		var v exportChannel
-		if e = rows.Scan(&id, &v.Point, &v.PointName, &v.Name, &v.Metric, &v.Unit); e != nil {
+		var source string
+		var quantity json.RawMessage
+		if e = rows.Scan(&id, &v.Point, &v.PointName, &v.Name, &v.Metric, &v.Unit, &v.OwnerKind, &v.OwnerID, &v.OwnerName, &source, &quantity); e != nil {
 			return out, e
+		}
+		if source == "derived" {
+			v.Unit, e = calculationUnit(v.Unit, quantity)
+			if e != nil {
+				return out, e
+			}
 		}
 		out[id] = v
 	}
@@ -300,6 +313,9 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 	}
 	watermark, _ := revisionNumber(plan.snapshot.Watermark)
 	for _, channel := range plan.channels {
+		if _, derived := plan.vector.Calculated[channel]; derived {
+			continue
+		}
 		if _, e = s.buildSummary(ctx, j.tenant, channel, plan.vector.Contents[channel], plan.vector.Revokes[channel], watermark); e != nil {
 			return e
 		}
@@ -307,6 +323,9 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 	r := summaryReader{service: s, plan: plan, tenant: j.tenant, nodes: map[string]*summaryNode{}}
 	expected := map[string]exactState{}
 	for _, channel := range plan.channels {
+		if _, derived := plan.vector.Calculated[channel]; derived {
+			continue
+		}
 		root, e := s.readSummaryRoot(ctx, j.tenant, channel, plan.vector.Contents[channel])
 		if e != nil {
 			return e
@@ -321,9 +340,23 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 	if in.Kind == "statistics" {
 		fields = statisticsExportFields
 	}
+	if len(plan.vector.Calculated) > 0 {
+		fields = calculationExportFields(in.Kind)
+	}
 	manifest := ExportManifest{ID: j.Target, Snapshot: plan.snapshot, Query: in.Query, Kind: in.Kind, Format: in.Format, CSVMode: in.CSVMode, Fields: fields, Files: []ExportFile{}, Rows: "0", ExpiresAt: expires, Windows: map[string][]Range{}, Ordering: "stable manifest pages; observed_at, channel_id, observation_id, adoption_id ascending"}
 	if in.Format == "parquet" {
 		manifest.ParquetVersion = "2.6; UTC NANOS; Decimal(38,12); Int64; UTF-8 enum"
+		if len(plan.vector.Calculated) > 0 {
+			manifest.ParquetVersion += "; derived computed_decimal_text UTF-8 + scale/rounding (not DECIMAL)"
+		}
+	}
+	manifest.CalculationHeads = plan.vector.Calculated
+	manifest.CalculationCoverage, e = s.checkCalculatedExport(ctx, actor, j.scope(), plan, in.Query)
+	if e != nil {
+		return e
+	}
+	if len(plan.vector.Calculated) > 0 {
+		manifest.Ordering = "direct immutable manifest order, followed by derived immutable result manifest order; stable result_id and generation_id identify each row"
 	}
 	if in.CSVMode == "spreadsheet_safe" {
 		manifest.Escaping = "Non-numeric formula-like cells and cells starting with apostrophe gain one leading apostrophe. Remove exactly that prefix to reverse; numeric negative values are unchanged."
@@ -335,89 +368,36 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 		}
 	}
 	sealed := sealedExport{Manifest: manifest, Objects: map[string]string{}}
-	directory, e := os.MkdirTemp(s.storage.config.TempDirectory, "monitoring-export-")
-	if e != nil {
-		return e
+	for _, part := range manifest.CalculationCoverage {
+		if len(part.Proof) == 0 {
+			return problem("result_integrity_unavailable", "导出读取证明缺失。", 503)
+		}
+		sealed.CalculationProofs = append(sealed.CalculationProofs, part.Proof)
 	}
-	defer os.RemoveAll(directory)
-	var writer *exportWriter
-	var total int64
-	part := 0
 	guard := func() error {
 		if _, e := s.queryPlan(ctx, actor, j.scope(), in.Query, "exports.create", "export", true); e != nil {
-			return e
-		}
-		return s.jobTransaction(ctx, j, func(tx pgx.Tx) error { return assertJobTx(ctx, tx, j) })
-	}
-	seal := func() error {
-		if writer == nil {
-			return nil
-		}
-		if e := writer.close(); e != nil {
-			return e
-		}
-		path := writer.file.Name()
-		rows := writer.rows
-		writer = nil
-		hash, size, e := verifyExportVolume(path, in.Format, rows)
-		if e != nil {
-			return e
-		}
-		if e = guard(); e != nil {
-			return e
-		}
-		name := fmt.Sprintf("monitoring-%s-%06d.%s", in.Kind, part, in.Format)
-		key := fmt.Sprintf("%s/exports/%s/%d/%s", j.tenant, j.Target, j.fence, name)
-		f, e := os.Open(path)
-		if e != nil {
-			return e
-		}
-		e = s.storage.put(ctx, key, f, size, "application/octet-stream")
-		f.Close()
-		if e != nil {
-			return e
-		}
-		v := ExportFile{strconv.Itoa(part), name, countText(rows), countText(size), hash}
-		sealed.Manifest.Files = append(sealed.Manifest.Files, v)
-		sealed.Objects[v.Part] = key
-		if e = os.Remove(path); e != nil {
 			return e
 		}
 		return s.jobTransaction(ctx, j, func(tx pgx.Tx) error {
 			if e := assertJobTx(ctx, tx, j); e != nil {
 				return e
 			}
-			_, e := tx.Exec(ctx, `UPDATE monitoring_jobs SET progress=$2,updated_at=clock_timestamp() WHERE id=$1`, j.ID, encodeJSON(map[string]string{"phase": "writing", "rows": countText(total), "completed_files": strconv.Itoa(part)}))
-			return e
+			// The initial qualification fixed complete recursive needs and
+			// immutable source identities. Recheck those server-generated
+			// proofs against current authority and changes without rediscovering
+			// every predecessor and rereading S3 for each output buffer.
+			if len(sealed.CalculationProofs) > 0 {
+				return s.calculationReader.CheckCalculationProofsTx(ctx, tx, actor, j.scope(), sealed.CalculationProofs, "export")
+			}
+			return nil
 		})
 	}
-	defer func() {
-		if writer != nil {
-			writer.file.Close()
-		}
-	}()
-	write := func(cells []exportCell) error {
-		if writer == nil {
-			part++
-			var e error
-			writer, e = newExportWriter(filepath.Join(directory, fmt.Sprint(part)), in.Format, in.CSVMode, fields)
-			if e != nil {
-				return e
-			}
-		}
-		if e := writer.write(cells); e != nil {
-			return e
-		}
-		total++
-		size, e := writer.size()
-		if e != nil {
-			return e
-		}
-		if writer.rows >= s.storage.config.ExportRows || size >= s.storage.config.ExportBytes {
-			return seal()
-		}
-		return nil
+	volumes, e := s.exportVolumes(ctx, j, in.Format, in.CSVMode, in.Kind, fields, guard)
+	if e != nil {
+		return e
 	}
+	defer volumes.abort()
+	write := volumes.write
 	if in.Kind == "details" {
 		observed := map[string]exactState{}
 		manifestCursor := ""
@@ -464,7 +444,11 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 					p.Revoked = revoked[row.Batch]
 					st.add(p)
 					observed[row.Channel] = st
-					if e = write(exportDetail(row, channels[row.Channel], p.Revoked)); e != nil {
+					cells := exportDetail(row, channels[row.Channel], p.Revoked)
+					if len(plan.vector.Calculated) > 0 {
+						cells = extendRawExport(cells, channels[row.Channel])
+					}
+					if e = write(cells); e != nil {
 						return e
 					}
 				}
@@ -479,6 +463,18 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 				return fmt.Errorf("export reconciliation disagrees with snapshot summary for channel %s", channel)
 			}
 		}
+		if len(plan.vector.Calculated) > 0 {
+			_, e = s.calculationReader.ScanCalculated(ctx, actor, j.scope(), CalculationQuery{PreparedProofs: sealed.CalculationProofs, Heads: plan.vector.Calculated, Windows: plan.windows, Range: queryWindow(in.Query), Qualities: in.Query.Qualities, History: in.Query.Status == "history", Capability: "export"}, ^uint64(0), func(row CalculatedObservation) error {
+				// The volume writer owns the one-second authorization/cancellation
+				// guard for both raw and calculated rows. Two independent clocks
+				// can alternately expire while checking a multi-channel proof and
+				// force two full checks per row without making useful progress.
+				return write(exportCalculated(row, channels[row.Channel]))
+			})
+			if e != nil {
+				return e
+			}
+		}
 	} else {
 		query := in.Query
 		query.Limit = 1000
@@ -486,17 +482,25 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 			if e = guard(); e != nil {
 				return e
 			}
-			result, e := s.computeAnalytic(ctx, j.tenant, "statistics", query, plan, true)
+			result, e := s.computeAnalytic(ctx, workerActor(j.actor), j.scope(), "statistics", query, plan, true)
 			if e != nil {
 				return e
 			}
 			for _, v := range result.Channels {
-				if e = write(exportStatistic(v, nil, channels[v.Channel], query)); e != nil {
+				cells := exportStatistic(v, nil, channels[v.Channel], query)
+				if len(plan.vector.Calculated) > 0 {
+					cells = extendStatisticExport(cells, v, channels[v.Channel])
+				}
+				if e = write(cells); e != nil {
 					return e
 				}
 			}
 			for _, g := range result.Groups {
-				if e = write(exportStatistic(g.ChannelStatistic, &g, channels[g.Channel], query)); e != nil {
+				cells := exportStatistic(g.ChannelStatistic, &g, channels[g.Channel], query)
+				if len(plan.vector.Calculated) > 0 {
+					cells = extendStatisticExport(cells, g.ChannelStatistic, channels[g.Channel])
+				}
+				if e = write(cells); e != nil {
 					return e
 				}
 			}
@@ -506,17 +510,12 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 			query.Cursor = result.NextCursor
 		}
 	}
-	if writer == nil && len(sealed.Manifest.Files) == 0 {
-		part = 1
-		writer, e = newExportWriter(filepath.Join(directory, "1"), in.Format, in.CSVMode, fields)
-		if e != nil {
-			return e
-		}
-	}
-	if e = seal(); e != nil {
+	if e = volumes.finish(); e != nil {
 		return e
 	}
-	sealed.Manifest.Rows = countText(total)
+	sealed.Manifest.Rows = countText(volumes.total)
+	sealed.Manifest.Files = volumes.files
+	sealed.Objects = volumes.objects
 	key, e := s.storage.putSummary(ctx, j.tenant, sealed)
 	if e != nil {
 		return e
@@ -531,6 +530,11 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 		if e := assertSnapshotTx(ctx, tx, j.tenant, plan.snapshot.ID, plan.authorization); e != nil {
 			return e
 		}
+		if len(sealed.CalculationProofs) > 0 {
+			if e := s.calculationReader.CheckCalculationProofsTx(ctx, tx, actor, j.scope(), sealed.CalculationProofs, "export"); e != nil {
+				return e
+			}
+		}
 		result, e := tx.Exec(ctx, `UPDATE monitoring_exports SET manifest_object=$3 WHERE tenant_id=$1 AND id=$2 AND invalidated_at IS NULL AND expires_at>clock_timestamp()`, j.tenant, j.Target, key)
 		if e != nil {
 			return e
@@ -538,7 +542,7 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 		if result.RowsAffected() != 1 {
 			return problem("export_invalidated", "导出已失效。", 409)
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$2,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, j.ID, encodeJSON(map[string]string{"phase": "complete", "rows": countText(total), "files": strconv.Itoa(part)}))
+		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$2,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, j.ID, encodeJSON(map[string]string{"phase": "complete", "rows": countText(volumes.total), "files": strconv.Itoa(volumes.part)}))
 		return e
 	})
 }
@@ -629,7 +633,22 @@ func (s *Service) loadExport(ctx context.Context, a access.Actor, scope Scope, i
 	if e = s.storage.summaryObject(ctx, key, &out, true); e != nil {
 		return out, plan, storageError(e)
 	}
-	if _, e = s.queryPlan(ctx, a, scope, input.Query, action, "export", true); e != nil {
+	if len(out.Manifest.CalculationCoverage) != len(out.CalculationProofs) || digest(out.Manifest.CalculationHeads) != digest(plan.vector.Calculated) {
+		return sealedExport{}, queryPlan{}, problem("result_integrity_unavailable", "导出读取证明不完整。", 503)
+	}
+	e = s.transact(ctx, a, scope, action, false, false, func(tx pgx.Tx, auth authorization) error {
+		if authorizationVersion(auth) != plan.authorization {
+			return problem("authorization_changed", "导出读取期间授权已变化。", 409)
+		}
+		if e := assertSnapshotTx(ctx, tx, scope.Tenant, plan.snapshot.ID, plan.authorization); e != nil {
+			return e
+		}
+		if len(out.CalculationProofs) > 0 {
+			return s.calculationReader.CheckCalculationProofsTx(ctx, tx, a, scope, out.CalculationProofs, "export")
+		}
+		return nil
+	})
+	if e != nil {
 		return sealedExport{}, queryPlan{}, e
 	}
 	return out, plan, nil
@@ -683,12 +702,23 @@ func (s *Service) ExportDownload(ctx context.Context, a access.Actor, scope Scop
 		h := sha256.New()
 		var written int64
 		for {
+			// Network reads may return tiny fragments. Requalify each bounded
+			// output block, after external I/O and immediately before emission.
+			n, readError := io.ReadFull(reader, buffer)
+			if readError == io.ErrUnexpectedEOF {
+				readError = io.EOF
+			}
 			if e := s.transact(ctx, a, scope, "exports.download", false, false, func(tx pgx.Tx, auth authorization) error {
 				if authorizationVersion(auth) != plan.authorization {
 					return problem("authorization_changed", "下载期间授权已变化。", 409)
 				}
 				if e := assertSnapshotTx(ctx, tx, scope.Tenant, plan.snapshot.ID, plan.authorization); e != nil {
 					return e
+				}
+				if len(result.CalculationProofs) > 0 {
+					if e := s.calculationReader.CheckCalculationProofsTx(ctx, tx, a, scope, result.CalculationProofs, "export"); e != nil {
+						return e
+					}
 				}
 				var valid bool
 				if e := tx.QueryRow(ctx, `SELECT invalidated_at IS NULL AND expires_at>clock_timestamp() FROM monitoring_exports WHERE tenant_id=$1 AND id=$2`, scope.Tenant, id).Scan(&valid); e != nil {
@@ -701,7 +731,6 @@ func (s *Service) ExportDownload(ctx context.Context, a access.Actor, scope Scop
 			}); e != nil {
 				return e
 			}
-			n, readError := reader.Read(buffer)
 			if n > 0 {
 				h.Write(buffer[:n])
 				count, e := w.Write(buffer[:n])

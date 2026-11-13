@@ -36,5 +36,9 @@ func run() error {
 		return e
 	}
 	defer resources.Close()
-	return runtime.Compose(resources.Identity.Access(), resources.Monitoring).Monitoring.RunWorker(ctx, logger)
+	business := runtime.Compose(resources.Identity.Access(), resources.Monitoring).Configure(cfg)
+	if e = business.DerivedMonitoring.Ready(ctx); e != nil {
+		return e
+	}
+	return business.Monitoring.RunWorker(ctx, logger)
 }

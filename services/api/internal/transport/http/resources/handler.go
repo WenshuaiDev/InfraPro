@@ -85,6 +85,9 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 			continue
 		}
 		namespace, kind, action := parts[0], parts[1], parts[2]
+		if kind == "channel-object" {
+			kind = "channel"
+		}
 		r.Handle(p.Method, p.Path, func(c *gin.Context) {
 			if namespace == "ProjectResourceAccess" {
 				accessHandler(c, i, s, kind, action)

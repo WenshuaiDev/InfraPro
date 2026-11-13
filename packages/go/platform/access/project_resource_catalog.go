@@ -104,5 +104,14 @@ func projectResourcePolicies() []Policy {
 		}
 		out = append(out, Policy{ResourceAccessOperation(r.kind, r.action), r.method, base + "/resource-access" + r.path, "tenant", codes, false, false})
 	}
+	// Existing point paths remain stable. Resource lifecycle for a channel also
+	// has an owner-neutral path for facility and component ownership.
+	for _, policy := range append([]Policy(nil), out...) {
+		if strings.HasPrefix(string(policy.Operation), "ProjectResource:channel:") && policy.Operation != ProjectResourceOperation("channel", "list") && policy.Operation != ProjectResourceOperation("channel", "create") {
+			policy.Operation = Operation(strings.Replace(string(policy.Operation), ":channel:", ":channel-object:", 1))
+			policy.Path = strings.Replace(policy.Path, "/points/:point_id/channels", "/channels", 1)
+			out = append(out, policy)
+		}
+	}
 	return out
 }

@@ -2,6 +2,12 @@
   <logger><level>warning</level><console>true</console></logger>
   <listen_host>0.0.0.0</listen_host>
   <max_server_memory_usage>1500000000</max_server_memory_usage>
+  <!-- This small disposable laboratory keeps query/error logs, while avoiding
+       millions of per-second internal metric/stack rows competing with tests. -->
+  <asynchronous_metric_log remove="1"/>
+  <metric_log remove="1"/>
+  <trace_log remove="1"/>
+  <processors_profile_log remove="1"/>
   <background_pool_size>4</background_pool_size>
   <background_schedule_pool_size>8</background_schedule_pool_size>
   <merge_tree>

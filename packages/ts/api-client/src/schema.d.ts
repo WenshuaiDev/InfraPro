@@ -7219,6 +7219,2357 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** templates.list */
+        get: operations["Derived:tenant:templates.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/templates/{template}/expand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** templates.expand */
+        post: operations["Derived:tenant:templates.expand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.list */
+        get: operations["Derived:tenant:metrics.list"];
+        put?: never;
+        /** metrics.create */
+        post: operations["Derived:tenant:metrics.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.detail */
+        get: operations["Derived:tenant:metrics.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** metrics.delete */
+        delete: operations["Derived:tenant:metrics.delete"];
+        options?: never;
+        head?: never;
+        /** metrics.save */
+        patch: operations["Derived:tenant:metrics.save"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** metrics.copy */
+        post: operations["Derived:tenant:metrics.copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** metrics.validate */
+        post: operations["Derived:tenant:metrics.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** metrics.publish */
+        post: operations["Derived:tenant:metrics.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-definitions/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.versions */
+        get: operations["Derived:tenant:metrics.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-versions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.detail */
+        get: operations["Derived:tenant:versions.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/metric-versions/{id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.state */
+        post: operations["Derived:tenant:versions.state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** templates.list */
+        get: operations["Derived:project:templates.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/templates/{template}/expand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** templates.expand */
+        post: operations["Derived:project:templates.expand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/metric-definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.list */
+        get: operations["Derived:project:metrics.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/metric-definitions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.detail */
+        get: operations["Derived:project:metrics.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/metric-definitions/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** metrics.versions */
+        get: operations["Derived:project:metrics.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/metric-versions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.detail */
+        get: operations["Derived:project:versions.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.list */
+        get: operations["Derived:tenant:channels.list"];
+        put?: never;
+        /** channels.create */
+        post: operations["Derived:tenant:channels.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.detail */
+        get: operations["Derived:tenant:channels.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.configs.list */
+        get: operations["Derived:tenant:channels.configs.list"];
+        put?: never;
+        /**
+         * channels.configs.create
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.configs.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.dependencies */
+        get: operations["Derived:tenant:channels.dependencies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.list */
+        get: operations["Derived:project:channels.list"];
+        put?: never;
+        /** channels.create */
+        post: operations["Derived:project:channels.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.detail */
+        get: operations["Derived:project:channels.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.configs.list */
+        get: operations["Derived:project:channels.configs.list"];
+        put?: never;
+        /**
+         * channels.configs.create
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.configs.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channels.dependencies */
+        get: operations["Derived:project:channels.dependencies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.trials
+         * @description 另须 channels.manage 或 channels.control，以及通道计算维护委托和全部输入读取时段权限。超过同步预算时转后台完整执行。
+         */
+        post: operations["Derived:tenant:channels.trials"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** runs.list */
+        get: operations["Derived:tenant:runs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/runs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** runs.detail */
+        get: operations["Derived:tenant:runs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/runs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** runs.cancel */
+        post: operations["Derived:tenant:runs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/runs/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** runs.retry */
+        post: operations["Derived:tenant:runs.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.trials
+         * @description 另须 channels.manage 或 channels.control，以及通道计算维护委托和全部输入读取时段权限。超过同步预算时转后台完整执行。
+         */
+        post: operations["Derived:project:channels.trials"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** runs.list */
+        get: operations["Derived:project:runs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/runs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** runs.detail */
+        get: operations["Derived:project:runs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/runs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** runs.cancel */
+        post: operations["Derived:project:runs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/runs/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** runs.retry */
+        post: operations["Derived:project:runs.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/control-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.control-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.control-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.control
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.control"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/control-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.control-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.control-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.control
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.control"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 按所属对象、来源和名称浏览可读监测通道 */
+        get: operations["Monitoring:tenant:channels.directory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 按所属对象、来源和名称浏览可读监测通道 */
+        get: operations["Monitoring:project:channels.directory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/config-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.config-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.config-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/apply-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.apply-config
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.apply-config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * channels.assignments
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        get: operations["Derived:tenant:channels.assignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/config-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.config-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.config-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/apply-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.apply-config
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.apply-config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * channels.assignments
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        get: operations["Derived:project:channels.assignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/backfill-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.backfill-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.backfill-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.backfill
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:tenant:channels.backfill"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/backfill-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.backfill-preview
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.backfill-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * channels.backfill
+         * @description 预览绑定当前控制、配置、依赖和试算依据；提交重新验证。暂停不要求读取输入值。项目启用与恢复须具备计算维护委托和完整输入范围的当前读取资格。
+         */
+        post: operations["Derived:project:channels.backfill"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/channels/{id}/generations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * channels.generations
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        get: operations["Derived:tenant:channels.generations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/generations/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.query
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        post: operations["Derived:tenant:generations.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/generations/{id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.lineage
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        post: operations["Derived:tenant:generations.lineage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/channels/{id}/generations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * channels.generations
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        get: operations["Derived:project:channels.generations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/generations/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.query
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        post: operations["Derived:project:generations.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/generations/{id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.lineage
+         * @description 查看不可变历史代次；按当前输出及完整输入历史资格复核。撤销标记不会改变原数值，也不会使历史值重新成为当前结果。
+         */
+        post: operations["Derived:project:generations.lineage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/generations/{id}/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.replay
+         * @description 按原配置、原快照和原基准状态后台回放历史代次，逐项验证数值与状态；不改变任何正式结果或当前映射。
+         */
+        post: operations["Derived:tenant:generations.replay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/generations/{id}/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * generations.replay
+         * @description 按原配置、原快照和原基准状态后台回放历史代次，逐项验证数值与状态；不改变任何正式结果或当前映射。
+         */
+        post: operations["Derived:project:generations.replay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.list */
+        get: operations["Derived:tenant:analysis.configs.list"];
+        put?: never;
+        /** analysis.configs.create */
+        post: operations["Derived:tenant:analysis.configs.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.list */
+        get: operations["Derived:project:analysis.configs.list"];
+        put?: never;
+        /** analysis.configs.create */
+        post: operations["Derived:project:analysis.configs.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.detail */
+        get: operations["Derived:tenant:analysis.configs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.detail */
+        get: operations["Derived:project:analysis.configs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** analysis.configs.save */
+        patch: operations["Derived:tenant:analysis.configs.save"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** analysis.configs.save */
+        patch: operations["Derived:project:analysis.configs.save"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.copy */
+        post: operations["Derived:tenant:analysis.configs.copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.copy */
+        post: operations["Derived:project:analysis.configs.copy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.validate */
+        post: operations["Derived:tenant:analysis.configs.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.validate */
+        post: operations["Derived:project:analysis.configs.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.versions */
+        get: operations["Derived:tenant:analysis.configs.versions"];
+        put?: never;
+        /** analysis.configs.publish */
+        post: operations["Derived:tenant:analysis.configs.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.configs.versions */
+        get: operations["Derived:project:analysis.configs.versions"];
+        put?: never;
+        /** analysis.configs.publish */
+        post: operations["Derived:project:analysis.configs.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/configs/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.archive */
+        post: operations["Derived:tenant:analysis.configs.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/configs/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.configs.archive */
+        post: operations["Derived:project:analysis.configs.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.trials */
+        post: operations["Derived:tenant:analysis.trials"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.trials */
+        post: operations["Derived:project:analysis.trials"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.runs */
+        post: operations["Derived:tenant:analysis.runs"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.runs */
+        post: operations["Derived:project:analysis.runs"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.list */
+        get: operations["Derived:tenant:analysis.artifacts.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.list */
+        get: operations["Derived:project:analysis.artifacts.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.detail */
+        get: operations["Derived:tenant:analysis.artifacts.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.detail */
+        get: operations["Derived:project:analysis.artifacts.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.versions */
+        get: operations["Derived:tenant:analysis.artifacts.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.artifacts.versions */
+        get: operations["Derived:project:analysis.artifacts.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.query */
+        post: operations["Derived:tenant:analysis.artifacts.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.query */
+        post: operations["Derived:project:analysis.artifacts.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.lineage */
+        post: operations["Derived:tenant:analysis.artifacts.lineage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.lineage */
+        post: operations["Derived:project:analysis.artifacts.lineage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.archive */
+        post: operations["Derived:tenant:analysis.artifacts.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.archive */
+        post: operations["Derived:project:analysis.artifacts.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.comparisons */
+        post: operations["Derived:tenant:analysis.comparisons"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.comparisons */
+        post: operations["Derived:project:analysis.comparisons"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/comparisons/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.comparisons.query */
+        post: operations["Derived:tenant:analysis.comparisons.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/comparisons/{id}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.comparisons.query */
+        post: operations["Derived:project:analysis.comparisons.query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.detail */
+        get: operations["Derived:tenant:analysis.exports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.detail */
+        get: operations["Derived:project:analysis.exports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.files */
+        get: operations["Derived:tenant:analysis.exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.files */
+        get: operations["Derived:project:analysis.exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports/{id}/files/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.download */
+        get: operations["Derived:tenant:analysis.exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports/{id}/files/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** analysis.exports.download */
+        get: operations["Derived:project:analysis.exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.exports.cancel */
+        post: operations["Derived:tenant:analysis.exports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.exports.cancel */
+        post: operations["Derived:project:analysis.exports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.exports.retry */
+        post: operations["Derived:tenant:analysis.exports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.exports.retry */
+        post: operations["Derived:project:analysis.exports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.exports */
+        post: operations["Derived:tenant:analysis.artifacts.exports"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** analysis.artifacts.exports */
+        post: operations["Derived:project:analysis.artifacts.exports"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channel detail */
+        get: operations["Resource:channel-object:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** channel update */
+        patch: operations["Resource:channel-object:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel retire */
+        post: operations["Resource:channel-object:retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel restore */
+        post: operations["Resource:channel-object:restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel delete */
+        post: operations["Resource:channel-object:delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** channel detail */
+        get: operations["ProjectResource:channel-object:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** channel update */
+        patch: operations["ProjectResource:channel-object:update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resource:channel:preview */
+        post: operations["Resource:channel-object:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/mutation-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ProjectResource:channel:preview */
+        post: operations["ProjectResource:channel-object:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel retire */
+        post: operations["ProjectResource:channel-object:retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/engineering/resources/facilities/{facility_id}/channels/{channel_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** channel restore */
+        post: operations["ProjectResource:channel-object:restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/catalog/type-definitions/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:type-definitions:version */
+        get: operations["Resource:type-definitions:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/catalog/metrics/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:metrics:version */
+        get: operations["Resource:metrics:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/engineering/catalog/units/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ProjectResource:units:version */
+        get: operations["Resource:units:version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 当前身份在本空间的历史分析导出任务 */
+        get: operations["Derived:tenant:analysis.exports.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 当前身份在本空间的历史分析导出任务 */
+        get: operations["Derived:project:analysis.exports.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.detail */
+        get: operations["Derived:tenant:evidence.exports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.detail */
+        get: operations["Derived:project:evidence.exports.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.files */
+        get: operations["Derived:tenant:evidence.exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports/{id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.files */
+        get: operations["Derived:project:evidence.exports.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports/{id}/files/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.download */
+        get: operations["Derived:tenant:evidence.exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports/{id}/files/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.download */
+        get: operations["Derived:project:evidence.exports.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** evidence.exports.cancel */
+        post: operations["Derived:tenant:evidence.exports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** evidence.exports.cancel */
+        post: operations["Derived:project:evidence.exports.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** evidence.exports.retry */
+        post: operations["Derived:tenant:evidence.exports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** evidence.exports.retry */
+        post: operations["Derived:project:evidence.exports.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/generations/{id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** generations.exports */
+        post: operations["Derived:tenant:generations.exports"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/generations/{id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** generations.exports */
+        post: operations["Derived:project:generations.exports"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/evidence/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.list */
+        get: operations["Derived:tenant:evidence.exports.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/evidence/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** evidence.exports.list */
+        get: operations["Derived:project:evidence.exports.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -7345,7 +9696,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read";
+        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export";
         Permission: {
             name: string;
             group: string;
@@ -8907,6 +11258,16 @@ export interface components {
             /** @constant */
             visibility?: "full";
             historical_context_hidden?: boolean;
+            /** @enum {string} */
+            source_kind?: "direct" | "derived";
+            /** @enum {string} */
+            owner_kind?: "facility" | "component" | "point";
+            /** Format: uuid */
+            derived_metric_version_id?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            output_contract_hash?: string;
+            output_semantics?: components["schemas"]["DerivedOutputSemantics"];
+            metric_ref?: components["schemas"]["ResourceMetricRef"];
         };
         ResourceActions: {
             edit: boolean;
@@ -8919,6 +11280,8 @@ export interface components {
             create_component: boolean;
             create_point: boolean;
             create_channel: boolean;
+            create_derived_channel: boolean;
+            manage_calculation: boolean;
         };
         ResourceDetail: {
             name: string;
@@ -8987,6 +11350,16 @@ export interface components {
             /** Format: uuid */
             link_id?: string;
             shared: boolean;
+            /** @enum {string} */
+            source_kind?: "direct" | "derived";
+            /** @enum {string} */
+            owner_kind?: "facility" | "component" | "point";
+            /** Format: uuid */
+            derived_metric_version_id?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            output_contract_hash?: string;
+            output_semantics?: components["schemas"]["DerivedOutputSemantics"];
+            metric_ref?: components["schemas"]["ResourceMetricRef"];
         };
         ResourceItem: components["schemas"]["ResourceFullItem"] | components["schemas"]["ResourceContextItem"];
         ResourcePage: {
@@ -9175,6 +11548,16 @@ export interface components {
             visibility?: "full";
             historical_context_hidden?: boolean;
             has_visible_children: boolean;
+            /** @enum {string} */
+            source_kind?: "direct" | "derived";
+            /** @enum {string} */
+            owner_kind?: "facility" | "component" | "point";
+            /** Format: uuid */
+            derived_metric_version_id?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            output_contract_hash?: string;
+            output_semantics?: components["schemas"]["DerivedOutputSemantics"];
+            metric_ref?: components["schemas"]["ResourceMetricRef"];
         };
         ResourceContextItem: {
             /** Format: uuid */
@@ -9726,10 +12109,12 @@ export interface components {
             channel_id?: string;
             name: string;
             code: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage" | "create_derived_channel" | "manage_calculation")[];
             /** @enum {string} */
             source: "tenant_grant" | "project_create";
             revision: string;
+            /** @enum {string} */
+            source_kind?: "direct" | "derived";
         };
         ProjectResourceAccessDetail: {
             policy: components["schemas"]["ProjectResourcePolicy"];
@@ -9750,13 +12135,13 @@ export interface components {
             point_id?: string;
             /** Format: uuid */
             channel_id?: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage" | "create_derived_channel" | "manage_calculation")[];
         };
         ProjectResourceGrantUpdate: {
             /** Format: uuid */
             grant_id: string;
             expected_revision: string;
-            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage")[];
+            capabilities: ("read" | "update" | "create_component" | "create_point" | "create_channel" | "lifecycle" | "source_manage" | "create_derived_channel" | "manage_calculation")[];
         };
         ProjectResourceGrantEnd: {
             /** Format: uuid */
@@ -11514,7 +13899,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            kind: "validate" | "publish" | "summary" | "export" | "verify" | "relocate" | "backup" | "restore";
+            kind: "validate" | "publish" | "summary" | "export" | "verify" | "relocate" | "backup" | "restore" | "derive" | "analysis" | "derived_replay" | "analysis_compare" | "analysis_export" | "derived_evidence_export";
             /** Format: uuid */
             target_id: string;
             target_revision: string;
@@ -11531,7 +13916,7 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
             /** @enum {string} */
-            result_state?: "preparing" | "available" | "invalidated" | "expired";
+            result_state?: "preparing" | "available" | "invalidated" | "expired" | "input_invalidated";
             /** Format: uuid */
             trace_id: string;
         };
@@ -11609,13 +13994,19 @@ export interface components {
             quality: "good" | "unmarked" | "suspect" | "bad";
             quality_reason: string;
             revoked: boolean;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            source_kind: "direct";
         };
         MonitoringDetailPage: {
-            items: components["schemas"]["MonitoringObservation"][];
+            items: (components["schemas"]["MonitoringObservation"] | components["schemas"]["DerivedObservation"])[];
             snapshot: components["schemas"]["MonitoringSnapshot"];
             has_more: boolean;
             next_cursor: string;
             prev_cursor: string;
+            coverage?: components["schemas"]["DerivedCoverage"][];
         };
         MonitoringBatchCoverage: {
             /** Format: uuid */
@@ -11678,6 +14069,7 @@ export interface components {
             earliest: string | null;
             /** Format: date-time */
             latest: string | null;
+            derived?: components["schemas"]["DerivedCalculationCounts"];
         };
         MonitoringEnumStatistic: {
             value: string;
@@ -11705,15 +14097,32 @@ export interface components {
             scale: number;
             /** @enum {string} */
             rounding: "half_even";
-            first: components["schemas"]["MonitoringObservation"] | null;
-            last: components["schemas"]["MonitoringObservation"] | null;
-            minimum: components["schemas"]["MonitoringObservation"] | null;
-            maximum: components["schemas"]["MonitoringObservation"] | null;
+            first: components["schemas"]["MonitoringObservationItem"] | null;
+            last: components["schemas"]["MonitoringObservationItem"] | null;
+            minimum: components["schemas"]["MonitoringObservationItem"] | null;
+            maximum: components["schemas"]["MonitoringObservationItem"] | null;
             minimum_ties: string;
             maximum_ties: string;
             mean: string | null;
             population_stddev: string | null;
             states: components["schemas"]["MonitoringEnumStatistic"][];
+            derived?: components["schemas"]["DerivedCalculationCounts"];
+            /** @enum {string} */
+            source_kind: "direct" | "derived";
+            latest_output?: components["schemas"]["DerivedObservation"];
+            numeric_issues?: {
+                [key: string]: string;
+            };
+            last_valid_output?: components["schemas"]["DerivedObservation"] | null;
+            /** Format: date-time */
+            computed_through?: string | null;
+            /** Format: date-time */
+            input_through?: string | null;
+            pending_ranges?: components["schemas"]["MonitoringRange"][];
+            /** @enum {string} */
+            control_state?: "draft" | "enabled" | "paused" | "retired";
+            /** @enum {string} */
+            health?: "healthy" | "waiting" | "blocked";
         };
         MonitoringCalendarStatistic: {
             ever_published_count: string;
@@ -11732,10 +14141,10 @@ export interface components {
             scale: number;
             /** @enum {string} */
             rounding: "half_even";
-            first: components["schemas"]["MonitoringObservation"] | null;
-            last: components["schemas"]["MonitoringObservation"] | null;
-            minimum: components["schemas"]["MonitoringObservation"] | null;
-            maximum: components["schemas"]["MonitoringObservation"] | null;
+            first: components["schemas"]["MonitoringObservationItem"] | null;
+            last: components["schemas"]["MonitoringObservationItem"] | null;
+            minimum: components["schemas"]["MonitoringObservationItem"] | null;
+            maximum: components["schemas"]["MonitoringObservationItem"] | null;
             minimum_ties: string;
             maximum_ties: string;
             mean: string | null;
@@ -11751,11 +14160,18 @@ export interface components {
             actual_range: components["schemas"]["MonitoringRange"];
             included_ranges: components["schemas"]["MonitoringRange"][];
             partial: boolean;
+            derived?: components["schemas"]["DerivedCalculationCounts"];
+            /** @enum {string} */
+            source_kind: "direct" | "derived";
+            latest_output?: components["schemas"]["DerivedObservation"];
+            numeric_issues?: {
+                [key: string]: string;
+            };
         };
         MonitoringTrendBucket: {
             range: components["schemas"]["MonitoringRange"];
             sample_count: string;
-            points: components["schemas"]["MonitoringObservation"][];
+            points: components["schemas"]["MonitoringObservationItem"][];
             states: components["schemas"]["MonitoringEnumStatistic"][];
             discontinuous: boolean;
         };
@@ -11786,6 +14202,7 @@ export interface components {
             has_more: boolean;
             next_cursor?: string;
             computation: string;
+            coverage?: components["schemas"]["DerivedCoverage"][];
         };
         MonitoringPoint: {
             /** Format: uuid */
@@ -11805,12 +14222,12 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** Format: uuid */
-            point_id: string;
+            point_id: string | null;
             code: string;
             name: string;
             status: string;
             /** Format: uuid */
-            metric_version_id: string;
+            metric_version_id: string | null;
             metric_name: string;
             unit: string;
             /** @enum {string} */
@@ -11822,6 +14239,29 @@ export interface components {
                 [key: string]: unknown;
             } | null;
             read_ranges: components["schemas"]["MonitoringRange"][];
+            /** @enum {string} */
+            source_kind: "direct" | "derived";
+            /** @enum {string} */
+            owner_kind: "facility" | "component" | "point";
+            /** Format: uuid */
+            owner_id: string;
+            owner_name: string;
+            owner_code: string;
+            /** Format: uuid */
+            facility_id: string;
+            facility_name: string;
+            position: components["schemas"]["ResourcePosition"];
+            quantity_spec: {
+                [key: string]: unknown;
+            } | null;
+            output_contract_hash: string;
+            /** Format: uuid */
+            unit_version_id: string | null;
+            output_semantics: {
+                time_semantics?: components["schemas"]["DerivedTimeSemantics"];
+                direction?: string;
+                reference?: string;
+            } | null;
         };
         MonitoringPointPage: {
             items: components["schemas"]["MonitoringPoint"][];
@@ -11893,6 +14333,1406 @@ export interface components {
                 [key: string]: components["schemas"]["MonitoringRange"][];
             };
             ordering: string;
+            calculation_coverage?: components["schemas"]["DerivedCoverage"][];
+            calculation_heads?: {
+                [key: string]: components["schemas"]["MonitoringCalculationHead"];
+            };
+        };
+        DerivedIssue: {
+            code: string;
+            /** @description JSON Pointer，定位输入或规则节点。 */
+            path: string;
+            message: string;
+        };
+        DerivedError: {
+            code: string;
+            message: string;
+            issues?: components["schemas"]["DerivedIssue"][];
+        };
+        DerivedQuantity: {
+            /** Format: uuid */
+            base_unit_version_id?: string;
+            base_power: number;
+            /** @enum {string} */
+            time_unit?: "second" | "minute" | "hour" | "day";
+            time_power: number;
+            /** @enum {string} */
+            quantity_mode: "level" | "difference" | "ratio" | "count";
+            /** @enum {string} */
+            level_scale: "unknown" | "ratio" | "affine";
+            /** @enum {string} */
+            dimensionless_kind?: "ratio" | "count";
+        };
+        DerivedTimeSemantics: {
+            /** @enum {string} */
+            kind: "instant" | "interval_end" | "derived_window";
+            /** @enum {string} */
+            aggregation?: "count" | "sum" | "min" | "max" | "range" | "mean" | "variance" | "stddev" | "median" | "quantile";
+        };
+        DerivedInputSpec: {
+            key: string;
+            name?: string;
+            /** @enum {string} */
+            shape: "numeric";
+            source_kinds: ("direct" | "derived")[];
+            /** Format: uuid */
+            metric_version_id?: string;
+            quantity_spec: components["schemas"]["DerivedQuantity"];
+            /** @enum {string} */
+            direction: "must_match" | "not_applicable";
+            /** @enum {string} */
+            reference: "must_match" | "not_applicable";
+            time_semantics: components["schemas"]["DerivedTimeSemantics"];
+        };
+        DerivedParameter: {
+            key: string;
+            /** @enum {string} */
+            type: "decimal" | "duration" | "count" | "percentile";
+            default: string;
+            minimum?: string;
+            maximum?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            identity_affecting: boolean;
+        };
+        DerivedClock: {
+            /** @enum {string} */
+            kind: "primary_input" | "fixed_grid" | "calendar" | "whole_range";
+            input?: string;
+            anchor_ns?: string;
+            step_ns?: string;
+            timezone?: string;
+            /** @enum {string} */
+            period?: "day" | "month" | "year";
+        };
+        DerivedWindow: {
+            /** @enum {string} */
+            kind: "trailing_duration" | "trailing_count" | "fixed_duration" | "calendar" | "whole_range";
+            duration_ns?: string;
+            count?: string;
+            anchor_ns?: string;
+            timezone?: string;
+            /** @enum {string} */
+            period?: "day" | "month" | "year";
+            max_span_ns?: string;
+        };
+        DerivedBaseline: {
+            /** @enum {string} */
+            kind: "constant" | "observation" | "reference_window";
+            value?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            reference?: string;
+            /** @enum {string} */
+            method?: "mean" | "median" | "min" | "max";
+            from_ns?: string;
+            to_ns?: string;
+        };
+        DerivedNodeParams: {
+            tolerance_ns?: string;
+            expression?: string;
+            min_samples?: string;
+            max_gap_ns?: string;
+            max_age_ns?: string;
+            percentile?: string;
+            lag_ns?: string;
+            match_tolerance_ns?: string;
+            /** @enum {string} */
+            alignment?: "exact" | "same_interval" | "previous" | "nearest";
+            variables?: {
+                [key: string]: string;
+            };
+            window?: components["schemas"]["DerivedWindow"];
+            /** @enum {string} */
+            difference_mode?: "adjacent" | "lag";
+            /** @enum {string} */
+            invalid_policy?: "break" | "skip_excluded";
+            /** @enum {string} */
+            rate_time_unit?: "second" | "minute" | "hour" | "day";
+            weights?: string[];
+            baseline?: components["schemas"]["DerivedBaseline"];
+        };
+        DerivedNode: {
+            id: string;
+            /** @enum {string} */
+            op: "add" | "subtract" | "multiply" | "divide" | "min" | "max" | "abs" | "weighted_mean" | "formula" | "baseline_delta" | "baseline_ratio" | "difference" | "rate" | "window_count" | "window_sum" | "window_min" | "window_max" | "window_range" | "window_mean" | "window_variance" | "window_stddev" | "window_median" | "window_quantile";
+            inputs?: string[];
+            params: components["schemas"]["DerivedNodeParams"];
+        };
+        DerivedNumericContract: {
+            scale: number;
+            /** @enum {string} */
+            rounding: "half_even";
+        };
+        DerivedOutput: {
+            key: string;
+            node: string;
+            semantic_key: string;
+            name?: string;
+            quantity_spec?: components["schemas"]["DerivedQuantity"];
+            numeric_contract: components["schemas"]["DerivedNumericContract"];
+        };
+        DerivedPolicies: {
+            quality?: ("good" | "unmarked" | "suspect" | "bad")[];
+            /** @enum {string} */
+            config_boundary: "break";
+            allowed_lateness_ns: string;
+        };
+        DerivedRule: {
+            /** @enum {string} */
+            schema_version: "derived-rule/1";
+            inputs: components["schemas"]["DerivedInputSpec"][];
+            parameters?: components["schemas"]["DerivedParameter"][];
+            clock: components["schemas"]["DerivedClock"];
+            nodes: components["schemas"]["DerivedNode"][];
+            outputs: components["schemas"]["DerivedOutput"][];
+            policies: components["schemas"]["DerivedPolicies"];
+        };
+        DerivedWriteMeta: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+        };
+        DerivedCreateMetricInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            code: string;
+            name: string;
+            description: string;
+            rule: components["schemas"]["DerivedRule"];
+        };
+        DerivedSaveMetricInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason?: string;
+            name: string;
+            description: string;
+            /** Format: uuid */
+            base_version_id?: string;
+            rule: components["schemas"]["DerivedRule"];
+        };
+        DerivedCopyMetricInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            code: string;
+            name: string;
+            /** Format: uuid */
+            source_version_id: string;
+        };
+        DerivedValidateInput: {
+            draft_revision: string;
+        };
+        DerivedPublishMetricInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason?: string;
+            draft_revision: string;
+            validation_hash: string;
+        };
+        DerivedVersionStateInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            enabled: boolean;
+        };
+        DerivedDeleteDraftInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+        };
+        DerivedMetricDraft: {
+            revision: string;
+            /** Format: uuid */
+            base_version_id?: string;
+            rule: components["schemas"]["DerivedRule"];
+            /** Format: date-time */
+            updated_at: string;
+        };
+        DerivedMetricDefinition: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            code: string;
+            name: string;
+            description: string;
+            /** @enum {string} */
+            status: "active" | "deleted";
+            revision: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            latest_version: string;
+            draft?: components["schemas"]["DerivedMetricDraft"];
+        };
+        DerivedMetricVersion: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            definition_id: string;
+            version_no: string;
+            name: string;
+            rule: components["schemas"]["DerivedRule"];
+            schema_version: string;
+            compiler_version: string;
+            engine_version: string;
+            content_hash: string;
+            output_contract_hash: string;
+            enabled: boolean;
+            usable: boolean;
+            state_revision: string;
+            /** Format: date-time */
+            published_at: string;
+        };
+        DerivedMetricResult: {
+            definition: components["schemas"]["DerivedMetricDefinition"];
+            version?: components["schemas"]["DerivedMetricVersion"];
+            replayed: boolean;
+        };
+        DerivedTemplate: {
+            key: string;
+            version: string;
+            name: string;
+            description: string;
+            input_count: string;
+        };
+        DerivedMetricPage: {
+            items: components["schemas"]["DerivedMetricDefinition"][];
+            next_cursor: string;
+        };
+        DerivedVersionPage: {
+            items: components["schemas"]["DerivedMetricVersion"][];
+            next_cursor: string;
+        };
+        DerivedTemplatePage: {
+            items: components["schemas"]["DerivedTemplate"][];
+            next_cursor: string;
+        };
+        DerivedExpandTemplateInput: {
+            inputs: components["schemas"]["DerivedInputSpec"][];
+        };
+        DerivedRuleValidation: {
+            valid: boolean;
+            issues: components["schemas"]["DerivedIssue"][];
+            validation_hash: string;
+            compiled_plan_hash: string;
+            output_contract_hash: string;
+            normalized_rule: components["schemas"]["DerivedRule"];
+            input_count: string;
+            node_count: string;
+        };
+        ResourceMetricRef: {
+            /** @enum {string} */
+            kind: "engineering";
+            /** Format: uuid */
+            version_id: string;
+        } | {
+            /** @enum {string} */
+            kind: "derived";
+            /** Format: uuid */
+            version_id: string;
+        };
+        DerivedOutputSemantics: {
+            time_semantics: components["schemas"]["DerivedTimeSemantics"];
+            direction: string;
+            reference: string;
+        };
+        DerivedOwner: {
+            /** @enum {string} */
+            kind: "facility" | "component" | "point";
+            /** Format: uuid */
+            facility_id: string;
+            /** Format: uuid */
+            id: string;
+        };
+        DerivedInputBinding: {
+            /** Format: uuid */
+            channel_id: string;
+        };
+        DerivedCreateChannelInput: {
+            /** Format: uuid */
+            request_id: string;
+            reason?: string;
+            code: string;
+            name: string;
+            description: string;
+            owner: components["schemas"]["DerivedOwner"];
+            /** Format: uuid */
+            definition_version_id: string;
+            input_bindings: {
+                [key: string]: components["schemas"]["DerivedInputBinding"];
+            };
+            parameters: {
+                [key: string]: string;
+            };
+            quality?: ("good" | "unmarked" | "suspect" | "bad")[];
+            numeric_contract?: components["schemas"]["DerivedNumericContract"];
+            /** @description 按规则 reference 显式绑定输入槽；观测基准必须包含观测及采用身份。参考窗口在首次成功试算时冻结，后续新增数据不改变基准。 */
+            baseline_bindings?: {
+                [key: string]: components["schemas"]["DerivedBaselineBinding"];
+            };
+        };
+        DerivedChannel: {
+            resource: components["schemas"]["Resource"];
+            /** @enum {string} */
+            control_state: "draft" | "enabled" | "paused" | "retired";
+            control_revision: string;
+            config_revision: string;
+            mandate_revision: string;
+            /** Format: uuid */
+            draft_config_id: string;
+            auto_start_ns: string | null;
+            stop_ns: string | null;
+            /** @enum {string} */
+            health: "waiting" | "healthy" | "blocked";
+            blocked_reason: string;
+            owner_name: string;
+            owner_code: string;
+            facility_name: string;
+            metric_name: string;
+            /** Format: uuid */
+            current_config_id: string | null;
+        };
+        DerivedChannelResult: {
+            channel: components["schemas"]["DerivedChannel"];
+            replayed: boolean;
+        };
+        DerivedChannelConfig: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            definition_version_id: string;
+            input_bindings?: {
+                [key: string]: components["schemas"]["DerivedInputBinding"];
+            };
+            parameters?: {
+                [key: string]: string;
+            };
+            rule?: components["schemas"]["DerivedRule"];
+            semantic_hash: string;
+            config_hash: string;
+            output_contract_hash: string;
+            graph_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            inputs_restricted: boolean;
+            /** @description 按规则 reference 显式绑定输入槽；观测基准必须包含观测及采用身份。参考窗口在首次成功试算时冻结，后续新增数据不改变基准。 */
+            baseline_bindings?: {
+                [key: string]: components["schemas"]["DerivedBaselineBinding"];
+            };
+            /** Format: uuid */
+            base_config_id?: string;
+            /** @enum {string} */
+            change_kind: "initial" | "ordinary" | "correction";
+            semantic_intent_confirmed: boolean;
+            reset_baselines: boolean;
+        };
+        DerivedBindingSemantic: {
+            owner: components["schemas"]["DerivedOwner"];
+            /** @enum {string} */
+            source_kind: "direct" | "derived";
+            /** Format: uuid */
+            metric_version_id?: string;
+            output_contract_hash?: string;
+            quantity_spec: components["schemas"]["DerivedQuantity"];
+            time_semantics: components["schemas"]["DerivedTimeSemantics"];
+            direction: string;
+            reference: string;
+            aggregation: string;
+        };
+        DerivedChannelDependency: {
+            /** Format: uuid */
+            config_id: string;
+            slot: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** @enum {string} */
+            source_kind: "direct" | "derived";
+            source_semantics: components["schemas"]["DerivedBindingSemantic"];
+        };
+        DerivedChannelPage: {
+            items: components["schemas"]["DerivedChannel"][];
+            next_cursor: string;
+        };
+        DerivedConfigPage: {
+            items: components["schemas"]["DerivedChannelConfig"][];
+            next_cursor: string;
+        };
+        DerivedDependencyPage: {
+            items: components["schemas"]["DerivedChannelDependency"][];
+            next_cursor: string;
+            restricted: boolean;
+        };
+        DerivedNanosecondRange: {
+            from_ns: string;
+            to_ns: string | null;
+        };
+        DerivedRawNeed: {
+            /** Format: uuid */
+            channel_id: string;
+            from_ns: string | null;
+            to_ns: string | null;
+        };
+        DerivedRawSnapshot: {
+            /** Format: uuid */
+            id: string;
+            /** @constant */
+            schema_version: "raw-input-snapshot/1";
+            source_position: string;
+            route_revision: string;
+            content_hash: string;
+        };
+        DerivedRawSample: {
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            observation_id: string;
+            /** Format: uuid */
+            adoption_id: string;
+            /** Format: uuid */
+            batch_id: string;
+            observed_at_ns: string;
+            interval_start_ns: string | null;
+            /** @enum {string} */
+            value_kind: "integer" | "decimal" | "enum";
+            value: string;
+            quality: string;
+            quality_reason: string;
+        };
+        DerivedTrialMatch: {
+            reference: string;
+            id: string;
+            at_ns: string;
+            offset_ns: string;
+        };
+        DerivedTrialValue: {
+            preview_issue?: string;
+            output_key: string;
+            at_ns: string;
+            interval: components["schemas"]["DerivedNanosecondRange"] | null;
+            value: string | null;
+            scale: number;
+            rounded: boolean;
+            calculation_status: string;
+            quality: string;
+            reason_flags: string[];
+            count: string;
+            excluded_count: string;
+            matches: components["schemas"]["DerivedTrialMatch"][];
+        };
+        DerivedTrialNode: {
+            node_id: string;
+            sample_count: string;
+            status_counts: {
+                [key: string]: string;
+            };
+            examples: components["schemas"]["DerivedTrialValue"][];
+        };
+        DerivedTrialResult: {
+            /** Format: uuid */
+            trial_receipt_id: string;
+            /** Format: date-time */
+            expires_at: string;
+            compiled_plan_hash: string;
+            input_snapshot: components["schemas"]["DerivedRawSnapshot"];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            input_counts: {
+                rows: string;
+                bytes: string;
+            };
+            input_examples: components["schemas"]["DerivedRawSample"][];
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            output_count: string;
+            status_counts: {
+                [key: string]: string;
+            };
+            nodes: components["schemas"]["DerivedTrialNode"][];
+            examples: components["schemas"]["DerivedTrialValue"][];
+            waiting_for_input: boolean;
+            examples_truncated: boolean;
+            stale: boolean;
+            baselines: components["schemas"]["DerivedBaselineProof"][];
+            upstream_inputs: components["schemas"]["DerivedInputSource"][];
+            derived_input_examples: components["schemas"]["DerivedObservation"][];
+        };
+        DerivedRun: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            channel_id?: string;
+            /** Format: uuid */
+            config_id?: string;
+            /** @enum {string} */
+            mode: "trial" | "automatic" | "backfill" | "correction" | "historical_replay" | "analysis" | "comparison";
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            compiled_plan_hash: string;
+            /** Format: date-time */
+            created_at: string;
+            job: components["schemas"]["MonitoringJob"];
+            trial?: components["schemas"]["DerivedTrialResult"];
+            replayed: boolean;
+            historical_replay?: components["schemas"]["DerivedReplayResult"];
+            analysis?: components["schemas"]["AnalysisRunInfo"];
+            comparison?: components["schemas"]["AnalysisComparisonResult"];
+        };
+        DerivedRunPage: {
+            items: components["schemas"]["DerivedRun"][];
+            next_cursor: string;
+        };
+        DerivedTrialInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason?: string;
+            /** Format: uuid */
+            config_id: string;
+            config_hash: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+        };
+        DerivedRunControlInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+        };
+        DerivedControlProposal: {
+            /** @enum {string} */
+            action: "enable" | "pause" | "resume";
+            auto_start_ns?: string;
+            stop_ns?: string;
+            /** @enum {string} */
+            resume_mode?: "catch_up" | "new_start";
+            /** Format: uuid */
+            trial_receipt_id?: string;
+            allow_waiting_for_input: boolean;
+        };
+        DerivedControlPreviewInput: {
+            /** @enum {string} */
+            action: "enable" | "pause" | "resume";
+            auto_start_ns?: string;
+            stop_ns?: string;
+            /** @enum {string} */
+            resume_mode?: "catch_up" | "new_start";
+            /** Format: uuid */
+            trial_receipt_id?: string;
+            allow_waiting_for_input?: boolean;
+            expected_revision: string;
+        };
+        DerivedControlInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            /** Format: uuid */
+            preview_id: string;
+            preview_hash: string;
+        };
+        DerivedControlPreview: {
+            /** Format: uuid */
+            id: string;
+            hash: string;
+            proposal: components["schemas"]["DerivedControlProposal"];
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            config_id: string;
+            config_hash: string;
+            control_revision: string;
+            config_revision: string;
+            graph_revision: string;
+            output_ranges: components["schemas"]["DerivedNanosecondRange"][];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            waiting_for_input: boolean;
+            effective_at_ns: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        DerivedObservation: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            source_kind: "derived";
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            result_id: string;
+            /** Format: uuid */
+            generation_id: string;
+            /** Format: uuid */
+            config_id: string;
+            /** Format: uuid */
+            run_id: string;
+            /** Format: date-time */
+            output_at: string;
+            /** Format: date-time */
+            interval_start: string | null;
+            /** Format: date-time */
+            interval_end: string | null;
+            value: string | null;
+            scale: number;
+            /** @enum {string} */
+            rounding: "half_even";
+            rounded: boolean;
+            /** @enum {string} */
+            data_quality: "good" | "unmarked" | "suspect" | "bad";
+            /** @enum {string} */
+            calculation_status: "valid" | "baseline_invalid" | "noncausal_baseline" | "configuration_boundary" | "invalid_input" | "missing_input" | "insufficient_samples" | "gap_exceeded" | "age_exceeded" | "division_by_zero" | "numeric_out_of_range" | "numeric_underflow" | "precision_unresolved";
+            reason_flags: string[];
+            sample_count: string;
+            excluded_count: string;
+            /** Format: date-time */
+            input_first: string | null;
+            /** Format: date-time */
+            input_last: string | null;
+            /** @enum {string} */
+            freshness: "current" | "historical";
+            lineage_id: string;
+        };
+        DerivedCoverage: {
+            /** Format: uuid */
+            channel_id: string;
+            range: components["schemas"]["MonitoringRange"];
+            /** @enum {string} */
+            state: "current" | "pending" | "not_computed" | "recomputing";
+            /** Format: uuid */
+            generation_id?: string;
+        };
+        DerivedBaselineBinding: {
+            input: string;
+            /** Format: uuid */
+            observation_id?: string;
+            /** Format: uuid */
+            adoption_id?: string;
+            at_ns?: string;
+            /** Format: uuid */
+            result_id?: string;
+            /** Format: uuid */
+            generation_id?: string;
+        };
+        DerivedBaselineProof: {
+            reference: string;
+            /** Format: uuid */
+            snapshot_id: string;
+            evidence_hash: string;
+            valid: boolean;
+        };
+        MonitoringObservationItem: components["schemas"]["MonitoringObservation"] | components["schemas"]["DerivedObservation"];
+        DerivedCalculationCounts: {
+            logical_output_count: string;
+            valid_result_count: string;
+            no_result_count: string;
+            status_counts: {
+                [key: string]: string;
+            };
+        };
+        MonitoringCalculationHead: {
+            current_root: string;
+            head_revision: string;
+            config_revision: string;
+            control_revision: string;
+            control_state: string;
+            health: string;
+        };
+        DerivedSaveConfigInput: {
+            /** Format: uuid */
+            request_id: string;
+            reason: string;
+            /** Format: uuid */
+            definition_version_id: string;
+            input_bindings: {
+                [key: string]: components["schemas"]["DerivedInputBinding"];
+            };
+            parameters: {
+                [key: string]: string;
+            };
+            quality?: ("good" | "unmarked" | "suspect" | "bad")[];
+            numeric_contract?: components["schemas"]["DerivedNumericContract"];
+            /** @description 按规则 reference 显式绑定输入槽；观测基准必须包含观测及采用身份。参考窗口在首次成功试算时冻结，后续新增数据不改变基准。 */
+            baseline_bindings?: {
+                [key: string]: components["schemas"]["DerivedBaselineBinding"];
+            };
+            /** Format: uuid */
+            base_config_id: string;
+            /** @enum {string} */
+            change_kind: "ordinary" | "correction";
+            semantic_intent_confirmed: boolean;
+            reset_baselines: boolean;
+            expected_revision: string;
+        };
+        DerivedConfigResult: {
+            config: components["schemas"]["DerivedChannelConfig"];
+            channel: components["schemas"]["DerivedChannel"];
+            replayed: boolean;
+        };
+        DerivedConfigAssignment: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            config_id: string;
+            effective_range: components["schemas"]["DerivedNanosecondRange"];
+            created_revision: string;
+            superseded_revision: string | null;
+        };
+        DerivedAssignmentPage: {
+            items: components["schemas"]["DerivedConfigAssignment"][];
+            revision: string;
+            next_cursor: string;
+        };
+        DerivedConfigProposal: {
+            /** Format: uuid */
+            config_id: string;
+            /** @enum {string} */
+            mode: "ordinary" | "correction";
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            /** Format: uuid */
+            trial_receipt_id: string;
+            allow_waiting_for_input: boolean;
+        };
+        DerivedConfigPreviewInput: {
+            /** Format: uuid */
+            config_id: string;
+            /** @enum {string} */
+            mode: "ordinary" | "correction";
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            /** Format: uuid */
+            trial_receipt_id: string;
+            allow_waiting_for_input: boolean;
+            expected_revision: string;
+        };
+        DerivedConfigPreview: {
+            /** Format: uuid */
+            id: string;
+            hash: string;
+            proposal: components["schemas"]["DerivedConfigProposal"];
+            /** Format: uuid */
+            channel_id: string;
+            config_hash: string;
+            control_revision: string;
+            config_revision: string;
+            graph_revision: string;
+            output_ranges: components["schemas"]["DerivedNanosecondRange"][];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            waiting_for_input: boolean;
+            effective_at_ns: string;
+            /** Format: date-time */
+            expires_at: string;
+            replaced_assignments: components["schemas"]["DerivedConfigAssignment"][];
+            downstream_count: string;
+        };
+        DerivedBackfillPreviewInput: {
+            expected_revision: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            /**
+             * Format: uuid
+             * @description 仅为尚无配置分配的所选历史范围明确选择配置；需通道配置维护权限。
+             */
+            unassigned_config_id?: string;
+            dependencies?: components["schemas"]["DerivedBackfillDependencySelection"][];
+        };
+        DerivedBackfillTarget: {
+            /** Format: uuid */
+            config_id: string;
+            config_hash: string;
+            compiled_plan_hash: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            creates_assignment: boolean;
+        };
+        DerivedBackfillPreview: {
+            /** Format: uuid */
+            id: string;
+            hash: string;
+            /** Format: uuid */
+            channel_id: string;
+            config_revision: string;
+            control_revision: string;
+            graph_revision: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            targets: components["schemas"]["DerivedBackfillTarget"][];
+            /** Format: date-time */
+            expires_at: string;
+            /**
+             * Format: uuid
+             * @description 仅为尚无配置分配的所选历史范围明确选择配置；需通道配置维护权限。
+             */
+            unassigned_config_id?: string;
+            dependency_selections?: components["schemas"]["DerivedBackfillDependencySelection"][];
+            dependencies?: components["schemas"]["DerivedBackfillPreview"][];
+        };
+        DerivedBackfillResult: {
+            runs: components["schemas"]["DerivedRun"][];
+            replayed: boolean;
+        };
+        DerivedGeneration: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            run_id: string;
+            /** Format: uuid */
+            config_id: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            row_count: string | null;
+            status_counts?: {
+                [key: string]: string;
+            };
+            source_position: string;
+            publish_position: string;
+            /** @enum {string} */
+            input_state: "unchanged" | "changed" | "revoked";
+            /** Format: date-time */
+            created_at: string;
+            partial: boolean;
+        };
+        DerivedGenerationPage: {
+            items: components["schemas"]["DerivedGeneration"][];
+            next_cursor: string;
+        };
+        DerivedGenerationQuery: {
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+            cursor?: string;
+            limit?: number;
+        };
+        DerivedGenerationDetails: {
+            generation: components["schemas"]["DerivedGeneration"];
+            items: components["schemas"]["DerivedObservation"][];
+            next_cursor: string;
+            has_more: boolean;
+        };
+        DerivedGenerationLineage: {
+            generation: components["schemas"]["DerivedGeneration"];
+            config: components["schemas"]["DerivedChannelConfig"];
+            input_snapshot: components["schemas"]["DerivedRawSnapshot"];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            baselines: components["schemas"]["DerivedBaselineProof"][];
+            manifest_hash: string;
+            lineage_hash: string;
+            upstream_inputs: components["schemas"]["DerivedInputSource"][];
+        };
+        DerivedReplayInput: {
+            /** Format: uuid */
+            request_id: string;
+            reason?: string;
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+        };
+        DerivedReplayDifference: {
+            /** Format: uuid */
+            result_id: string;
+            at_ns: string;
+            /** @enum {string} */
+            kind: "added" | "missing" | "changed";
+            expected_hash: string;
+            actual_hash: string;
+        };
+        DerivedReplayResult: {
+            /** Format: uuid */
+            generation_id: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            compiled_plan_hash: string;
+            manifest_hash: string;
+            matched: boolean;
+            expected_count: string;
+            actual_count: string;
+            difference_count: string;
+            difference_examples: components["schemas"]["DerivedReplayDifference"][];
+            examples: components["schemas"]["DerivedTrialValue"][];
+            /** @enum {string} */
+            input_state: "unchanged" | "changed" | "revoked";
+        };
+        DerivedInputSource: {
+            /** Format: uuid */
+            channel_id: string;
+            /** Format: uuid */
+            generation_id: string;
+            /** Format: uuid */
+            config_id: string;
+            /** Format: uuid */
+            raw_snapshot_id: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            manifest_hash: string;
+            raw_input_ranges: components["schemas"]["DerivedRawNeed"][];
+            baselines: components["schemas"]["DerivedBaselineProof"][];
+            upstream_inputs: components["schemas"]["DerivedInputSource"][];
+        };
+        DerivedBackfillDependencySelection: {
+            expected_revision: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            /**
+             * Format: uuid
+             * @description 仅为尚无配置分配的所选历史范围明确选择配置；需通道配置维护权限。
+             */
+            unassigned_config_id?: string;
+            /** Format: uuid */
+            channel_id: string;
+        };
+        AnalysisBody: {
+            rule: components["schemas"]["DerivedRule"];
+            input_bindings: {
+                [key: string]: components["schemas"]["DerivedInputBinding"];
+            };
+            /** @description 按规则 reference 显式绑定输入槽；观测基准必须包含观测及采用身份。参考窗口在首次成功试算时冻结，后续新增数据不改变基准。 */
+            baseline_bindings?: {
+                [key: string]: components["schemas"]["DerivedBaselineBinding"];
+            };
+            parameters: {
+                [key: string]: string;
+            };
+        };
+        AnalysisDraft: {
+            revision: string;
+            body: components["schemas"]["AnalysisBody"];
+        };
+        AnalysisConfig: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string | null;
+            code: string;
+            name: string;
+            description: string;
+            /** @enum {string} */
+            status: "active" | "archived";
+            revision: string;
+            latest_version: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            inputs_restricted: boolean;
+            draft?: components["schemas"]["AnalysisDraft"];
+        };
+        AnalysisVersion: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            config_id: string;
+            version_no: string;
+            name: string;
+            body: components["schemas"]["AnalysisBody"];
+            config_hash: string;
+            compiled_plan_hash: string;
+            engine_version: string;
+            compiler_version: string;
+            /** Format: uuid */
+            base_version_id?: string;
+            reset_baselines: boolean;
+            /** Format: date-time */
+            created_at: string;
+        };
+        AnalysisConfigPage: {
+            items: components["schemas"]["AnalysisConfig"][];
+            next_cursor: string;
+        };
+        AnalysisVersionPage: {
+            items: components["schemas"]["AnalysisVersion"][];
+            next_cursor: string;
+        };
+        AnalysisConfigResult: {
+            config: components["schemas"]["AnalysisConfig"];
+            version?: components["schemas"]["AnalysisVersion"];
+            replayed: boolean;
+        };
+        AnalysisCreateInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            code: string;
+            name: string;
+            description?: string;
+            body: components["schemas"]["AnalysisBody"];
+        };
+        AnalysisSaveInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason?: string;
+            name: string;
+            description?: string;
+            body: components["schemas"]["AnalysisBody"];
+        };
+        AnalysisCopyInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            code: string;
+            name: string;
+            /** Format: uuid */
+            source_version_id: string;
+        };
+        AnalysisPublishInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+            draft_revision: string;
+            validation_hash: string;
+            /** Format: uuid */
+            base_version_id?: string;
+            reset_baselines?: boolean;
+        };
+        AnalysisWriteMeta: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision: string;
+            reason: string;
+        };
+        AnalysisValidation: {
+            draft_revision: string;
+            validation_hash: string;
+            config_hash: string;
+            compiled_plan_hash: string;
+            outputs: components["schemas"]["DerivedOutput"][];
+            identity_parameters: string[];
+            issues: components["schemas"]["DerivedIssue"][];
+        };
+        AnalysisRunInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            /** Format: uuid */
+            config_version_id: string;
+            config_hash: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            source_range?: components["schemas"]["DerivedNanosecondRange"];
+            outputs?: string[];
+            quality?: ("good" | "unmarked" | "suspect" | "bad")[];
+            /** Format: uuid */
+            artifact_id?: string;
+            artifact_name?: string;
+        };
+        AnalysisRunInfo: {
+            /** Format: uuid */
+            config_id: string;
+            /** Format: uuid */
+            config_version_id: string;
+            /** Format: uuid */
+            artifact_id?: string;
+            /** Format: uuid */
+            artifact_version_id?: string;
+            trial: boolean;
+            outputs: string[];
+            source_range?: components["schemas"]["DerivedNanosecondRange"];
+            quality: string[];
+        };
+        AnalysisArtifact: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            config_id: string;
+            name: string;
+            /** @enum {string} */
+            status: "active" | "archived";
+            revision: string;
+            latest_version: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        AnalysisArtifactVersion: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            artifact_id: string;
+            version_no: string;
+            /** Format: uuid */
+            run_id: string;
+            /** Format: uuid */
+            config_version_id: string;
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            /** Format: uuid */
+            input_snapshot_id: string;
+            source_position: string;
+            /** @description Exact full artifact row count; omitted for partial selections. */
+            output_rows?: string;
+            stale: boolean;
+            /** @enum {string} */
+            input_state: "current" | "affected" | "revoked";
+            /** Format: date-time */
+            created_at: string;
+            /** @description Only the authorized selected range and outputs are described. Full artifact row count is omitted. */
+            partial?: boolean;
+        };
+        AnalysisChange: {
+            kind: string;
+            /** Format: uuid */
+            channel_id: string;
+            affected_range: components["schemas"]["DerivedNanosecondRange"];
+            source_position: string;
+            /** Format: date-time */
+            changed_at: string;
+        };
+        AnalysisArtifactDetail: {
+            artifact: components["schemas"]["AnalysisArtifact"];
+            version: components["schemas"]["AnalysisArtifactVersion"];
+            config: components["schemas"]["AnalysisVersion"];
+            outputs: components["schemas"]["DerivedOutput"][];
+            changes: components["schemas"]["AnalysisChange"][];
+            changes_truncated: boolean;
+            run: components["schemas"]["AnalysisRunInfo"];
+        };
+        AnalysisArtifactPage: {
+            items: components["schemas"]["AnalysisArtifactDetail"][];
+            next_cursor: string;
+        };
+        AnalysisArtifactVersions: {
+            items: components["schemas"]["AnalysisArtifactVersion"][];
+            next_cursor: string;
+        };
+        AnalysisArtifactQuery: {
+            /** Format: uuid */
+            version_id?: string;
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+            outputs?: string[];
+            cursor?: string;
+            limit?: number;
+        };
+        AnalysisArtifactRow: {
+            preview_issue?: string;
+            output_key: string;
+            at_ns: string;
+            interval: components["schemas"]["DerivedNanosecondRange"] | null;
+            value: string | null;
+            scale: number;
+            rounded: boolean;
+            calculation_status: string;
+            quality: string;
+            reason_flags: string[];
+            count: string;
+            excluded_count: string;
+            matches: components["schemas"]["DerivedTrialMatch"][];
+            /** Format: uuid */
+            result_id: string;
+            lineage_ref: string;
+        };
+        AnalysisArtifactRows: {
+            version: components["schemas"]["AnalysisArtifactVersion"];
+            items: components["schemas"]["AnalysisArtifactRow"][];
+            next_cursor: string;
+            detail?: components["schemas"]["AnalysisArtifactDetail"];
+        };
+        AnalysisArtifactArchiveResult: {
+            artifact: components["schemas"]["AnalysisArtifact"];
+            replayed: boolean;
+        };
+        AnalysisLineage: {
+            schema: string;
+            run_id: string;
+            config_version_id: string;
+            config_hash: string;
+            plan_hash: string;
+            engine_version: string;
+            compiler_version: string;
+            raw_snapshot: components["schemas"]["DerivedRawSnapshot"];
+            upstream_inputs: components["schemas"]["DerivedInputSource"][];
+            input_ranges: components["schemas"]["DerivedRawNeed"][];
+            baselines: components["schemas"]["DerivedBaselineProof"][];
+            output_range: components["schemas"]["DerivedNanosecondRange"];
+            source_range: components["schemas"]["DerivedNanosecondRange"] | null;
+            outputs: string[];
+        };
+        AnalysisOutputMapping: {
+            left: string;
+            right: string;
+        };
+        AnalysisCompareInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            /** Format: uuid */
+            left_version_id: string;
+            /** Format: uuid */
+            right_version_id: string;
+            output_mapping?: components["schemas"]["AnalysisOutputMapping"][];
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+        };
+        AnalysisComparisonOutput: {
+            left: string;
+            right: string;
+            numeric_comparable: boolean;
+            semantic_changed: boolean;
+            left_rows: string;
+            right_rows: string;
+            added: string;
+            removed: string;
+            value_changed: string;
+            status_changed: string;
+            quality_changed: string;
+            samples_changed: string;
+            interval_changed: string;
+            unchanged: string;
+        };
+        AnalysisComparisonDifference: {
+            left_output: string;
+            right_output: string;
+            at_ns: string;
+            /** @enum {string} */
+            kind: "added" | "removed" | "changed";
+            changes: string[];
+            left?: components["schemas"]["AnalysisArtifactRow"];
+            right?: components["schemas"]["AnalysisArtifactRow"];
+            numeric_difference?: string;
+        };
+        AnalysisComparisonResult: {
+            left: components["schemas"]["AnalysisArtifactVersion"];
+            right: components["schemas"]["AnalysisArtifactVersion"];
+            left_quality: string[];
+            right_quality: string[];
+            left_config_hash: string;
+            right_config_hash: string;
+            left_input_hash: string;
+            right_input_hash: string;
+            configuration_changed: boolean;
+            inputs_changed: boolean;
+            range_changed: boolean;
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+            outputs: components["schemas"]["AnalysisComparisonOutput"][];
+            difference_count: string;
+            examples: components["schemas"]["AnalysisComparisonDifference"][];
+            examples_truncated: boolean;
+        };
+        AnalysisComparisonQuery: {
+            cursor?: string;
+            limit?: number;
+        };
+        AnalysisComparisonRows: {
+            summary: components["schemas"]["AnalysisComparisonResult"];
+            items: components["schemas"]["AnalysisComparisonDifference"][];
+            next_cursor: string;
+        };
+        AnalysisExportInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            /** Format: uuid */
+            version_id: string;
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+            outputs?: string[];
+            /** @enum {string} */
+            format: "csv" | "parquet";
+            /** @enum {string} */
+            csv_mode?: "exact" | "spreadsheet_safe";
+            history?: boolean;
+            /**
+             * @description results exports fixed outputs; inputs exports complete immutable candidate sets, upstream evidence and baselines, requiring history and export grants.
+             * @default results
+             * @enum {string}
+             */
+            content: "results" | "inputs";
+        };
+        AnalysisExportRecord: {
+            /** Format: uuid */
+            id: string;
+            job: components["schemas"]["MonitoringJob"];
+            /** @enum {string} */
+            source_kind: "analysis";
+            /** Format: uuid */
+            source_version_id: string;
+            /** @enum {string} */
+            format: "csv" | "parquet";
+            /** Format: date-time */
+            expires_at: string;
+            /** @enum {string} */
+            content: "results" | "inputs";
+        };
+        AnalysisExportManifest: {
+            /** Format: uuid */
+            id: string;
+            schema: string;
+            /** @enum {string} */
+            source_kind: "analysis";
+            /** Format: uuid */
+            source_version_id: string;
+            source: {
+                [key: string]: unknown;
+            };
+            format: string;
+            csv_mode: string;
+            ordering: string;
+            fields: components["schemas"]["MonitoringExportField"][];
+            files: components["schemas"]["MonitoringExportFile"][];
+            row_count: string;
+            /** Format: date-time */
+            expires_at: string;
+            escaping: string;
+            parquet_version: string;
+        };
+        AnalysisExportPage: {
+            items: components["schemas"]["AnalysisExportRecord"][];
+            next_cursor: string;
+        };
+        GenerationExportInput: {
+            /** Format: uuid */
+            request_id: string;
+            expected_revision?: string;
+            reason?: string;
+            output_range?: components["schemas"]["DerivedNanosecondRange"];
+            /** @enum {string} */
+            format: "csv" | "parquet";
+            /** @enum {string} */
+            csv_mode?: "exact" | "spreadsheet_safe";
+        };
+        GenerationExportRecord: {
+            /** Format: uuid */
+            id: string;
+            job: components["schemas"]["MonitoringJob"];
+            /** @enum {string} */
+            source_kind: "derived_evidence";
+            /** Format: uuid */
+            source_version_id: string;
+            /** @enum {string} */
+            format: "csv" | "parquet";
+            /** Format: date-time */
+            expires_at: string;
+            /** @enum {string} */
+            content: "results" | "inputs";
+        };
+        GenerationExportManifest: {
+            /** Format: uuid */
+            id: string;
+            schema: string;
+            /** @enum {string} */
+            source_kind: "derived_evidence";
+            /** Format: uuid */
+            source_version_id: string;
+            source: {
+                [key: string]: unknown;
+            };
+            format: string;
+            csv_mode: string;
+            ordering: string;
+            fields: components["schemas"]["MonitoringExportField"][];
+            files: components["schemas"]["MonitoringExportFile"][];
+            row_count: string;
+            /** Format: date-time */
+            expires_at: string;
+            escaping: string;
+            parquet_version: string;
+        };
+        GenerationExportPage: {
+            items: components["schemas"]["GenerationExportRecord"][];
+            next_cursor: string;
         };
     };
     responses: never;
@@ -53002,6 +56842,14919 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:templates.list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedTemplatePage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:templates.expand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                template: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedExpandTemplateInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRule"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: "published" | "draft";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedCreateMetricInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricDefinition"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedDeleteDraftInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedSaveMetricInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedCopyMetricInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedValidateInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRuleValidation"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedPublishMetricInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:metrics.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedVersionPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:versions.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricVersion"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:versions.state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedVersionStateInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:templates.list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedTemplatePage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:templates.expand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                template: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedExpandTemplateInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRule"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:metrics.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: "published" | "draft";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:metrics.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricDefinition"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:metrics.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedVersionPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:versions.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；版本不可变，修订和计数保持字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedMetricVersion"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误代码刷新依据后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                control_state?: "draft" | "enabled" | "paused" | "retired";
+                facility_id?: string;
+                owner_kind?: "facility" | "component" | "point";
+                owner_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedCreateChannelInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannel"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.configs.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.configs.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedSaveConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedDependencyPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                control_state?: "draft" | "enabled" | "paused" | "retired";
+                facility_id?: string;
+                owner_kind?: "facility" | "component" | "point";
+                owner_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedCreateChannelInput"];
+            };
+        };
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannel"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.configs.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.configs.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedSaveConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功。派生建档只建立草稿配置，尚不生成正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedDependencyPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedTrialInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 完整目标已进入共享任务队列，轮询运行状态；尚未完成试算。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:runs.list": {
+        parameters: {
+            query?: {
+                channel_id?: string;
+                state?: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "needs_action" | "retry_wait";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRunPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:runs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:runs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedRunControlInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:runs.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedRunControlInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedTrialInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 完整目标已进入共享任务队列，轮询运行状态；尚未完成试算。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:runs.list": {
+        parameters: {
+            query?: {
+                channel_id?: string;
+                state?: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "needs_action" | "retry_wait";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRunPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:runs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:runs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedRunControlInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:runs.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedRunControlInput"];
+            };
+        };
+        responses: {
+            /** @description 当前身份、资源和完整输入范围授权下的运行或试算结果；试算不会发布正式监测值。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.control-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 控制预览或提交结果。enabled 表示已建立执行委托，正式计算结果以运行与发布状态为准。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedControlPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 控制预览或提交结果。enabled 表示已建立执行委托，正式计算结果以运行与发布状态为准。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.control-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 控制预览或提交结果。enabled 表示已建立执行委托，正式计算结果以运行与发布状态为准。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedControlPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.control": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 控制预览或提交结果。enabled 表示已建立执行委托，正式计算结果以运行与发布状态为准。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Monitoring:tenant:channels.directory": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                channel_id?: string;
+                search?: string;
+                facility_id?: string;
+                owner_kind?: "facility" | "component" | "point";
+                owner_id?: string;
+                source_kind?: "direct" | "derived";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringChannelPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Monitoring:project:channels.directory": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                channel_id?: string;
+                search?: string;
+                facility_id?: string;
+                owner_kind?: "facility" | "component" | "point";
+                owner_id?: string;
+                source_kind?: "direct" | "derived";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；数值、计数和修订保持精确字符串。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringChannelPage"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+            /** @description 未完成；保留输入并按错误代码重新核对。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitoringError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.config-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedConfigPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.apply-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.assignments": {
+        parameters: {
+            query?: {
+                revision?: string;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedAssignmentPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.config-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedConfigPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedConfigPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.apply-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedChannelResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.assignments": {
+        parameters: {
+            query?: {
+                revision?: string;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 操作成功；新配置和历史分配保留原始身份。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedAssignmentPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.backfill-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedBackfillPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 按当前配置分配和递归输入权限申请回算。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedBackfillPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 按当前配置分配和递归输入权限申请回算。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedBackfillResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.backfill-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedBackfillPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 按当前配置分配和递归输入权限申请回算。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedBackfillPreview"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedControlInput"];
+            };
+        };
+        responses: {
+            /** @description 按当前配置分配和递归输入权限申请回算。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedBackfillResult"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:channels.generations": {
+        parameters: {
+            query: {
+                from_ns: string;
+                to_ns?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:generations.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedGenerationQuery"];
+            };
+        };
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationDetails"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:generations.lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedGenerationQuery"];
+            };
+        };
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationLineage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:channels.generations": {
+        parameters: {
+            query: {
+                from_ns: string;
+                to_ns?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationPage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:generations.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedGenerationQuery"];
+            };
+        };
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationDetails"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:generations.lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedGenerationQuery"];
+            };
+        };
+        responses: {
+            /** @description 获准历史范围及来源依据。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedGenerationLineage"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:generations.replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedReplayInput"];
+            };
+        };
+        responses: {
+            /** @description 回放任务已排队；通过运行入口读取验证报告。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:generations.replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedReplayInput"];
+            };
+        };
+        responses: {
+            /** @description 回放任务已排队；通过运行入口读取验证报告。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 未完成。保留输入，按错误核对后重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCreateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCreateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfig"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfig"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisSaveInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisSaveInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCopyInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCopyInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedValidateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisValidation"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DerivedValidateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisValidation"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisVersionPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisPublishInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisVersionPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisPublishInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.configs.archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.configs.archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisConfigResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.detail": {
+        parameters: {
+            query?: {
+                version_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactDetail"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.detail": {
+        parameters: {
+            query?: {
+                version_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactDetail"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactVersions"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.versions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactVersions"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisArtifactQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactRows"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisArtifactQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactRows"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisArtifactQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisLineage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisArtifactQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisLineage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactArchiveResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactArchiveResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCompareInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.comparisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisCompareInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedRun"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.comparisons.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisComparisonQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisComparisonRows"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.comparisons.query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisComparisonQuery"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisComparisonRows"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportManifest"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportManifest"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.artifacts.exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceChannelUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel-object:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDetail"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel-object:update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelUpdate"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:channel-object:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel-object:preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段；变更前重新校验资格与预览。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceMutationPreviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceMutationPreview"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel-object:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "ProjectResource:channel-object:restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                facility_id: string;
+                channel_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description 最多 256 KiB；拒绝未知字段。PATCH 未提交字段不变；嵌套对象整体替换。 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectResourceChannelState"];
+            };
+        };
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceResult"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:type-definitions:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:metrics:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Resource:units:version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功；重放返回原提交最小结果。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResourceCatalogVersion"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+            /** @description 请求未完成；冲突或临时错误保留输入，写请求不得自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:analysis.exports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.exports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisExportPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportManifest"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportManifest"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:generations.exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerationExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:generations.exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerationExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportRecord"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:tenant:evidence.exports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:evidence.exports.list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前空间与实际递归来源授权下的结果；202仅表示后台运行已排队。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationExportPage"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
                 };
             };
         };

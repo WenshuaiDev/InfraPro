@@ -2,12 +2,15 @@ package http_test
 
 import (
 	"context"
+	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/testsupport"
@@ -24,7 +27,8 @@ func browserMonitoring(t *testing.T, ctx context.Context, env *testsupport.Envir
 		return nil, func() {}
 	}
 	database := "monitoring_e2e_" + strings.ReplaceAll(uuid.NewString(), "-", "")
-	storage, err := monitoring.OpenStorage(ctx, monitoring.StorageConfig{Replicas: []string{"127.0.0.1:59000", "127.0.0.1:59001"}, Database: database, User: "default", Policy: "monitoring_tiered", ObjectEndpoint: "http://127.0.0.1:58333", ObjectAccessKey: "contract-admin", ObjectSecretKey: "contract-admin-test-only", Bucket: "contract-source", TempDirectory: t.TempDir(), ExportRows: 500})
+	temporary := t.TempDir()
+	storage, err := monitoring.OpenStorage(ctx, monitoring.StorageConfig{Replicas: []string{"127.0.0.1:59000", "127.0.0.1:59001"}, Database: database, User: "default", Policy: "monitoring_tiered", ObjectEndpoint: "http://127.0.0.1:58333", ObjectAccessKey: "contract-admin", ObjectSecretKey: "contract-admin-test-only", Bucket: "contract-source", TempDirectory: temporary, ExportRows: 500})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,6 +39,31 @@ func browserMonitoring(t *testing.T, ctx context.Context, env *testsupport.Envir
 	if err = storage.Check(ctx); err != nil {
 		storage.Close()
 		t.Fatal(err)
+	}
+	if err = derivedmonitoring.InitializeStorage(ctx, storage); err != nil {
+		storage.Close()
+		t.Fatal(err)
+	}
+	// Optional test-only operator connection, used to exercise the actual CLI
+	// against this real listener/schema. Never expose it through an HTTP route.
+	if path := os.Getenv("INFRAPRO_E2E_OPS_CONFIG"); path != "" {
+		if !filepath.IsAbs(path) {
+			t.Fatal("operator fixture configuration must use an absolute path")
+		}
+		body, e := json.MarshalIndent(map[string]string{"database_url": env.Config.DatabaseURL, "monitoring_clickhouse_replicas": "127.0.0.1:59000,127.0.0.1:59001", "monitoring_clickhouse_database": database, "monitoring_clickhouse_user": "default", "monitoring_clickhouse_policy": "monitoring_tiered", "monitoring_object_endpoint": "http://127.0.0.1:58333", "monitoring_object_access_key": "contract-admin", "monitoring_object_secret_key": "contract-admin-test-only", "monitoring_source_bucket": "contract-source", "monitoring_temp_directory": temporary, "monitoring_export_rows_per_file": "500"}, "", "  ")
+		if e != nil {
+			t.Fatal(e)
+		}
+		file, e := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = file.Write(body)
+		closeError := file.Close()
+		if e != nil || closeError != nil {
+			t.Fatal("cannot write isolated operator configuration", e, closeError)
+		}
+		t.Cleanup(func() { _ = os.Remove(path) })
 	}
 	worker, stop := context.WithCancel(ctx)
 	finished := make(chan struct{})

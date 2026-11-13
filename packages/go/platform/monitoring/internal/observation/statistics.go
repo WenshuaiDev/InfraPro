@@ -3,6 +3,8 @@ package observation
 import (
 	"errors"
 	"math/big"
+
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoringvalue"
 )
 
 // Moments can be combined without losing small differences between large
@@ -37,33 +39,14 @@ func (m *Moments) Results(digits int) (mean, populationStddev *string, err error
 		return nil, nil, errors.New("invalid_variance_state")
 	}
 	meanDen := new(big.Int).Mul(&m.N, pow10(DecimalScale))
-	mn := roundRatio(new(big.Int).Mul(&m.S1, pow10(digits)), meanDen)
+	mn := monitoringvalue.RoundHalfEven(new(big.Rat).SetFrac(&m.S1, meanDen), digits)
 	den := new(big.Int).Mul(&m.N, &m.N)
 	den.Mul(den, pow10(2*DecimalScale))
-	num.Mul(num, pow10(2*digits))
-	q := new(big.Int).Sqrt(new(big.Int).Quo(num, den))
-	boundary := new(big.Int).Add(new(big.Int).Lsh(new(big.Int).Set(q), 1), big.NewInt(1))
-	boundary.Mul(boundary, boundary)
-	boundary.Mul(boundary, den)
-	cmp := new(big.Int).Lsh(num, 2).Cmp(boundary)
-	if cmp > 0 || (cmp == 0 && q.Bit(0) == 1) {
-		q.Add(q, big.NewInt(1))
+	q, err := monitoringvalue.RoundSqrt(new(big.Rat).SetFrac(num, den), digits)
+	if err != nil {
+		return nil, nil, err
 	}
+
 	a, b := Format(mn, digits), Format(q, digits)
 	return &a, &b, nil
-}
-
-func roundRatio(n, d *big.Int) *big.Int {
-	negative := n.Sign() < 0
-	n = new(big.Int).Abs(n)
-	q, r := new(big.Int), new(big.Int)
-	q.QuoRem(n, d, r)
-	cmp := new(big.Int).Lsh(r, 1).Cmp(d)
-	if cmp > 0 || (cmp == 0 && q.Bit(0) == 1) {
-		q.Add(q, big.NewInt(1))
-	}
-	if negative {
-		q.Neg(q)
-	}
-	return q
 }

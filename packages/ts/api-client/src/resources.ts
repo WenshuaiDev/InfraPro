@@ -27,7 +27,7 @@ type Request = <T>(path: string, method?: string, body?: unknown, notify?: boole
 const workspace = (scope: ResourceScope | string) => typeof scope === 'string' ? `/tenants/${encodeURIComponent(scope)}` : `/tenants/${encodeURIComponent(scope.tenantId)}${scope.kind === 'project' ? `/projects/${encodeURIComponent(scope.projectId)}` : ''}`;
 const base = (scope: ResourceScope | string) => `${workspace(scope)}/engineering/resources`;
 const governance = (tenant: string, project: string, facility?: string) => `/tenants/${encodeURIComponent(tenant)}/projects/${encodeURIComponent(project)}/resource-access${facility ? `/facilities/${encodeURIComponent(facility)}` : ''}`;
-function path(tenant: ResourceScope | string, t: ResourceTarget) { const root = `${base(tenant)}/facilities`; const list = t.kind === 'facility' ? root : `${root}/${encodeURIComponent(t.facility!)}/${t.kind === 'component' ? 'components' : t.kind === 'point' ? 'points' : `points/${encodeURIComponent(t.point!)}/channels`}`; return t.id ? `${list}/${encodeURIComponent(t.id)}` : list; }
+function path(tenant: ResourceScope | string, t: ResourceTarget) { const root = `${base(tenant)}/facilities`; const list = t.kind === 'facility' ? root : `${root}/${encodeURIComponent(t.facility!)}/${t.kind === 'component' ? 'components' : t.kind === 'point' ? 'points' : t.point ? `points/${encodeURIComponent(t.point)}/channels` : 'channels'}`; return t.id ? `${list}/${encodeURIComponent(t.id)}` : list; }
 const query = (f: object) => new URLSearchParams(Object.entries(f).filter(([,v]) => v !== undefined && v !== '').map(([k,v]) => [k,String(v)])).toString();
 export function resourceMethods(request: Request) {
  return {
@@ -46,6 +46,7 @@ export function resourceMethods(request: Request) {
   resourceAccessChanges: (tenant: string, project: string, filter: {cursor?: string;limit?: number} = {}, signal?: AbortSignal) => request<Schema<'ProjectResourceAccessChanges'>>(`${governance(tenant,project)}/changes?${query(filter)}`, 'GET', undefined, true, signal),
   resourceAccessReceipt: (tenant: string, project: string, id: string) => request<ResourceAccessResult>(`${governance(tenant,project)}/requests/${encodeURIComponent(id)}`),
   projectResourceCatalog: (scope: Extract<ResourceScope, {kind:'project'}>, kind: 'type-definitions' | 'metrics' | 'units', filter: {q?: string;offset?: number;limit?: number}, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogPage'>>(`${workspace(scope)}/engineering/catalog/${kind}?${query(filter)}`, 'GET', undefined, true, signal),
+  resourceCatalogVersion: (scope: ResourceScope, kind: 'type-definitions' | 'metrics' | 'units', id: string, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogVersion'>>(`${workspace(scope)}/engineering/catalog/${kind}/versions/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
   projectResourceCatalogVersion: (scope: Extract<ResourceScope, {kind:'project'}>, kind: 'type-definitions' | 'metrics' | 'units', id: string, signal?: AbortSignal) => request<Schema<'ProjectResourceCatalogVersion'>>(`${workspace(scope)}/engineering/catalog/${kind}/versions/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
  };
 }
