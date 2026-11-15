@@ -5,10 +5,12 @@ export function useCursorList<T>({
   queryKey,
   load,
   enabled = true,
+  refetchInterval,
 }: {
   queryKey: readonly unknown[];
-  load: (cursor: string, signal: AbortSignal) => Promise<{ items: T[]; next_cursor: string }>;
+  load: (cursor: string, signal: AbortSignal) => Promise<{ items: T[]; next_cursor: string; counts?: Record<string, number> }>;
   enabled?: boolean;
+  refetchInterval?: number;
 }) {
   const key = JSON.stringify(queryKey);
   const current = useRef(key);
@@ -28,6 +30,7 @@ export function useCursorList<T>({
     queryFn: ({ pageParam, signal }) => load(pageParam, signal),
     getNextPageParam: (page) => page.next_cursor || undefined,
     enabled,
+    refetchInterval,
   });
   const pages = query.data?.pages ?? [];
   let page = position.key === key ? Math.min(position.page, Math.max(0, pages.length - 1)) : 0;

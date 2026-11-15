@@ -2,6 +2,7 @@ package access
 
 import (
 	"context"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -45,6 +46,9 @@ func InvalidateTenantInvitations(ctx context.Context, tx pgx.Tx, scope Invitatio
 	}
 	for _, v := range events {
 		m.TenantID = v.tenant
+		if e = NotificationReceiptTx(ctx, tx, "tenancy", "invitation.changed", v.status, m.ActorID, ne.BusinessScope(v.tenant, ""), ne.Target{Kind: "tenant_invitation", ID: v.id}, ne.Personal(v.data["target_account_id"].(string))); e != nil {
+			return e
+		}
 		if e = Audit(ctx, tx, "tenant.invitation."+v.status, "tenant_invitation", v.id, "", map[string]string{"status": "pending"}, v.data, m); e != nil {
 			return e
 		}

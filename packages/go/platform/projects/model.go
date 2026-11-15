@@ -171,8 +171,8 @@ type Preview struct {
 	Notes           []string          `json:"notes"`
 }
 type Filter struct {
-	Query, Cursor, Status, Owner, Unavailable, Event, From, To, ObjectID, ActorID string
-	Limit                                                                         int
+	Query, Cursor, Status, Source, Owner, Unavailable, Event, From, To, ObjectID, ActorID string
+	Limit                                                                                 int
 }
 
 func problem(code, message string, status int) error {

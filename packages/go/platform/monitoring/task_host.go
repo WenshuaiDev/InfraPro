@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"slices"
 	"strconv"
 	"time"
@@ -251,7 +252,7 @@ func (s *Service) TaskCommandResultTx(ctx context.Context, tx pgx.Tx, a access.A
 	}
 	return taskOf(j), nil
 }
-func (s *Service) ControlTaskTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, id, expected, action string) (Job, error) {
+func (s *Service) ControlTaskTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, id, expected, action string, taskCommands ...tasks.Command) (Job, error) {
 	task, e := s.TaskTx(ctx, tx, a, scope, id, true)
 	if e != nil {
 		return Job{}, e
@@ -271,9 +272,17 @@ func (s *Service) ControlTaskTx(ctx context.Context, tx pgx.Tx, a access.Actor, 
 		if !slices.Contains([]string{"failed", "needs_action", "cancelled"}, j.State) {
 			return Job{}, revisionChanged()
 		}
-		command = `UPDATE monitoring_jobs SET state='queued',attempts=0,fence=fence+1,cancel_requested=false,error_code=NULL,lease_owner=NULL,lease_until=NULL,available_at=clock_timestamp(),revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2 AND revision=$3`
+		command = `UPDATE monitoring_jobs SET state='queued',notification_generation=notification_generation+1,attempts=0,fence=fence+1,cancel_requested=false,error_code=NULL,lease_owner=NULL,lease_until=NULL,available_at=clock_timestamp(),revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2 AND revision=$3`
 	default:
 		return Job{}, invalid("action", "需要取消或重试操作。")
+	}
+	contextCommand := tasks.Command{Action: action}
+	if len(taskCommands) > 0 {
+		contextCommand = taskCommands[0]
+		contextCommand.Action = action
+	}
+	if e = s.setTaskCommandTx(ctx, tx, a, j.ID, contextCommand); e != nil {
+		return Job{}, e
 	}
 	tag, e := tx.Exec(ctx, command, scope.Tenant, id, expected)
 	if e != nil {
@@ -281,6 +290,9 @@ func (s *Service) ControlTaskTx(ctx context.Context, tx pgx.Tx, a access.Actor, 
 	}
 	if tag.RowsAffected() != 1 {
 		return Job{}, revisionChanged()
+	}
+	if e = s.RecordTaskOutcomeTx(ctx, tx, id); e != nil {
+		return Job{}, e
 	}
 	return scanJob(tx.QueryRow(ctx, jobSelect+` WHERE tenant_id=$1 AND id=$2`, scope.Tenant, id))
 }

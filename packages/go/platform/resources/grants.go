@@ -11,6 +11,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -669,10 +670,12 @@ func recordAccessChange(ctx context.Context, tx pgx.Tx, auth authorization, proj
 	meta.TenantID = auth.Tenant
 	meta.ActorScope = auth.Entry
 	meta.ProjectID = ""
-	meta.Reason = "项目资源授权已更新"
+	meta.Reason = reason
+	meta.RequestID = request
 	summary := map[string]any{"operation": operation, "access_revision": rev}
 	if auth.Entry == "tenant" {
-		if e = access.Audit(ctx, tx, event, objectType, objectID, "", nil, summary, meta); e != nil {
+		meta.AuditLinks = append(meta.AuditLinks, ar.Link{Kind: "business", Module: "resources", TargetKind: "project_resource_policy", TargetID: project, Relation: "subject", Scope: ar.Scope{Kind: "tenant", Tenant: auth.Tenant}})
+		if e = access.Audit(ctx, tx, event, objectType, objectID, "", before, after, meta); e != nil {
 			return "", e
 		}
 	}
@@ -681,7 +684,12 @@ func recordAccessChange(ctx context.Context, tx pgx.Tx, auth authorization, proj
 	meta.ActorScope = auth.Entry
 	meta.ActorID = ""
 	meta.ActorType = "system"
+	meta.Reason = "项目资源授权已更新"
+	meta.AuditLinks = nil
 	e = access.Audit(ctx, tx, "project.resource_access.changed", objectType, objectID, "", nil, summary, meta)
+	if e == nil {
+		e = access.NotifyProjectGrantTx(ctx, tx, "resources", auth.Tenant, project, auth.Account)
+	}
 	return rev, e
 }
 

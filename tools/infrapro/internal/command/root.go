@@ -25,10 +25,17 @@ const rootHelp = `InfraPro 项目统一运维工具
 用法：infrapro <命令组> <子命令> [选项]
 
 命令组：
+  diagnostics 独立运行诊断配置、账号、观察器密钥及状态维护
+  audit       审计查询、导出、保留、清理与恢复
   access      权限目录与管理员角色维护
   database    项目数据库迁移
   account     账号初始化、查找、恢复、状态维护及审计
   monitoring  监测存储检查与维护
+  files       普通文件检查、处理、清理、备份与恢复
+  spatial     空间固定版本内容与恢复核验
+  display     大屏包核验、清理与恢复代次
+  tasks 任务索引、回填、对账与恢复
+  notifications 站内通知健康、积压与失败重放
 
 使用 infrapro <命令组> --help 查看可用子命令。
 配置：INFRAPRO_CONFIG 指定 YAML，环境变量覆盖同名配置。
@@ -42,7 +49,7 @@ const accountHelp = `账号维护：infrapro account <子命令> [选项]
   reset-link      --username <用户名> --reason <核验原因>
   disable         --username <用户名> --reason <原因> [--emergency]
   enable          --username <用户名> --reason <原因>
-  audit           [--cursor <分页位置>]
+  audit           [--cursor <分页位置>]，本地维护有限安全摘要（非人员空间查询）
   revoke-access   --reason <原因>，备份恢复后撤销历史访问能力
 `
 
@@ -73,12 +80,26 @@ func (a *App) Run(ctx context.Context, args []string) error {
 		args = []string{args[1], "--help"}
 	}
 	switch args[0] {
+	case "diagnostics":
+		return a.diagnostics(ctx, args[1:])
+	case "audit":
+		return a.audit(ctx, args[1:])
+	case "files":
+		return a.files(ctx, args[1:])
+	case "tasks":
+		return a.tasks(ctx, args[1:])
+	case "notifications":
+		return a.notifications(ctx, args[1:])
+	case "display":
+		return a.display(ctx, args[1:])
 	case "access":
 		return a.access(ctx, args[1:])
 	case "database":
 		return a.database(ctx, args[1:])
 	case "account":
 		return a.account(ctx, args[1:])
+	case "spatial":
+		return a.spatial(ctx, args[1:])
 	case "monitoring":
 		return a.monitoring(ctx, args[1:])
 	default:

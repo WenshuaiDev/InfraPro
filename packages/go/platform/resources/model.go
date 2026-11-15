@@ -179,3 +179,6 @@ func invalid(path, code, message string) *Error {
 	return e
 }
 func jsonBytes(v any) []byte { b, _ := json.Marshal(v); return b }
+
+// StatusCode allows cross-module metadata adapters to distinguish hidden data from outages.
+func (e *Error) StatusCode() int { return e.Status }

@@ -198,7 +198,7 @@ func (s *Service) executeTrial(ctx context.Context, lease monitoring.TaskLease) 
 		if e != nil {
 			return e
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',revision=revision+1,lease_owner=NULL,lease_until=NULL,progress=$3,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, scope.Tenant, task.Job.ID, jsonBytes(map[string]string{"phase": "completed", "output_count": result.OutputCount, "trial_receipt_id": receipt}))
+		e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "output_count": result.OutputCount, "trial_receipt_id": receipt})
 		return e
 	})
 }

@@ -13,7 +13,7 @@ export type ProjectUpdateInput = Schema<'ProjectUpdateInput'>;
 export type ProjectRoleInput = Schema<'ProjectRoleInput'>;
 export type ProjectAction = 'archive' | 'restore' | 'owner' | 'administrator-transfer' | 'administrator-recovery' | 'member.suspend' | 'member.resume' | 'member.remove' | 'member.roles' | 'role.permissions' | 'role.status' | 'role.delete';
 export type ProjectChange = Schema<'ProjectChangeInput'> & Partial<Pick<Schema<'ProjectCandidateInput'>, 'tenant_membership_id'> & Pick<Schema<'ProjectRolesInput'>, 'role_ids' | 'role_versions'> & Pick<Schema<'ProjectPermissionsInput'>, 'permission_codes'> & Pick<Schema<'ProjectStatusInput'>, 'status'>>;
-export type ProjectFilter = { q?: string; status?: string; cursor?: string; limit?: number; owner_tenant_membership_id?: string; administrator_unavailable?: boolean; event_type?: string; from?: string; to?: string; object_id?: string; actor_id?: string };
+export type ProjectFilter = { q?: string; status?: string; source?: string; cursor?: string; limit?: number; owner_tenant_membership_id?: string; administrator_unavailable?: boolean; event_type?: string; from?: string; to?: string; object_id?: string; actor_id?: string };
 type Request = <T>(path: string, method?: string, body?: unknown, notify?: boolean, signal?: AbortSignal) => Promise<T>;
 const t = (id: string) => `/tenants/${encodeURIComponent(id)}`;
 const p = (tenant: string, project: string) => `${t(tenant)}/projects/${encodeURIComponent(project)}`;

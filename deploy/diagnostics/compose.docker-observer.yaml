@@ -1,0 +1,23 @@
+# Optional daemon-capable role. A read-only socket mount alone does not make
+# the Docker API read-only; the adapter itself enforces a fixed GET allowlist.
+# Keep this role separate from server and the low-privilege protocol observer.
+services:
+  docker-observer:
+    profiles: [docker-observer]
+    image: ${DIAGNOSTICS_IMAGE:-infrapro-diagnostics:local}
+    user: "${DIAGNOSTICS_DOCKER_UID:-10003}:${DIAGNOSTICS_DOCKER_GID:-10003}"
+    group_add: ["${DIAGNOSTICS_SOCKET_GID:?numeric owner group of the socket}"]
+    command: [observer, --config, /etc/infrapro/observer/observer.json]
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 32
+    volumes:
+      - ${DIAGNOSTICS_DOCKER_CONFIG_DIR:?protected Docker observer configuration}:/etc/infrapro/observer:ro
+      - ${DIAGNOSTICS_DOCKER_STATE_DIR:?protected Docker observer state}:/var/lib/infrapro-observer
+      - ${DIAGNOSTICS_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      - ${DIAGNOSTICS_REPORT_DIR:?assigned business reports}:/run/infrapro-reports:ro
+    tmpfs: ["/tmp:size=8m,mode=1777"]

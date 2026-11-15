@@ -338,12 +338,12 @@ func TestProjectCatalogPublicationAuditCleanupAndPaging(t *testing.T) {
 	if len(auditIDs) != count(t, f, `SELECT count(*) FROM account_security_events WHERE project_id=$1`, p.ProjectID) {
 		t.Fatal("incomplete audit")
 	}
-	_, e = f.e.Pool.Exec(ctx, `UPDATE account_security_events SET created_at=clock_timestamp()-interval '200 days' WHERE project_id=$1`, p.ProjectID)
+	_, e = f.e.Pool.Exec(ctx, `INSERT INTO account_security_events(event_type,outcome,tenant_id,project_id,visibility_class,created_at) VALUES('project.ProjectUpdate','success',$1,$2,'project',clock_timestamp()-interval '200 days')`, f.tid, p.ProjectID)
 	must(t, e)
 	_, e = f.e.Pool.Exec(ctx, `INSERT INTO account_security_events(event_type,outcome,created_at) VALUES('expired.nonproject','success',clock_timestamp()-interval '200 days')`)
 	must(t, e)
 	must(t, identity.NewRepository(f.e.Pool).Cleanup(ctx, 90*24*time.Hour))
-	if count(t, f, `SELECT count(*) FROM account_security_events WHERE project_id=$1`, p.ProjectID) != len(auditIDs) || count(t, f, `SELECT count(*) FROM account_security_events WHERE event_type='expired.nonproject'`) != 0 {
+	if count(t, f, `SELECT count(*) FROM account_security_events WHERE project_id=$1`, p.ProjectID) != len(auditIDs)+1 || count(t, f, `SELECT count(*) FROM account_security_events WHERE event_type='expired.nonproject'`) != 1 {
 		t.Fatal("retention mismatch")
 	}
 }

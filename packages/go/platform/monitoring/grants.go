@@ -32,7 +32,7 @@ func receiptTx(ctx context.Context, tx pgx.Tx, auth authorization, operation str
 	var result []byte
 	e := tx.QueryRow(ctx, `SELECT payload_hash,result FROM monitoring_receipts WHERE scope_kind=$1 AND tenant_id=$2 AND scope_id=$3 AND actor_id=$4 AND operation=$5 AND request_id=$6`, auth.Entry, auth.Tenant, auth.scopeID(), auth.Account, operation, request).Scan(&hash, &result)
 	if e == pgx.ErrNoRows {
-		return false, nil
+		return false, auditBeforeCommandTx(ctx, tx, auth, operation)
 	}
 	if e != nil {
 		return false, e
@@ -48,7 +48,10 @@ func saveReceiptTx(ctx context.Context, tx pgx.Tx, auth authorization, op, reque
 		return e
 	}
 	_, e = tx.Exec(ctx, `INSERT INTO monitoring_receipts(scope_kind,tenant_id,scope_id,actor_id,operation,request_id,payload_hash,result) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, auth.Entry, auth.Tenant, auth.scopeID(), auth.Account, op, request, digest(payload), b)
-	return e
+	if e != nil {
+		return e
+	}
+	return auditCommandTx(ctx, tx, auth, op, request, payload, result)
 }
 
 func (s *Service) GrantData(ctx context.Context, a access.Actor, tenant, project string, input GrantInput) (GrantResult, error) {
@@ -121,7 +124,7 @@ func (s *Service) GrantData(ctx context.Context, a access.Actor, tenant, project
 	return out, e
 }
 
-const grantSelect = `SELECT d.id::text,d.tenant_id::text,d.project_id::text,d.channel_id::text,d.resource_grant_id::text,lower(d.permitted),upper(d.permitted),d.capabilities,d.revision::text,d.granted_at,d.revoked_at,(d.revoked_at IS NULL AND g.ended_at IS NULL AND l.status='active'),c.name,c.code,p.name,f.name FROM monitoring_data_grants d JOIN project_resource_grants g ON g.id=d.resource_grant_id JOIN project_facility_links l ON l.id=g.link_id JOIN engineering_channels c ON c.id=d.channel_id AND c.tenant_id=d.tenant_id JOIN engineering_points p ON p.id=c.point_id AND p.tenant_id=c.tenant_id JOIN engineering_facilities f ON f.id=p.facility_id AND f.tenant_id=p.tenant_id`
+const grantSelect = `SELECT d.id::text,d.tenant_id::text,d.project_id::text,d.channel_id::text,d.resource_grant_id::text,lower(d.permitted),upper(d.permitted),d.capabilities,d.revision::text,d.granted_at,d.revoked_at,(d.revoked_at IS NULL AND g.ended_at IS NULL AND l.status='active'),c.name,c.code,COALESCE(p.name,''),f.name FROM monitoring_data_grants d JOIN project_resource_grants g ON g.id=d.resource_grant_id JOIN project_facility_links l ON l.id=g.link_id JOIN engineering_channels c ON c.id=d.channel_id AND c.tenant_id=d.tenant_id LEFT JOIN engineering_points p ON p.id=c.point_id AND p.tenant_id=c.tenant_id JOIN engineering_facilities f ON f.id=c.facility_id AND f.tenant_id=c.tenant_id`
 
 func scanGrant(row pgx.Row) (DataGrant, error) {
 	var out DataGrant
@@ -250,6 +253,9 @@ func bumpDataAccess(ctx context.Context, tx pgx.Tx, auth authorization, project,
 		return "", e
 	}
 	e = access.Audit(ctx, tx, "monitoring.access."+action, "monitoring_data_grant", id, "", nil, map[string]string{"access_revision": revision}, access.Meta{TenantID: auth.Tenant, ActorID: auth.Account, ActorScope: "tenant", RequestID: m.RequestID, Reason: m.Reason})
+	if e == nil {
+		e = access.NotifyProjectGrantTx(ctx, tx, "monitoring", auth.Tenant, project, auth.Account)
+	}
 	return revision, e
 }
 
@@ -285,7 +291,7 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 		}
 	}
 	if auth.Entry == "project" {
-		if _, e := access.RequireProjectTx(ctx, tx, auth.Account, access.ProjectResourceOperation("channel", "detail"), auth.Tenant, auth.Project); e != nil {
+		if _, e := access.RequireActorProjectTx(ctx, tx, authorizationActor(auth), access.ProjectResourceOperation("channel", "detail"), auth.Tenant, auth.Project); e != nil {
 			return out, e
 		}
 	} else {
@@ -294,6 +300,9 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 		}
 	}
 	if capability == "history" {
+		if auth.Subject != nil {
+			return nil, access.ErrDenied
+		}
 		var ok bool
 		code := access.TenantMonitoringHistoryRead
 		if auth.Entry == "project" {
@@ -338,6 +347,26 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 	if e = rows.Err(); e != nil {
 		return out, e
 	}
+	if auth.Subject != nil {
+		if auth.Subject.Windows == nil {
+			return nil, access.ErrDenied
+		}
+		ceilings, e := auth.Subject.Windows(ctx, tx, channels)
+		if e != nil {
+			return nil, e
+		}
+		for _, id := range channels {
+			var clipped []Window
+			for _, w := range out[id] {
+				for _, limit := range ceilings[id] {
+					if v, ok := w.Intersect(Window{From: limit.From, To: limit.To}); ok {
+						clipped = append(clipped, v)
+					}
+				}
+			}
+			out[id] = clipped
+		}
+	}
 	for _, id := range channels {
 		if len(out[id]) == 0 {
 			if strict {
@@ -351,3 +380,10 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 }
 
 func stringRevision(n int64) string { return strconv.FormatInt(n, 10) }
+
+func authorizationActor(auth authorization) access.Actor {
+	if auth.Subject != nil {
+		return auth.Subject.ReadActor()
+	}
+	return access.Actor{ID: auth.Account}
+}

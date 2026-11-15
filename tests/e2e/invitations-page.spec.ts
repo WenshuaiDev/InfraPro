@@ -1,6 +1,7 @@
 import { test, expect, login, consoleURL, csrf, password } from './fixtures';
 import { navigateTo } from '../helpers/navigation';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
+import { randomUUID } from 'node:crypto';
 
 test('list-first invitations validate notes, clear credentials, show details and confirm revocation', async ({ page, account }, info) => {
   await login(page, account); await navigateTo(page, '账号开户邀请');
@@ -101,7 +102,7 @@ test('withdrawing write permissions clears the open link while preserving read-o
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
   expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const role = (await (await request.get(`${api}/access/roles?q=${encodeURIComponent(`邀请回归_${account.username}`)}`)).json()).items[0];
-  expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead], reason: '验证只读权限与凭证清理' } })).status()).toBe(200);
+  expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead], reason: '验证只读权限与凭证清理' } })).status()).toBe(200);
   const refreshed = page.waitForResponse((response) => response.url().endsWith('/auth/me'));
   await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await refreshed;
   await expect(page.getByRole('dialog')).toHaveCount(0);

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"strings"
 	"time"
 
@@ -232,6 +233,9 @@ func (s *Service) ChangeMember(ctx context.Context, a access.Actor, tenant, id s
 			return e
 		}
 		if e = access.Audit(ctx, tx, event, "tenant_member", id, "", old, v, meta(a, m, tenant, in.Reason, "tenant")); e != nil {
+			return e
+		}
+		if e = access.NotificationReceiptTx(ctx, tx, "tenancy", "membership.changed", v.Status, a.ID, ne.BusinessScope(tenant, ""), ne.Target{Kind: "workspaces"}, ne.Personal(v.Account.ID)); e != nil {
 			return e
 		}
 		out = MembershipResult{TenantID: tenant, MembershipID: id, Status: v.Status, Version: v.Version}

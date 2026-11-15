@@ -1,0 +1,22 @@
+[Unit]
+Description=InfraPro static display package validator
+After=network-online.target
+[Service]
+User=infrapro-packager
+WorkingDirectory=/opt/infrapro
+EnvironmentFile=/etc/infrapro/display-packager.env
+# This file contains only package worker database and scoped object settings.
+Environment=INFRAPRO_CONFIG=/etc/infrapro/display-packager.yaml
+ExecStart=/opt/infrapro/build/bin/display-package-worker
+Restart=on-failure
+RestartSec=5
+MemoryMax=768M
+CPUQuota=100%
+TasksMax=32
+LimitNOFILE=256
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

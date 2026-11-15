@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"regexp"
 	"slices"
 	"strings"
@@ -73,8 +74,9 @@ type InvitationCreated struct {
 	LinkUnavailable bool       `json:"link_unavailable"`
 }
 type AcceptanceInput struct {
-	Token   string `json:"token"`
-	Version string `json:"expected_version"`
+	invitationID string
+	Token        string `json:"token"`
+	Version      string `json:"expected_version"`
 }
 type AcceptanceResult struct {
 	TenantID          string `json:"tenant_id"`
@@ -264,6 +266,9 @@ func expireInvitations(ctx context.Context, tx pgx.Tx, tenant, target string, m 
 		return e
 	}
 	for _, v := range list {
+		if e = access.NotificationReceiptTx(ctx, tx, "tenancy", "invitation.changed", "expired", m.ActorID, ne.BusinessScope(tenant, ""), ne.Target{Kind: "tenant_invitation", ID: v.id}, ne.Personal(target)); e != nil {
+			return e
+		}
 		if e = access.Audit(ctx, tx, "tenant.invitation.expired", "tenant_invitation", v.id, "", map[string]string{"status": "pending"}, map[string]any{"status": "expired", "expires_at": v.at, "closed_at": v.closed}, m); e != nil {
 			return e
 		}
@@ -335,6 +340,9 @@ func (s *Service) issueInvitation(ctx context.Context, tx pgx.Tx, a access.Actor
 	if e = access.Audit(ctx, tx, "tenant.invitation.created", "tenant_invitation", id, "", nil, out.Invitation, m); e != nil {
 		return InvitationCreated{}, e
 	}
+	if e = invitationNotification(ctx, tx, out.Invitation, "pending", a.ID, false); e != nil {
+		return InvitationCreated{}, e
+	}
 	return out, nil
 }
 func normalizeInvitation(reason, request *string) error {
@@ -396,7 +404,10 @@ func (s *Service) RevokeInvitation(ctx context.Context, a access.Actor, tenant, 
 		if e != nil {
 			return e
 		}
-		return access.Audit(ctx, tx, "tenant.invitation.revoked", "tenant_invitation", id, "", old, out, meta(a, m, tenant, in.Reason, "tenant"))
+		if e = access.Audit(ctx, tx, "tenant.invitation.revoked", "tenant_invitation", id, "", old, out, meta(a, m, tenant, in.Reason, "tenant")); e != nil {
+			return e
+		}
+		return invitationNotification(ctx, tx, old, "revoked", a.ID, false)
 	})
 	return out, e
 }
@@ -445,7 +456,10 @@ func (s *Service) RegenerateInvitation(ctx context.Context, a access.Actor, tena
 		if _, e = tx.Exec(ctx, `UPDATE tenant_invitations SET replaced_by_id=$3,version=version+1 WHERE tenant_id=$1 AND id=$2`, tenant, id, out.Invitation.ID); e != nil {
 			return e
 		}
-		return access.Audit(ctx, tx, "tenant.invitation.regenerated", "tenant_invitation", id, "", old, map[string]any{"replacement": out.Invitation}, m)
+		if e = access.Audit(ctx, tx, "tenant.invitation.regenerated", "tenant_invitation", id, "", old, map[string]any{"replacement": out.Invitation}, m); e != nil {
+			return e
+		}
+		return invitationNotification(ctx, tx, old, "replaced", a.ID, false)
 	})
 	return out, e
 }
@@ -458,7 +472,17 @@ func (s *Service) credentialRate(ctx context.Context, a access.Actor, token stri
 	}
 	return nil
 }
-func recipientInvitation(ctx context.Context, tx pgx.Tx, a access.Actor, token string) (Invitation, error) {
+func recipientInvitation(ctx context.Context, tx pgx.Tx, a access.Actor, token string, ids ...string) (Invitation, error) {
+	if len(ids) > 0 && ids[0] != "" {
+		if !access.ValidID(ids[0]) {
+			return Invitation{}, errUnavailable
+		}
+		v, e := scanInvitation(tx.QueryRow(ctx, invitationSelect+` WHERE i.id=$1 AND i.target_account_id=$2`, ids[0], a.ID))
+		if e == pgx.ErrNoRows {
+			e = errUnavailable
+		}
+		return v, e
+	}
 	if len(token) != 43 {
 		return Invitation{}, errUnavailable
 	}
@@ -474,55 +498,19 @@ func previewTx(ctx context.Context, tx pgx.Tx, v Invitation) (*InvitationPreview
 	return p, e
 }
 func (s *Service) InspectInvitation(ctx context.Context, a access.Actor, token string, m access.Meta) (InvitationInspection, error) {
+	return s.inspectInvitation(ctx, a, token, "", m)
+}
+func (s *Service) inspectInvitation(ctx context.Context, a access.Actor, token, id string, m access.Meta) (InvitationInspection, error) {
 	var out InvitationInspection
 	if e := s.credentialRate(ctx, a, token, m); e != nil {
 		return out, e
 	}
 	e := s.transact(ctx, a, access.OpTenantInvitationInspect, "", digest(token), func(tx pgx.Tx, _ string) error {
-		v, e := recipientInvitation(ctx, tx, a, token)
+		v, e := recipientInvitation(ctx, tx, a, token, id)
 		if e != nil {
 			return e
 		}
-		out = InvitationInspection{ID: v.ID, Status: v.Status, Version: v.Version, ExpiresAt: v.ExpiresAt, MembershipID: v.MembershipID, MembershipStatus: v.MembershipStatus}
-		if v.Status == "accepted" {
-			out.Preview = v.Snapshot
-			// An accepted token proves a historical result, not current tenant access.
-			if v.MembershipStatus != "active" {
-				return nil
-			}
-			av, e := availabilityTx(ctx, tx, v.TenantID)
-			out.Availability = &av
-			out.TenantStatus = av.Status
-			if !av.CanEnter {
-				out.BlockedReason = "tenant_disabled"
-			}
-			return e
-		}
-		if v.Status != "pending" {
-			return nil
-		}
-		if _, e = grantSource(ctx, tx, v.Inviter.ID, v.TenantID, v.InviterMembershipID); e != nil {
-			if e == access.ErrDenied || e == access.ErrTenantNotFound {
-				out.Status = "invalidated"
-				return nil
-			}
-			return e
-		}
-		if e = currentAbsent(ctx, tx, v.TenantID, a.ID); e != nil {
-			return e
-		}
-		av, e := availabilityTx(ctx, tx, v.TenantID)
-		if e != nil {
-			return e
-		}
-		out.Availability = &av
-		out.TenantStatus = av.Status
-		if !av.CanEnter {
-			out.BlockedReason = "tenant_disabled"
-			return nil
-		}
-		out.CanAccept = true
-		out.Preview, e = previewTx(ctx, tx, v)
+		out, e = inspectRecipientTx(ctx, tx, a, v)
 		return e
 	})
 	return out, e
@@ -532,8 +520,13 @@ func (s *Service) AcceptInvitation(ctx context.Context, a access.Actor, in Accep
 	if e := s.credentialRate(ctx, a, in.Token, m); e != nil {
 		return out, e
 	}
-	e := s.transact(ctx, a, access.OpTenantInvitationAccept, "", digest(in.Token), func(tx pgx.Tx, _ string) error {
-		v, e := recipientInvitation(ctx, tx, a, in.Token)
+	e := s.transact(ctx, a, access.OpTenantInvitationAccept, "", func() string {
+		if in.invitationID != "" {
+			return in.invitationID
+		}
+		return digest(in.Token)
+	}(), func(tx pgx.Tx, _ string) error {
+		v, e := recipientInvitation(ctx, tx, a, in.Token, in.invitationID)
 		if e != nil {
 			return e
 		}
@@ -586,8 +579,56 @@ func (s *Service) AcceptInvitation(ctx context.Context, a access.Actor, in Accep
 		if e = access.Audit(ctx, tx, "tenant.member.joined", "tenant_member", member, "", nil, after, m); e != nil {
 			return e
 		}
+		if e = invitationNotification(ctx, tx, v, "accepted", a.ID, true); e != nil {
+			return e
+		}
 		out = AcceptanceResult{TenantID: v.TenantID, MembershipID: member, Version: "1", InvitationID: v.ID}
 		return tx.QueryRow(ctx, `SELECT i.version::text,s.revision::text FROM tenant_invitations i CROSS JOIN authorization_state s WHERE i.id=$1 AND s.id=1`, v.ID).Scan(&out.InvitationVersion, &out.Revision)
 	})
+	return out, e
+}
+
+func inspectRecipientTx(ctx context.Context, tx pgx.Tx, a access.Actor, v Invitation) (InvitationInspection, error) {
+	var e error
+	out := InvitationInspection{ID: v.ID, Status: v.Status, Version: v.Version, ExpiresAt: v.ExpiresAt, MembershipID: v.MembershipID, MembershipStatus: v.MembershipStatus}
+	if v.Status == "accepted" {
+		// An accepted token proves a historical result, not current tenant access.
+		out.Preview = v.Snapshot
+		if v.MembershipStatus != "active" {
+			return out, nil
+		}
+		av, e := availabilityTx(ctx, tx, v.TenantID)
+		out.Availability = &av
+		out.TenantStatus = av.Status
+		if !av.CanEnter {
+			out.BlockedReason = "tenant_disabled"
+		}
+		return out, e
+	}
+	if v.Status != "pending" {
+		return out, nil
+	}
+	if _, e = grantSource(ctx, tx, v.Inviter.ID, v.TenantID, v.InviterMembershipID); e != nil {
+		if e == access.ErrDenied || e == access.ErrTenantNotFound {
+			out.Status = "invalidated"
+			return out, nil
+		}
+		return out, e
+	}
+	if e = currentAbsent(ctx, tx, v.TenantID, a.ID); e != nil {
+		return out, e
+	}
+	av, e := availabilityTx(ctx, tx, v.TenantID)
+	if e != nil {
+		return out, e
+	}
+	out.Availability = &av
+	out.TenantStatus = av.Status
+	if !av.CanEnter {
+		out.BlockedReason = "tenant_disabled"
+		return out, nil
+	}
+	out.CanAccept = true
+	out.Preview, e = previewTx(ctx, tx, v)
 	return out, e
 }

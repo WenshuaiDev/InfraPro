@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "license": "CC0-1.0",
+  "bridge": {"geographic": [116.38, 39.9], "pointA": [116.3802,39.9001], "pointB": [116.3805,39.9002]},
+  "raw": {"times_utc": ["2024-01-01T00:00:00Z","2024-01-01T00:10:00Z","2024-01-01T00:30:00Z"], "A": ["10","14","20"], "B": ["6","9","11"]},
+  "derived": {"facility_A_minus_B": ["4","5","9"], "component_A_minus_B": ["4","5","9"], "point_A_baseline_delta": ["0","4","10"], "point_mean_of_A_minus_B": [null,"4.5","7"]},
+  "project_A": {"versions": "V1 only initially", "point_read": true, "source_download": false, "device_read": "output context only", "artifact_scope": "project A"},
+  "project_B": {"versions": "V1 only initially", "point_read": false, "direct_A_channel_context": true, "source_download": false, "project_A_artifacts": false},
+  "version_change": "V2 candidates never automatically become official placements",
+  "samples_are_not": ["survey coordinates","real structures","structural safety conclusions"]
+}

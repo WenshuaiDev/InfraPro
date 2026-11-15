@@ -1,4 +1,4 @@
 import {createFileRoute} from '@tanstack/react-router';
 import {ProjectMonitoring} from '../../../../../../../features/monitoring/context';
 import {MonitoringJobsPage} from '../../../../../../../features/monitoring/jobs-page';
-export const Route=createFileRoute('/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs')({component:function Page(){return <ProjectMonitoring><MonitoringJobsPage/></ProjectMonitoring>;}});
+export const Route=createFileRoute('/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs')({validateSearch:(s:Record<string,unknown>)=>({job:typeof s.job==='string'&&/^[0-9a-f-]{36}$/i.test(s.job)?s.job:undefined}),component:function Page(){return <ProjectMonitoring><MonitoringJobsPage key={Route.useSearch().job} jobID={Route.useSearch().job}/></ProjectMonitoring>;}});

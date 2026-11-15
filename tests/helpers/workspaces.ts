@@ -9,8 +9,8 @@ async function signIn(request: APIRequestContext, username: string) {
   return headers;
 }
 
-export async function prepareWorkspaces(request: APIRequestContext) {
-  const account = await createAccount(request);
+export async function prepareWorkspaces(request: APIRequestContext, withInvitationRole = true) {
+  const account = await createAccount(request, withInvitationRole);
   const ownerHeaders = await signIn(request, 'e2e_owner');
   const accounts = await (await request.get(`${api}/access/accounts?q=${account.username}`)).json();
   const tenantIds: string[] = [];

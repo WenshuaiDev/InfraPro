@@ -1,0 +1,583 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:bindings",
+  "additionalProperties": false,
+  "properties": {
+    "allowed_target_hosts": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "assignment_revision": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "bindings": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "clickhouse",
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "database": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "tls": {
+                "type": "boolean"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "address",
+              "database",
+              "username"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "docker_container",
+                "type": "string"
+              },
+              "expected_replica_id": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "selector_labels": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "socket_path": {
+                "type": "string"
+              },
+              "stats_enabled": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "socket_path",
+              "selector_labels",
+              "expected_replica_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "host_resources",
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "mount_paths": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "path"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "network_interfaces": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "scope": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "scope"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "http_live",
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "expected_json": {
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "type": "object"
+              },
+              "expected_status": {
+                "type": "integer"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "url",
+              "expected_status"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "http_ready",
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "expected_json": {
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "type": "object"
+              },
+              "expected_status": {
+                "type": "integer"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "url",
+              "expected_status"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "keeper_live",
+                "type": "string"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "host": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "host",
+              "port"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "native_process",
+                "type": "string"
+              },
+              "allowed_root": {
+                "type": "string"
+              },
+              "expected_executable": {
+                "type": "string"
+              },
+              "expected_uid": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "pid_file": {
+                "type": "string"
+              },
+              "pid_file_format": {
+                "type": "string"
+              },
+              "report_file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "allowed_root",
+              "expected_executable",
+              "expected_uid"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "postgres",
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "database": {
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              },
+              "tls_mode": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "host",
+              "port",
+              "database",
+              "username",
+              "tls_mode"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "redis",
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "database": {
+                "maximum": 15,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "tls": {
+                "type": "boolean"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "address",
+              "database"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "s3",
+                "type": "string"
+              },
+              "bucket": {
+                "type": "string"
+              },
+              "credential_file": {
+                "type": "string"
+              },
+              "endpoint": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "endpoint",
+              "bucket"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "self_report",
+                "type": "string"
+              },
+              "allowed_root": {
+                "type": "string"
+              },
+              "dependency_key": {
+                "type": "string"
+              },
+              "expected_executable": {
+                "type": "string"
+              },
+              "expected_replica_id": {
+                "type": "string"
+              },
+              "expected_uid": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "lane_id": {
+                "type": "string"
+              },
+              "pid_namespace": {
+                "type": "string"
+              },
+              "report_file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "report_file",
+              "allowed_root",
+              "expected_replica_id",
+              "expected_executable",
+              "expected_uid",
+              "pid_namespace"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "systemd_unit",
+                "type": "string"
+              },
+              "expected_uid": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "unit_name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "unit_name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "tcp",
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              },
+              "server_name": {
+                "type": "string"
+              },
+              "tls": {
+                "type": "boolean"
+              },
+              "tls_ca_file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "host",
+              "port"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "node_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instance_id",
+    "node_id",
+    "assignment_revision",
+    "bindings"
+  ],
+  "type": "object"
+}

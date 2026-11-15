@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/jackc/pgx/v5"
@@ -153,7 +154,10 @@ func complete(ctx context.Context, tx pgx.Tx, auth k.Authorization, m Meta, op a
 	if e := writeChange(ctx, tx, auth, m, op, device, output, installation, "", before, after, fields); e != nil {
 		return e
 	}
-	if e := k.Audit(ctx, tx, auth, m, string(op), kind, id, result, meta); e != nil {
+	if device != "" && kind != "device" {
+		meta.AuditLinks = append(meta.AuditLinks, ar.Link{Kind: "business", Relation: "subject", Module: "devices", TargetKind: "device", TargetID: device, Scope: ar.Scope{Kind: auth.Entry, Tenant: auth.Tenant, Project: auth.Project}})
+	}
+	if e := k.AuditSnapshots(ctx, tx, auth, m, string(op), kind, id, before, after, meta); e != nil {
 		return e
 	}
 	return k.SaveReceipt(ctx, tx, auth, m, op, input, kind, id, result)

@@ -945,8 +945,28 @@ func OpenRestoredWrites(ctx context.Context, pool *pgxpool.Pool, storage *Storag
 	if _, e = tx.Exec(ctx, `UPDATE monitoring_environment_state SET mode='ready' WHERE id=1`); e != nil {
 		return e
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO monitoring_audit(tenant_id,operation,target_id,reason,trace_id,summary) SELECT tenant_id,'operator.restore.open',$1::uuid,$2,$1::text,jsonb_build_object('backup_id',$1::text) FROM monitoring_tenant_states`, backupID, reason); e != nil {
+	rows, e := tx.Query(ctx, `SELECT tenant_id::text FROM monitoring_tenant_states ORDER BY tenant_id`)
+	if e != nil {
 		return e
+	}
+	tenants := []string{}
+	for rows.Next() {
+		var tenant string
+		if e = rows.Scan(&tenant); e != nil {
+			rows.Close()
+			return e
+		}
+		tenants = append(tenants, tenant)
+	}
+	e = rows.Err()
+	rows.Close()
+	if e != nil {
+		return e
+	}
+	for _, tenant := range tenants {
+		if e = operatorAuditTx(ctx, tx, tenant, "operator.restore.open", backupID, reason, map[string]string{"state": "ready"}); e != nil {
+			return e
+		}
 	}
 	return tx.Commit(ctx)
 }

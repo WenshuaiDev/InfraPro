@@ -1,0 +1,21 @@
+[Unit]
+Description=InfraPro files worker
+After=network-online.target infrapro-files-checker.service
+Requires=infrapro-files-checker.service
+[Service]
+User=infrapro-files
+Group=infrapro-files
+UMask=0077
+EnvironmentFile=/etc/infrapro/files-worker.env
+ExecStart=/opt/infrapro/bin/files-worker
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateDevices=yes
+ReadWritePaths=/run/infrapro-files
+MemoryMax=512M
+TasksMax=64
+TimeoutStopSec=15
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

@@ -222,6 +222,21 @@ func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, previous
 				}
 			}
 			if !initial {
+				initial = initialProjectTaskPublication(before, added, previousCatalog)
+			}
+			if !initial {
+				initial, e = initialProjectWorkspacePublication(ctx, tx, before, added, previousCatalog)
+				if e != nil {
+					return e
+				}
+			}
+			if !initial {
+				initial, e = initialProjectDerivedPublication(ctx, tx, before, added, previousCatalog)
+				if e != nil {
+					return e
+				}
+			}
+			if !initial {
 				report.Conflicts = append(report.Conflicts, "归档项目或停用租户禁止预置扩权："+v.tenant+" / "+v.project)
 			}
 		}
@@ -229,11 +244,34 @@ func prepareProjectSync(ctx context.Context, tx pgx.Tx, plan *syncPlan, previous
 	return nil
 }
 
+// The v12 upgrade introduces derived operations with no implicit resource or
+// input-data grants. Only the first complete catalog publication into an unused
+// derived scope is allowed; frozen projects still cannot write or gain grants.
+func initialProjectDerivedPublication(ctx context.Context, tx pgx.Tx, before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) (bool, error) {
+	codes := derivedCodes("project")
+	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
+		return false, nil
+	}
+	for _, code := range added {
+		if _, exists := previousCatalog[code]; exists || !slices.Contains(codes, code) {
+			return false, nil
+		}
+	}
+	var initial bool
+	e := tx.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM derived_channels WHERE tenant_id=$1) AND NOT EXISTS(SELECT 1 FROM analysis_configs WHERE tenant_id=$1) AND NOT EXISTS(SELECT 1 FROM project_resource_grants WHERE tenant_id=$1 AND project_id=$2 AND (can_create_derived_channel OR can_manage_calculation))`, before.TenantID, before.ProjectID).Scan(&initial)
+	return initial, e
+}
+
 // The v11 -> v12 release adds monitoring operations, but data access remains
 // denied until a separate channel/time grant exists. Permit only the first
 // complete publication into an untouched, empty monitoring authorization scope.
 func initialProjectMonitoringPublication(ctx context.Context, tx pgx.Tx, before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) (bool, error) {
-	codes := monitoringCodes("project")
+	// Keep the original release's seven-code boundary stable. A deployment
+	// skipping directly to the task release may publish both complete sets.
+	codes := []Code{ProjectMonitoringDataRead, ProjectMonitoringHistoryRead, ProjectMonitoringDataExport, ProjectMonitoringImportsRead, ProjectMonitoringImportsManage, ProjectMonitoringBatchesRevoke, ProjectMonitoringSourceRead}
+	if slices.Contains(added, ProjectMonitoringJobsRead) || slices.Contains(added, ProjectMonitoringJobsManage) {
+		codes = append(codes, ProjectMonitoringJobsRead, ProjectMonitoringJobsManage)
+	}
 	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
 		return false, nil
 	}
@@ -245,6 +283,23 @@ func initialProjectMonitoringPublication(ctx context.Context, tx pgx.Tx, before 
 	var initial bool
 	e := tx.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM monitoring_access_states WHERE tenant_id=$1 AND project_id=$2 AND revision<>1) AND NOT EXISTS(SELECT 1 FROM monitoring_data_grants WHERE tenant_id=$1 AND project_id=$2) AND NOT EXISTS(SELECT 1 FROM monitoring_import_batches WHERE tenant_id=$1 AND project_id=$2)`, before.TenantID, before.ProjectID).Scan(&initial)
 	return initial, e
+}
+
+// This release adds only summary/control permissions to the existing built-in
+// administrator. It grants no data, files, membership, or execution identity.
+// Archived business writes and disabled-tenant operations remain source-gated.
+// Existing catalog entries, partial publication and custom roles cannot use it.
+func initialProjectTaskPublication(before ProjectAuthorization, added []Code, previousCatalog map[Code]Permission) bool {
+	codes := []Code{ProjectMonitoringJobsRead, ProjectMonitoringJobsManage}
+	if len(added) != len(codes) || !before.Administrator || !slices.ContainsFunc(before.Roles, func(r Role) bool { return r.BuiltinKey == ProjectAdminKey && r.Status == "active" }) {
+		return false
+	}
+	for _, code := range codes {
+		if _, exists := previousCatalog[code]; exists || !slices.Contains(added, code) {
+			return false
+		}
+	}
+	return true
 }
 
 // The device release grants only four new role permissions. Object access must

@@ -3,6 +3,8 @@ package access
 import (
 	"context"
 	"errors"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"slices"
 	"strings"
 	"unicode/utf8"
@@ -14,8 +16,9 @@ import (
 
 // Actor comes only from verified identity. Check revalidates the session in the SAME transaction.
 type Actor struct {
-	ID    string
-	Check func(context.Context, pgx.Tx, bool) error
+	subject *ReadSubject
+	ID      string
+	Check   func(context.Context, pgx.Tx, bool) error
 }
 
 func (s *Service) read(ctx context.Context, a Actor, op Operation, fn func(pgx.Tx, string) error) error {
@@ -41,6 +44,7 @@ func (s *Service) read(ctx context.Context, a Actor, op Operation, fn func(pgx.T
 	return e
 }
 func (s *Service) write(ctx context.Context, a Actor, op Operation, target, kind string, m Meta, fn func(pgx.Tx, []Code) error) error {
+	ctx = WithOperation(ctx, s, a.ID, op, m.RequestID)
 	e := s.Transact(ctx, func(tx pgx.Tx) error {
 		if _, e := Lock(ctx, tx, true); e != nil {
 			return e
@@ -72,6 +76,13 @@ func (s *Service) write(ctx context.Context, a Actor, op Operation, target, kind
 		if e != nil {
 			return e
 		}
+		receipt, e := beginMutationTx(ctx, tx, a, m, ar.Scope{Kind: "platform"}, "")
+		if e != nil {
+			return e
+		}
+		if receipt.Replayed {
+			return m.command.replay(ctx, tx, receipt.ResultRef)
+		}
 		before, e := InvitationHolders(ctx, tx)
 		if e != nil {
 			return e
@@ -97,15 +108,40 @@ func (s *Service) write(ctx context.Context, a Actor, op Operation, target, kind
 				}
 			}
 		}
+		if op == OpAccountAssignRoles {
+			if e = NotificationReceiptTx(ctx, tx, "access", "role.changed", "changed", a.ID, ne.Scope{Kind: "platform"}, ne.Target{Kind: "workspaces"}, ne.Personal(target)); e != nil {
+				return e
+			}
+		}
+		if kind == "role" && (op == OpRoleSetPermissions || op == OpRoleSetStatus) {
+			rows, e := tx.Query(ctx, `SELECT account_id::text FROM account_roles WHERE role_id=$1 ORDER BY account_id`, target)
+			if e != nil {
+				return e
+			}
+			ids, e := readIDs(rows)
+			if e != nil {
+				return e
+			}
+			if e = NotificationReceiptTx(ctx, tx, "access", "role.changed", "changed", a.ID, ne.Scope{Kind: "platform"}, ne.Target{Kind: "workspaces"}, ne.Personal(ids...)); e != nil {
+				return e
+			}
+		}
 		if e = RevokeLostInvitations(ctx, tx, before); e != nil {
 			return e
 		}
-		return Bump(ctx, tx)
+		if e = Bump(ctx, tx); e != nil {
+			return e
+		}
+		return completeMutationTx(ctx, tx, m, receipt)
 	})
 	if denied(e) {
 		s.LogDenial(op, a.ID, e)
 	}
 	var pe *pgconn.PgError
+	var uncertain *ar.CommitUnknown
+	if errors.As(e, &uncertain) {
+		return s.resolveMutation(a, op, m, e)
+	}
 	if errors.As(e, &pe) && pe.Code == "23505" {
 		return &Error{Code: "name_taken", Message: "角色名称已被使用。", Status: 409}
 	}
@@ -132,6 +168,11 @@ func roleFields(name, description string) (string, error) {
 func (s *Service) CreateRole(ctx context.Context, a Actor, name, description string, m Meta) (Role, error) {
 	var v Role
 	m.ActorID = a.ID
+	m.command = &mutationCommand{action: "role_created", payload: map[string]any{"name": name, "description": description, "reason": m.Reason}, result: func() string { return v.ID }, replay: func(ctx context.Context, tx pgx.Tx, id string) error {
+		var e error
+		v, e = roleTx(ctx, tx, id)
+		return e
+	}}
 	e := s.write(ctx, a, OpRoleCreate, "", "role", m, func(tx pgx.Tx, _ []Code) error {
 		var e error
 		name, e = roleFields(name, description)
@@ -166,6 +207,14 @@ func (s *Service) ChangeRole(ctx context.Context, a Actor, id string, op Operati
 	default:
 		return v, ErrDenied
 	}
+	m.command = &mutationCommand{action: string(op), payload: map[string]any{"id": id, "expected_version": c.ExpectedVersion, "name": c.Name, "description": c.Description, "status": c.Status, "permission_codes": c.Permissions, "reason": m.Reason}, result: func() string { return id }, replay: func(ctx context.Context, tx pgx.Tx, id string) error {
+		if op == OpRoleDelete {
+			return nil
+		}
+		var e error
+		v, e = roleTx(ctx, tx, id)
+		return e
+	}}
 	e := s.write(ctx, a, op, id, "role", m, func(tx pgx.Tx, have []Code) error {
 		old, e := roleTx(ctx, tx, id)
 		if e != nil {
@@ -239,6 +288,9 @@ func (s *Service) ChangeRole(ctx context.Context, a Actor, id string, op Operati
 				return e
 			}
 		}
+		if op == OpRoleDelete {
+			return Audit(ctx, tx, string(op), "role", id, "", old, nil, m)
+		}
 		return Audit(ctx, tx, string(op), "role", id, "", old, v, m)
 	})
 	return v, e
@@ -247,6 +299,11 @@ func (s *Service) AssignRoles(ctx context.Context, a Actor, id, version string, 
 	id = strings.ToLower(id)
 	var result Account
 	m.ActorID = a.ID
+	m.command = &mutationCommand{action: "account_roles_changed", payload: map[string]any{"id": id, "expected_version": version, "role_ids": ids, "reason": m.Reason}, result: func() string { return id }, replay: func(ctx context.Context, tx pgx.Tx, id string) error {
+		var e error
+		result, e = accountTx(ctx, tx, id)
+		return e
+	}}
 	e := s.write(ctx, a, OpAccountAssignRoles, id, "account", m, func(tx pgx.Tx, have []Code) error {
 		old, e := accountTx(ctx, tx, id)
 		if e != nil {
@@ -327,6 +384,11 @@ func (s *Service) SetAccountStatus(ctx context.Context, a Actor, id, version str
 		op = OpAccountEnable
 	}
 	m.ActorID = a.ID
+	m.command = &mutationCommand{action: string(op), payload: map[string]any{"id": id, "expected_version": version, "enabled": enabled, "reason": m.Reason}, result: func() string { return id }, replay: func(ctx context.Context, tx pgx.Tx, id string) error {
+		var e error
+		result, e = accountTx(ctx, tx, id)
+		return e
+	}}
 	e := s.write(ctx, a, op, id, "account", m, func(tx pgx.Tx, have []Code) error {
 		old, e := accountTx(ctx, tx, id)
 		if e != nil {

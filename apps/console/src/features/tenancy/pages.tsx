@@ -1,7 +1,6 @@
+import { ObjectHistory } from '../audit/object-history';
 import { TenantLifecycle } from './lifecycle';
-import { TenantAuthorizationView } from './role-components';
 import { useState } from 'react';
-import { WorkspacePickerButton } from '../../app/workspace-picker-context';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { ApiError, Permissions as P, type Tenant, type TenantProfile } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
@@ -13,8 +12,7 @@ import { Badge } from '@infrapro/ui/components/badge';
 import { ErrorState, FormNotice } from '@infrapro/ui/patterns/feedback';
 import { tenantActions } from './labels';
 import { TenantEditor } from './editor';
-import { useTenant, useOptionalTenant } from './context';
-import { TenantPermissions } from './shared';
+import { useOptionalTenant } from './context';
 
 const tenantDate = (value: string) => new Date(value).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
 function Availability({ value }: { value: TenantProfile }) { return <Badge variant={value.administrator_available ? 'outline' : 'secondary'} className="whitespace-normal">{value.administrator_available ? '正常' : '管理员不可用，待处理'}</Badge>; }
@@ -24,13 +22,7 @@ export function PlatformTenantPage({ id }: { id: string }) {
   if (!can(P.PlatformTenantRead)) return <FormNotice>打开详情还需要租户查看权限。编辑或交接权限不会自动包含查看权限。</FormNotice>;
   if (detail.error && (!detail.data || (detail.error instanceof ApiError && [401, 403, 404].includes(detail.error.status ?? 0)))) return <ErrorState message={detail.error.message} onRetry={() => void detail.refetch()} />;
   if (!detail.data) return <p role="status">正在读取租户档案…</p>;
-  return <><PageHeader title={detail.data.name} description={`平台管理 · ${detail.data.code}`} /><div className="space-y-5">{detail.error && <ErrorState message={detail.error.message} onRetry={() => void detail.refetch()} />}<TenantLifecycle key={detail.data.id} tenant={detail.data} blocked={!!detail.error} retry={() => void detail.refetch()} /><TenantDetails value={detail.data} platform blocked={!!detail.error} retry={() => void detail.refetch()} /></div>{can(P.PlatformAuditRead) && <section className="mt-6"><h2 className="mb-4 text-lg font-semibold">平台租户操作记录</h2><TenantAudit id={id} platform /></section>}</>;
-}
-export function TenantProfilePage() {
-  const ctx = useTenant(); const { account, client } = useIdentity();
-  const query = useQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'profile'], queryFn: ({ signal }) => client.tenant(ctx.tenant.id, false, signal), enabled: ctx.available && ctx.permissions.includes(P.TenantProfileRead), refetchInterval: 30_000 });
-  if (!ctx.permissions.includes(P.TenantProfileRead)) return <><PageHeader title="本人租户授权" description={ctx.tenant.name} /><FormNotice>当前未获资料查看权限，请联系租户管理员。</FormNotice><TenantAuthorizationView value={ctx.authorization} /><WorkspacePickerButton filter="tenants">重新选择租户</WorkspacePickerButton></>;
-  return <><PageHeader title="租户资料" description={`${ctx.tenant.name} · ${ctx.tenant.code}`} />{query.error && <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />}{query.data ? <TenantDetails value={query.data} /> : <p role="status">正在读取资料…</p>}<div className="mt-6"><TenantPermissions /></div></>;
+  return <><PageHeader title={detail.data.name} description={`平台管理 · ${detail.data.code}`} /><ObjectHistory scope={{kind:"platform"}} objectType="tenant" objectId={id}/><div className="space-y-5">{detail.error && <ErrorState message={detail.error.message} onRetry={() => void detail.refetch()} />}<TenantLifecycle key={detail.data.id} tenant={detail.data} blocked={!!detail.error} retry={() => void detail.refetch()} /><TenantDetails value={detail.data} platform blocked={!!detail.error} retry={() => void detail.refetch()} /></div>{can(P.PlatformAuditRead) && <section className="mt-6"><h2 className="mb-4 text-lg font-semibold">平台租户操作记录</h2><TenantAudit id={id} platform /></section>}</>;
 }
 function TenantDetails({ value: t, platform = false, blocked = false, retry }: { value: TenantProfile | Tenant; platform?: boolean; blocked?: boolean; retry?: () => void }) {
   const { can } = useIdentity(); const ctx = useOptionalTenant();

@@ -3,6 +3,7 @@ package identityhttp
 import (
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"io"
 	"net/http"
 	"time"
@@ -33,6 +34,7 @@ func metadata(c *gin.Context) identity.Meta {
 	return identity.Meta{IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
 }
 func RespondError(c *gin.Context, err error) {
+	access.ReportOperationFailure(c.Request.Context(), err)
 	e := identity.PublicError(err)
 	if e.Status == 429 {
 		c.Header("Retry-After", "60")
@@ -69,11 +71,11 @@ func reply(c *gin.Context, v any, e error) {
 		c.JSON(http.StatusOK, v)
 	}
 }
-func setSession(c *gin.Context, token string, expiry time.Time) {
-	http.SetCookie(c.Writer, &http.Cookie{Name: SessionCookie, Value: token, Path: "/", HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Expires: expiry, MaxAge: int(time.Until(expiry).Seconds())})
+func (h *Handler) setSession(c *gin.Context, token string, expiry time.Time) {
+	http.SetCookie(c.Writer, &http.Cookie{Name: SessionCookie, Value: token, Path: "/", HttpOnly: true, Secure: h.config.CookieSecure, SameSite: http.SameSiteLaxMode, Expires: expiry, MaxAge: int(time.Until(expiry).Seconds())})
 }
-func clearSession(c *gin.Context) {
-	http.SetCookie(c.Writer, &http.Cookie{Name: SessionCookie, Value: "", Path: "/", HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, MaxAge: -1, Expires: time.Unix(1, 0)})
+func (h *Handler) clearSession(c *gin.Context) {
+	http.SetCookie(c.Writer, &http.Cookie{Name: SessionCookie, Value: "", Path: "/", HttpOnly: true, Secure: h.config.CookieSecure, SameSite: http.SameSiteLaxMode, MaxAge: -1, Expires: time.Unix(1, 0)})
 }
 func (h *Handler) Guard(c *gin.Context) {
 	if e := h.service.Ready(c.Request.Context()); e != nil {
@@ -112,14 +114,14 @@ func (h *Handler) Register(r *gin.Engine) {
 		}
 		a, token, expiry, e := h.service.Login(c.Request.Context(), v.Username, v.Password, metadata(c))
 		if e == nil {
-			setSession(c, token, expiry)
+			h.setSession(c, token, expiry)
 		}
 		reply(c, a, e)
 	})
 	pub.POST("/auth/logout", func(c *gin.Context) {
 		e := h.service.Logout(c.Request.Context(), cookie(c), metadata(c))
 		if e == nil {
-			clearSession(c)
+			h.clearSession(c)
 		}
 		reply(c, nil, e)
 	})
@@ -172,7 +174,7 @@ func (h *Handler) Register(r *gin.Engine) {
 		}
 		e := h.service.CompleteReset(c.Request.Context(), v.Token, v.Password, metadata(c))
 		if e == nil {
-			clearSession(c)
+			h.clearSession(c)
 		}
 		reply(c, nil, e)
 	})
@@ -190,7 +192,7 @@ func (h *Handler) Register(r *gin.Engine) {
 	auth.POST("/auth/logout-all", func(c *gin.Context) {
 		e := h.service.Revoke(c.Request.Context(), Principal(c), "", metadata(c))
 		if e == nil {
-			clearSession(c)
+			h.clearSession(c)
 		}
 		reply(c, nil, e)
 	})
@@ -216,7 +218,7 @@ func (h *Handler) Register(r *gin.Engine) {
 		}
 		e := h.service.ChangePassword(c.Request.Context(), Principal(c), v.Current, v.New, metadata(c))
 		if e == nil {
-			clearSession(c)
+			h.clearSession(c)
 		}
 		reply(c, nil, e)
 	})
@@ -225,7 +227,7 @@ func (h *Handler) Register(r *gin.Engine) {
 		p := Principal(c)
 		e := h.service.Revoke(c.Request.Context(), p, c.Param("id"), metadata(c))
 		if e == nil && c.Param("id") == p.Session.ID {
-			clearSession(c)
+			h.clearSession(c)
 		}
 		reply(c, nil, e)
 	})

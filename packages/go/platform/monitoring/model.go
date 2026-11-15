@@ -133,3 +133,6 @@ type GrantPreview struct {
 	Hash           string    `json:"preview_hash"`
 	AccessRevision string    `json:"access_revision"`
 }
+
+// StatusCode allows cross-module metadata adapters to distinguish hidden data from outages.
+func (e *Error) StatusCode() int { return e.Status }

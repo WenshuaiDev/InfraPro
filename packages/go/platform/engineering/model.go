@@ -331,3 +331,5 @@ func canonicalContent(c Content) Content {
 	}
 	return out
 }
+
+func (e *Error) StatusCode() int { return e.Status }

@@ -2,6 +2,8 @@ import base from '@infrapro/eslint-config';
 
 export default [
   ...base,
+
+  { ignores:['packages/ts/display-devtools/lib/**', 'services/diagnostics/internal/web/assets/**', 'apps/console/public/vendor/pdfjs/**'] },
   {
     files: ['packages/ts/ui/src/components/{button,badge,form,sidebar}.tsx'],
     rules: {
@@ -21,4 +23,5 @@ export default [
     files: ['apps/*/src/**/*.{ts,tsx}'],
     rules: { 'no-restricted-imports': ['error', { patterns: [{ group: ['@radix-ui/*', '@infrapro/ui/src/*', '@infrapro/layouts/src/*', '**/apps/screen/**'], message: 'Use the public shared UI/layout exports.' }] }] },
   },
+  { files: ['apps/diagnostics/src/**/*.{ts,tsx}', 'packages/ts/diagnostics-client/src/**/*.{ts,tsx}'], rules: { 'no-restricted-imports': ['error', { patterns: [{ group: ['@infrapro/api-client', '@infrapro/api-client/*', '**/apps/console/**', '@radix-ui/*'], message: 'Diagnostics has its own identity/client and uses shared public UI.' }] }] } },
 ];

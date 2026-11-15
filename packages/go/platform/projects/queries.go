@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"github.com/jackc/pgx/v5"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -307,7 +307,10 @@ func (s *Service) Roles(ctx context.Context, a access.Actor, tenant, project str
 		if f.Status != "" && f.Status != "active" && f.Status != "disabled" {
 			return access.Validation("status", "状态无效。")
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text FROM roles WHERE binding_scope='project' AND deleted_at IS NULL AND (owner_project_id IS NULL OR owner_project_id::text=$1) AND ($2='' OR name ILIKE '%'||$2||'%') AND ($3='' OR status=$3) AND ($4='' OR (created_at,id)<($5::timestamptz,NULLIF($4,'')::uuid)) ORDER BY created_at DESC,id DESC LIMIT $6`, project, f.Query, f.Status, cur.ID, cur.Time, f.Limit+1)
+		if f.Source != "" && f.Source != "custom" && f.Source != "preset" {
+			return access.Validation("source", "来源应为 custom 或 preset。")
+		}
+		rows, e := tx.Query(ctx, `SELECT id::text FROM roles WHERE binding_scope='project' AND deleted_at IS NULL AND (owner_project_id IS NULL OR owner_project_id::text=$1) AND ($2='' OR name ILIKE '%'||$2||'%') AND ($3='' OR status=$3) AND ($4='' OR (created_at,id)<($5::timestamptz,NULLIF($4,'')::uuid)) AND ($7='' OR ($7='preset' AND owner_project_id IS NULL) OR ($7='custom' AND owner_project_id::text=$1)) ORDER BY created_at DESC,id DESC LIMIT $6`, project, f.Query, f.Status, cur.ID, cur.Time, f.Limit+1, f.Source)
 		if e != nil {
 			return e
 		}
@@ -348,54 +351,5 @@ func (s *Service) Role(ctx context.Context, a access.Actor, tenant, project, id 
 	return out, e
 }
 func (s *Service) Audit(ctx context.Context, a access.Actor, tenant, project string, f Filter) (access.Page[access.AuditEvent], error) {
-	out := access.Page[access.AuditEvent]{Items: []access.AuditEvent{}}
-	e := s.transact(ctx, a, access.OpProjectAudit, tenant, project, func(tx pgx.Tx, _ string, _ access.ProjectAuthorization) error {
-		raw := f.Cursor
-		f.Cursor = ""
-		if _, e := f.validate(); e != nil {
-			return e
-		}
-		before := int64(9223372036854775807)
-		if raw != "" {
-			var e error
-			before, e = strconv.ParseInt(raw, 10, 64)
-			if e != nil || before < 1 {
-				return access.Validation("cursor", "分页位置无效。")
-			}
-		}
-		var from, to *time.Time
-		for _, p := range []struct {
-			raw string
-			out **time.Time
-		}{{f.From, &from}, {f.To, &to}} {
-			if p.raw != "" {
-				v, e := time.Parse(time.RFC3339, p.raw)
-				if e != nil {
-					return access.Validation("time", "时间格式无效。")
-				}
-				*p.out = &v
-			}
-		}
-		if from != nil && to != nil && from.After(*to) {
-			return access.Validation("time", "时间范围无效。")
-		}
-		rows, e := tx.Query(ctx, `SELECT id::text,tenant_id::text,project_id::text,actor_scope,event_type,actor_type,COALESCE(actor_id::text,''),object_type,object_id,reason,request_id,created_at,details FROM account_security_events WHERE tenant_id=$1 AND project_id=$2 AND id<$3 AND ($4='' OR event_type=$4) AND ($5='' OR object_id=$5) AND ($6='' OR actor_id::text=$6) AND ($7='' OR reason ILIKE '%'||$7||'%' OR event_type ILIKE '%'||$7||'%') AND ($8::timestamptz IS NULL OR created_at>=$8) AND ($9::timestamptz IS NULL OR created_at<=$9) ORDER BY id DESC LIMIT $10`, tenant, project, before, f.Event, f.ObjectID, f.ActorID, f.Query, from, to, f.Limit+1)
-		if e != nil {
-			return e
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var v access.AuditEvent
-			if e = rows.Scan(&v.ID, &v.TenantID, &v.ProjectID, &v.ActorScope, &v.EventType, &v.ActorType, &v.ActorID, &v.ObjectType, &v.ObjectID, &v.Reason, &v.RequestID, &v.CreatedAt, &v.Details); e != nil {
-				return e
-			}
-			out.Items = append(out.Items, v)
-		}
-		if len(out.Items) > f.Limit {
-			out.Items = out.Items[:f.Limit]
-			out.NextCursor = out.Items[len(out.Items)-1].ID
-		}
-		return rows.Err()
-	})
-	return out, e
+	return s.access.ReadAudit(ctx, a, auditrecord.Scope{Kind: "project", Tenant: tenant, Project: project}, access.Filter{Cursor: f.Cursor, Query: f.Query, Limit: f.Limit, Event: f.Event, From: f.From, To: f.To, ObjectID: f.ObjectID, ActorID: f.ActorID})
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"strings"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -49,7 +50,7 @@ func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operat
 		// Graph writers discover the old account only after obtaining the exclusive graph lock.
 		rows, e := tx.Query(ctx, `SELECT id::text FROM accounts WHERE id::text=$1 OR id::text=$2
  OR id IN(SELECT account_id FROM tenant_memberships WHERE tenant_id::text=$3 AND id::text=$2)
- OR id IN(SELECT unnest(ARRAY[target_account_id,inviter_account_id]) FROM tenant_invitations WHERE (tenant_id::text=$3 AND id::text=$2) OR ($4 AND token_hash=$2))
+ OR id IN(SELECT unnest(ARRAY[target_account_id,inviter_account_id]) FROM tenant_invitations WHERE (tenant_id::text=$3 AND id::text=$2) OR ($4 AND (token_hash=$2 OR id::text=$2)))
  OR ($3<>'' AND id IN(SELECT m.account_id FROM tenants t JOIN tenant_memberships m ON m.id=t.administrator_membership_id WHERE t.id::text=$3)) ORDER BY id FOR UPDATE`, a.ID, target, func() string {
 			if p.ChangesGraph {
 				return tenant
@@ -199,6 +200,9 @@ func (s *Service) Create(ctx context.Context, a access.Actor, in CreateInput, m 
 		if e = access.Audit(ctx, tx, "tenant.created", "tenant", id, "", nil, v, meta(a, m, id, in.Reason, "platform")); e != nil {
 			return e
 		}
+		if e = access.NotificationReceiptTx(ctx, tx, "tenancy", "membership.changed", "administrator_appointed", a.ID, ne.BusinessScope(id, ""), ne.Target{Kind: "workspaces"}, ne.Personal(in.AdministratorID)); e != nil {
+			return e
+		}
 		out, e = result(ctx, tx, id, false)
 		return e
 	})
@@ -332,6 +336,9 @@ func (s *Service) Transfer(ctx context.Context, a access.Actor, id string, in Tr
 			return e
 		}
 		if e = access.Audit(ctx, tx, "tenant.administrator.transferred", "tenant", id, "", old, map[string]any{"tenant": v, "membership_reused": reused}, meta(a, m, id, in.Reason, "platform")); e != nil {
+			return e
+		}
+		if e = access.NotificationReceiptTx(ctx, tx, "tenancy", "membership.changed", "administrator_transferred", a.ID, ne.BusinessScope(id, ""), ne.Target{Kind: "workspaces"}, ne.Personal(old.Administrator.ID, in.AdministratorID)); e != nil {
 			return e
 		}
 		out, e = result(ctx, tx, id, false)

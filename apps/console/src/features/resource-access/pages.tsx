@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useBlocker } from '@tanstack/react-router';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -365,6 +366,7 @@ export function ProjectResourceAccessPage({ project }: { project: string }) {
         title={data?.policy.project_name ?? '项目资源授权'}
         description={`${tenant.tenant.name} · ${archived ? '已归档' : '运行中'}`}
       />
+      <ObjectHistory objectType="resource_access" objectId={project}/>
       {base.error && <ErrorState message={base.error.message} onRetry={() => void base.refetch()} />}
       {base.isPending && <LoadingState label="正在读取项目授权…" />}
       {data && (

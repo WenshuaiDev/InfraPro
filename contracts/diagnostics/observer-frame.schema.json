@@ -1,0 +1,671 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:observer-frame",
+  "additionalProperties": false,
+  "properties": {
+    "assignment_revision": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "boot_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "epoch": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "manifest_revision": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "node_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence": {
+            "additionalProperties": false,
+            "properties": {
+              "codes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "exit_code": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "health": {
+                "type": "string"
+              },
+              "http_status": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "lanes": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "active_since": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "check_grace_ms": {
+                      "type": "integer"
+                    },
+                    "deadline_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "id": {
+                      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                      "type": "string"
+                    },
+                    "last_attempt_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "last_success_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "next_attempt_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "reason_code": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "state": {
+                      "enum": [
+                        "idle",
+                        "working",
+                        "blocked"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "state",
+                    "last_attempt_at",
+                    "last_success_at",
+                    "active_since",
+                    "deadline_at",
+                    "next_attempt_at",
+                    "check_grace_ms",
+                    "reason_code"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "oom_killed": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "restart_count": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "scope": {
+                "enum": [
+                  "host",
+                  "vm",
+                  "container",
+                  "none"
+                ],
+                "type": "string"
+              },
+              "source": {
+                "enum": [
+                  "os",
+                  "systemd",
+                  "docker",
+                  "protocol",
+                  "self_report"
+                ],
+                "type": "string"
+              },
+              "systemd_state": {
+                "type": "string"
+              },
+              "vantage_node_id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "vantage_node_id",
+              "scope",
+              "codes"
+            ],
+            "type": "object"
+          },
+          "facets": {
+            "additionalProperties": false,
+            "properties": {
+              "loop": {
+                "enum": [
+                  "idle",
+                  "working",
+                  "blocked",
+                  "stalled",
+                  "unknown",
+                  "not_applicable"
+                ],
+                "type": "string"
+              },
+              "presence": {
+                "enum": [
+                  "running",
+                  "stopped",
+                  "missing",
+                  "unknown",
+                  "not_applicable"
+                ],
+                "type": "string"
+              },
+              "readiness": {
+                "enum": [
+                  "ready",
+                  "not_ready",
+                  "starting",
+                  "unconfigured",
+                  "unknown",
+                  "not_applicable"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "presence",
+              "readiness",
+              "loop"
+            ],
+            "type": "object"
+          },
+          "metrics": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "availability": {
+                  "enum": [
+                    "available",
+                    "unlimited",
+                    "unsupported",
+                    "permission_denied",
+                    "not_configured",
+                    "error"
+                  ],
+                  "type": "string"
+                },
+                "dimension_id": {
+                  "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                  "type": "string"
+                },
+                "key": {
+                  "enum": [
+                    "container.cpu_cores",
+                    "container.cpu_limit_cores",
+                    "container.memory_limit_bytes",
+                    "container.memory_used_bytes",
+                    "cpu.utilization_ratio",
+                    "disk.available_bytes",
+                    "disk.total_bytes",
+                    "disk.used_ratio",
+                    "memory.available_bytes",
+                    "memory.total_bytes",
+                    "memory.used_bytes",
+                    "network.rx_bytes_per_second",
+                    "network.tx_bytes_per_second",
+                    "process.cpu_cores",
+                    "process.restart_count",
+                    "process.rss_bytes",
+                    "uptime_ms"
+                  ],
+                  "type": "string"
+                },
+                "reason_code": {
+                  "enum": [
+                    "adapter_blocked",
+                    "adapter_error",
+                    "adapter_unsupported",
+                    "ambiguous_identity",
+                    "assignment_mismatch",
+                    "auth_configuration_unavailable",
+                    "authentication_failed",
+                    "authentication_required",
+                    "check_pending",
+                    "checker_unavailable",
+                    "clock_uncertain",
+                    "config_rollback",
+                    "configuration_invalid",
+                    "connection_refused",
+                    "connection_timeout",
+                    "cpu_pressure",
+                    "csrf_invalid",
+                    "deadline_exceeded",
+                    "degraded",
+                    "dependency_unavailable",
+                    "disabled",
+                    "disk_pressure",
+                    "dns_failed",
+                    "epoch_conflict",
+                    "file_locked",
+                    "healthy",
+                    "historical",
+                    "identity_mismatch",
+                    "idle",
+                    "initialization_required",
+                    "invalid_report",
+                    "invalid_request",
+                    "keyring_invalid",
+                    "loop_failed",
+                    "manifest_mismatch",
+                    "memory_pressure",
+                    "not_configured",
+                    "observer_offline",
+                    "observer_reconnecting",
+                    "observer_revoked",
+                    "observer_scope_denied",
+                    "observer_session_expired",
+                    "ok",
+                    "origin_denied",
+                    "payload_too_large",
+                    "permission_denied",
+                    "process_exited",
+                    "process_locator_missing",
+                    "process_not_found",
+                    "protocol_unsupported",
+                    "rate_limited",
+                    "reload_error",
+                    "report_identity_mismatch",
+                    "report_invalid",
+                    "report_stale",
+                    "report_write_failed",
+                    "resource_warning",
+                    "response_limit_exceeded",
+                    "response_mismatch",
+                    "retired",
+                    "schedule_delayed",
+                    "sequence_conflict",
+                    "snapshot_expired",
+                    "stale_sequence",
+                    "state_instance_mismatch",
+                    "state_unavailable",
+                    "state_version_unsupported",
+                    "storage_unconfigured",
+                    "target_not_found",
+                    "target_removed",
+                    "tls_invalid",
+                    "ui_not_built",
+                    "unavailable",
+                    "unknown",
+                    "unlimited",
+                    "unsafe_file",
+                    "vantage_mismatch"
+                  ],
+                  "type": "string"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "unit",
+                "value",
+                "availability"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observer_boot_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "pending",
+              "ok",
+              "failed",
+              "timeout",
+              "permission_denied",
+              "unsupported",
+              "not_configured",
+              "invalid_report"
+            ],
+            "type": "string"
+          },
+          "probe_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "process": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "boot_id": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "build_id": {
+                    "maxLength": 64,
+                    "type": "string"
+                  },
+                  "container_id": {
+                    "type": "string"
+                  },
+                  "container_started_at": {
+                    "anyOf": [
+                      {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "os_start_time_ms": {
+                    "pattern": "^(0|[1-9][0-9]{0,19})$",
+                    "type": "string"
+                  },
+                  "pid": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "pid_namespace": {
+                    "enum": [
+                      "host",
+                      "container"
+                    ],
+                    "type": "string"
+                  },
+                  "replica_id": {
+                    "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                    "type": "string"
+                  },
+                  "uid": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "replica_id",
+                  "boot_id"
+                ],
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason_code": {
+            "enum": [
+              "adapter_blocked",
+              "adapter_error",
+              "adapter_unsupported",
+              "ambiguous_identity",
+              "assignment_mismatch",
+              "auth_configuration_unavailable",
+              "authentication_failed",
+              "authentication_required",
+              "check_pending",
+              "checker_unavailable",
+              "clock_uncertain",
+              "config_rollback",
+              "configuration_invalid",
+              "connection_refused",
+              "connection_timeout",
+              "cpu_pressure",
+              "csrf_invalid",
+              "deadline_exceeded",
+              "degraded",
+              "dependency_unavailable",
+              "disabled",
+              "disk_pressure",
+              "dns_failed",
+              "epoch_conflict",
+              "file_locked",
+              "healthy",
+              "historical",
+              "identity_mismatch",
+              "idle",
+              "initialization_required",
+              "invalid_report",
+              "invalid_request",
+              "keyring_invalid",
+              "loop_failed",
+              "manifest_mismatch",
+              "memory_pressure",
+              "not_configured",
+              "observer_offline",
+              "observer_reconnecting",
+              "observer_revoked",
+              "observer_scope_denied",
+              "observer_session_expired",
+              "ok",
+              "origin_denied",
+              "payload_too_large",
+              "permission_denied",
+              "process_exited",
+              "process_locator_missing",
+              "process_not_found",
+              "protocol_unsupported",
+              "rate_limited",
+              "reload_error",
+              "report_identity_mismatch",
+              "report_invalid",
+              "report_stale",
+              "report_write_failed",
+              "resource_warning",
+              "response_limit_exceeded",
+              "response_mismatch",
+              "retired",
+              "schedule_delayed",
+              "sequence_conflict",
+              "snapshot_expired",
+              "stale_sequence",
+              "state_instance_mismatch",
+              "state_unavailable",
+              "state_version_unsupported",
+              "storage_unconfigured",
+              "target_not_found",
+              "target_removed",
+              "tls_invalid",
+              "ui_not_built",
+              "unavailable",
+              "unknown",
+              "unlimited",
+              "unsafe_file",
+              "vantage_mismatch"
+            ],
+            "type": "string"
+          },
+          "sample_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "probe_id",
+          "attempt_id",
+          "observer_boot_id",
+          "observed_at",
+          "sample_age_ms",
+          "duration_ms",
+          "outcome",
+          "facets",
+          "reason_code",
+          "metrics",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "protocol_major": {
+      "const": 1,
+      "type": "integer"
+    },
+    "sequence": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "protocol_major",
+    "instance_id",
+    "node_id",
+    "manifest_revision",
+    "assignment_revision",
+    "epoch",
+    "boot_id",
+    "sequence",
+    "generated_at",
+    "observations"
+  ],
+  "type": "object"
+}

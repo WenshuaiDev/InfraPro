@@ -3,6 +3,10 @@ package access
 import "strings"
 
 const (
+	TenantMonitoringJobsRead            Code = "tenant.monitoring.jobs.read"
+	TenantMonitoringJobsManage          Code = "tenant.monitoring.jobs.manage"
+	ProjectMonitoringJobsRead           Code = "project.monitoring.jobs.read"
+	ProjectMonitoringJobsManage         Code = "project.monitoring.jobs.manage"
 	TenantMonitoringDataRead            Code = "tenant.monitoring.data.read"
 	TenantMonitoringHistoryRead         Code = "tenant.monitoring.data.history.read"
 	TenantMonitoringDataExport          Code = "tenant.monitoring.data.export"
@@ -23,13 +27,13 @@ const (
 
 func monitoringCodes(scope string) []Code {
 	if scope == "tenant" {
-		return []Code{TenantMonitoringDataRead, TenantMonitoringHistoryRead, TenantMonitoringDataExport, TenantMonitoringImportsRead, TenantMonitoringImportsManage, TenantMonitoringBatchesRevoke, TenantMonitoringSourceRead, TenantMonitoringAuthorizationRead, TenantMonitoringAuthorizationManage}
+		return []Code{TenantMonitoringDataRead, TenantMonitoringHistoryRead, TenantMonitoringDataExport, TenantMonitoringImportsRead, TenantMonitoringImportsManage, TenantMonitoringBatchesRevoke, TenantMonitoringSourceRead, TenantMonitoringAuthorizationRead, TenantMonitoringAuthorizationManage, TenantMonitoringJobsRead, TenantMonitoringJobsManage}
 	}
-	return []Code{ProjectMonitoringDataRead, ProjectMonitoringHistoryRead, ProjectMonitoringDataExport, ProjectMonitoringImportsRead, ProjectMonitoringImportsManage, ProjectMonitoringBatchesRevoke, ProjectMonitoringSourceRead}
+	return []Code{ProjectMonitoringDataRead, ProjectMonitoringHistoryRead, ProjectMonitoringDataExport, ProjectMonitoringImportsRead, ProjectMonitoringImportsManage, ProjectMonitoringBatchesRevoke, ProjectMonitoringSourceRead, ProjectMonitoringJobsRead, ProjectMonitoringJobsManage}
 }
 
 func monitoringCatalog() []Permission {
-	names := []string{"查看监测数据", "查看撤销观测历史", "导出监测数据", "查看导入批次", "导入与核对监测数据", "撤销监测批次", "下载完整监测源文件", "查看项目数据授权", "管理项目数据授权"}
+	names := []string{"查看监测数据", "查看撤销观测历史", "导出监测数据", "查看导入批次", "导入与核对监测数据", "撤销监测批次", "下载完整监测源文件", "查看项目数据授权", "管理项目数据授权", "查看任务摘要", "管理任务执行"}
 	out := []Permission{}
 	for _, scope := range []string{"tenant", "project"} {
 		for i, code := range monitoringCodes(scope) {
@@ -37,7 +41,14 @@ func monitoringCatalog() []Permission {
 			if strings.HasSuffix(string(code), ".read") {
 				risk = "normal"
 			}
-			out = append(out, Permission{Code: code, Name: names[i], Group: "监测数据", Scope: scope, Description: "按当前通道、时间范围和操作资格执行；资源可见不自动授予数据权限。", Risk: risk, Lifecycle: "active", TenantCustomRoleAssignable: scope == "tenant", ProjectCustomRoleAssignable: scope == "project"})
+			name := names[i]
+			if strings.HasSuffix(string(code), ".jobs.read") {
+				name = "查看任务摘要"
+			}
+			if strings.HasSuffix(string(code), ".jobs.manage") {
+				name = "管理任务执行"
+			}
+			out = append(out, Permission{Code: code, Name: name, Group: "监测数据", Scope: scope, Description: "按当前通道、时间范围和操作资格执行；资源可见不自动授予数据权限。", Risk: risk, Lifecycle: "active", TenantCustomRoleAssignable: scope == "tenant", ProjectCustomRoleAssignable: scope == "project"})
 		}
 	}
 	return out

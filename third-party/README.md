@@ -1,6 +1,6 @@
-# 前端来源与本地适配
+# 第三方来源与本地适配
 
-参考源码固定版本，不跟随上游 main 自动变化。使用原始 MIT 许可，完整文本保存在相邻目录。
+前端参考源码固定版本，不跟随上游 main 自动变化。以下复制组件使用原始 MIT 许可，完整文本保存在相邻目录；其他依赖各自遵循下文及其发行包中的许可。
 
 | 来源 | 固定版本 | 本地用途 |
 | --- | --- | --- |
@@ -10,6 +10,18 @@
 | [shadcn/ui Base Code Block](https://github.com/shadcn-ui/ui/blob/8ab27715521cbd4f87ae6886cd989cbb678f6de7/apps/v4/registry/bases/base/ui/code-block.tsx) | 同一 commit；2026-11-10 获取 base-nova registry 样式展开版本 | 审计原始 JSON 的标题、行号、复制、换行和 Shiki 明暗主题高亮 |
 
 许可证：[shadcn-admin](shadcn-admin/LICENSE)、[shadcn/ui](shadcn-ui/LICENSE)。npm 库保留各自随包分发的许可证和版本，锁文件记录安装来源。
+
+## 文档阅读器（2026-11-15）
+
+| 依赖 | 固定版本/来源 | 本地用途与许可 |
+| --- | --- | --- |
+| [PDF.js](https://github.com/mozilla/pdf.js) / pdfjs-dist | 6.5.438，npm | PDF 页面、文字层、搜索；Apache-2.0 |
+| [docx-preview](https://github.com/VolodymyrBaydalka/docxjs) | 0.4.1，npm | 隔离 iframe 内的 Word 排版；Apache-2.0 |
+| [JSZip](https://github.com/Stuk/jszip) | 3.10.1，npm | docx-preview 的 ZIP 读取；采用 MIT 许可选项 |
+| [Papa Parse](https://github.com/mholt/PapaParse) | 5.7.1，npm | Worker 内 CSV 解析；MIT |
+| [SheetJS CE](https://docs.sheetjs.com/docs/getting-started/installation/nodejs/) | 0.20.3，官方 `cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz`，完整性记录在锁文件 | Worker 内 XLSX 只读解析；Apache-2.0 |
+
+许可副本存放于 `document-preview/`。依赖随应用本地构建，运行时不连接上述发行站点；PDF 配套字体和 WASM 按发行包复制，保留其目录内附带的许可。
 
 ## 文件映射
 
@@ -41,3 +53,23 @@
 ## 工程定义校验
 
 `github.com/santhosh-tekuri/jsonschema/v6` 锁定 v6.0.3（Apache-2.0），用于 Go 端编译和执行系统生成的 JSON Schema 2020-12。来源和许可证见[上游仓库](https://github.com/santhosh-tekuri/jsonschema/tree/v6.0.3)；作为 Go module 依赖引入，没有复制修改上游源码。API 独立模块的依赖与校验和同步，容器以 `-mod=readonly` 构建。
+
+## 空间可视化
+
+2026-11-13 按实际安装包元数据核对。浏览器依赖由 `pnpm-lock.yaml` 锁定；Python 完整依赖及分发哈希由 `tools/spatial-converter/requirements.lock` 锁定，容器按 `--require-hashes` 安装，保留发行包内许可证。这里没有复制或修改这些库的源码。
+
+| 组件 | 固定版本 | 许可与用途 |
+| --- | --- | --- |
+| [OpenLayers](https://github.com/openlayers/openlayers) | 10.11.0 | BSD-2-Clause；二维地图、GeoJSON、图纸浏览及投影转换。 |
+| [Three.js](https://github.com/mrdoob/three.js) | 0.187.0 | MIT；GLB、相机、选择、高亮及剖切。 |
+| [IfcOpenShell](https://github.com/IfcOpenShell/IfcOpenShell) | 0.9.0.post1 | LGPL-3.0-or-later；独立 Python 进程解析 IFC 几何与语义。发行包中的原生依赖继续保留各自许可。 |
+| [pypdfium2](https://github.com/pypdfium2-team/pypdfium2) | 5.15.2 | BSD-3-Clause／Apache-2.0 及随包列出的依赖许可；PDFium 原生页渲染。 |
+| [Pillow](https://github.com/python-pillow/Pillow) | 13.0.0 | MIT-CMU；图像方向、尺寸校验及多级浏览图片。 |
+| [NumPy](https://github.com/numpy/numpy) | 2.5.4 | 发行元数据为 BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0；IFC 几何数组。 |
+| [ReportLab](https://hg.reportlab.com/hg-public/reportlab/) | 5.1.0 | BSD，具体以随包 license.txt 为准；仅生成合成 PDF 样本。 |
+
+合成桥梁、边坡、图纸、模型和本地示意底图由本仓库脚本原创生成，标为 CC0-1.0，见 [samples/spatial](../samples/spatial/README.md)。样本许可不替代转换库及地图服务许可。可配置外部 XYZ 时需提供来源署名；默认本地示意底图无需商业地图密钥。
+
+## 大屏 SDK 与开发工具
+
+`@infrapro/display-sdk`、`@infrapro/display-devtools` 1.0.0 和最小接入样例为本仓库实现，随 npm 安装包携带 MIT LICENSE。SDK 核心没有第三方运行依赖；开发工具使用 Node 内置 HTTP、文件、密码和压缩 API，包内可信壳来自本仓库 Vite 构建。构建继续使用锁文件中的 TypeScript、Vite、React 与已有 UI；服务器沿用 Go ZIP、pgx、BlobStore，不引入新的包执行或脚本引擎。部署镜像沿用现有 Go/Alpine/Nginx 基础版本。

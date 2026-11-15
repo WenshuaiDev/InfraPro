@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"strconv"
 	"strings"
 	"time"
@@ -82,7 +83,7 @@ func (r *Repository) CompleteReset(ctx context.Context, tokenHash, passwordHash 
 		if _, e = tx.Exec(ctx, "DELETE FROM account_rate_limits WHERE key_hash=(SELECT encode(sha256(convert_to('password:'||username_normalized,'UTF8')),'hex') FROM accounts WHERE id=$1)", account); e != nil {
 			return e
 		}
-		return audit(ctx, tx, "password_reset", account, account, id, "success", m)
+		return securityReceipt(ctx, tx, "password_reset", account, account, id, m)
 	})
 }
 
@@ -130,7 +131,13 @@ func (r *Repository) SetStatusTx(ctx context.Context, tx pgx.Tx, id string, enab
 		}
 	}
 	_, e = tx.Exec(ctx, "UPDATE accounts SET status=$2,auth_version=auth_version+1,management_version=management_version+1,updated_at=now() WHERE id=$1", id, status)
-	return e
+	if e != nil {
+		return e
+	}
+	if a.Status != status {
+		return access.NotificationReceiptTx(ctx, tx, "identity", "security.changed", status, m.ActorID, ne.Scope{Kind: "account"}, ne.Target{Kind: "security"}, ne.Personal(id))
+	}
+	return nil
 }
 func (r *Repository) SetStatus(ctx context.Context, username string, enabled, emergency bool, m Meta) error {
 	return r.transact(ctx, func(tx pgx.Tx) error {
@@ -225,7 +232,6 @@ func (r *Repository) Cleanup(ctx context.Context, retention time.Duration) error
 		"DELETE FROM account_sessions WHERE id IN (SELECT id FROM account_sessions WHERE expires_at<now()-$1::interval LIMIT 500)",
 		"DELETE FROM account_invitations WHERE id IN (SELECT id FROM account_invitations WHERE expires_at<now()-$1::interval LIMIT 500)",
 		"DELETE FROM account_password_resets WHERE id IN (SELECT id FROM account_password_resets WHERE expires_at<now()-$1::interval LIMIT 500)",
-		"DELETE FROM account_security_events WHERE id IN (SELECT id FROM account_security_events WHERE project_id IS NULL AND created_at<now()-$1::interval LIMIT 500)",
 	} {
 		if _, e := r.pool.Exec(ctx, q, interval(retention)); e != nil {
 			return e

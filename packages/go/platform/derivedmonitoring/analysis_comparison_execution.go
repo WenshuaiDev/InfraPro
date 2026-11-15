@@ -360,7 +360,7 @@ func (s *Service) executeComparison(ctx context.Context, lease monitoring.TaskLe
 		if _, e := tx.Exec(ctx, `INSERT INTO analysis_comparison_receipts(tenant_id,run_id,result) VALUES($1,$2,$3)`, scope.Tenant, task.Job.Target, jsonBytes(receipt)); e != nil {
 			return e
 		}
-		_, e := tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$3,error_code=NULL,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, scope.Tenant, task.Job.ID, jsonBytes(map[string]string{"phase": "completed", "difference_count": strconv.FormatUint(result.Differences, 10)}))
+		e := lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "difference_count": strconv.FormatUint(result.Differences, 10)})
 		return e
 	})
 }

@@ -6,6 +6,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -172,6 +175,7 @@ func derivedChannelSetupBindings(t *testing.T, f monitoringFixture, baselines ma
 
 func TestDerivedTrialUsesRealSnapshotAndSharedTask(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	service, currentChannel, cfg := derivedChannelSetup(t, f)
 	channel := dm.ChannelResult{Channel: currentChannel}
 	scope := dm.TenantScope(f.tenant)
@@ -253,6 +257,14 @@ func TestDerivedTrialUsesRealSnapshotAndSharedTask(t *testing.T) {
 	must(t, e)
 	current, e = service.Run(ctx, f.actor, scope, run.ID)
 	must(t, e)
+	if os.Getenv("INFRAPRO_TASK_ASSERTIONS") == "1" {
+		tasks := runtime.ComposeTasks(f.env.Service.Access())
+		view, err := tasks.Get(ctx, f.actor, taskrecord.SourceRef{Module: "derived", Kind: "run", RootID: run.ID}.ID(), "")
+		must(t, err)
+		if view.ResultState != "invalidated" {
+			t.Fatal("task hid fixed-input invalidation", view.ResultState)
+		}
+	}
 	if current.Trial != nil || current.Job.ResultState != "input_invalidated" {
 		t.Fatal("revoked current trial values remained readable", current)
 	}

@@ -236,6 +236,9 @@ func (s *Service) ChangeGrants(ctx context.Context, a access.Actor, tenant, proj
 		}
 		out = Result{ID: project, Revision: p.State.ProjectRevision, AccessRevision: p.State.AccessRevision, Changed: len(p.Add)+len(p.Update)+len(p.End) > 0}
 		if !out.Changed {
+			if e = access.NotifyProjectGrantTx(ctx, tx, "devices", tenant, project, a.ID); e != nil {
+				return e
+			}
 			return k.SaveReceipt(ctx, tx, auth, m, op, input, "project_device_grant_set", project, out)
 		}
 		after := []Grant{}
@@ -268,7 +271,7 @@ func (s *Service) ChangeGrants(ctx context.Context, a access.Actor, tenant, proj
 		if e != nil {
 			return e
 		}
-		if e = k.Audit(ctx, tx, auth, m, string(op), "project_device_grant_set", project, out, meta); e != nil {
+		if e = k.AuditSnapshots(ctx, tx, auth, m, string(op), "project_device_grant_set", project, p.Before, after, meta); e != nil {
 			return e
 		}
 		return k.SaveReceipt(ctx, tx, auth, m, op, input, "project_device_grant_set", project, out)

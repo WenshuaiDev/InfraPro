@@ -1,6 +1,6 @@
 import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 export const consoleURL = process.env.INFRAPRO_E2E_CONSOLE_URL || 'http://127.0.0.1:15173';
 export const password = 'Real browser 河流 secret 592';
 export async function csrf(request: APIRequestContext, baseURL = consoleURL) {
@@ -22,10 +22,10 @@ export async function createAccount(request: APIRequestContext, withInvitationRo
     response = await request.post(`${apiRoot()}/auth/login`, { headers, data: { username: 'e2e_owner', password } }); expect(response.status()).toBe(200);
     response = await request.get(`${apiRoot()}/access/accounts?q=${username}`); expect(response.status()).toBe(200);
     const target = (await response.json()).items[0] as { id: string; management_version: string; roles: { id: string }[] };
-    response = await request.post(`${apiRoot()}/access/roles`, { headers, data: { name: `邀请回归_${username}`, description: '明确授权的邀请回归测试账号', reason: '测试准备' } }); expect(response.status()).toBe(200);
+    response = await request.post(`${apiRoot()}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `邀请回归_${username}`, description: '明确授权的邀请回归测试账号', reason: '测试准备' } }); expect(response.status()).toBe(200);
     const role = await response.json() as { id: string; version: string };
-    response = await request.put(`${apiRoot()}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead, P.PlatformInvitationCreate, P.PlatformInvitationRevoke, P.PlatformInvitationRegenerate], reason: '测试准备' } }); expect(response.status()).toBe(200);
-    response = await request.put(`${apiRoot()}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [...target.roles.map((r) => r.id), role.id], reason: '测试准备' } }); expect(response.status()).toBe(200);
+    response = await request.put(`${apiRoot()}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead, P.PlatformInvitationCreate, P.PlatformInvitationRevoke, P.PlatformInvitationRegenerate], reason: '测试准备' } }); expect(response.status()).toBe(200);
+    response = await request.put(`${apiRoot()}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [...target.roles.map((r) => r.id), role.id], reason: '测试准备' } }); expect(response.status()).toBe(200);
     response = await request.post(`${apiRoot()}/auth/logout`, { headers }); expect(response.status()).toBe(204);
   }
   return { username, password };

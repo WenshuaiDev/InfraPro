@@ -11,11 +11,13 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	dm "github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	md "github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/google/uuid"
 )
 
 func TestAnalysisAtomicMultiOutputVersionsAndChangedInputs(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	service, _, cfg := derivedChannelSetup(t, f, func(rule *dm.Rule) {
 		rule.Nodes = []dm.Node{{ID: "result", Op: "formula", Params: dm.NodeParams{Expression: "x * 2", Variables: map[string]string{"x": "input:x"}}}}
 		rule.Outputs[0].SemanticKey = "double_value"
@@ -56,6 +58,7 @@ func TestAnalysisAtomicMultiOutputVersionsAndChangedInputs(t *testing.T) {
 	if trial.Trial == nil || trial.Trial.OutputCount != "6" || trial.Analysis == nil || !trial.Analysis.Trial {
 		t.Fatal(trial)
 	}
+	verifyTaskAvailableResult(t, f.resourceFixture, taskrecord.SourceRef{Module: "derived", Kind: "run", RootID: trial.ID})
 	fail := func() {
 		t.Helper()
 		_, e := f.env.Pool.Exec(ctx, `CREATE FUNCTION fail_analysis_publication_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'injected analysis commit failure' USING ERRCODE='40001'; END $$; CREATE TRIGGER fail_analysis_publication_test BEFORE INSERT ON analysis_artifact_versions FOR EACH ROW EXECUTE FUNCTION fail_analysis_publication_test()`)

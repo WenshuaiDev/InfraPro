@@ -1,3 +1,4 @@
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { Building2, FolderKanban, Plus, ShieldCheck } from 'lucide-react';
 import { Permissions as P, type Role } from '@infrapro/api-client';
@@ -30,7 +31,10 @@ export function RolesPage() {
 function PlatformRoleList() {
   const { client, account, can, canAll } = useIdentity();
   const [q, setQ] = useState(''); const [status, setStatus] = useState(''); const [pageSize, setPageSize] = useState(10);
-  const [selected, setSelected] = useState<{ id: string; mode: PlatformRoleMode }>();
+  const [selection, setSelected] = useState<{ id: string; mode: PlatformRoleMode }>();
+  const route=useSearch({strict:false}),navigate=useNavigate(),target=route.role;
+  const selected=selection??(target&&account?.id?{id:target,mode:'details' as const}:undefined);
+  const close=()=>{setSelected(undefined);if(target)void navigate({to:'/access/roles',search:{role:undefined}});};
   const returnFocus = useRef<HTMLElement | null>(null);
   const list = useRoleList({ queryKey: ['access', account?.id, 'roles', q, status, pageSize], load: (cursor, signal) => client.roles({ q, status, cursor, limit: pageSize }, signal) });
   const open = (role: Role, mode: PlatformRoleMode, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelected({ id: role.id, mode }); };
@@ -43,6 +47,6 @@ function PlatformRoleList() {
   ];
   return <>
     <RoleTable label="角色列表" items={list.items} q={q} setQ={setQ} status={status} setStatus={setStatus} sourceName={(role) => role.builtin_key ? '内置' : '自定义'} boundCount={(role) => role.account_count} renderName={(role) => <Button id={`role-${role.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" onClick={(event) => open(role, 'details', event.currentTarget)}>{role.name}</Button>} actions={actions} loading={list.isPending} error={list.error} retry={() => void list.refetch()} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
-    {selected && <PlatformRolePanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={() => setSelected(undefined)} returnFocus={returnFocus} />}
+    {selected && <PlatformRolePanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={close} returnFocus={returnFocus} />}
   </>;
 }

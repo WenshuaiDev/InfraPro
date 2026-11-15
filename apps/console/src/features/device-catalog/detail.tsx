@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
@@ -58,7 +59,7 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
   const done = () => { setPanel(undefined); void cache.invalidateQueries({ queryKey: c.prefix }); };
   const panelTitle = ({ edit: '编辑产品草稿', copy: '复制产品', publish: '校验并发布', draft: '创建产品草稿', draft_delete: '丢弃草稿', state: version?.enabled ? '停用产品版本' : '启用产品版本', delete: '删除产品' })[panel?.mode ?? 'edit'];
 
-  return <section className="min-w-0 space-y-6">
+  return <section className="min-w-0 space-y-6"><ObjectHistory objectType="product" objectId={id} scope={c.tenant?{kind:"tenant",tenant_id:c.tenant.tenant.id}:{kind:"platform"}}/>
     <Button asChild variant="ghost" size="sm" className="-ml-3 w-fit"><Link to={c.base} search={{ source }}><ArrowLeft aria-hidden="true" />返回设备产品目录</Link></Button>
     {query.isPending ? <LoadingState /> : query.error ? <ErrorState message={query.error.message} onRetry={() => void query.refetch()} /> : <>
       <PageHeader title={name} description={product ? `${product.code} · ${product.manufacturer_name}` : `${version?.manufacturer_name ?? '平台公共目录'} · 固定发布版本`}

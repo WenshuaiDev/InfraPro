@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -19,7 +20,14 @@ func main() {
 		os.Exit(1)
 	}
 }
-func run() error {
+func run() (resultErr error) {
+	reporter := diagnosticreport.FromEnv()
+	defer func() {
+		if resultErr != nil {
+			reporter.Failed("dependency_unavailable")
+		}
+		reporter.Close()
+	}()
 	cfg, e := config.Load(os.Getenv("INFRAPRO_CONFIG"))
 	if e != nil {
 		return e
@@ -40,5 +48,6 @@ func run() error {
 	if e = business.DerivedMonitoring.Ready(ctx); e != nil {
 		return e
 	}
-	return business.Monitoring.RunWorker(ctx, logger)
+	reporter.Ready()
+	return business.Monitoring.RunWorker(ctx, logger, reporter)
 }

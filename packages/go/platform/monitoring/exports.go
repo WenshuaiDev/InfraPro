@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"io"
 	"os"
 	"slices"
@@ -29,11 +31,12 @@ type ExportInput struct {
 	CSVMode string     `json:"csv_mode"`
 }
 type ExportRecord struct {
-	ID        string    `json:"id"`
-	JobID     string    `json:"job_id"`
-	State     string    `json:"state"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Snapshot  Snapshot  `json:"snapshot"`
+	TaskRef   *taskrecord.Ref `json:"task_ref,omitempty"`
+	ID        string          `json:"id"`
+	JobID     string          `json:"job_id"`
+	State     string          `json:"state"`
+	ExpiresAt time.Time       `json:"expires_at"`
+	Snapshot  Snapshot        `json:"snapshot"`
 }
 type ExportFile struct {
 	Part   string `json:"part"`
@@ -129,6 +132,7 @@ func (s *Service) CreateExport(ctx context.Context, a access.Actor, scope Scope,
 		}
 		out.ID = uuid.NewString()
 		out.JobID = uuid.NewString()
+		out.TaskRef = &taskrecord.Ref{SourceRef: taskrecord.SourceRef{Module: "monitoring", Kind: "job", RootID: out.JobID}, Generation: "1", TaskID: (taskrecord.SourceRef{Module: "monitoring", Kind: "job", RootID: out.JobID}).ID()}
 		out.State = "queued"
 		out.Snapshot = plan.snapshot
 		jobInput := in
@@ -542,7 +546,7 @@ func (s *Service) exportJob(ctx context.Context, j Job) error {
 		if result.RowsAffected() != 1 {
 			return problem("export_invalidated", "导出已失效。", 409)
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$2,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, j.ID, encodeJSON(map[string]string{"phase": "complete", "rows": countText(volumes.total), "files": strconv.Itoa(volumes.part)}))
+		e = s.FinalizeTaskTx(ctx, tx, j.ID, j.fence, "succeeded", "", map[string]string{"phase": "complete", "rows": countText(volumes.total), "files": strconv.Itoa(volumes.part)})
 		return e
 	})
 }
@@ -686,6 +690,21 @@ func (s *Service) ExportDownload(ctx context.Context, a access.Actor, scope Scop
 			return out, notFound()
 		}
 	}
+	e = s.transact(ctx, a, scope, "exports.download", false, false, func(tx pgx.Tx, auth authorization) error {
+		if authorizationVersion(auth) != plan.authorization {
+			return problem("authorization_changed", "下载授权已变化。", 409)
+		}
+		var e error
+		var generation string
+		if e = tx.QueryRow(ctx, `SELECT j.notification_generation::text FROM monitoring_exports x JOIN monitoring_jobs j ON j.id=x.job_id WHERE x.tenant_id=$1 AND x.id=$2`, scope.Tenant, id).Scan(&generation); e != nil {
+			return e
+		}
+		out.Observer, e = s.access.BeginTransferTx(ctx, tx, a.ID, "", ar.Scope{Kind: scope.Entry, Tenant: scope.Tenant, Project: scope.Project}, "monitoring", ar.Link{Kind: "domain_file", Module: "monitoring", TargetKind: "export", TargetID: id, Generation: generation, Relation: "output"})
+		return e
+	})
+	if e != nil {
+		return out, e
+	}
 	out.Write = func(ctx context.Context, w io.Writer) error {
 		var reader io.ReadCloser
 		if part == "manifest" {
@@ -753,5 +772,6 @@ func (s *Service) ExportDownload(ctx context.Context, a access.Actor, scope Scop
 			}
 		}
 	}
+	out.Write = out.Observer.Wrap(out.Write)
 	return out, nil
 }

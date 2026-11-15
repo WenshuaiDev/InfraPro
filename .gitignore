@@ -14,3 +14,15 @@ playwright-report/
 
 # TanStack Router temporary generation cache
 .tanstack/
+
+# Python spatial conversion caches
+__pycache__/
+
+# Compiled standalone display tool bundles
+packages/ts/display-devtools/lib/
+
+# Generated diagnostic release assets; the dev placeholder remains tracked.
+services/diagnostics/internal/web/assets/*
+!services/diagnostics/internal/web/assets/ui-not-built.html
+# Generated from the pinned pdfjs-dist dependency before console dev/build.
+apps/console/public/vendor/pdfjs/

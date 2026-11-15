@@ -3,6 +3,7 @@ package monitoring
 import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"strings"
 	"time"
 )
@@ -68,6 +69,7 @@ type ImportCounts struct {
 	Proposed     string `json:"proposed"`
 }
 type ImportBatch struct {
+	TaskRef         *taskrecord.Ref `json:"task_ref,omitempty"`
 	ID              string          `json:"id"`
 	State           string          `json:"state"`
 	Revision        string          `json:"revision"`

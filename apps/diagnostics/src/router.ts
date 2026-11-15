@@ -1,0 +1,21 @@
+import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+import { createElement } from 'react';
+import { Shell } from './shell';
+import { Overview } from './overview';
+import { Catalog } from './lists';
+import { ComponentPage, ReplicaPage } from './details';
+import { NodePage } from './node';
+import { History } from './history';
+import { SelfPage } from './self';
+const root = createRootRoute({ component: Shell, notFoundComponent: () => createElement('p', null, '页面不存在。请从导航选择诊断视图。') });
+const index = createRoute({ getParentRoute: () => root, path: '/', component: Overview });
+const login = createRoute({ getParentRoute: () => root, path: '/login', component: Overview });
+const components = createRoute({ getParentRoute: () => root, path: '/components', component: () => createElement(Catalog, { kind: 'components' }) });
+const component = createRoute({ getParentRoute: () => root, path: '/components/$componentId', component: () => createElement(ComponentPage, { id: component.useParams().componentId }) });
+const replica = createRoute({ getParentRoute: () => root, path: '/replicas/$replicaId', component: () => createElement(ReplicaPage, { id: replica.useParams().replicaId }) });
+const nodes = createRoute({ getParentRoute: () => root, path: '/nodes', component: () => createElement(Catalog, { kind: 'nodes' }) });
+const node = createRoute({ getParentRoute: () => root, path: '/nodes/$nodeId', component: () => createElement(NodePage, { id: node.useParams().nodeId }) });
+const history = createRoute({ getParentRoute: () => root, path: '/history', component: History });
+const self = createRoute({ getParentRoute: () => root, path: '/self', component: SelfPage });
+export const router = createRouter({ routeTree: root.addChildren([index, login, components, component, replica, nodes, node, history, self]), defaultPreload: false });
+declare module '@tanstack/react-router' { interface Register { router: typeof router } }

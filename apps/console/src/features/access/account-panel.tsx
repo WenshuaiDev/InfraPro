@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useState, type RefObject } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
@@ -39,7 +40,7 @@ function AccountDetails({ account, edit }: { account: ManagedAccount; edit: (mod
   const [tab, setTab] = useState('roles');
   const enabled = account.status === 'active';
   return <>
-    <div className="flex items-start gap-3"><AccountAvatar name={account.display_name} /><div className="min-w-0 flex-1 space-y-1"><p className="break-words font-medium">{account.display_name}</p><AccountStatus status={account.status} /></div></div>
+    <div className="flex items-start gap-3"><AccountAvatar name={account.display_name} /><ObjectHistory scope={{kind:"platform"}} objectType="account" objectId={account.id}/><div className="min-w-0 flex-1 space-y-1"><p className="break-words font-medium">{account.display_name}</p><AccountStatus status={account.status} /></div></div>
     <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">用户名</dt><dd className="mt-1 break-all">{account.username}</dd></div><div><dt className="text-muted-foreground">创建时间</dt><dd className="mt-1"><time dateTime={account.created_at}>{new Date(account.created_at).toLocaleString('zh-CN')}</time></dd></div></dl>
     {!enabled && <FormNotice>账号已停用，不能登录或执行操作。恢复账号不会恢复历史会话和邀请链接。</FormNotice>}
     <div className="flex flex-wrap gap-2">{canAssign && <Button variant="outline" onClick={() => edit('roles')}><ShieldCheck aria-hidden="true" />配置角色</Button>}{can(enabled ? P.PlatformAccountDisable : P.PlatformAccountEnable) && <Button variant="outline" className={enabled ? 'text-destructive hover:text-destructive' : undefined} onClick={() => edit('status')}>{enabled ? '停用账号' : '恢复账号'}</Button>}</div>

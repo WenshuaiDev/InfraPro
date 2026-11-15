@@ -1,3 +1,7 @@
+import { DiagnosticsLink } from './diagnostics-link';
+import { TaskProvider, TaskButton } from '../features/tasks/provider';
+import { NotificationProvider } from '../features/notifications/provider';
+import { NotificationBell } from '../features/notifications/bell';
 import { projectContextKey } from '../features/projects/scope';
 import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from '@tanstack/react-router';
@@ -12,6 +16,7 @@ import { notifyManager, useQueryClient } from '@tanstack/react-query';
 import { House } from 'lucide-react';
 import { WorkspaceSwitcher } from './workspace-switcher';
 import { WorkspacePickerProvider, useWorkspacePicker } from './workspace-picker-context';
+import { WorkspaceReturn, useWorkspaceReturn } from './workspace-return';
 
 const renderLink: LinkRenderer = ({ href, ...props }) => <Link to={safeReturn(href)} search={href === '/' ? { view: 'account' } : undefined} {...props} />;
 
@@ -26,7 +31,7 @@ function useScopeState<T>(key: readonly unknown[]) {
 export function WorkspaceShell({ children }: { children?: ReactNode }) {
   const { account } = useIdentity();
   if (!account) return null;
-  return <WorkspacePickerProvider key={account.id}><WorkspaceContent>{children}</WorkspaceContent></WorkspacePickerProvider>;
+  return <WorkspacePickerProvider key={account.id}><NotificationProvider><TaskProvider><WorkspaceContent>{children}</WorkspaceContent></TaskProvider></NotificationProvider></WorkspacePickerProvider>;
 }
 
 function WorkspaceContent({ children }: { children?: ReactNode }) {
@@ -35,15 +40,18 @@ function WorkspaceContent({ children }: { children?: ReactNode }) {
   const path = relativePath(useLocation({ select: (value) => value.pathname }));
   const navigate = useNavigate();
   const { kind, tenantId, projectId } = workspaceScope(path);
+  const monitoringPage = /^\/t\/[^/]+\/(?:p\/[^/]+\/)?monitoring(?:\/|$)/.test(path);
+  const notificationInbox = /^\/notifications(?:\/[0-9a-f-]{36})?\/?$/i.test(path);
   const [restrictedTenant, setRestrictedTenant] = useState<string>();
   useEffect(() => client.onTenantRestriction((id, code) => { if (code === 'tenant_disabled' || code === 'tenant_not_found') setRestrictedTenant(id); else if (code === 'active') setRestrictedTenant((old) => old === id ? undefined : old); }), [client]);
   const tenant = useScopeState<TenantContext>(['tenant', account?.id, tenantId, 'context']);
   const project = useScopeState<ProjectContext>(projectContextKey(account?.id, tenantId ?? '', projectId ?? ''));
   const groups = kind === 'tenant' && tenant?.data?.can_enter === false || kind === 'project' && project?.data?.can_enter === false ? [] : navigation(path, can, (p) => restrictedTenant !== tenantId && !tenant?.error && tenant?.data?.can_enter === true && (tenant?.data?.permissions.includes(p) ?? false), (p) => restrictedTenant !== tenantId && !project?.error && project?.data?.can_enter === true && (project?.data?.authorization.permissions.includes(p) ?? false));
   const logout = useOperation({ mutationFn: () => client.logout(), onSuccess: signedOut });
+  const returnTarget = useWorkspaceReturn({ path, groups, workspaceName: kind === 'project' ? project?.data?.project.name ?? '项目工作台' : kind === 'tenant' ? tenant?.data?.tenant.name ?? '租户工作台' : '平台管理工作台' });
   if (!account) return null;
-  return <AdminLayout mode={kind === 'account' ? 'plain' : 'workspace'} brand={brand} groups={groups} workspaceSwitcherOpen={picker.state.open} renderWorkspaceSwitcher={(host) => <WorkspaceSwitcher host={host} path={path} tenant={!tenant?.error && restrictedTenant !== tenantId ? tenant?.data : undefined} project={!project?.error && restrictedTenant !== tenantId ? project?.data : undefined} />} user={{ displayName: account.display_name, username: account.username }} userNavigation={[{ title: '账号首页', href: '/', icon: House, active: path === '/' }, ...accountNavigation(path, can)]} renderLink={renderLink} onNavigate={(href) => { void navigate({ to: safeReturn(href), search: href === '/' ? { view: 'account' } : undefined }); }} onLogout={() => logout.mutate()} logoutPending={logout.isPending} notice={logout.error ? <FormNotice error>{logout.error.message}</FormNotice> : undefined}>
-    <PageContent>{allowedPath(path, can) ? (children ?? <Outlet />) : <section className="space-y-3"><h1 className="text-2xl font-semibold">403 · 无权限</h1><p className="text-muted-foreground">当前账号没有访问此页面的权限。请联系维护人员配置角色。</p><Link to="/" className="underline">返回首页</Link></section>}</PageContent>
+  return <AdminLayout headerActions={<><DiagnosticsLink /><TaskButton /><NotificationBell /></>} mode={kind === 'account' ? 'plain' : 'workspace'} brand={brand} groups={groups} workspaceSwitcherOpen={picker.state.open} renderWorkspaceSwitcher={(host) => <WorkspaceSwitcher host={host} path={path} tenant={!tenant?.error && restrictedTenant !== tenantId ? tenant?.data : undefined} project={!project?.error && restrictedTenant !== tenantId ? project?.data : undefined} />} user={{ displayName: account.display_name, username: account.username }} userNavigation={[{ title: '账号首页', href: '/', icon: House, active: path === '/' }, ...accountNavigation(path, can)]} renderLink={renderLink} onNavigate={(href) => { void navigate({ to: safeReturn(href), search: href === '/' ? { view: 'account' } : undefined }); }} onLogout={() => logout.mutate()} logoutPending={logout.isPending} notice={logout.error ? <FormNotice error>{logout.error.message}</FormNotice> : undefined}>
+    <PageContent className={monitoringPage || notificationInbox ? 'py-4 sm:px-6 @7xl/content:max-w-none' : undefined}>{kind === 'account' && <WorkspaceReturn target={returnTarget} />}{allowedPath(path, can) ? (children ?? <Outlet />) : <section className="space-y-3"><h1 className="text-2xl font-semibold">403 · 无权限</h1><p className="text-muted-foreground">当前账号没有访问此页面的权限。请联系维护人员配置角色。</p><Link to="/" className="underline">返回首页</Link></section>}</PageContent>
   </AdminLayout>;
 }
 

@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -156,7 +157,7 @@ function EngineeringBody({
           }
         />
       )}
-      {selected ? (
+      {selected && <ObjectHistory objectType="engineering_definition" objectId={selected} scope={scope.tenant?{kind:"tenant",tenant_id:scope.tenant}:{kind:"platform"}}/>}{selected ? (
         <>
           {detail.error && (
             <ErrorState

@@ -1,24 +1,44 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { useQueryClient } from '@tanstack/react-query';
-import { Upload } from 'lucide-react';
-import { PageHeader } from '@infrapro/layouts';
+import { useCallback, useMemo, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from '@tanstack/react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ApiError, type MonitoringImportBatch, type MonitoringImportFilter } from '@infrapro/api-client';
+import { BookOpen, RefreshCw, Upload } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
-import { Badge } from '@infrapro/ui/components/badge';
-import { DirectoryTable } from '@infrapro/ui/patterns/directory-table';
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { ErrorState } from '@infrapro/ui/patterns/feedback';
-import { useCursorList } from '../../hooks/use-cursor-list';
+import { MonitoringPageHeader } from './page-header';
 import { useMonitoring } from './context';
-import { CursorButtons, MonitoringTabs } from './common';
-import { count, stateNames } from './format';
 import { UploadForm } from './upload-form';
+import { ImportTable } from './import-table';
+import { importFilter, type ImportSearch, type ImportTab } from './import-search';
+import { MonitoringError } from './common';
 
-export function MonitoringImportsPage() {
-  const m = useMonitoring(), cache = useQueryClient(), navigate = useNavigate(); const [upload, setUpload] = useState(false);
-  const list = useCursorList({ queryKey: [...m.prefix, 'imports'], load: (cursor, signal) => m.client.monitoringImports(m.scope, cursor, signal), enabled: m.available && m.canImportRead });
-  const { refetch } = list;
-  useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === 'visible') void refetch(); }, 5000); return () => clearInterval(timer); }, [refetch]);
+declare module '@tanstack/react-router' { interface HistoryState { importTrail?: (string | null)[]; importTrailFor?: string; importReturnFocus?: string } }
+const empty: MonitoringImportBatch[] = [];
+export function MonitoringImportsPage({ search }: { search: ImportSearch }) {
+  const m = useMonitoring(), cache = useQueryClient(), navigate = useNavigate();
+  const history = useLocation({ select: location => location.state });
+  const [upload, setUpload] = useState(false), [guide, setGuide] = useState(false);
+  const { q, states, formats, sort, limit, cursor } = importFilter(search);
+  const filter = useMemo(() => ({ q, states, formats, sort, limit, cursor }), [q, states, formats, sort, limit, cursor]);
+  const list = useQuery({ queryKey: [...m.prefix, 'imports', filter], queryFn: ({ signal }) => m.client.monitoringImportList(m.scope, filter, signal), enabled: m.available && m.canImportRead, refetchInterval: 10000, refetchIntervalInBackground: false, refetchOnWindowFocus: 'always', retry: false });
+  const trailKey = JSON.stringify([m.scope, { ...filter, cursor: undefined }]);
+  const previous = history.importTrailFor === trailKey ? history.importTrail ?? [] : [];
+  const change = useCallback((value: Partial<MonitoringImportFilter>) => { void navigate({ to: m.paths.imports, search: { ...filter, ...value, cursor: undefined, tab: undefined }, state: state => ({ ...state, importTrail: [], importTrailFor: undefined }), resetScroll: false }); }, [filter, m.paths.imports, navigate]);
+  const base = m.paths.imports;
+  const open = useCallback((batch: MonitoringImportBatch, tab?: ImportTab) => { void navigate({ to: `${base}/${encodeURIComponent(batch.id)}`, search: { ...filter, tab }, state: state => ({ ...state, importReturnFocus: `import-${batch.id}` }), resetScroll: false }); }, [base, filter, navigate]);
+  const ready = (batch: MonitoringImportBatch) => { setUpload(false); void cache.invalidateQueries({ queryKey: [...m.prefix, 'imports'] }); open(batch, 'mapping'); };
   if (!m.canImportRead) return <ErrorState title="没有导入批次查看权限" message="请联系当前工作空间管理员配置权限。" />;
-  return <section className="min-w-0 space-y-5"><PageHeader title="导入与批次" description="文件先封存，再明确映射和全量校验；合格批次统一生效。" actions={m.canManage && <Button id="new-monitoring-import" disabled={!m.available} onClick={() => setUpload(true)}><Upload aria-hidden />导入历史文件</Button>} /><MonitoringTabs current="imports" /><DirectoryTable label="监测导入批次" items={list.items} rowId={v => v.id} loading={list.isPending} error={list.error?.message} retry={() => void list.refetch()} empty="当前范围暂无导入批次。CSV 和 XLSX 可用于导入已存在业务通道的历史数据。" columns={[{ id: 'file', label: '文件 / 批次', cell: b => <div className="min-w-0"><Link to={m.paths.batch(b.id)} className="break-words font-medium underline underline-offset-4">{b.name}</Link><p className="mt-1 text-xs text-muted-foreground">{new Date(b.created_at).toLocaleString()}</p>{b.scope_clipped && <p className="text-xs">仅当前获准部分</p>}</div> }, { id: 'state', label: '处理状态', cell: b => <Badge variant="outline">{stateNames[b.state] ?? b.state}</Badge> }, { id: 'count', label: '数量', cell: b => b.scope_clipped ? <span>可见采用 {count(b.visible_adopted_count)}</span> : b.counts ? <div className="text-sm"><p>候选 {count(b.counts.candidates)} · 拟采用 {count(b.counts.proposed)}</p><p className="text-xs text-muted-foreground">错误 {count(b.counts.errors)} · 可疑 {count(b.counts.suspect)} · 忽略 {count(b.counts.ignored)}</p></div> : <span className="text-sm">文件 {count(b.size_bytes)} 字节</span> }]} pagination={<CursorButtons previous={list.page ? () => list.go(list.page - 1) : undefined} next={list.hasNext ? () => void list.next() : undefined} busy={list.isFetching} caption={`批次第 ${list.page + 1} 页`} />} /><ResponsivePanel open={upload} onOpenChange={setUpload} title="导入历史文件" description="先上传并封存文件，再核对列、单位、时间和目标通道。" fallbackFocusSelector="#new-monitoring-import">{upload && <UploadForm done={batch => { setUpload(false); void cache.invalidateQueries({ queryKey: [...m.prefix, 'imports'] }); void navigate({ to: m.paths.batch(batch.id) }); }} />}</ResponsivePanel></section>;
+  return <section className="min-w-0 space-y-6">
+    <MonitoringPageHeader title="导入与批次" description="管理历史文件导入，核对数据质量，跟进每个批次的处理结果。" actions={<><Button variant="outline" className="h-9" onClick={() => setGuide(true)}><BookOpen aria-hidden />导入说明</Button>{m.canManage && <Button id="new-monitoring-import" className="h-9" disabled={!m.available} onClick={() => setUpload(true)}><Upload aria-hidden />导入历史文件</Button>}</>} />
+    <MonitoringError error={list.error} retry={() => void list.refetch()} />
+    {list.error instanceof ApiError && list.error.code === 'monitoring_import_cursor_stale' && <Button variant="outline" onClick={() => change({})}>按当前权限返回第一页</Button>}
+    <ImportTable items={!m.available || list.error ? empty : list.data?.items ?? empty} filter={filter} loading={m.available && list.isPending} busy={list.isFetching || !m.available} error={!m.available || !!list.error} next={!!list.data?.next_cursor} previous={!!cursor && previous.length > 0} page={!cursor ? 1 : previous.length ? previous.length + 1 : undefined} change={change} open={open}
+      onPrevious={() => { void navigate({ to: base, search: { ...filter, cursor: previous.at(-1) ?? undefined }, state: state => ({ ...state, importTrail: previous.slice(0, -1), importTrailFor: trailKey }), resetScroll: false }); }}
+      onNext={() => { if (list.data?.next_cursor) void navigate({ to: base, search: { ...filter, cursor: list.data.next_cursor }, state: state => ({ ...state, importTrail: [...previous, cursor ?? null], importTrailFor: trailKey }), resetScroll: false }); }} />
+    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><p>在当前授权范围内搜索与筛选 · 批次状态自动更新</p><Button variant="ghost" size="sm" className="h-7 text-xs" disabled={list.isFetching} onClick={() => void list.refetch()}><RefreshCw aria-hidden className={list.isFetching ? 'motion-safe:animate-spin' : ''} />刷新数据</Button></div>
+    <ResponsivePanel open={upload} onOpenChange={setUpload} title="导入历史文件" description="先上传并封存文件，再核对列、单位、时间和目标通道。" fallbackFocusSelector="#new-monitoring-import">{upload && <UploadForm done={ready} />}</ResponsivePanel>
+    <ResponsivePanel open={guide} onOpenChange={setGuide} title="历史文件导入说明" description="原文件封存后，通过明确映射和全量校验统一生效。"><ol className="list-decimal space-y-5 pl-5 text-sm leading-7"><li><strong>上传与封存</strong><p className="text-muted-foreground">支持 CSV（最多 32 GiB）和 XLSX（最多 512 MiB）。离开上传页面会暂停传输，可重新选择同一个文件续传。</p></li><li><strong>配置映射</strong><p className="text-muted-foreground">选择单通道、长表或宽表，明确时间列、时区、单位和已存在的业务通道。系统不会自动换算单位。</p></li><li><strong>全量校验与核对</strong><p className="text-muted-foreground">错误会阻止整批发布；可疑值保留原值，默认不进入数学统计。重复观测须明确核对。</p></li><li><strong>统一生效</strong><p className="text-muted-foreground">确认合格批次后，后台完成写入与核验，再统一生效。原文件和处理记录持续保留。</p></li></ol></ResponsivePanel>
+    <Outlet />
+  </section>;
 }

@@ -1,8 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { SHA256 } from '../../apps/console/src/features/monitoring/sha256.ts';
+import { registerHooks } from 'node:module';
+import { extname } from 'node:path';
 import { decimalCoefficient, formatNS, parseNS, recentRange, shiftRange, zoomRange, MIN_NS, MAX_NS } from '../../apps/console/src/features/monitoring/format.ts';
+
+// Follow the console's extensionless imports when loading the shared hash.
+const source = new URL('../../apps/console/src/', import.meta.url).href;
+const resolver = registerHooks({ resolve(specifier, context, nextResolve) {
+  if (specifier.startsWith('.') && !extname(specifier) && context.parentURL?.startsWith(source)) return nextResolve(new URL(`${specifier}.ts`, context.parentURL).href, context);
+  return nextResolve(specifier, context);
+} });
+const { SHA256 } = await import('../../apps/console/src/features/monitoring/sha256.ts');
+resolver.deregister();
 
 test('incremental file SHA-256 matches the independent native implementation across part and block boundaries', () => {
   for (const length of [0, 1, 55, 56, 63, 64, 65, 127, 128, 1025, 1000000, 32 * 1024 * 1024 + 67]) {

@@ -52,8 +52,12 @@ func (s *Service) jobTransaction(ctx context.Context, j Job, fn func(pgx.Tx) err
 	if executor := s.executors[j.Kind]; executor != nil {
 		return s.executionTransaction(ctx, j, executor, fn)
 	}
-	if j.actor != "" {
-		return s.transact(ctx, workerActor(j.actor), j.scope(), j.action(), false, false, func(tx pgx.Tx, _ authorization) error { return fn(tx) })
+	if j.actor != "" || j.subject != "" {
+		a, e := s.jobActor(ctx, j)
+		if e != nil {
+			return e
+		}
+		return s.transact(ctx, a, j.scope(), j.action(), false, false, func(tx pgx.Tx, _ authorization) error { return fn(tx) })
 	}
 	if j.Kind != "summary" && j.Kind != "relocate" && j.Kind != "verify" {
 		return access.ErrDenied
@@ -83,14 +87,21 @@ func (s *Service) queueAnalytic(ctx context.Context, a access.Actor, scope Scope
 		if _, e := authorizedWindowsTx(ctx, tx, auth, plan.channels, "read"); e != nil {
 			return e
 		}
-		_, e := tx.Exec(ctx, `INSERT INTO monitoring_jobs(tenant_id,project_id,actor_id,kind,target_id,target_revision,input_hash,input) VALUES($1,$2,$3,'summary',$4,$5,$6,$7) ON CONFLICT DO NOTHING`, scope.Tenant, nullable(scope.Project), a.ID, plan.snapshot.ID, plan.snapshot.Watermark, digest(v), encodeJSON(v))
+		_, e := tx.Exec(ctx, `INSERT INTO monitoring_jobs(tenant_id,project_id,actor_id,display_subject_id,kind,target_id,target_revision,input_hash,input) VALUES($1,$2,$3,$8,'summary',$4,$5,$6,$7) ON CONFLICT DO NOTHING`, scope.Tenant, nullable(scope.Project), a.OwnerAccount(), plan.snapshot.ID, plan.snapshot.Watermark, digest(v), encodeJSON(v), a.OwnerSubject())
 		if e != nil {
 			return e
 		}
 		var state string
-		e = tx.QueryRow(ctx, `SELECT id::text,state FROM monitoring_jobs WHERE tenant_id=$1 AND kind='summary' AND target_id=$2 AND target_revision=$3 AND input_hash=$4 AND actor_id=$5`, scope.Tenant, plan.snapshot.ID, plan.snapshot.Watermark, digest(v), a.ID).Scan(&out.JobID, &state)
+		e = tx.QueryRow(ctx, `SELECT id::text,state FROM monitoring_jobs WHERE tenant_id=$1 AND kind='summary' AND target_id=$2 AND target_revision=$3 AND input_hash=$4 AND COALESCE(actor_id,display_subject_id)=$5`, scope.Tenant, plan.snapshot.ID, plan.snapshot.Watermark, digest(v), a.ID).Scan(&out.JobID, &state)
 		if e != nil {
 			return e
+		}
+		if a.ReadSubject() == nil {
+			j, err := scanJob(tx.QueryRow(ctx, jobSelect+` WHERE id=$1`, out.JobID))
+			if err != nil {
+				return err
+			}
+			out.TaskRef = j.TaskRef
 		}
 		if state == "failed" || state == "needs_action" || state == "cancelled" {
 			out.State = state
@@ -105,7 +116,7 @@ func (s *Service) cachedAnalytic(ctx context.Context, a access.Actor, scope Scop
 	v := summaryJobInput{Mode: "query", Action: action, Query: in}
 	key := ""
 	e := s.db(ctx, func(tx pgx.Tx) error {
-		e := tx.QueryRow(ctx, `SELECT steps.result->>'object' FROM monitoring_jobs j JOIN monitoring_job_steps steps ON steps.tenant_id=j.tenant_id AND steps.job_id=j.id AND steps.step_key='analytic-result' AND steps.state='completed' WHERE j.tenant_id=$1 AND j.actor_id=$2 AND j.kind='summary' AND j.target_id=$3 AND j.input_hash=$4 AND j.state='succeeded'`, scope.Tenant, a.ID, plan.snapshot.ID, digest(v)).Scan(&key)
+		e := tx.QueryRow(ctx, `SELECT steps.result->>'object' FROM monitoring_jobs j JOIN monitoring_job_steps steps ON steps.tenant_id=j.tenant_id AND steps.job_id=j.id AND steps.step_key='analytic-result' AND steps.state='completed' WHERE j.tenant_id=$1 AND COALESCE(j.actor_id,j.display_subject_id)=$2 AND j.kind='summary' AND j.target_id=$3 AND j.input_hash=$4 AND j.state='succeeded'`, scope.Tenant, a.ID, plan.snapshot.ID, digest(v)).Scan(&key)
 		if e == pgx.ErrNoRows {
 			return nil
 		}
@@ -154,7 +165,7 @@ func (s *Service) summaryJob(ctx context.Context, j Job) error {
 	if in.Mode == "rebuild" {
 		return s.rebuildSummaryJob(ctx, j, in)
 	}
-	if in.Mode == "maintenance" && j.actor == "" {
+	if in.Mode == "maintenance" && j.actor == "" && j.subject == "" {
 		watermark, e := revisionNumber(in.Watermark)
 		if e != nil {
 			return e
@@ -165,10 +176,13 @@ func (s *Service) summaryJob(ctx context.Context, j Job) error {
 		_, e = s.buildSummary(ctx, j.tenant, in.Channel, in.Content, in.Revoke, watermark)
 		return e
 	}
-	if in.Mode != "query" || j.actor == "" {
+	if in.Mode != "query" || j.actor == "" && j.subject == "" {
 		return fmt.Errorf("invalid summary task")
 	}
-	a := workerActor(j.actor)
+	a, e := s.jobActor(ctx, j)
+	if e != nil {
+		return e
+	}
 	query, e := analyticInput(in.Query, in.Action)
 	if e != nil {
 		return e

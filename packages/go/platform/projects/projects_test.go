@@ -508,8 +508,8 @@ func TestProjectAuditIsolationAndTenantRoleIndependence(t *testing.T) {
 			ordinary++
 		}
 	}
-	// Seven scoped monitoring data permissions extend the project catalog.
-	if len(list) != 41 || ordinary != 31 {
+	// Monitoring adds seven plus two task-summary/control permissions; derived monitoring thirteen, spatial three, display nine, attachments three, and audit three.
+	if len(list) != 74 || ordinary != 64 {
 		t.Fatal(list)
 	}
 	auth, e := f.s.Authorization(ctx, f.actor(f.b), f.tid, p.ProjectID, member.ObjectID)

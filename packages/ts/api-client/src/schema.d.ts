@@ -9624,6 +9624,2711 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyNotificationSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyNotification"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["ChangeMyNotification"];
+        trace?: never;
+    };
+    "/api/v1/me/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReadMyNotifications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/{id}/target": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyNotificationTarget"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyNotificationPreferences"];
+        put: operations["SaveMyNotificationPreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/tenant-invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyTenantInvitations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/tenant-invitations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MyTenantInvitation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/tenant-invitations/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcceptMyTenantInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksResolve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksOperations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{id}/executions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksExecutions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{id}/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TasksCommand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{id}/target": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TasksTarget"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.list */
+        get: operations["Spatial:tenant:assets.list"];
+        put?: never;
+        /** assets.create */
+        post: operations["Spatial:tenant:assets.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.detail */
+        get: operations["Spatial:tenant:assets.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** assets.update */
+        patch: operations["Spatial:tenant:assets.update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.versions */
+        get: operations["Spatial:tenant:assets.versions"];
+        put?: never;
+        /** versions.create */
+        post: operations["Spatial:tenant:versions.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.draft */
+        get: operations["Spatial:tenant:versions.draft"];
+        put?: never;
+        post?: never;
+        /** versions.delete */
+        delete: operations["Spatial:tenant:versions.delete"];
+        options?: never;
+        head?: never;
+        /** versions.edit */
+        patch: operations["Spatial:tenant:versions.edit"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.validate */
+        post: operations["Spatial:tenant:versions.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/publish-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.publish-preview */
+        post: operations["Spatial:tenant:versions.publish-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.publish */
+        post: operations["Spatial:tenant:versions.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/withdraw-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.withdraw-preview */
+        post: operations["Spatial:tenant:versions.withdraw-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.withdraw */
+        post: operations["Spatial:tenant:versions.withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/current-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** assets.current-preview */
+        post: operations["Spatial:tenant:assets.current-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** assets.current */
+        post: operations["Spatial:tenant:assets.current"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/retire-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** assets.retire-preview */
+        post: operations["Spatial:tenant:assets.retire-preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** assets.retire */
+        post: operations["Spatial:tenant:assets.retire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** assets.restore */
+        post: operations["Spatial:tenant:assets.restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/assets/{id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.history */
+        get: operations["Spatial:tenant:assets.history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/uploads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** uploads.detail */
+        get: operations["Spatial:tenant:uploads.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** uploads.create */
+        post: operations["Spatial:tenant:uploads.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/uploads/{id}/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** uploads.part */
+        put: operations["Spatial:tenant:uploads.part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/uploads/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** uploads.complete */
+        post: operations["Spatial:tenant:uploads.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/uploads/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** uploads.cancel */
+        post: operations["Spatial:tenant:uploads.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** versions.process */
+        post: operations["Spatial:tenant:versions.process"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** jobs.detail */
+        get: operations["Spatial:tenant:jobs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/jobs/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** jobs.cancel */
+        post: operations["Spatial:tenant:jobs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/jobs/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** jobs.retry */
+        post: operations["Spatial:tenant:jobs.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.manifest */
+        get: operations["Spatial:tenant:versions.manifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.pages */
+        get: operations["Spatial:tenant:versions.pages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/elements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.elements */
+        get: operations["Spatial:tenant:versions.elements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/properties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.properties */
+        get: operations["Spatial:tenant:versions.properties"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/placements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.placements */
+        get: operations["Spatial:tenant:versions.placements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/component-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.component-links */
+        get: operations["Spatial:tenant:versions.component-links"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.features */
+        get: operations["Spatial:tenant:versions.features"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/files/{file_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.files */
+        get: operations["Spatial:tenant:versions.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/versions/{id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.source */
+        get: operations["Spatial:tenant:versions.source"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/objects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** objects */
+        get: operations["Spatial:tenant:objects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/objects/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** objects.detail */
+        get: operations["Spatial:tenant:objects.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/basemaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** basemaps */
+        get: operations["Spatial:tenant:basemaps"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/basemaps/local/tiles/{tile}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** basemaps.tile */
+        get: operations["Spatial:tenant:basemaps.tile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** summaries */
+        post: operations["Spatial:tenant:summaries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/locate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** locate */
+        post: operations["Spatial:tenant:locate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/spatial/related-artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** related-artifacts */
+        post: operations["Spatial:tenant:related-artifacts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.list */
+        get: operations["Spatial:project:assets.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/assets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.detail */
+        get: operations["Spatial:project:assets.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/assets/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** assets.versions */
+        get: operations["Spatial:project:assets.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.manifest */
+        get: operations["Spatial:project:versions.manifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.pages */
+        get: operations["Spatial:project:versions.pages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/elements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.elements */
+        get: operations["Spatial:project:versions.elements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/properties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.properties */
+        get: operations["Spatial:project:versions.properties"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/placements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.placements */
+        get: operations["Spatial:project:versions.placements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/component-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.component-links */
+        get: operations["Spatial:project:versions.component-links"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.features */
+        get: operations["Spatial:project:versions.features"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/files/{file_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.files */
+        get: operations["Spatial:project:versions.files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/versions/{id}/source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** versions.source */
+        get: operations["Spatial:project:versions.source"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/objects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** objects */
+        get: operations["Spatial:project:objects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/objects/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** objects.detail */
+        get: operations["Spatial:project:objects.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/basemaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** basemaps */
+        get: operations["Spatial:project:basemaps"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/basemaps/local/tiles/{tile}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** basemaps.tile */
+        get: operations["Spatial:project:basemaps.tile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** summaries */
+        post: operations["Spatial:project:summaries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/locate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** locate */
+        post: operations["Spatial:project:locate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/related-artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** related-artifacts */
+        post: operations["Spatial:project:related-artifacts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial/views/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** views.detail */
+        get: operations["Spatial:project:views.detail"];
+        /** views.save */
+        put: operations["Spatial:project:views.save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** access.detail */
+        get: operations["Spatial:tenant:access.detail"];
+        /** access.save */
+        put: operations["Spatial:tenant:access.save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/spatial-access/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** access.preview */
+        post: operations["Spatial:tenant:access.preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project display list */
+        get: operations["display_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Project display settings */
+        put: operations["display_settings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display create */
+        post: operations["display_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project display detail */
+        get: operations["display_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Project display instance */
+        patch: operations["display_instance"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/tool-authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display tool.authorize */
+        post: operations["display_tool_authorize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display upload */
+        post: operations["display_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project display upload.get */
+        get: operations["display_upload_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads/{upload_id}/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Project display upload.part */
+        put: operations["display_upload_part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads/{upload_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display upload.complete */
+        post: operations["display_upload_complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads/{upload_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display upload.cancel */
+        post: operations["display_upload_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/uploads/{upload_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display package.retry */
+        post: operations["display_package_retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/packages/{package_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Project display package.delete */
+        delete: operations["display_package_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display config */
+        post: operations["display_config"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/grant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Project display grant */
+        put: operations["display_grant"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/prepare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display prepare */
+        post: operations["display_prepare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display publish */
+        post: operations["display_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display rollback */
+        post: operations["display_rollback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display withdraw */
+        post: operations["display_withdraw"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/launch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display launch */
+        post: operations["display_launch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display preview */
+        post: operations["display_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/terminals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Project display terminal.create */
+        post: operations["display_terminal_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/terminals/{terminal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Project display terminal.update */
+        patch: operations["display_terminal_update"];
+        trace?: never;
+    };
+    "/api/v1/displays/{id}/location": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project display locate */
+        get: operations["display_locate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:attachments.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:attachments.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["Files:tenant:attachments.update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:attachments.revisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:attachments.revert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/trash": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:attachments.trash"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:attachments.restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/revisions/{revision_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Files:tenant:content.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/attachments/{id}/revisions/{revision_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:preview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Files:tenant:preview.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:uploads.list"];
+        put?: never;
+        post: operations["Files:tenant:uploads.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:uploads.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads/{id}/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Files:tenant:uploads.part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:uploads.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:uploads.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/uploads/{id}/reconfirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:tenant:uploads.reconfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:jobs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/files/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:tenant:requests.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:attachments.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:attachments.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["Files:project:attachments.update"];
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:attachments.revisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:attachments.revert"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/trash": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:attachments.trash"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:attachments.restore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/revisions/{revision_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Files:project:content.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/attachments/{id}/revisions/{revision_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:preview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Files:project:preview.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:uploads.list"];
+        put?: never;
+        post: operations["Files:project:uploads.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:uploads.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads/{id}/parts/{part}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["Files:project:uploads.part"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:uploads.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:uploads.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/uploads/{id}/reconfirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Files:project:uploads.reconfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:jobs.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/files/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Files:project:requests.detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:event"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/events/{event_id}/trace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:trace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/events/{event_id}/targets/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:target"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:exports"];
+        put?: never;
+        post: operations["Audit:platform:exports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/exports/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/exports/{export_id}/generations/{generation}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:platform:download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Audit:platform:download.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:event"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/events/{event_id}/trace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:trace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/events/{event_id}/targets/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:target"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:exports"];
+        put?: never;
+        post: operations["Audit:tenant:exports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/exports/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/audit/exports/{export_id}/generations/{generation}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:tenant:download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Audit:tenant:download.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:capabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:event"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/events/{event_id}/trace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:trace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/events/{event_id}/targets/{link_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:target"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:exports"];
+        put?: never;
+        post: operations["Audit:project:exports.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/exports/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/audit/exports/{export_id}/generations/{generation}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Audit:project:download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head: operations["Audit:project:download.head"];
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/monitoring-source-bindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 租户测点与设备绑定目录
+         * @description 仅直接通道；parent_id 为测点。counts 为当前搜索及设施/测点范围的数量，不受 state 或游标影响。设备投影遵循当前读取权限。
+         */
+        get: operations["Device:tenant:source:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -9750,7 +12455,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export";
+        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "tenant.monitoring.jobs.read" | "tenant.monitoring.jobs.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "project.monitoring.jobs.read" | "project.monitoring.jobs.manage" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export" | "tenant.spatial.read" | "tenant.spatial.manage" | "tenant.spatial.placement.manage" | "tenant.spatial.publish" | "tenant.spatial.source.download" | "tenant.project.spatial_access.read" | "tenant.project.spatial_access.manage" | "project.spatial.view" | "project.spatial.source.download" | "project.spatial.views.manage" | "project.display.view" | "project.display.settings" | "project.display.manage" | "project.display.upload" | "project.display.configure" | "project.display.grant" | "project.display.preview" | "project.display.publish" | "project.display.terminals" | "tenant.attachments.read" | "tenant.attachments.download" | "tenant.attachments.manage" | "project.attachments.read" | "project.attachments.download" | "project.attachments.manage" | "platform.audit.export" | "platform.audit.technical.read" | "platform.audit.exports.manage" | "tenant.audit.export" | "tenant.audit.technical.read" | "tenant.audit.exports.manage" | "project.audit.export" | "project.audit.technical.read" | "project.audit.exports.manage";
         Permission: {
             name: string;
             group: string;
@@ -13932,6 +16637,7 @@ export interface components {
             visible_adopted_count?: string;
             visible_coverage?: components["schemas"]["MonitoringBatchCoverage"][];
             preview?: components["schemas"]["MonitoringSourcePreview"];
+            task_ref?: components["schemas"]["TaskRef"];
         };
         MonitoringImportPage: {
             items: components["schemas"]["MonitoringImportBatch"][];
@@ -13976,6 +16682,12 @@ export interface components {
             result_state?: "preparing" | "available" | "invalidated" | "expired" | "input_invalidated";
             /** Format: uuid */
             trace_id: string;
+            task_ref?: components["schemas"]["TaskRef"];
+            query?: {
+                /** @enum {string} */
+                action: "overview" | "latest" | "statistics" | "trends";
+                input: components["schemas"]["MonitoringQuery"];
+            };
         };
         MonitoringJobPage: {
             items: components["schemas"]["MonitoringJob"][];
@@ -14260,6 +16972,7 @@ export interface components {
             next_cursor?: string;
             computation: string;
             coverage?: components["schemas"]["DerivedCoverage"][];
+            task_ref?: components["schemas"]["TaskRef"];
         };
         MonitoringPoint: {
             /** Format: uuid */
@@ -14358,6 +17071,7 @@ export interface components {
             /** Format: date-time */
             expires_at: string;
             snapshot: components["schemas"]["MonitoringSnapshot"];
+            task_ref?: components["schemas"]["TaskRef"];
         };
         MonitoringExportFile: {
             part: string;
@@ -15858,6 +18572,1642 @@ export interface components {
         GenerationExportPage: {
             items: components["schemas"]["GenerationExportRecord"][];
             next_cursor: string;
+        };
+        DisplayScope: {
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string;
+        };
+        DisplaySchema: {
+            /** @enum {unknown} */
+            type: "object" | "string" | "integer" | "number" | "boolean" | "array";
+            title?: string;
+            description?: string;
+            default?: unknown;
+            properties?: {
+                [key: string]: components["schemas"]["DisplaySchema"];
+            };
+            required?: string[];
+            /** @constant */
+            additionalProperties?: false;
+            enum?: unknown[];
+            minLength?: number;
+            maxLength?: number;
+            minimum?: number;
+            maximum?: number;
+            items?: components["schemas"]["DisplaySchema"];
+            maxItems?: number;
+        };
+        DisplayDynamic: {
+            facility_ids: string[];
+            component_ids?: string[];
+            /** Format: uuid */
+            metric_version_id?: string;
+            value_kind?: string;
+            source_kind?: string;
+            include_future: boolean;
+            baseline_ids?: string[];
+        };
+        DisplayBinding: {
+            /** @enum {unknown} */
+            kind: "channels" | "resources" | "spatial" | "artifacts";
+            ids: string[];
+            dynamic?: components["schemas"]["DisplayDynamic"];
+            from?: string;
+            to?: string;
+        };
+        DisplayBindingSchema: {
+            /** @enum {unknown} */
+            kind: "channels" | "resources" | "spatial" | "artifacts";
+            required?: boolean;
+            min_items?: number;
+            max_items?: number;
+            value_kind?: string;
+            source_kind?: string;
+            metric_version_id?: string;
+            unit_dimension?: string;
+            observation_direction?: string;
+            reference_basis?: string;
+        };
+        DisplayManifest: {
+            /** @constant */
+            manifest_version: 1;
+            app_key: string;
+            name?: string;
+            version: string;
+            entry: string;
+            routing: {
+                /** @enum {unknown} */
+                mode: "hash" | "history";
+                fallback?: string[];
+            };
+            sdk_protocol: {
+                /** @constant */
+                major: 1;
+            };
+            required_capabilities: {
+                [key: string]: 1;
+            };
+            optional_capabilities?: {
+                [key: string]: 1;
+            };
+            config_schema: components["schemas"]["DisplaySchema"];
+            binding_schema: {
+                [key: string]: components["schemas"]["DisplayBindingSchema"];
+            };
+            files: {
+                path: string;
+                size: number;
+                media_type: string;
+                sha256: string;
+            }[];
+        };
+        DisplayReadScope: {
+            channels?: string[];
+            resources?: string[];
+            spatial?: string[];
+            artifacts?: string[];
+            dynamic?: components["schemas"]["DisplayDynamic"];
+            from?: string;
+            to?: string;
+        };
+        DisplayGrant: {
+            revision?: string;
+            capabilities?: string[];
+            scope?: components["schemas"]["DisplayReadScope"];
+            fields?: ("metadata" | "values" | "quality" | "source" | "properties")[];
+            /** Format: date-time */
+            valid_until?: string;
+            revoked?: boolean;
+            /** Format: uuid */
+            issued_by?: string;
+        };
+        DisplayCommand: {
+            expected_revision?: string;
+            reason?: string;
+            name?: string;
+            state?: string;
+            mode?: string;
+            preparation?: string;
+            sha256?: string;
+            challenge?: string;
+            audience?: string;
+            /** Format: uuid */
+            request_id?: string;
+            /** Format: uuid */
+            package_id?: string;
+            /** Format: uuid */
+            config_id?: string;
+            /** Format: uuid */
+            release_id?: string;
+            /** Format: uuid */
+            instance_id?: string;
+            enabled?: boolean;
+            viewers?: string[];
+            parameters?: Record<string, never>;
+            bindings?: {
+                [key: string]: components["schemas"]["DisplayBinding"];
+            };
+            grant?: components["schemas"]["DisplayGrant"];
+            size?: number;
+            valid_until?: string;
+        };
+        DisplayInstance: {
+            name: string;
+            state: string;
+            revision: string;
+            current_release_id?: string;
+            draft_config_id?: string;
+            created_at?: string;
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenant_id?: string;
+            /** Format: uuid */
+            project_id?: string;
+            viewers?: string[];
+        };
+        DisplayPackage: {
+            /** Format: uuid */
+            id?: string;
+            sha256?: string;
+            state?: string;
+            manifest?: components["schemas"]["DisplayManifest"];
+            created_at?: string;
+        };
+        DisplayConfig: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            package_id?: string;
+            parameters?: Record<string, never>;
+            bindings?: {
+                [key: string]: components["schemas"]["DisplayBinding"];
+            };
+            mode?: string;
+            created_at?: string;
+        };
+        DisplayCapability: {
+            name?: string;
+            version?: number;
+            /** @enum {unknown} */
+            availability?: "available" | "unavailable";
+            reason?: string;
+            required_permissions?: string[];
+            subscribe?: boolean;
+            max_targets?: number;
+        };
+        DisplayResult: {
+            [key: string]: unknown;
+        };
+        DisplayList: {
+            settings?: {
+                enabled?: boolean;
+                revision?: string;
+            };
+            items?: components["schemas"]["DisplayInstance"][];
+            capabilities?: components["schemas"]["DisplayCapability"][];
+            runtime_origin?: string;
+        };
+        DisplayDetail: {
+            instance?: components["schemas"]["DisplayInstance"];
+            access_url?: string;
+            packages?: components["schemas"]["DisplayPackage"][];
+            configs?: components["schemas"]["DisplayConfig"][];
+            grant?: components["schemas"]["DisplayGrant"];
+            releases?: Record<string, never>[];
+            uploads?: Record<string, never>[];
+            sessions?: Record<string, never>[];
+            terminals?: Record<string, never>[];
+            events?: Record<string, never>[];
+        };
+        DisplayPreparation: {
+            hash?: string;
+            package?: components["schemas"]["DisplayPackage"];
+            config?: components["schemas"]["DisplayConfig"];
+            grant_revision?: string;
+            binding_sets?: {
+                [key: string]: string[];
+            };
+            authorization_revision?: string;
+        };
+        /** @enum {string} */
+        DisplayEventKind: "snapshot" | "update" | "pending" | "reset" | "status" | "revoked";
+        DisplayEnvelope: {
+            /** @enum {unknown} */
+            state: "ready" | "empty" | "pending" | "partial";
+            data: unknown;
+            read_at: string;
+            authorization_revision: string;
+            generation: string;
+            source_vector: {
+                [key: string]: string;
+            };
+        };
+        DisplaySubscriptionEvent: {
+            /** Format: uuid */
+            subscription_id: string;
+            generation: string;
+            sequence: string;
+            kind: components["schemas"]["DisplayEventKind"];
+            result?: components["schemas"]["DisplayEnvelope"];
+            code?: string;
+        };
+        /** @description Decimal/integer as exact text; never coerce through JS Number. */
+        DisplayExactNumber: string;
+        /**
+         * Format: date-time
+         * @description RFC3339 timestamp; preserves up to nanoseconds.
+         */
+        DisplayTimestamp: string;
+        DisplayError: {
+            code: string;
+            message: string;
+            issues?: {
+                path: string;
+                code: string;
+                message: string;
+            }[];
+        };
+        DisplayTarget: {
+            binding?: string;
+            ids?: string[];
+        };
+        DisplayTimeRange: {
+            from?: string | null;
+            to?: string | null;
+        };
+        DisplayQuery: {
+            id?: string;
+            version?: string;
+            file_id?: string;
+            timezone?: string;
+            selection_id?: string;
+            snapshot_id?: string;
+            cursor?: string;
+            search?: string;
+            kind?: string;
+            period?: string;
+            output?: string;
+            from?: string;
+            to?: string;
+            limit?: number;
+            offset?: number;
+            length?: number;
+            plot_width_px?: number;
+            plot_point_budget?: number;
+            follow_seconds?: number;
+            qualities?: string[];
+            levels?: string[];
+            statuses?: string[];
+            target?: components["schemas"]["DisplayTarget"];
+            range?: components["schemas"]["DisplayTimeRange"];
+            view_range?: components["schemas"]["DisplayTimeRange"];
+            all_history?: boolean;
+        };
+        DisplayCall: {
+            /** @enum {unknown} */
+            method: "resources.list" | "resources.get" | "resources.summary" | "channels.list" | "channels.get" | "monitoring.latest" | "monitoring.details" | "monitoring.trends" | "monitoring.statistics" | "monitoring.overview" | "sources.get" | "sources.history" | "artifacts.list" | "artifacts.get" | "artifacts.read" | "spatial.list" | "spatial.manifest" | "spatial.objects" | "spatial.placements" | "spatial.readFile" | "alerts.query" | "alerts.summary" | "alerts.subscribe";
+            params: components["schemas"]["DisplayQuery"];
+            generation?: string;
+        };
+        DisplaySubscribe: {
+            /** @enum {unknown} */
+            kind: "latest" | "trends" | "statistics" | "overview" | "alerts";
+            query: components["schemas"]["DisplayQuery"];
+            generation?: string;
+        };
+        DisplayAck: {
+            /** Format: uuid */
+            id: string;
+            generation: string;
+            sequence: string;
+        };
+        DisplayControl: {
+            /** @enum {unknown} */
+            action: "ready" | "error" | "close";
+            code?: string;
+        };
+        DisplayExchange: {
+            code: string;
+            verifier: string;
+            audience: string;
+        };
+        DisplayRuntimeContext: {
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string;
+            /** Format: uuid */
+            instance_id: string;
+            release_id?: string;
+            environment: string;
+            generation: string;
+            mode: string;
+            timezone: string;
+            server_time: string;
+            preview: boolean;
+        };
+        NotificationChange: {
+            archived?: boolean | null;
+            expected_revision: string;
+            read?: boolean | null;
+        };
+        NotificationFilter: {
+            /** @enum {string} */
+            category?: "security" | "organization" | "tasks" | "updates";
+            cursor?: string;
+            limit?: number;
+            project_id?: string;
+            /** @enum {string} */
+            scope?: "account" | "platform" | "tenant" | "project";
+            /** @enum {string} */
+            status?: "all" | "unread" | "archived";
+            tenant_id?: string;
+        };
+        NotificationItem: {
+            archived_at: string | null;
+            body: string;
+            category: string;
+            current_state?: string;
+            /** Format: date-time */
+            delivered_at: string;
+            id: string;
+            legacy_task_reference: boolean;
+            object_name?: string;
+            /** Format: date-time */
+            occurred_at: string;
+            outcome: string;
+            read_at: string | null;
+            reason_code?: string;
+            redacted: boolean;
+            revision: string;
+            scope: components["schemas"]["NotificationScope"];
+            scope_name?: string;
+            sequence: string;
+            target_available: boolean;
+            task_generation?: string;
+            task_id?: string;
+            title: string;
+            type: string;
+            unavailable_reason?: string;
+        };
+        NotificationPage: {
+            authorization_revision: string;
+            items: components["schemas"]["NotificationItem"][];
+            next_cursor?: string;
+            revision: string;
+            watermark: string;
+        };
+        NotificationPreferences: {
+            revision: string;
+            tasks: boolean;
+            updates: boolean;
+        };
+        NotificationReadAllInput: {
+            filter: components["schemas"]["NotificationFilter"];
+            watermark: string;
+        };
+        NotificationScope: {
+            kind: string;
+            project_id?: string;
+            tenant_id?: string;
+        };
+        NotificationSummary: {
+            authorization_revision: string;
+            categories: {
+                [key: string]: number;
+            };
+            revision: string;
+            unread: number;
+            watermark: string;
+        };
+        NotificationTarget: {
+            generation?: string;
+            id?: string;
+            kind?: string;
+            legacy_task_reference: boolean;
+            project_id?: string;
+            reason?: string;
+            status: string;
+            tenant_id?: string;
+        };
+        TaskAction: {
+            enabled: boolean;
+            kind: string;
+            reason_code?: string;
+            requires_reason: boolean;
+        };
+        TaskCommand: {
+            /** @enum {string} */
+            action: "cancel" | "retry";
+            expected_control_revision: string;
+            expected_generation: string;
+            reason: string;
+            request_id: string;
+        };
+        TaskCommandResult: {
+            command_state: string;
+            generation: string;
+            replayed: boolean;
+            state: string;
+            task_id: string;
+        };
+        TaskDefinition: {
+            actions: string[];
+            display_only: boolean;
+            phases: string[];
+            schema_version: number;
+            scopes: string[];
+            source_kind: string;
+            source_module: string;
+            title: string;
+            type: string;
+        };
+        TaskDetail: {
+            actions: components["schemas"]["TaskAction"][];
+            actor_label?: string;
+            attempts: {
+                attempt_no: number;
+                finished_at: string | null;
+                outcome: string;
+                reason_code?: string;
+                source_fence: string;
+                /** Format: date-time */
+                started_at: string;
+                unit_key: string;
+            }[];
+            attempts_truncated: boolean;
+            cleanup_state?: string;
+            control_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            current_generation: string;
+            error_code?: string;
+            generation: string;
+            history_incomplete: boolean;
+            history_state: string;
+            id: string;
+            next_step?: string;
+            /** Format: date-time */
+            observed_at: string;
+            phase: string;
+            progress: components["schemas"]["TaskProgress"];
+            relations: components["schemas"]["TaskView"][];
+            relations_restricted: boolean;
+            result_readable: boolean;
+            /** @enum {string} */
+            result_state: "none" | "preparing" | "available" | "invalidated" | "expired" | "missing" | "restricted" | "unknown";
+            scope: components["schemas"]["TaskScope"];
+            scope_label: string;
+            selected_execution: components["schemas"]["TaskExecution"];
+            source_missing?: boolean;
+            source_ref: components["schemas"]["TaskSourceRef"];
+            source_state: string;
+            /** @enum {string} */
+            state: "queued" | "running" | "waiting" | "retry_wait" | "cancelling" | "needs_action" | "succeeded" | "failed" | "cancelled" | "unknown";
+            title: string;
+            type: string;
+        };
+        TaskEvent: {
+            details: unknown;
+            generation: string;
+            id: string;
+            /** Format: date-time */
+            occurred_at: string;
+        };
+        TaskEventPage: {
+            items: components["schemas"]["TaskEvent"][];
+            next_cursor?: string;
+        };
+        TaskExecution: {
+            executor_kind: string;
+            executor_ref?: string;
+            finished_at: string | null;
+            generation: string;
+            history_incomplete: boolean;
+            reason_code?: string;
+            requested_by?: string;
+            started_at: string | null;
+            state: string;
+        };
+        TaskExecutionPage: {
+            items: components["schemas"]["TaskExecution"][];
+            next_cursor?: string;
+        };
+        TaskFilter: {
+            cursor?: string;
+            from?: string;
+            /** @enum {string} */
+            group?: "active" | "attention" | "ended";
+            limit?: number;
+            /** @enum {string} */
+            mode?: "mine" | "managed";
+            project_id?: string;
+            q?: string;
+            /** @enum {string} */
+            scope_kind?: "platform" | "tenant" | "project";
+            /** @enum {string} */
+            sort?: "newest" | "oldest";
+            source?: string;
+            tenant_id?: string;
+            to?: string;
+            /** @description 一个或多个任务类型，以逗号分隔；服务端校验、去重并按当前权限筛选。 */
+            type?: string;
+        };
+        TaskOperation: {
+            failed: string | null;
+            /** Format: date-time */
+            observed_at: string;
+            queued: string | null;
+            running: string | null;
+            scope: components["schemas"]["TaskScope"];
+            scope_label: string;
+            source_module: string;
+            state: string;
+            target_kind?: string;
+        };
+        TaskPage: {
+            authorization_revision: string;
+            coverage: string;
+            index_state: string;
+            items: components["schemas"]["TaskView"][];
+            next_cursor?: string;
+            /** Format: date-time */
+            observed_at: string;
+        };
+        TaskProgress: {
+            completed?: string;
+            total: string | null;
+            unit?: string;
+        };
+        TaskRef: {
+            generation: string;
+            source_kind: string;
+            source_module: string;
+            source_root_id: string;
+            task_id?: string;
+        };
+        TaskScope: {
+            kind: string;
+            project_id?: string;
+            tenant_id: string;
+        };
+        TaskSourceRef: {
+            source_kind: string;
+            source_module: string;
+            source_root_id: string;
+        };
+        TaskSummary: {
+            active: number | null;
+            attention: number | null;
+            authorization_revision: string;
+            counts_state: string;
+            ended: number | null;
+            /** Format: date-time */
+            observed_at: string;
+            total: number | null;
+        };
+        TaskTarget: {
+            available: boolean;
+            generation?: string;
+            id?: string;
+            kind?: string;
+            parameters?: {
+                [key: string]: string;
+            };
+            reason?: string;
+            scope: components["schemas"]["TaskScope"];
+        };
+        TaskView: {
+            actions: components["schemas"]["TaskAction"][];
+            actor_label?: string;
+            cleanup_state?: string;
+            control_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            error_code?: string;
+            generation: string;
+            history_incomplete: boolean;
+            id: string;
+            next_step?: string;
+            /** Format: date-time */
+            observed_at: string;
+            phase: string;
+            progress: components["schemas"]["TaskProgress"];
+            result_readable: boolean;
+            /** @enum {string} */
+            result_state: "none" | "preparing" | "available" | "invalidated" | "expired" | "missing" | "restricted" | "unknown";
+            scope: components["schemas"]["TaskScope"];
+            scope_label: string;
+            source_missing?: boolean;
+            source_ref: components["schemas"]["TaskSourceRef"];
+            source_state: string;
+            /** @enum {string} */
+            state: "queued" | "running" | "waiting" | "retry_wait" | "cancelling" | "needs_action" | "succeeded" | "failed" | "cancelled" | "unknown";
+            title: string;
+            type: string;
+        };
+        SpatialAccessDetail: {
+            grants: components["schemas"]["SpatialGrant"][];
+            revision: string;
+        };
+        SpatialAccessInput: {
+            add: components["schemas"]["SpatialGrantChange"][];
+            end: string[];
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        SpatialAsset: {
+            category: string;
+            code: string;
+            /** Format: date-time */
+            created_at: string;
+            current_version_id?: string;
+            facility_id?: string;
+            id: string;
+            kind: string;
+            name: string;
+            revision: string;
+            source_note: string;
+            status: string;
+            tenant_id: string;
+        };
+        SpatialAssetInput: {
+            category: string;
+            code: string;
+            expected_revision?: string;
+            facility_id?: string;
+            kind: string;
+            name: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            source_note: string;
+        };
+        SpatialBasemap: {
+            attribution: string;
+            id: string;
+            max_zoom: number;
+            min_zoom: number;
+            name: string;
+            url?: string;
+        };
+        SpatialCamera: {
+            position: number[];
+            target: number[];
+        };
+        SpatialCandidate: {
+            component_link?: components["schemas"]["SpatialComponentLink"] | null;
+            kind: string;
+            placement?: components["schemas"]["SpatialPlacement"] | null;
+            reason: string;
+            state: string;
+        };
+        SpatialComponentLink: {
+            basis_changed: boolean;
+            basis_hash: string;
+            component_id: string;
+            element_key: string;
+            id: string;
+            main_channel_id?: string;
+            object?: components["schemas"]["SpatialObject"] | null;
+            page_id: string;
+            region: number[][];
+        };
+        SpatialControlInput: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            replacement_version_id?: string;
+            request_id: string;
+            version_id?: string;
+        };
+        SpatialCoordinates: {
+            crs?: string;
+            source_to_view: number[];
+            source_unit: string;
+            unit: string;
+            up_axis: string;
+            view_to_source: number[];
+        };
+        SpatialDraft: {
+            asset: components["schemas"]["SpatialAsset"];
+            component_links: components["schemas"]["SpatialComponentLink"][];
+            feature_links: components["schemas"]["SpatialFeatureLink"][];
+            placements: components["schemas"]["SpatialPlacement"][];
+            version: components["schemas"]["SpatialVersion"];
+        };
+        SpatialDraftInput: {
+            clear_candidates: boolean;
+            component_links?: components["schemas"]["SpatialComponentLink"][];
+            expected_revision: string;
+            feature_links?: components["schemas"]["SpatialFeatureLink"][];
+            placements?: components["schemas"]["SpatialPlacement"][];
+            preview_hash?: string;
+            reason?: string;
+            remove_component_links?: string[];
+            remove_feature_links?: string[];
+            remove_placements?: string[];
+            request_id: string;
+            settings?: components["schemas"]["SpatialSettings"] | null;
+        };
+        SpatialElement: {
+            fragments: components["schemas"]["SpatialFragment"][];
+            geometry_hash: string;
+            key: string;
+            name: string;
+            parent?: string;
+            properties: {
+                [key: string]: unknown;
+            };
+            transform: number[];
+            type: string;
+            type_key?: string;
+            type_properties: {
+                [key: string]: unknown;
+            };
+        };
+        SpatialError: {
+            code: string;
+            issues: components["schemas"]["SpatialIssue"][];
+            message: string;
+        };
+        SpatialFeature: {
+            bbox: number[];
+            geometry: {
+                [key: string]: unknown;
+            };
+            id: string;
+            properties: {
+                [key: string]: string;
+            };
+            type: string;
+        };
+        SpatialFeatureLink: {
+            facility_id: string;
+            feature_key: string;
+        };
+        SpatialFeatureView: {
+            bbox: number[];
+            facility?: components["schemas"]["SpatialObject"] | null;
+            geometry: {
+                [key: string]: unknown;
+            };
+            id: string;
+            properties: {
+                [key: string]: string;
+            };
+            type: string;
+        };
+        SpatialFile: {
+            id: string;
+            media_type: string;
+            name: string;
+            sha256: string;
+            size: number;
+        };
+        SpatialFragment: {
+            instance?: number | null;
+            node: number;
+        };
+        SpatialGrant: {
+            asset_id: string;
+            ended_at: string | null;
+            facility_link_id?: string;
+            id: string;
+            is_default: boolean;
+            revision: string;
+            source_download: boolean;
+            version_id: string;
+        };
+        SpatialGrantChange: {
+            is_default: boolean;
+            source_download: boolean;
+            version_id: string;
+        };
+        SpatialIssue: {
+            code: string;
+            message: string;
+            path: string;
+        };
+        SpatialJob: {
+            attempt: number;
+            error_code: string;
+            id: string;
+            report: unknown;
+            revision: string;
+            stage: string;
+            state: string;
+            task_ref?: {
+                generation: string;
+                source_kind: string;
+                source_module: string;
+                source_root_id: string;
+                task_id?: string;
+            } | null;
+            tenant_id: string;
+            version_id: string;
+        };
+        SpatialLocation: {
+            anchor?: number[];
+            asset: components["schemas"]["SpatialAsset"];
+            element_key?: string;
+            number: number;
+            owner: components["schemas"]["SpatialObjectRef"];
+            page_id: string;
+            version_id: string;
+        };
+        SpatialManifest: {
+            contract: string;
+            converter: string;
+            coordinates: components["schemas"]["SpatialCoordinates"];
+            elements: components["schemas"]["SpatialElement"][];
+            features: components["schemas"]["SpatialFeature"][];
+            files: components["schemas"]["SpatialFile"][];
+            format: string;
+            pages: components["schemas"]["SpatialPage"][];
+            source_sha256: string;
+            warnings: string[];
+        };
+        SpatialObject: {
+            basis_hash: string;
+            code: string;
+            facility_id: string;
+            id: string;
+            kind: string;
+            latitude?: number | null;
+            longitude?: number | null;
+            name: string;
+            owner_id?: string;
+            owner_kind?: string;
+            position?: unknown;
+            position_notice?: string;
+            retired: boolean;
+            status: string;
+        };
+        SpatialObjectQuery: {
+            main_channels?: {
+                [key: string]: string;
+            };
+            objects: components["schemas"]["SpatialObjectRef"][];
+        };
+        SpatialObjectRef: {
+            id: string;
+            kind: string;
+        };
+        SpatialPage: {
+            crop_box: number[];
+            file_id: string;
+            height: number;
+            id: string;
+            number: number;
+            resolutions: components["schemas"]["SpatialPageImage"][];
+            rotation: number;
+            source_height: number;
+            source_width: number;
+            width: number;
+        };
+        SpatialPageImage: {
+            file_id: string;
+            height: number;
+            width: number;
+        };
+        SpatialPlacement: {
+            anchor: number[];
+            basis_changed: boolean;
+            basis_hash: string;
+            copied_from?: string;
+            element_key: string;
+            id: string;
+            label_offset: number[];
+            main_channel_id?: string;
+            object?: components["schemas"]["SpatialObject"] | null;
+            page_id: string;
+            point_id: string;
+        };
+        SpatialPreview: {
+            blockers: components["schemas"]["SpatialIssue"][];
+            can_submit: boolean;
+            changes: unknown;
+            next_cursor: string;
+            preview_hash: string;
+            required: boolean;
+            shared: boolean;
+            visible_impacts: unknown[];
+        };
+        SpatialRelatedInput: {
+            cursor?: string;
+            descendants: boolean;
+            from?: string;
+            limit?: number;
+            owner: components["schemas"]["SpatialObjectRef"];
+            to?: string;
+        };
+        SpatialResult: {
+            binding_id?: string;
+            changed: boolean;
+            device_access_revision?: string;
+            id: string;
+            installation_id?: string;
+            installation_revision?: string;
+            issues?: components["schemas"]["SpatialIssue"][];
+            number?: number;
+            output_id?: string;
+            output_revision?: string;
+            replayed: boolean;
+            revision: string;
+            source_revision?: string;
+            version_id?: string;
+        };
+        SpatialRevisionInput: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        SpatialSettings: {
+            basemap?: string;
+            camera?: components["schemas"]["SpatialCamera"] | null;
+            hidden_elements?: string[];
+            main_channels?: {
+                [key: string]: string;
+            };
+            page_id?: string;
+            source_properties: boolean;
+        };
+        SpatialUpload: {
+            filename: string;
+            id: string;
+            part_size: number;
+            revision: string;
+            sha256: string;
+            size: number;
+            state: string;
+            version_id: string;
+        };
+        SpatialUploadInput: {
+            expected_revision: string;
+            filename: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            sha256: string;
+            size: number;
+            version_id: string;
+        };
+        SpatialVersion: {
+            asset_id: string;
+            base_version_id?: string;
+            can_download_source: boolean;
+            candidates: components["schemas"]["SpatialCandidate"][];
+            change_note: string;
+            content_available: boolean;
+            /** Format: date-time */
+            created_at: string;
+            format: string;
+            id: string;
+            latest_job_id?: string;
+            latest_upload_id?: string;
+            manifest: components["schemas"]["SpatialManifest"];
+            manifest_hash: string;
+            number: number;
+            published_at: string | null;
+            revision: string;
+            settings: components["schemas"]["SpatialSettings"];
+            source?: components["schemas"]["SpatialFile"] | null;
+            state: string;
+            tenant_id: string;
+        };
+        SpatialVersionInput: {
+            base_version_id?: string;
+            change_note: string;
+            expected_revision: string;
+            new_source: boolean;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        SpatialView: {
+            revision: string;
+            settings: components["schemas"]["SpatialSettings"];
+            version_id: string;
+        };
+        SpatialViewInput: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            settings: components["schemas"]["SpatialSettings"];
+            version_id: string;
+        };
+        SpatialAssetList: {
+            items: components["schemas"]["SpatialAsset"][];
+            next_cursor: string;
+        };
+        SpatialVersionList: {
+            items: components["schemas"]["SpatialVersion"][];
+            next_cursor: string;
+        };
+        SpatialPageList: {
+            items: components["schemas"]["SpatialPage"][];
+            next_cursor: string;
+        };
+        SpatialElementList: {
+            items: components["schemas"]["SpatialElement"][];
+            next_cursor: string;
+        };
+        SpatialPlacementList: {
+            items: components["schemas"]["SpatialPlacement"][];
+            next_cursor: string;
+        };
+        SpatialComponentLinkList: {
+            items: components["schemas"]["SpatialComponentLink"][];
+            next_cursor: string;
+        };
+        SpatialFeatureViewList: {
+            items: components["schemas"]["SpatialFeatureView"][];
+            next_cursor: string;
+        };
+        SpatialObjectList: {
+            items: components["schemas"]["SpatialObject"][];
+            next_cursor: string;
+        };
+        SpatialLocationList: {
+            items: components["schemas"]["SpatialLocation"][];
+            next_cursor: string;
+        };
+        SpatialBasemapList: {
+            items: components["schemas"]["SpatialBasemap"][];
+            next_cursor: string;
+        };
+        SpatialHistoryList: {
+            items: {
+                [key: string]: unknown;
+            }[];
+            next_cursor: string;
+        };
+        SpatialSummaries: {
+            /** Format: date-time */
+            refreshed_at: string;
+            snapshot_note: string;
+            items: {
+                owner: components["schemas"]["SpatialObjectRef"];
+                next_cursor: string;
+                channels: {
+                    channel: components["schemas"]["MonitoringChannel"];
+                    selection: components["schemas"]["MonitoringSelection"];
+                    latest: components["schemas"]["MonitoringAnalyticResult"];
+                }[];
+            }[];
+        };
+        FileAction: {
+            enabled: boolean;
+            kind: string;
+            reason_code: string;
+            requires_reason: boolean;
+        };
+        FileAttachmentCommand: {
+            description?: string | null;
+            display_name?: string | null;
+            expected_revision: string;
+            reason: string;
+            request_id: string;
+            revision_id?: string;
+        };
+        FileAttachmentDetail: {
+            allowed_actions: components["schemas"]["FileAction"][];
+            /** Format: date-time */
+            created_at: string;
+            created_by: string;
+            current_revision: components["schemas"]["FileAttachmentRevision"];
+            description: string;
+            display_name: string;
+            host: components["schemas"]["FileHost"];
+            id: string;
+            purge_after: string | null;
+            revision: string;
+            status: string;
+            /** Format: date-time */
+            updated_at: string;
+            updated_by: string;
+        };
+        FileAttachmentPage: {
+            authorization_revision: string;
+            content_revision: string;
+            items: components["schemas"]["FileAttachmentDetail"][];
+            next_cursor: string;
+        };
+        FileAttachmentRevision: {
+            /** Format: date-time */
+            created_at: string;
+            created_by: string;
+            file_id: string;
+            file_state: string;
+            format: string;
+            id: string;
+            job_generation: string | null;
+            job_id: string | null;
+            media_type: string;
+            operation: string;
+            original_name: string;
+            preview_reason: string;
+            preview_state: string;
+            previous_revision_id: string | null;
+            reason: string;
+            reverted_from_revision_id: string | null;
+            revision_no: string;
+            sha256: string;
+            size_bytes: string;
+        };
+        FileCapabilities: {
+            accept_uploads: boolean;
+            can_download: boolean;
+            can_manage: boolean;
+            can_read: boolean;
+            can_view_trash: boolean;
+            formats: string[];
+            host: components["schemas"]["FileHost"];
+            max_concurrency: number;
+            max_file_bytes: string;
+            mode: string;
+            part_bytes: string;
+            reason: string;
+            restore_epoch: string;
+            scope: components["schemas"]["FileScope"];
+            status: string;
+            version: string;
+        };
+        FileCommandResult: {
+            attachment_id: string | null;
+            attachment_revision_id: string | null;
+            changed: boolean;
+            job_control_revision: string | null;
+            job_generation: string | null;
+            job_id: string | null;
+            replayed: boolean;
+            revision: string;
+            state: string;
+            task_ref: components["schemas"]["TaskRef"] | null;
+            upload_id: string | null;
+        };
+        FileHost: {
+            id: string;
+            /** @enum {string} */
+            kind: "tenant.profile" | "project.profile";
+        };
+        FileJobDetail: {
+            allowed_actions: components["schemas"]["FileAction"][];
+            attempt: number;
+            control_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            error_code: string;
+            finished_at: string | null;
+            generation: string;
+            id: string;
+            originator_id: string;
+            phase: string;
+            prepared_until: string | null;
+            report: {
+                [key: string]: unknown;
+            };
+            requested_by: string;
+            result_attachment_id: string | null;
+            result_file_id: string | null;
+            result_readable: boolean;
+            result_revision_id: string | null;
+            result_state: string;
+            state: string;
+            task_ref: components["schemas"]["TaskRef"];
+            upload_id: string;
+        };
+        FileJobSummary: {
+            control_revision: string;
+            generation: string;
+            id: string;
+            phase: string;
+            state: string;
+            task_ref: components["schemas"]["TaskRef"];
+        };
+        FilePartReceipt: {
+            part: number;
+            /** Format: date-time */
+            received_at: string;
+            sha256: string;
+            size_bytes: string;
+        };
+        FileReconfirmInput: {
+            expected_attachment_revision: string | null;
+            expected_control_revision: string;
+            expected_generation: string;
+            reason: string;
+            request_id: string;
+        };
+        FileRevisionCommand: {
+            expected_revision: string;
+            reason: string;
+            request_id: string;
+        };
+        FileRevisionPage: {
+            items: components["schemas"]["FileAttachmentRevision"][];
+            next_cursor: string;
+        };
+        FileScope: {
+            kind: string;
+            project_id?: string;
+            tenant_id: string;
+        };
+        FileStartUploadInput: {
+            attachment_id: string | null;
+            declared_media_type: string;
+            description: string;
+            display_name: string;
+            expected_attachment_revision: string | null;
+            filename: string;
+            host: components["schemas"]["FileHost"];
+            /** @enum {string} */
+            intent: "add" | "replace";
+            reason: string;
+            request_id: string;
+            sha256: string;
+            size_bytes: string;
+        };
+        FileUploadDetail: {
+            allowed_actions: components["schemas"]["FileAction"][];
+            attachment_id: string | null;
+            /** Format: date-time */
+            created_at: string;
+            description: string;
+            display_name: string;
+            expected_attachment_revision: string | null;
+            /** Format: date-time */
+            expires_at: string;
+            filename: string;
+            host: components["schemas"]["FileHost"];
+            id: string;
+            intent: string;
+            job: components["schemas"]["FileJobSummary"] | null;
+            part_count: number;
+            part_size: string;
+            parts: components["schemas"]["FilePartReceipt"][];
+            prepared_until: string | null;
+            restore_epoch: string;
+            revision: string;
+            sha256: string;
+            size_bytes: string;
+            state: string;
+        };
+        FileUploadPage: {
+            items: components["schemas"]["FileUploadDetail"][];
+            next_cursor: string;
+        };
+        FileWriteMeta: {
+            reason: string;
+            request_id: string;
+        };
+        AuditAction: {
+            enabled: boolean;
+            kind: string;
+            reason_code?: string;
+            requires_reason: boolean;
+        };
+        AuditCapabilities: {
+            authorization_revision: string;
+            epoch: string;
+            export: boolean;
+            field_profiles: string[];
+            manage: boolean;
+            max_bytes: string;
+            max_rows: string;
+            membership_key: string;
+            projection_version: string;
+            read: boolean;
+            result_ttl_seconds: string;
+            storage_available: boolean;
+            technical: boolean;
+        };
+        AuditChange: {
+            after: unknown;
+            /** @enum {string} */
+            after_state: "recorded" | "not_recorded" | "redacted" | "truncated";
+            before: unknown;
+            /** @enum {string} */
+            before_state: "recorded" | "not_recorded" | "redacted" | "truncated";
+            key: string;
+            label: string;
+            type: string;
+        };
+        AuditDeliverySummary: {
+            count?: string | null;
+            error_code?: string;
+            /** Format: date-time */
+            observed_at: string;
+            state: string;
+        };
+        AuditEdge: {
+            from: string;
+            kind: string;
+            to: string;
+        };
+        AuditError: {
+            code: string;
+            message: string;
+            next_action: string;
+            retryable: boolean;
+        };
+        AuditEvent: {
+            action_label: string;
+            actions: components["schemas"]["AuditEventActions"];
+            actor: components["schemas"]["AuditName"];
+            /** @enum {string} */
+            category: "security" | "management" | "business" | "task" | "file" | "maintenance";
+            changes: components["schemas"]["AuditChange"][];
+            event_type: string;
+            evidence_quality: string;
+            id: string;
+            initiator: components["schemas"]["AuditName"];
+            missing_fields: string[];
+            object: components["schemas"]["AuditObject"];
+            /** Format: date-time */
+            occurred_at: string;
+            operation_id?: string;
+            /** @enum {string} */
+            outcome: "success" | "failure" | "denied" | "conflict" | "cancelled" | "rate_limited" | "unknown";
+            phase: string;
+            reason: string;
+            /** Format: date-time */
+            recorded_at: string;
+            requested_by: components["schemas"]["AuditName"];
+            scope: components["schemas"]["AuditScope"];
+            source_state: string;
+            technical?: components["schemas"]["AuditTechnical"] | null;
+            time_source: string;
+        };
+        AuditEventActions: {
+            technical: boolean;
+            trace: boolean;
+        };
+        AuditEventDetail: {
+            action_label: string;
+            actions: components["schemas"]["AuditEventActions"];
+            actor: components["schemas"]["AuditName"];
+            authorization_revision: string;
+            category: string;
+            changes: components["schemas"]["AuditChange"][];
+            event_type: string;
+            evidence_quality: string;
+            id: string;
+            initiator: components["schemas"]["AuditName"];
+            links: components["schemas"]["AuditResolvedLink"][];
+            missing_fields: string[];
+            object: components["schemas"]["AuditObject"];
+            /** Format: date-time */
+            observed_at: string;
+            /** Format: date-time */
+            occurred_at: string;
+            operation_id?: string;
+            outcome: string;
+            phase: string;
+            reason: string;
+            /** Format: date-time */
+            recorded_at: string;
+            requested_by: components["schemas"]["AuditName"];
+            scope: components["schemas"]["AuditScope"];
+            source_state: string;
+            technical?: components["schemas"]["AuditTechnical"] | null;
+            time_source: string;
+        };
+        AuditEventPage: {
+            authorization_revision: string;
+            coverage: string;
+            items: components["schemas"]["AuditEvent"][];
+            missing_fields: string[];
+            next_cursor: string;
+            /** Format: date-time */
+            observed_at: string;
+        };
+        AuditExport: {
+            allowed_actions: components["schemas"]["AuditAction"][];
+            control_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            error_code?: string;
+            expires_at: string | null;
+            field_profile: string;
+            file?: components["schemas"]["AuditExportFile"] | null;
+            filter?: components["schemas"]["AuditFilter"] | null;
+            generation: string;
+            id: string;
+            next_action: string;
+            owned: boolean;
+            phase: string;
+            reason?: string;
+            /** @enum {string} */
+            result_state: "none" | "preparing" | "available" | "expired" | "invalidated" | "missing" | "restricted" | "unknown";
+            row_count: string | null;
+            scope: components["schemas"]["AuditScope"];
+            sha256?: string;
+            size_bytes: string | null;
+            snapshot_at: string | null;
+            /** @enum {string} */
+            state: "queued" | "running" | "retry_wait" | "cancelling" | "succeeded" | "failed" | "cancelled";
+            task_id: string;
+        };
+        AuditExportFile: {
+            exportId: string;
+            generation: string;
+            /** @enum {string} */
+            kind: "audit.export";
+            media_type: string;
+            name: string;
+            scope: components["schemas"]["AuditScope"];
+            size_bytes: string;
+            state: string;
+        };
+        AuditExportInput: {
+            authorization_revision: string;
+            epoch: string;
+            /** @enum {string} */
+            field_profile: "standard" | "technical";
+            filter: components["schemas"]["AuditFilter"];
+            projection_version: string;
+            reason: string;
+        };
+        AuditExportPage: {
+            items: components["schemas"]["AuditExport"][];
+            next_cursor: string;
+            /** Format: date-time */
+            observed_at: string;
+        };
+        AuditFilter: {
+            actor_id?: string;
+            /** @enum {string} */
+            category?: "security" | "management" | "business" | "task" | "file" | "maintenance";
+            cursor?: string;
+            event_type?: string;
+            from?: string;
+            generation?: string;
+            limit?: number;
+            object_id?: string;
+            object_type?: string;
+            operation_id?: string;
+            /** @enum {string} */
+            outcome?: "success" | "failure" | "denied" | "conflict" | "cancelled" | "rate_limited" | "unknown";
+            q?: string;
+            reference_id?: string;
+            request_id?: string;
+            task_id?: string;
+            task_kind?: string;
+            task_module?: string;
+            to?: string;
+        };
+        AuditName: {
+            id?: string;
+            name: string;
+            name_source: string;
+            ref?: string;
+            type: string;
+            username?: string;
+        };
+        AuditObject: {
+            id: string;
+            label: string;
+            label_source: string;
+            label_state: string;
+            revision?: string;
+            type: string;
+        };
+        AuditResolvedLink: {
+            available: boolean;
+            delivery?: components["schemas"]["AuditDeliverySummary"] | null;
+            id: string;
+            kind: string;
+            label: string;
+            reason_code?: string;
+            state: string;
+            target?: components["schemas"]["AuditTarget"] | null;
+        };
+        AuditScope: {
+            /** @enum {string} */
+            kind: "platform";
+        } | {
+            /** @enum {string} */
+            kind: "tenant";
+            /** Format: uuid */
+            tenant_id: string;
+        } | {
+            /** @enum {string} */
+            kind: "project";
+            /** Format: uuid */
+            tenant_id: string;
+            /** Format: uuid */
+            project_id: string;
+        };
+        AuditTarget: {
+            available: boolean;
+            generation?: string;
+            id?: string;
+            kind?: string;
+            parameters?: {
+                [key: string]: string;
+            };
+            reason_code?: string;
+            revision?: string;
+            scope: components["schemas"]["AuditScope"];
+        };
+        AuditTaskReference: {
+            generation: string;
+            source_kind: string;
+            source_module: string;
+            source_root_id: string;
+        };
+        AuditTechnical: {
+            error_code?: string;
+            executor_kind?: string;
+            executor_ref?: string;
+            operation_id?: string;
+            request_id?: string;
+            request_id_kind: string;
+            source_ip?: string;
+            source_key: string;
+            source_module: string;
+            task_reference?: components["schemas"]["AuditTaskReference"][];
+            user_agent?: string;
+        };
+        AuditTraceFilter: {
+            cursor?: string;
+            limit?: number;
+        };
+        AuditTracePage: {
+            edges: components["schemas"]["AuditEdge"][];
+            items: components["schemas"]["AuditEvent"][];
+            links: components["schemas"]["AuditResolvedLink"][];
+            next_cursor: string;
+            /** Format: date-time */
+            observed_at: string;
+            partial: boolean;
+        };
+        AuditExportFilter: {
+            cursor?: string;
+            from?: string;
+            limit?: number;
+            /** @enum {string} */
+            state?: "queued" | "running" | "retry_wait" | "cancelling" | "succeeded" | "failed" | "cancelled";
+            to?: string;
+        };
+        MonitoringImportFilter: {
+            /** @description 按当前可见文件名或批次编号搜索；不检索部分授权批次的隐藏源文件名。 */
+            q?: string;
+            /** @description 逗号分隔的导入状态，支持多选。 */
+            states?: string;
+            /** @description 逗号分隔的 csv、xlsx；部分授权批次不参与源文件类型筛选。 */
+            formats?: string;
+            /**
+             * @default newest
+             * @enum {string}
+             */
+            sort: "newest" | "oldest";
+            /**
+             * @default 50
+             * @enum {integer}
+             */
+            limit: 10 | 20 | 25 | 50 | 100;
+            cursor?: string;
+        };
+        DeviceBindingDirectoryItem: {
+            /** Format: uuid */
+            facility_id: string;
+            /** Format: uuid */
+            point_id: string;
+            /** Format: uuid */
+            channel_id: string;
+            name: string;
+            code: string;
+            facility_name: string;
+            facility_code: string;
+            point_name: string;
+            point_code: string;
+            metric_name: string;
+            unit_symbol: string;
+            /** @enum {string} */
+            state: "unbound" | "bound" | "attention" | "restricted" | "retired";
+            source: components["schemas"]["DeviceSourceBinding"];
+        };
+        DeviceBindingDirectoryPage: {
+            items: components["schemas"]["DeviceBindingDirectoryItem"][];
+            next_cursor: string;
+            counts: {
+                all: number;
+                unbound: number;
+                bound: number;
+                attention: number;
+                restricted: number;
+                retired: number;
+            };
         };
     };
     responses: never;
@@ -18115,7 +22465,9 @@ export interface operations {
     createRole: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -18177,6 +22529,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -18287,7 +22648,9 @@ export interface operations {
     updateRole: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -18353,6 +22716,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
             /** @description Rate limited */
             429: {
                 headers: {
@@ -18376,7 +22748,9 @@ export interface operations {
     setRolePermissions: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -18442,6 +22816,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
             /** @description Rate limited */
             429: {
                 headers: {
@@ -18465,7 +22848,9 @@ export interface operations {
     setRoleStatus: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -18531,6 +22916,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
             /** @description Rate limited */
             429: {
                 headers: {
@@ -18554,7 +22948,9 @@ export interface operations {
     archiveRole: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -18616,6 +23012,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -18904,7 +23309,9 @@ export interface operations {
     assignRoles: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -18970,6 +23377,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
             /** @description Rate limited */
             429: {
                 headers: {
@@ -18993,7 +23409,9 @@ export interface operations {
     disableAccount: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -19057,6 +23475,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -19082,7 +23509,9 @@ export interface operations {
     enableAccount: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 id: string;
             };
@@ -19146,6 +23575,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -22132,7 +26570,9 @@ export interface operations {
     updateTenantRole: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 tenant_id: string;
                 role_id: string;
@@ -22197,6 +26637,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -22539,7 +26988,9 @@ export interface operations {
     changeTenantRolePermissions: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 tenant_id: string;
                 role_id: string;
@@ -22604,6 +27055,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -22740,7 +27200,9 @@ export interface operations {
     changeTenantRoleStatus: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 tenant_id: string;
                 role_id: string;
@@ -22805,6 +27267,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -22941,7 +27412,9 @@ export interface operations {
     changeTenantRoleArchive: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 tenant_id: string;
                 role_id: string;
@@ -23006,6 +27479,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -23237,7 +27719,9 @@ export interface operations {
     assignTenantMemberRoles: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                "X-Command-ID": string;
+            };
             path: {
                 tenant_id: string;
                 membership_id: string;
@@ -23302,6 +27786,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */
@@ -25574,6 +30067,8 @@ export interface operations {
                 status?: string;
                 cursor?: string;
                 limit?: number;
+                /** @description Filter by project-local custom roles or platform presets before cursor pagination. */
+                source?: "custom" | "preset";
             };
             header?: never;
             path: {
@@ -28852,6 +33347,8 @@ export interface operations {
                 status?: string;
                 cursor?: string;
                 limit?: number;
+                /** @description Filter by project-local custom roles or platform presets before cursor pagination. */
+                source?: "custom" | "preset";
             };
             header?: never;
             path?: never;
@@ -50571,6 +55068,11 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string;
+                q?: string;
+                states?: string;
+                formats?: string;
+                sort?: "newest" | "oldest";
+                limit?: 10 | 20 | 25 | 50 | 100;
             };
             header?: never;
             path: {
@@ -52338,6 +56840,11 @@ export interface operations {
         parameters: {
             query?: {
                 cursor?: string;
+                q?: string;
+                states?: string;
+                formats?: string;
+                sort?: "newest" | "oldest";
+                limit?: 10 | 20 | 25 | 50 | 100;
             };
             header?: never;
             path: {
@@ -72211,6 +76718,19386 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResourceError"];
+                };
+            };
+        };
+    };
+    MyNotifications: {
+        parameters: {
+            query?: {
+                category?: "security" | "organization" | "tasks" | "updates";
+                cursor?: string;
+                limit?: number;
+                project_id?: string;
+                scope?: "account" | "platform" | "tenant" | "project";
+                status?: "all" | "unread" | "archived";
+                tenant_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPage"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyNotificationSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSummary"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyNotification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationItem"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ChangeMyNotification: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationChange"];
+            };
+        };
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationItem"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ReadMyNotifications: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationReadAllInput"];
+            };
+        };
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        changed: number;
+                    };
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyNotificationTarget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationTarget"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    SaveMyNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationPreferences"];
+            };
+        };
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyTenantInvitations: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["TenantInvitationInspection"][];
+                        next_cursor?: string;
+                    };
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    MyTenantInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantInvitationInspection"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    AcceptMyTenantInvitation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    expected_version: string;
+                };
+            };
+        };
+        responses: {
+            /** @description 本人通知；按当前业务资格裁剪。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    "X-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantAcceptanceResult"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksList: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                group?: "active" | "attention" | "ended";
+                limit?: number;
+                mode?: "mine" | "managed";
+                project_id?: string;
+                q?: string;
+                scope_kind?: "platform" | "tenant" | "project";
+                sort?: "newest" | "oldest";
+                source?: string;
+                tenant_id?: string;
+                to?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskPage"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksSummary: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                group?: "active" | "attention" | "ended";
+                limit?: number;
+                mode?: "mine" | "managed";
+                project_id?: string;
+                q?: string;
+                scope_kind?: "platform" | "tenant" | "project";
+                sort?: "newest" | "oldest";
+                source?: string;
+                tenant_id?: string;
+                to?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskSummary"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksCatalog: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                group?: "active" | "attention" | "ended";
+                limit?: number;
+                mode?: "mine" | "managed";
+                project_id?: string;
+                q?: string;
+                scope_kind?: "platform" | "tenant" | "project";
+                sort?: "newest" | "oldest";
+                source?: string;
+                tenant_id?: string;
+                to?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["TaskDefinition"][];
+                    };
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksResolve: {
+        parameters: {
+            query: {
+                module: string;
+                kind: string;
+                source_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskRef"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksOperations: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                group?: "active" | "attention" | "ended";
+                limit?: number;
+                mode?: "mine" | "managed";
+                project_id?: string;
+                q?: string;
+                scope_kind?: "platform" | "tenant" | "project";
+                sort?: "newest" | "oldest";
+                source?: string;
+                tenant_id?: string;
+                to?: string;
+                type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["TaskOperation"][];
+                    };
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksDetail: {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskDetail"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksExecutions: {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskExecutionPage"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksEvents: {
+        parameters: {
+            query: {
+                generation: string;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskEventPage"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksCommand: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCommand"];
+            };
+        };
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCommandResult"];
+                };
+            };
+            /** @description 取消请求已提交，执行尚未停止。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCommandResult"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    TasksTarget: {
+        parameters: {
+            query?: {
+                generation?: string;
+                target_kind?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 按当前业务资格裁剪的任务元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskTarget"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 身份、资格、修订、候选预算或来源依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialAssetList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialAssetInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialAsset"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialAssetInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.versions": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialVersionList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialVersionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.draft": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialDraft"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialDraftInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialDraft"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.publish-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPreview"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.withdraw-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPreview"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.current-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPreview"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.retire-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPreview"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialControlInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:assets.history": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialHistoryList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:uploads.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialUpload"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:uploads.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialUploadInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:uploads.part": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                part: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:uploads.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:uploads.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            202: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:jobs.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialJob"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:jobs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:jobs.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRevisionInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.manifest": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialVersion"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.pages": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPageList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.elements": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialElementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.properties": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialElementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.placements": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPlacementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.component-links": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialComponentLinkList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.features": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialFeatureViewList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                file_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:versions.source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:objects": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialObjectList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:objects.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialObject"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:basemaps": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialBasemapList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:basemaps.tile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                tile: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialObjectQuery"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialSummaries"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:locate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialObjectQuery"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialLocationList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:related-artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRelatedInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactPage"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:assets.list": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialAssetList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:assets.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialAsset"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:assets.versions": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialVersionList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.manifest": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialVersion"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.pages": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPageList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.elements": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialElementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.properties": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialElementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.placements": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPlacementList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.component-links": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialComponentLinkList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.features": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialFeatureViewList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                file_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:versions.source": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:objects": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialObjectList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:objects.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialObject"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:basemaps": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialBasemapList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:basemaps.tile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                tile: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialObjectQuery"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialSummaries"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:locate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialObjectQuery"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialLocationList"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:related-artifacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialRelatedInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactPage"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:views.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialView"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:project:views.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialViewInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:access.detail": {
+        parameters: {
+            query?: {
+                q?: string;
+                kind?: string;
+                owner_id?: string;
+                facility_id?: string;
+                state?: string;
+                page_id?: string;
+                element_key?: string;
+                cursor?: string;
+                limit?: number;
+                bbox?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialAccessDetail"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:access.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialResult"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    "Spatial:tenant:access.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SpatialAccessInput"];
+            };
+        };
+        responses: {
+            /** @description 已按当前身份与固定版本验证；修订号使用十进制字符串。 */
+            200: {
+                headers: {
+                    "X-Spatial-Authorization-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialPreview"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+            /** @description 输入、授权、修订或文件状态不满足要求。写入结果未知时查验原请求，禁止自动重复提交。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpatialError"];
+                };
+            };
+        };
+    };
+    display_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayList"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayDetail"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_instance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_tool_authorize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_upload_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_upload_part: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                upload_id: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_upload_complete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_upload_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_package_retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_package_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                package_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_grant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_prepare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayPreparation"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_rollback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_withdraw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_launch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_terminal_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_terminal_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                terminal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DisplayCommand"];
+            };
+        };
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayResult"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    display_locate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Operation completed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisplayScope"];
+                };
+            };
+            /** @description Current authority is insufficient */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Revision, binding or capability changed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource budget exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "Files:tenant:capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCapabilities"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.list": {
+        parameters: {
+            query?: {
+                host_kind?: string;
+                host_id?: string;
+                state?: string;
+                q?: string;
+                created_from?: string;
+                created_to?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileAttachmentPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileAttachmentDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.update": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileAttachmentCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.revisions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileRevisionPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.revert": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileAttachmentCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.trash": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:attachments.restore": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:content": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:content.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:preview": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:preview.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.list": {
+        parameters: {
+            query?: {
+                view?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileStartUploadInput"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            201: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.part": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilePartReceipt"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.complete": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.cancel": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:uploads.reconfirm": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileReconfirmInput"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:jobs.detail": {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileJobDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:tenant:requests.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCapabilities"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.list": {
+        parameters: {
+            query?: {
+                host_kind?: string;
+                host_id?: string;
+                state?: string;
+                q?: string;
+                created_from?: string;
+                created_to?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileAttachmentPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileAttachmentDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.update": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileAttachmentCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.revisions": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileRevisionPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.revert": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileAttachmentCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.trash": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:attachments.restore": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:content": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:content.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:preview": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:preview.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                revision_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前人员授权、完整性核验及逐块授权的文件正文。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            412: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 单 Range / 条件请求；身份、权限和完整性先行核验。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.list": {
+        parameters: {
+            query?: {
+                view?: string;
+                state?: string;
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadPage"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileStartUploadInput"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            201: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.part": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+                "X-Content-SHA256": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+                part: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilePartReceipt"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.complete": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.cancel": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileRevisionCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:uploads.reconfirm": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Files-Epoch": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileReconfirmInput"];
+            };
+        };
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:jobs.detail": {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileJobDetail"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Files:project:requests.detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前宿主权限裁剪后的文件元数据。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileCommandResult"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 权限、输入、修订、恢复代次、预算或依赖不满足。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Audit:platform:capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditCapabilities"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:events": {
+        parameters: {
+            query?: {
+                actor_id?: string;
+                category?: "security" | "management" | "business" | "task" | "file" | "maintenance";
+                cursor?: string;
+                event_type?: string;
+                from?: string;
+                generation?: string;
+                limit?: number;
+                object_id?: string;
+                object_type?: string;
+                operation_id?: string;
+                outcome?: "success" | "failure" | "denied" | "conflict" | "cancelled" | "rate_limited" | "unknown";
+                q?: string;
+                reference_id?: string;
+                request_id?: string;
+                task_id?: string;
+                task_kind?: string;
+                task_module?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventDetail"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:trace": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTracePage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:target": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+                link_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTarget"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:exports": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                limit?: number;
+                state?: "queued" | "running" | "retry_wait" | "cancelling" | "succeeded" | "failed" | "cancelled";
+                to?: string;
+                mode?: "mine" | "managed";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExportPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:exports.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Command-ID": string;
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:export": {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:download": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:platform:download.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditCapabilities"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:events": {
+        parameters: {
+            query?: {
+                actor_id?: string;
+                category?: "security" | "management" | "business" | "task" | "file" | "maintenance";
+                cursor?: string;
+                event_type?: string;
+                from?: string;
+                generation?: string;
+                limit?: number;
+                object_id?: string;
+                object_type?: string;
+                operation_id?: string;
+                outcome?: "success" | "failure" | "denied" | "conflict" | "cancelled" | "rate_limited" | "unknown";
+                q?: string;
+                reference_id?: string;
+                request_id?: string;
+                task_id?: string;
+                task_kind?: string;
+                task_module?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventDetail"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:trace": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTracePage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:target": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                event_id: string;
+                link_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTarget"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:exports": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                limit?: number;
+                state?: "queued" | "running" | "retry_wait" | "cancelling" | "succeeded" | "failed" | "cancelled";
+                to?: string;
+                mode?: "mine" | "managed";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExportPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:exports.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Command-ID": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:export": {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:download": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                tenant_id: string;
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:tenant:download.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                tenant_id: string;
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditCapabilities"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:events": {
+        parameters: {
+            query?: {
+                actor_id?: string;
+                category?: "security" | "management" | "business" | "task" | "file" | "maintenance";
+                cursor?: string;
+                event_type?: string;
+                from?: string;
+                generation?: string;
+                limit?: number;
+                object_id?: string;
+                object_type?: string;
+                operation_id?: string;
+                outcome?: "success" | "failure" | "denied" | "conflict" | "cancelled" | "rate_limited" | "unknown";
+                q?: string;
+                reference_id?: string;
+                request_id?: string;
+                task_id?: string;
+                task_kind?: string;
+                task_module?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventDetail"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:trace": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTracePage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:target": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                event_id: string;
+                link_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditTarget"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:exports": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                from?: string;
+                limit?: number;
+                state?: "queued" | "running" | "retry_wait" | "cancelling" | "succeeded" | "failed" | "cancelled";
+                to?: string;
+                mode?: "mine" | "managed";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExportPage"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:exports.create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Command-ID": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditExportInput"];
+            };
+        };
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:export": {
+        parameters: {
+            query?: {
+                generation?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前账号与精确空间的授权投影。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditExport"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:download": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Audit:project:download.head": {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string;
+                "If-Range"?: string;
+                "If-Match"?: string;
+                "If-None-Match"?: string;
+                "If-Unmodified-Since"?: string;
+                "If-Modified-Since"?: string;
+            };
+            path: {
+                tenant_id: string;
+                project_id: string;
+                export_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            206: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 当前所有人及同一授权向量的受控成果。 */
+            304: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description 资格、命令收据、修订、查询预算或依赖不满足要求。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+        };
+    };
+    "Device:tenant:source:list": {
+        parameters: {
+            query?: {
+                q?: string;
+                facility_id?: string;
+                parent_id?: string;
+                state?: "unbound" | "bound" | "attention" | "restricted" | "retired";
+                cursor?: string;
+                limit?: number;
+                channel_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 分页目录与筛选范围计数 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceBindingDirectoryPage"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+            /** @description 请求未完成；保留输入。未知写入结果应查验原 request_id 收据，禁止自动重试。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceError"];
                 };
             };
         };

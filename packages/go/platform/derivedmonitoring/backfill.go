@@ -3,6 +3,7 @@ package derivedmonitoring
 import (
 	"context"
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"strconv"
 	"time"
 
@@ -48,8 +49,9 @@ type BackfillPreview struct {
 	ExpiresAt          time.Time                     `json:"expires_at"`
 }
 type BackfillResult struct {
-	Runs     []Run `json:"runs"`
-	Replayed bool  `json:"replayed"`
+	TaskRef  *taskrecord.Ref `json:"task_ref,omitempty"`
+	Runs     []Run           `json:"runs"`
+	Replayed bool            `json:"replayed"`
 }
 
 func backfillHash(v BackfillPreview) string {
@@ -245,6 +247,10 @@ func (s *Service) BackfillChannel(ctx context.Context, a access.Actor, scope Sco
 			return e
 		}
 
+		out.TaskRef, e = s.registerTaskGroupTx(ctx, tx, a, scope, in.WriteMeta, out.Runs)
+		if e != nil {
+			return e
+		}
 		return configOperationTx(ctx, tx, a, scope, id, "channels.backfill", in.WriteMeta, hash, preview, out, audit)
 	})
 	return out, e

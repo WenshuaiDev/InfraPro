@@ -3,6 +3,7 @@ package derivedmonitoring
 import (
 	"context"
 	"encoding/json"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"slices"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -250,7 +251,23 @@ func (s *Service) AnalysisExportDownload(ctx context.Context, a access.Actor, sc
 	if e != nil {
 		return monitoring.Download{}, e
 	}
-	return s.monitoring.ResultExportDownload(ctx, r, part, guard)
+	out, e := s.monitoring.ResultExportDownload(ctx, r, part, guard)
+	if e != nil {
+		return out, e
+	}
+	e = s.transact(ctx, a, scope, "analysis.exports.download", false, func(tx pgx.Tx) error {
+		if _, _, e := s.analysisExportTx(ctx, tx, a, scope, id, true); e != nil {
+			return e
+		}
+		var e error
+		out.Observer, e = s.access.BeginTransferTx(ctx, tx, a.ID, "", ar.Scope{Kind: scope.Entry, Tenant: scope.Tenant, Project: scope.Project}, "derived", ar.Link{Kind: "domain_file", Module: "derived", TargetKind: "export", TargetID: id, Generation: monitoring.JobGeneration(r.Job), Relation: "output"})
+		return e
+	})
+	if e != nil {
+		return out, e
+	}
+	out.Write = out.Observer.Wrap(out.Write)
+	return out, nil
 }
 func (s *Service) ControlAnalysisExport(ctx context.Context, a access.Actor, scope Scope, id, action string, in WriteMeta, audit access.Meta) (monitoring.ManagedExportRecord, error) {
 	var out monitoring.ManagedExportRecord

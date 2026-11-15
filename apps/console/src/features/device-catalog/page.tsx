@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -78,7 +79,7 @@ function CatalogBody({ search, onSearch }: { search: CatalogSearch; onSearch: (v
       </aside>
       <section className="min-w-0 space-y-4" aria-label="设备产品">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0"><h2 className="break-words text-lg font-semibold">{search.manufacturer ? manufacturerName ?? '已选厂家产品' : '全部产品'}</h2><p className="mt-1 text-sm text-muted-foreground">{manufacturer?.status === 'archived' ? '厂家已停用，既有产品的版本状态独立管理。' : search.manufacturer ? '查看该厂家的产品与发布版本。' : '跨厂家查找产品，查看最新发布版本与草稿状态。'}</p></div>
+          <div className="min-w-0"><h2 className="break-words text-lg font-semibold">{search.manufacturer ? manufacturerName ?? '已选厂家产品' : '全部产品'}</h2>{search.manufacturer&&<ObjectHistory objectType="manufacturer" objectId={search.manufacturer}/> }<p className="mt-1 text-sm text-muted-foreground">{manufacturer?.status === 'archived' ? '厂家已停用，既有产品的版本状态独立管理。' : search.manufacturer ? '查看该厂家的产品与发布版本。' : '跨厂家查找产品，查看最新发布版本与草稿状态。'}</p></div>
           {search.manufacturer && <Button variant="ghost" size="sm" onClick={() => selectManufacturer()}>清除厂家筛选</Button>}
         </div>
         <div className="flex flex-wrap items-center gap-2"><DirectorySearch label="搜索产品名称、编号或型号" value={search.q ?? ''} onChange={(q) => onSearch({ ...search, q })} />

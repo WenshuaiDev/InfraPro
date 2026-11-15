@@ -54,7 +54,7 @@ func (r rawReader) InspectSystem(ctx context.Context, p RawSystemPermit, id stri
 // transaction. They perform no physical I/O. They repeat current monitoring
 // qualification so a successful trial/publication cannot race a revocation.
 func (s *Service) rawAuthorizationTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope) (authorization, error) {
-	auth := authorization{Scope: scope, Account: a.ID}
+	auth := authorization{Scope: scope, Account: a.ID, Subject: a.ReadSubject()}
 	if !scope.valid() || a.Check == nil {
 		return auth, access.ErrDenied
 	}
@@ -71,7 +71,7 @@ func (s *Service) rawAuthorizationTx(ctx context.Context, tx pgx.Tx, a access.Ac
 	}
 	op := access.MonitoringOperation(scope.Entry, "details")
 	if scope.Entry == "project" {
-		if _, e = access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project); e != nil {
+		if _, e = access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project); e != nil {
 			return auth, e
 		}
 	} else if e = access.RequireScopedTx(ctx, tx, a.ID, op, scope.Tenant); e != nil {

@@ -54,7 +54,7 @@ function Workspace({ facilityId, search, navigate }: Props) {
   const select = (node: ResourceTreeRef) => {
     if (!showDetail) mobileScroll.current = window.scrollY;
     setLastSelection(node.id);
-    navigate(node.facility_id, { ...filters, ...resourceSelection(node) });
+    navigate(node.facility_id, { ...filters, ...resourceSelection(node), ...(scope.kind === 'tenant' && search.view === 'bindings' && !node.deleted_at && (node.kind === 'facility' || node.kind === 'point') ? { view: 'bindings' as const } : {}) });
   };
   const activeView = search.view ?? (!facilityId && first?.deleted_at ? 'changes' : undefined);
   const view = (next: FacilityWorkspaceSearch['view']) => {
@@ -83,6 +83,7 @@ function Workspace({ facilityId, search, navigate }: Props) {
   const failure = detail.error?.message ?? (target?.kind !== 'facility' ? facility.error?.message : undefined);
   const blocked = !!detail.error || target?.kind !== 'facility' && !!facility.error || !facilityData;
   const retry = () => { void detail.refetch(); if (target?.kind !== 'facility') void facility.refetch(); void roots.refetch(); };
+  // Keep the real workspace boundary, resource queries and navigation for this throwaway rendering.
   return <section className="min-w-0 space-y-5">
     <PageHeader title="设施管理" description="从设施到构件、测点与业务通道，在同一处维护工程资源。" actions={canCreateFacility && <Button id="create-facility" disabled={!available} onClick={() => setCreating(true)}><Plus aria-hidden="true" />新增设施</Button>} />
     <div className={cn('flex flex-wrap items-center gap-2', showDetail && 'hidden lg:flex')}>

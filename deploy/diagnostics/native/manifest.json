@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "revision": "1",
+  "display_name": "InfraPro 独立运行诊断",
+  "nodes": [
+    {
+      "id": "local",
+      "display_name": "本机",
+      "kind": "physical",
+      "resource_scope": "host",
+      "assignment_revision": "1",
+      "enabled": true
+    }
+  ],
+  "components": [
+    {
+      "id": "api",
+      "display_name": "业务 API",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-worker",
+      "display_name": "监测与派生计算",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "notification-worker",
+      "display_name": "通知投递",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "task-index-worker",
+      "display_name": "任务索引",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "spatial-worker",
+      "display_name": "空间转换",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "display-package-worker",
+      "display_name": "大屏包处理",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "display-runtime",
+      "display_name": "大屏运行服务",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "files-worker",
+      "display_name": "普通文件处理",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "files-checker",
+      "display_name": "文件检查器",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "audit-worker",
+      "display_name": "审计维护",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "web",
+      "display_name": "业务静态网页",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "postgres",
+      "display_name": "PostgreSQL",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "redis",
+      "display_name": "Redis",
+      "kind": "cache",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "clickhouse",
+      "display_name": "ClickHouse",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "keeper",
+      "display_name": "ClickHouse Keeper",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "s3",
+      "display_name": "对象存储",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-master",
+      "display_name": "SeaweedFS Master",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-filer",
+      "display_name": "SeaweedFS Filer",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-volume",
+      "display_name": "SeaweedFS Volume",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-gateway",
+      "display_name": "SeaweedFS S3 Gateway",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "python-converter",
+      "display_name": "Python 转换器",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "由 spatial-worker 按需启动；空闲时没有子进程正常"
+    },
+    {
+      "id": "maintenance-cli",
+      "display_name": "迁移与维护命令",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "一次性 CLI 不属于常驻故障分母"
+    },
+    {
+      "id": "diagnostics-server",
+      "display_name": "独立诊断服务",
+      "kind": "diagnostics",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "不依赖业务初始化"
+    },
+    {
+      "id": "diagnostics-observer",
+      "display_name": "节点观察器",
+      "kind": "diagnostics",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    }
+  ],
+  "replicas": [
+    {
+      "id": "api-1",
+      "component_id": "api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-worker-1",
+      "component_id": "monitoring-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "notification-worker-1",
+      "component_id": "notification-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "task-index-worker-1",
+      "component_id": "task-index-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "spatial-worker-1",
+      "component_id": "spatial-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "display-package-worker-1",
+      "component_id": "display-package-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "display-runtime-1",
+      "component_id": "display-runtime",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "files-worker-1",
+      "component_id": "files-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "files-checker-1",
+      "component_id": "files-checker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "audit-worker-1",
+      "component_id": "audit-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "web-1",
+      "component_id": "web",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "postgres-1",
+      "component_id": "postgres",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "redis-1",
+      "component_id": "redis",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "clickhouse-1",
+      "component_id": "clickhouse",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "keeper-1",
+      "component_id": "keeper",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "s3-1",
+      "component_id": "s3",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-master-1",
+      "component_id": "seaweed-master",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-filer-1",
+      "component_id": "seaweed-filer",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-volume-1",
+      "component_id": "seaweed-volume",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-gateway-1",
+      "component_id": "seaweed-gateway",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "python-converter-1",
+      "component_id": "python-converter",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "maintenance-cli-1",
+      "component_id": "maintenance-cli",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "diagnostics-server-1",
+      "component_id": "diagnostics-server",
+      "node_id": "local",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "diagnostics-process",
+        "diagnostics-ready"
+      ]
+    },
+    {
+      "id": "diagnostics-observer-1",
+      "component_id": "diagnostics-observer",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "diagnostics-http",
+      "replica_id": "diagnostics-server-1",
+      "purpose": "readiness",
+      "display_name": "独立诊断 HTTP"
+    }
+  ],
+  "dependencies": [],
+  "probes": [
+    {
+      "id": "diagnostics-process",
+      "node_id": "local",
+      "target_kind": "replica",
+      "target_id": "diagnostics-server-1",
+      "adapter": "native_process",
+      "binding_id": "diagnostics-process",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 1000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "diagnostics-ready",
+      "node_id": "local",
+      "target_kind": "endpoint",
+      "target_id": "diagnostics-http",
+      "adapter": "http_ready",
+      "binding_id": "diagnostics-ready",
+      "facet": "readiness",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "local-resources",
+      "node_id": "local",
+      "target_kind": "node",
+      "target_id": "local",
+      "adapter": "host_resources",
+      "binding_id": "local-resources",
+      "facet": "resource",
+      "required": false,
+      "interval_ms": 10000,
+      "timeout_ms": 1000,
+      "stale_after_ms": 30000
+    }
+  ]
+}

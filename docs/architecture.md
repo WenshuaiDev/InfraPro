@@ -181,7 +181,7 @@ platform/config 组合 foundation 的基础配置，提供同一项目配置来�
 
 前端区分个人 `/projects`、租户治理 `/t/$tenantId/projects` 与业务 `/t/$tenantId/p/$projectId`。查询按账号、租户成员关系、项目成员关系及授权状态划分；客户端代次校验、AbortSignal 和卸载回调保护共同防止旧结果回填。短暂故障保留草稿且停止提交，真实失权清理内容；取消确认框不会执行成功回调。非危险只读请求仅在范围取消导致 AbortError 且仍被观察时重试一次，写入从不自动重放。
 
-项目完整事件在 `account_security_events.project_id` 下隔离；租户治理只保存允许的摘要，平台审计排除项目内容，包括目录发布的逐成员影响。账号历史清理跳过项目事件。迁移 v7 新增项目实体、永久编号归属、成员、绑定和操作收据，并以外键、唯一性和延迟约束保护完整管理结构。运行说明见[项目管理手册](architecture.md#migrations)。
+项目完整事件在 `account_security_events.project_id` 下隔离；租户治理只保存允许的摘要，平台审计排除项目内容，包括目录发布的逐成员影响。身份维护不再删除任何审计事件；审计历史由独立的有界 plan/apply 维护。迁移 v7 新增项目实体、永久编号归属、成员、绑定和操作收据，并以外键、唯一性和延迟约束保护完整管理结构。运行说明见[项目管理手册](architecture.md#migrations)。
 
 <a id="module-9"></a>
 
@@ -666,7 +666,7 @@ sequenceDiagram
 
 个人安全记录沿用既有范围，新增租户业务事件通过租户审计读取，避免原管理员交接后借个人安全接口继续查询租户详情。平台有权者可以追溯原/新管理员，原管理员不能凭历史成员关系继续查租户审计。
 
-沿用当前 `audit_retention` 配置，代码默认值为 `2160h`，即 90 天；租户审计同样受该保留策略影响。成员历史和编号归属不随审计定时清理删除。若业务需要长期审计归档，应另行确定保留与备份要求，不能把本功能描述成永久保存全部事件。
+升级通过审计策略 plan/apply 导入实际 `audit_retention` 配置（默认 `2160h`）；平台和租户新事实按策略登记到期时间，项目默认无自动到期。身份维护不再直接删除审计；审计清理默认只生成计划，成员历史和编号归属不随审计清理删除。若业务需要长期审计归档，应另行确定保留与备份要求，不能把本功能描述成永久保存全部事件。
 
 <a id="membership-design-10"></a>
 
@@ -1196,6 +1196,12 @@ HTTP 策略检查用于及早拒绝；业务 service 必须在访问数据的同
 
 服务端严格解码，不接受客户端指定的操作者、可信范围、授权标记或未知字段。范围和权限校验在服务事务中执行；冲突不自动覆盖，密码复验不自动重放。错误统一携带请求 ID：格式 400、认证／权限 401/403、不可见对象 404、修订／业务冲突 409、限流 429、依赖或繁忙 503；具体业务码以契约为准。
 
+#### 项目角色界面
+
+项目角色以列表父路由和详情 Drawer 子路由组织，复用平台／租户的 `RoleTable`、分页与 `ResponsivePanel`。筛选和页大小写入 URL，`useCursorList` 保存已取得的游标与位置；详情打开和关闭不卸载列表。`source=custom|preset` 在项目角色 SQL 中与名称、状态、归属一起过滤后分页，避免按已加载页筛选或伪造总数。
+
+详情和配置共用权限说明组件，权限目录 API 仅按既有 `project.permission.read` 资格读取。`/t/$tenantId/p/$projectId/permissions` 为兼容跳转，导航不再提供独立目录。角色操作复用原项目 API 与授权上下文，预览失效时保留输入并重新核对；传输结果未知时冻结原请求体与请求 ID，避免不同版本被当作新变更提交。中文名称调整仍通过 `access sync/check` 发布，更新时保持 API、CLI 与 worker 的目录版本一致，不修改权限编码或存量绑定。
+
 <a id="project-design-14"></a>
 
 ### 后端职责、事务及即时生效
@@ -1275,7 +1281,7 @@ flowchart TD
 
 #### 保留策略
 
-本功能不删除项目、项目成员历史、已撤销绑定、生命周期记录和项目审计。现有账号清理任务会按保留期清理 account_security_events，项目事件接入同表时必须排除 `project_id IS NOT NULL` 的记录，保证“归档保留历史”可实际成立。
+本功能不删除项目、项目成员历史、已撤销绑定、生命周期记录和项目审计。账号清理任务不再删除 `account_security_events`。审计独立维护核验 retain_until、策略版本和当前 hold；项目默认 retain_until 为空，归档不改变历史期限。
 
 现有非项目事件仍沿用其已定义保留期。项目长期归档清理或审计保留期限调整另行设计，不在本功能承诺无限容量，也不提供项目清理入口。备份必须包含新增表和项目事件。
 
@@ -2770,7 +2776,7 @@ pnpm infrapro account audit --cursor 100
 
 Redis 缓存键不存在属于正常情况：会话从 PostgreSQL 回源，按原到期时间回填。每次命中缓存仍查询数据库中的撤销、账号状态和认证版本。旧缓存、旧 AOF、并发回填都不能复活撤销会话。后台活动每 30 秒合并落库；失败时停止接受活动续期，恢复成功后继续。活动只由用户交互发送，健康检查与后台读取不续期。
 
-后台任务每批最多清理 500 条过期会话、邀请、重置及审计，按配置保留期清理；连续失败计数在最后活动一天后且冷却结束才回收。初始化、账号本体和密码摘要不被清理。缓存统计日志包括命中、未命中、失败及清理重试。应用收到停止信号后取消任务并进行有时限的活动落库。
+身份后台任务每批最多清理 500 条过期会话、开户邀请和密码重置记录，按原配置保留期清理；审计历史只经独立 plan/apply，默认 plan_only；连续失败计数在最后活动一天后且冷却结束才回收。初始化、账号本体和密码摘要不被清理。缓存统计日志包括命中、未命中、失败及清理重试。应用收到停止信号后取消任务并进行有时限的活动落库。
 
 <a id="operations-7"></a>
 
@@ -3063,9 +3069,9 @@ pnpm infrapro access check
 
 <a id="spatial-design"></a>
 
-## 13 工程空间可视化详细设计（下一轮规划，未实现）
+## 13 工程空间可视化详细设计
 
-日期：2026-11-12。业务依据为[SV-01–SV-10 交付范围](requirements.md#spatial-scope)。用户仅授权整理方案，未授权本次开发。本节中的包、表、权限及路由均是拟实施契约，不是当前仓库已存在的接口或能力。总体方向已获认可，详细约定和文档状态单独记录。
+更新：2026-11-13。用户已确认[SV-01–SV-10 交付范围](requirements.md#spatial-scope)并授权完整实现。下述领域及流程已在当前仓库落地；实际契约以 OpenAPI、权限目录与迁移 00034 为准。自验证据见[空间验证记录](verification/spatial-visualization.md)，启动、样本及恢复见[空间运行手册](operations/spatial-visualization.md)。
 
 ### 13.1 结构与模块边界
 
@@ -3088,17 +3094,17 @@ flowchart LR
 | 位置／模块 | 职责 | 不承担的职责 |
 | --- | --- | --- |
 | `packages/go/platform/spatial` | 资料、版本、上传、处理任务、挂载、构件映射、项目版本授权、视图配置及引用检查。 | 计算监测指标、维护设备来源、解析工程身份。 |
-| `spatial` 声明的窄读取接口 | ObjectReader、SourceReader、MonitoringReader、ArtifactReader，按明确 actor/scope 批量读取获准摘要。 | 直接访问其他模块内部 SQL 或内部包；默认以租户身份读取后给项目过滤。 |
+| `spatial` 声明的窄读取接口 | ObjectReader、MonitoringReader、ArtifactReader，按明确 actor/scope 批量读取获准摘要；设备来源直接复用设备 API。 | 直接访问其他模块内部 SQL 或内部包；默认以租户身份读取后给项目过滤。 |
 | `runtime` | 组合已有资源／设备／监测服务与空间服务；接入外部引用聚合。 | 另建业务身份模型或绕过服务级授权。 |
 | `services/api/internal/transport/http/spatial` | 严格 DTO、权限 operation 注册、文件 Range 流和查询取消。 | 在 HTTP handler 中解析 IFC 或计算派生数据。 |
 | `services/api/cmd/spatial-worker` | 领取空间处理任务、准备本地输入、调用隔离转换器、校验并封存产物。 | 设备采集、监测导入和派生调度。 |
-| 独立转换工具目录 | Python／IfcOpenShell 处理 IFC，pypdfium2 处理 PDF；Go 处理图片元信息和常规输入校验。 | 直接访问业务库、持有用户 Cookie、访问任意外部 URL。 |
+| `tools/spatial-converter` | Python／IfcOpenShell 处理 IFC，pypdfium2 处理 PDF，Pillow 处理图片；Go 校验清单、字节哈希及业务输入。 | 直接访问业务库、持有用户 Cookie、访问任意外部 URL。 |
 | `apps/console/src/features/spatial` | 地图、图纸和模型适配器、共享选中对象、管理页面、挂载编辑、详情组合。 | 正式时序计算、在浏览器拼接全量跨项目目录。 |
 | 现有 TS API client／共享 UI | 生成契约、请求取消、既有主题／表单／Drawer／监测图表。 | 新建第二套组件库或把引擎实例存入可序列化查询缓存。 |
 
 空间处理任务具有文件校验／转换语义，采用独立领域任务表；不塞入仅适用于监测数据授权的导入任务。沿用已有租约、幂等和审计模式，可复用经验证的通用实现，不先建设一个通用任务平台。Go 程序仍在现有 API module 内，不增加 Go module 或前端应用。
 
-现有对象存储入口封装在 `monitoring.Storage`，后续需要提取或增加有限的 BlobStore 适配，以分别表达空间和监测的对象命名及访问规则；不能直接调用监测源文件下载接口开放图模。ClickHouse 只经监测读取使用，空间资料不依赖另建时序表。
+现有 `monitoring.Storage` 通过有限的 `blobstore` 适配提供底层字节存储；空间和监测保持独立对象命名与读取授权，不借监测源文件下载接口开放图模。ClickHouse 只经监测公开读取使用，空间资料不另建时序表。
 
 <a id="spatial-data-design"></a>
 
@@ -3248,9 +3254,9 @@ GLB 解析检测外部资源、必需扩展、异常尺寸和非法数字；解�
 | 成果检索 | 派生／分析所属服务（拟 `derivedmonitoring`）实现 ArtifactReader，按当前 scope、owner 直接通道在成果分析输入中的明确引用、时间与 cursor 查找；可显式展开后代，返回已过滤的成果固定版本。 |
 | 原工作台跳转 | 带 scope、owner、明确获准 channels、time range、source_kind 及合法 return target；目标页面重新授权，不信任 URL 参数。 |
 
-当前 `monitoring` 支持原始 latest/trends/statistics 等查询；派生方案计划扩展统一查询及 Provider。空间服务只能依赖公开读取契约，不调用派生私有 SQL，不建立第二个公式执行器。双向依赖通过 runtime 的 adapter 解决，monitoring 不导入 spatial。
+当前 `monitoring` 通过统一查询及实际派生 Provider 提供原始／派生 latest、trends、statistics。空间服务依赖公开读取契约，不调用派生私有 SQL，不建立第二个公式执行器。双向依赖通过 runtime 的 adapter 解决，monitoring 不导入 spatial。
 
-分析输入到成果的反向查询是本轮联动需补充的公开读取能力，可在成果所属模块增加索引和过滤查询；不用空间私表保存一份成果正文，也不改变已确认的分析输入／输出身份规则。查找只基于成果实际保存的输入版本，不凭同名指标、共有设施或任意递归上游推测“相关”。
+分析输入到成果的反向查询由 `derivedmonitoring.SpatialArtifacts` 提供，按成果实际保存的输入版本及当前资格过滤；空间不保存成果正文副本，不改变已确认的分析输入／输出身份规则，也不凭同名指标、共有设施或任意递归上游推测“相关”。
 
 统一快照返回时保留原始与派生结果的真实修订；未提供跨模块同一时刻快照证明时不能声明“全景同刻数据”。单个趋势及统计继续使用原查询同一快照；新数据到来只刷新当前摘要，不中断用户历史视窗。
 
@@ -3264,7 +3270,7 @@ GLB 解析检测外部资源、必需扩展、异常尺寸和非法数字；解�
 
 ### 13.7 HTTP、并发和错误契约
 
-下列相对路径是拟定接口族。沿用当前 API v1，租户根为 `/api/v1/tenants/:tenantId/spatial`，项目根为 `/api/v1/tenants/:tenantId/projects/:projectId/spatial`；正式实现时写入 OpenAPI 及权限路由目录。当前本次不修改 OpenAPI 或生成代码。
+下列路径概括接口族。沿用 API v1，租户根为 `/api/v1/tenants/:tenantId/spatial`，项目根为 `/api/v1/tenants/:tenantId/projects/:projectId/spatial`；已写入 OpenAPI、TS client 及权限路由目录，由契约及权限检查约束一致性。
 
 | 范围／方法 | 相对路径 | 作用与权限 |
 | --- | --- | --- |
@@ -3294,7 +3300,7 @@ JSON 严格拒绝未知字段、无效数字和跨 scope ID。写命令使用 ex
 
 ### 13.8 前端状态、性能与降级
 
-路由建议为租户／项目 `/spatial`，设施资料管理 `/resources/facilities/:facilityId/spatial`；版本、图页及 selected owner 使用受校验搜索参数，默认版本从当前 scope 的服务端返回。扩展 safeReturn、导航 capability 和生成路由，不手改 routeTree.gen.ts。
+实际入口为租户／项目 `/spatial`，设施详情通过带 `facility`／`owner` 参数的同一工作台进入资料管理；版本、图页及 selected owner 使用受校验搜索参数，默认版本从当前 scope 的服务端返回。扩展 safeReturn、导航 capability 和生成路由，不手改 routeTree.gen.ts。
 
 业务选中对象只有一份状态，以 owner kind/id 表达；地图、模型、图纸适配器实现 locate/select/clear/dispose。渲染引擎命中先转换为当前版本的挂载或源元素，再请求业务资料。切换版本清除旧命中与渲染引用，切换空间取消所有未完成请求并丢弃迟到结果。
 
@@ -3308,7 +3314,7 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 ### 13.9 Codex 自备资料、验证与交付责任
 
-用户已明确没有布设图、模型等资料，**不得将这些资料、底图密钥或模型制作任务转交用户作为开发／验收前置条件**。Codex 在后续实现中提供完整样本包和已装载场景；当前只规定生成方式，不生成文件或编写生成器。
+用户已明确没有布设图、模型等资料，**不得将这些资料、底图密钥或模型制作任务转交用户作为开发／验收前置条件**。已交付 `samples/spatial` 完整样本包、Python 生成器及 `spatial:demo` 正式管线装载脚本。
 
 | 资料组 | 由 Codex 准备的内容 | 验证目的 |
 | --- | --- | --- |
@@ -3324,15 +3330,15 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 同一套资料通过真实上传、处理、业务 API、查询和成果流程进入系统；测试专用 schema／对象前缀与用户业务数据隔离。用户操作场景另以受控初始化建立，不复用测试残留，不覆盖已有账号或默认给所有角色增权。提供样本包路径／下载、已装载入口、重置说明和最短操作路径，用户无需先学建模或制图。
 
-后续验证涵盖领域／坐标单元检查、真实 PG/S3/转换器集成、权限与竞争、接口契约、桌面／窄屏浏览器及实际恢复。引用 [SC-01–SC-13](requirements.md#spatial-delivery)逐项记录结果。派生联动必须用真实派生模块完成发布、重算与输入撤权，不能用 mock 响应作为交付证据。
+实际验证涵盖领域／坐标单元检查、真实 PG/S3/转换器集成、权限与竞争、接口契约、桌面／窄屏浏览器及恢复；结果按 [SC-01–SC-13](requirements.md#spatial-delivery)记录。派生联动使用真实发布、计算、输入撤销及 pending 状态；故障注入仅用于指定竞争与异常，不能替代真实处理管线。
 
 性能记录明确文件复杂度、图页像素、几何／纹理／实例数、标记数、硬件、网络与冷暖加载条件；不从样本文件大小推导任意工程容量。没有真实工程文件不阻塞上述功能自验；真实资料兼容和部署规模在以后实际接入时另记。
 
 <a id="spatial-operations-design"></a>
 
-### 13.10 后续迁移、运行、恢复与阶段边界
+### 13.10 迁移、运行、恢复与交付边界
 
-开发时按当时真实迁移头新增版本，不现在预占号码；既有账号、角色、资源、设备、观测及派生结果不重建。新增空间表初始为空，自定义角色保持原权限。将 spatial 引用加入 `runtime.resourceReferences` 和资源删除／退役影响预览，处理授权及项目设施关联的结束动作。
+本轮在原迁移头 00033 后新增 `00034_spatial.sql`；既有账号、角色、资源、设备、观测及派生结果不重建。新增空间表初始为空，自定义角色保持原权限。spatial 引用接入 `runtime.resourceReferences` 和资源删除／退役影响预览，并处理授权及项目设施关联的结束动作。
 
 启动沿用现有 API/console/PostgreSQL/对象存储，增加独立 spatial-worker 与固定版本转换环境；配置目录、存储命名空间、进程并发、超时和资源边界。没有转换器时现有已处理资料可按依赖情况继续读取，新处理任务明确不可用，不能标记已完成。
 
@@ -3340,13 +3346,13 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 审计记录上传、取消／重试、来源封存、草稿挂载修改、构件关联、发布／设当前／撤回、项目版本授权、原件下载、退役恢复和项目视图修改；普通悬停不逐次产生管理审计。项目审计只显示当前项目获准上下文，不返回其他项目清单。
 
-空间核心、原始监测联动、派生监测联动、历史成果联动分别报告进度。派生尚未实现可以推进前两项，但不能把 SV-08／SV-09 或整轮标成完成。全部范围自验通过后才进入功能 Awaiting acceptance，用户明确确认后再记 Accepted；上线与迁移另记。
+空间核心、原始监测、派生监测和历史成果联动均纳入本轮完整交付。全部范围自验通过后才进入功能 Awaiting acceptance，用户明确确认后再记 Accepted；生产上线与迁移另记。
 
 <a id="spatial-document-check"></a>
 
-### 13.11 本次方案文档检查记录
+### 13.11 2026-11-12 方案文档检查历史
 
-状态：**Awaiting acceptance（详细方案文档自检通过，待审阅）**。本次只整理需求、详细设计、技术选择、领域术语和文档导航；总体方向确认与详细约定审阅分别记录。
+历史状态：详细方案当日自检通过，2026-11-13 已获用户确认并进入完整实施。当日只整理需求、详细设计、技术选择、领域术语和文档导航；以下保留当日检查结果，当前功能状态见空间验证记录。
 
 | 交付范围 | 详细设计位置 | 后续可观察结果 |
 | --- | --- | --- |
@@ -3372,4 +3378,101 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 检查期间工作区另有 AGENTS.md 和账号／项目相关源码的并行变化，已读取更新后的工作约定，未修改或覆盖这些文件，也未将其计为本轮成果。文档检查脚本位于仓库外的临时目录，没有增加项目测试或生成器。
 
-当前没有执行空间功能测试、生成样本、安装依赖、创建分支／worktree、迁移、提交、推送或部署。文档自检通过也不改变这些事实。
+以上为 2026-11-12 方案整理阶段的历史记录，当时没有执行空间功能测试、生成样本、安装依赖、迁移、提交、推送或部署。2026-11-13 实施及验证以第 13.12 节和空间验证记录为准；本轮仍未创建分支／worktree、提交、推送或部署生产。
+
+### 13.12 实现接缝与当前交付
+
+- `runtime/spatial_resources.go` 使用资源模块的完整对象资格与范围查询；`spatial_monitoring.go` 通过 monitoring 目录、选择和实际 latest 提供有界摘要，配置主通道可独立进入首批结果；`derivedmonitoring/spatial_artifacts.go` 按固定成果实际输入及原空间读取。
+- 浏览请求前后校验身份、资源、设备、数据和空间五类授权修订。文件使用同源、`no-store`、完整性校验和分块资格复核；客户端中止旧请求并销毁 Blob URL、WebGL 资源和查询缓存。404 深链接不触发无限重挂载。
+- 图面、语义树和挂载分页；地图先按明确坐标和 bbox 筛选，支持跨日期变更线。PDF 浏览按显示分辨率加载合适层级。模型保留实例和世界变换，选中可定位、隐藏、隔离、透明及剖切。
+- 项目默认视图以固定版本 ID 作为稳定保存键。无自定义视图时继承获准版本默认值；保存含图页、相机、隐藏元素、底图与主通道，不包含授权或监测结果。
+- 恢复核对属于 CLI 的有限维护接口 `spatial.VerifyContent`；核对固定清单、PG 引用与私有文件字节，缺失隔离和正确字节修复分别审计。维护能力不暴露为用户 HTTP 路由。
+
+实施状态及 SC-01–SC-13 的最终证据统一记录在[空间验证记录](verification/spatial-visualization.md)，人工验收另记。
+
+<a id="in-app-notifications"></a>
+
+## 14 站内通知架构
+
+`notificationevent` 是只依赖 pgx 和中性类型的事务写入模块，定义白名单事件／结果／目标和来源键指纹。身份、权限、组织、监测、派生、空间在原事务末尾写事实与候选账号／成员身份快照；写入失败整体回滚。`notifications` 拥有投递、个人状态、偏好、模板和查询。`runtime/notifications.go` 组合各域有限 metadata Reader，与访问控制一起重验当前资格；通知核心不复制所有业务授权 SQL。
+
+```mermaid
+flowchart LR
+ B[业务结果原事务] --> E[通知事实与接收快照]
+ D[大屏事务或受限包进程] --> H[display 持久交接]
+ H --> A[桥接 原事实核验与收据]
+ A --> E
+ E --> W[独立 notification-worker]
+ W --> I[个人通知及接收水位]
+ I --> Q[本人 API 统一资格过滤]
+ Q --> U[铃铛和通知中心]
+ U --> R[重验并解析白名单目标]
+ R --> O[原业务页面和操作]
+```
+
+### 14.1 持久化与一致性
+
+迁移 36 建立协议、事件、接收集、投递、账号通知、账号序号／修订、偏好、条件周期、worker 心跳及 display 交接；原任务增加手工通知代次。事件来源键唯一，同键不同事实报冲突。事件／账号唯一，账号／接收序号唯一。账号 FK 只引用 accounts，tenant/project 范围受关系约束；空范围不代表全平台广播。
+
+worker 按未展开状态分批生成投递，再通过 SKIP LOCKED 短事务领取租约和 fence。来源维护故障不会阻止其他通知；每项投递当前资格与偏好检查后，锁账号 inbox 分配接收序号，与通知及完成状态同事务提交。失效 fence 不能覆盖新结果。领取不持有业务权限锁，交付按访问图→账号／来源资格→个人状态顺序；不反向长时间持有队列锁等待业务。
+
+列表、详情、统计、批量已读和目标解析共享 personal/scoped 展示规则；过滤先于分页。个人回执失权脱敏，范围通知隐藏。保存当时 tenant/project membership ID，离开后新建成员身份不能冒充旧接收关系。CAS 修订避免覆盖个人并发状态，重复设置同状态幂等。批量已读绑定接收序号水位，不用事件时间。
+
+重试有退避及上限，非法模板立即进入失败；偏好关闭、资格丧失和无接收人是有原因的完成。CLI 按原事件／交接重放失败记录并审计，不删除或重新广播已有记录。诊断、心跳和最长积压独立于通知自身，接口不包含正文。
+
+### 14.2 领域接入与边界
+
+监测 `TaskLease.CompleteTx`／`FinalizeTaskTx` 收口所有正式成功事务，包含采用、导出、派生发布／试算／分析／比较／回放／成果导出。取消、恢复和最终失败共用 `RecordTaskOutcomeTx`；手工新执行增加代次，自动重试不增加。自动派生的 `TaskOutcomeTx` 由领域管理故障周期，通知不建立阈值告警引擎。
+
+tenancy 以同一套邀请规则服务原 token 入口和按本人 ID 入口；接受必须显式、CSRF 和版本复验。到期维护持久写入状态和一次事实，无需用户先打开。通知展示的当前资格裁剪不改写原已接受邀请历史语义。
+
+大屏 `display_notification_handoffs` 与原事件原子写入。受限包角色只写 display 表，不查 accounts 或个人箱；上传人来自持久 upload.actor_id。runtime 桥接按待处理状态取记录，验证原事件、范围、包归属，原子写通知与收据；单条失败通过 savepoint 隔离。未转译事实不被 EventRetention 清掉。按已持久的缺包／恢复边沿投递，条件投影允许并发乱序转译；不使用最大事件 ID 游标跳过迟提交事务。大屏查询、订阅、ack、终端凭据和 HTTP 三 origin 保持原隔离。
+
+### 14.3 API、界面及运行
+
+人员路由 `/api/v1/me/notifications`、summary、详情／PATCH、read-all、target、notification-preferences 与 `/me/tenant-invitations` 均从人员会话取本人；没有收件账号参数。写操作用原 CSRF，查询及错误 no-store，后台轮询不触发 activity 续期。目标仅结构化 kind/ID/受控搜索参数，点击时重验并跳原业务页，不持久化能力 URL。
+
+React 的账号级 Provider 组合 TanStack Query key（账号、授权代次、筛选／游标）；共享数据、15s/5s 轮询、隐藏暂停、聚焦／重连刷新。注销、权限修订取消旧请求，客户端拒绝旧身份迟到响应。布局仅提供 headerActions 插槽，不导入业务 API；正文不写本地持久缓存。
+
+notification-worker 仅依赖 PostgreSQL metadata，不实例化监测存储、转换器或大屏壳。API 和 worker 分开，开发默认启动，Compose／systemd 有独立入口。发布顺序、迁移协议、备份恢复和安全重放见[运维手册](operations/in-app-notifications.md)，实际验证见[记录](verification/in-app-notifications.md)。
+
+<a id="task-center"></a>
+
+## 统一任务中心
+
+任务中心由 `taskrecord`（事实与历史）、`tasks`（当前授权后的检索／控制分发）和 monitoring／derived／spatial／display 来源 Adapter 构成。来源继续拥有队列、租约、执行资格、输入、产物与通知；统一层没有第二套业务调度器。完整接入契约见[任务接入指南](development/task-center-integration.md)。
+
+来源键稳定映射到 task_id；人工执行 generation 与内部 attempt/fence 分开。原发起人不可变，每代记录操作人与真实执行身份。普通来源以白名单快照触发器加 `access.Transact → FlushTx → ApplyTx` 在原事务保存中间及终态事实；大屏受限进程写自有 handoff，由独立 task-index-worker 转译。终态通知由原来源发出，索引不发通知；通知 v2 固定代次，v1 事实和阅读状态保留。
+
+人员 API 使用当前业务权限重新核验每页候选；签名游标绑定账号、筛选、授权与恢复代次、首屏上界。管理摘要／控制不授予完整参数、成果或文件读取。历史 source_missing、history_incomplete 与同步中状态明确呈现，结果有效性与执行成功分别表达。前端共用任务详情／进度／动作，旧业务 URL 和结果读取路径保持兼容。
+
+独立索引仅依赖 PostgreSQL，使用 `infrapro_task_index` 最小角色。数据库 v37–v39 采用协调升级，不能任意混跑新旧版本；来源分页回填、反连接对账、完整备份恢复和 restore_epoch 操作见[运行手册](operations/task-center.md)。[验证记录](verification/task-center.md)与[人工步骤](operations/task-center-acceptance.md)分别保存软件自验和用户接受状态。
+
+## 文件与附件公共模块
+
+files 管理普通附件身份、intent、收据、代次、引用、读取租约和清理协议；runtime 提供有限宿主授权解析与任务/通知适配。S3 I/O 不进入业务事务，checker 为无凭据隔离子进程。GuardedRead 在完整内容核验后逐块重新鉴权。纯 UI pattern + 摘要 Worker + 四个 console Adapter 复用展示/传输，专业模块仍拥有业务内容及原生读取边界。详见 development/files-and-attachments-integration.md。
+# 审计与操作追踪统一架构（2026-11-14）
+
+本节为当前审计契约，历史章节的旧读取／清理描述以本节为准。[接入契约](development/audit-integration.md)、[事件目录](development/audit-event-catalog.md)、[自验账本](verification/audit-and-operation-tracing.md)分别记录实现约束、生产路径和执行证据。
+
+`auditrecord` 是无 HTTP、无授权执行器和无对象存储依赖的事实内核；业务持有事务并调用 writer。迁移 41–43 在现有 `account_security_events` 上增加 schema、不可变指纹、操作链、保留策略与有限关联，新增命令、传输、导出和维护收据。触发器拒绝直接 UPDATE／DELETE，有限 SECURITY DEFINER 清理函数只处理经过复验的计划。
+
+`audit` 拥有授权 Reader、投影、快照导出、下载和维护。runtime 注入由各业务 Module 实现的有限元数据／目标 Adapter，最多 100 个引用、3 秒预算；裁剪发生在全文筛选、列表、详情和 CSV 之前。图遍历使用明确边和深度／节点预算，不按时间、文件名或请求号拼接业务。
+
+命令入口在业务副作用前持久占用收据；原有 request_id 协议保持，新补齐的 13 个入口要求 X-Command-ID。提交响应不确定时用新连接核对原操作收据。来源成功事实、任务事实和通知事实在同一事务内提交，写入任一失败则业务回滚。受限大屏进程通过不可变域内 handoff 留证，可信桥接幂等翻译，失败达到 8 次后只能按确切 handoff／attempts 维护重放，不能重执行业务。
+
+导出世代固化授权向量、筛选、字段档和快照时刻。物化后的行及摘要保留在 PostgreSQL，本代自动尝试不重新取数；私有 S3 对象先登记 intent，再写对象，最后凭 lease／fence 和当前资格发布。到期、撤权、旧恢复 epoch 和旧 fence 均阻止读写发布。
+
+受控下载使用独立传输 receipt 和 read lease；开始、结束分别留痕。每个块在授权锁下放行，2 秒写超时，最长 15 分钟；账号最多 2 条、节点最多 8 条。清理只删除计划中的登记对象，活动读取和 hold 阻止物理删除；删除超时保留 delete_pending，未知键从不自动推断为垃圾。
+
+taskrecord 仅为 audit.export 扩展 platform scope，其余来源仍需 tenant/project。任务和通知通过固定 generation 定位，受控投递摘要不包含他人的收件箱、偏好或已读状态。恢复协调 audit/task/files 协议，清理旧 lease／fence／委托并记录中断，不补发历史通知。
+
+API 元数据不依赖 S3、ClickHouse、文件检查器或通知进程。React 工作区缓存键包含账号、精确成员关系、空间、授权与投影版本；切换或撤权终止请求并移除旧数据，下载 blob URL 及时撤销。三空间旧路由与兼容 API 均进入统一 Reader。
+
+## 独立运行诊断（2026-11-14）
+
+`services/diagnostics` 是独立 Go module，不依赖 platform、业务 API、业务身份、PG 或 Redis 启动。server 内嵌独立 React UI，使用本地账号和 bbolt；observer 按固定分配采集原生进程、报告、Docker、systemd、协议与基础资源。server 没有 Docker socket，业务进程只有非阻塞本地 reporter，没有观察器密钥。
+
+manifest 定义期望槽位和 required probes，bindings 保存私有定位与凭据引用；查询 DTO 不含 bindings。generation/epoch/boot/sequence 屏障、完整帧和幂等 ack 在同一事务提交。查询时重新计算新鲜度，重启缓存先是 historical；重复 attempt 不续采样时间。状态、覆盖和资源范围分别计算。人员 API 在首字节前重新核权，轮询不续空闲会话，撤权清理浏览器缓存。
+
+[运维与人工步骤](operations/independent-runtime-diagnostics.md)、[进程报告接入](development/diagnostic-process-reports.md)、[自验台账](verification/independent-runtime-diagnostics.md)。

@@ -9,13 +9,13 @@ export type FacilityWorkspaceSearch = {
   point?: string;
   channel?: string;
   directory?: true;
-  view?: 'details' | 'children' | 'source' | 'usage' | 'changes';
+  view?: 'details' | 'children' | 'source' | 'bindings' | 'usage' | 'changes';
 };
 const id = (value: unknown) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ? value : undefined;
 export function facilityWorkspaceSearch(raw: Record<string, unknown>): FacilityWorkspaceSearch {
   const component = id(raw.component), point = id(raw.point), channel = id(raw.channel);
   let view: FacilityWorkspaceSearch['view'];
-  if (typeof raw.view === 'string' && ['details', 'children', 'source', 'usage', 'changes'].includes(raw.view)) view = raw.view as FacilityWorkspaceSearch['view'];
+  if (typeof raw.view === 'string' && ['details', 'children', 'source', 'bindings', 'usage', 'changes'].includes(raw.view)) view = raw.view as FacilityWorkspaceSearch['view'];
   // Existing object links remain usable; tabs no longer discard the current object.
   else if (raw.tab === 'changes' || raw.tab === 'usage') view = raw.tab;
   else if (raw.tab === 'components' && !component || raw.tab === 'points' && !point || raw.tab === 'channels' && !channel) view = 'children';

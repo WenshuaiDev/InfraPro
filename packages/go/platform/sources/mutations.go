@@ -3,6 +3,7 @@ package sources
 import (
 	"context"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
@@ -295,7 +296,8 @@ func (s *Service) Mutate(ctx context.Context, a access.Actor, scope Scope, targe
 				return e
 			}
 		}
-		if e = k.Audit(ctx, tx, auth, m, string(op), "monitoring_source", out.BindingID, out, meta); e != nil {
+		meta.AuditLinks = append(meta.AuditLinks, ar.Link{Kind: "business", Module: "resources", TargetKind: "engineering_channel", TargetID: target.ChannelID, Relation: "subject", Scope: ar.Scope{Kind: scope.Entry, Tenant: scope.Tenant, Project: scope.Project}})
+		if e = k.AuditSnapshots(ctx, tx, auth, m, string(op), "monitoring_source", out.BindingID, p.Old, after, meta); e != nil {
 			return e
 		}
 		return k.SaveReceipt(ctx, tx, auth, m, op, input, "monitoring_source", out.BindingID, out)

@@ -51,7 +51,7 @@ func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 			}
 			paged := action == "imports.list" || action == "imports.issues" || action == "jobs.list" || action == "points.list" || action == "channels.list" || action == "channels.directory"
 			for key, values := range c.Request.URL.Query() {
-				if len(values) != 1 || !(paged && key == "cursor" || action == "points.list" && (key == "search" || key == "facility_id" || key == "point_id") || action == "channels.list" && key == "channel_id" || action == "channels.directory" && (key == "search" || key == "facility_id" || key == "owner_kind" || key == "owner_id" || key == "source_kind" || key == "channel_id")) {
+				if len(values) != 1 || !(paged && key == "cursor" || action == "imports.list" && (key == "q" || key == "states" || key == "formats" || key == "sort" || key == "limit") || action == "points.list" && (key == "search" || key == "facility_id" || key == "point_id") || action == "channels.list" && key == "channel_id" || action == "channels.directory" && (key == "search" || key == "facility_id" || key == "owner_kind" || key == "owner_id" || key == "source_kind" || key == "channel_id")) {
 					reply(c, 0, nil, invalid("不支持或重复的查询参数。"))
 					return
 				}
@@ -91,7 +91,16 @@ func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 				}
 				reply(c, status, v, e)
 			case "imports.list":
-				v, e := s.Imports(ctx, a, scope, c.Query("cursor"))
+				limit := 0
+				if raw, ok := c.GetQuery("limit"); ok {
+					var err error
+					limit, err = strconv.Atoi(raw)
+					if err != nil || limit < 1 || strconv.Itoa(limit) != raw {
+						reply(c, 0, nil, invalid("每页数量无效。"))
+						return
+					}
+				}
+				v, e := s.QueryImports(ctx, a, scope, md.ImportQuery{Cursor: c.Query("cursor"), Search: c.Query("q"), States: c.Query("states"), Formats: c.Query("formats"), Sort: c.Query("sort"), Limit: limit})
 				reply(c, 200, v, e)
 			case "imports.detail", "batches.detail":
 				v, e := s.Import(ctx, a, scope, id)
@@ -150,6 +159,7 @@ func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
 					return
 				}
 				_ = http.NewResponseController(c.Writer).SetWriteDeadline(time.Now().Add(30 * time.Minute))
+				defer file.Close()
 				c.Header("Content-Type", file.ContentType)
 				c.Header("Content-Length", strconv.FormatInt(file.Size, 10))
 				c.Header("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": file.Name}))

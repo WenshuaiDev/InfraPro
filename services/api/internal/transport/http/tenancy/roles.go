@@ -13,7 +13,11 @@ func registerRoles(r *gin.Engine, i *identity.Service) {
 	s := i.Access()
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
-		return access.Meta{IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
+		command := ""
+		if len(c.Request.Header.Values("X-Command-ID")) == 1 {
+			command = c.GetHeader("X-Command-ID")
+		}
+		return access.Meta{IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID"), CommandID: command, CommandRequired: true}
 	}
 	f := func(c *gin.Context) access.Filter {
 		x := filter(c)

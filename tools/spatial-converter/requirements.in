@@ -1,0 +1,5 @@
+ifcopenshell==0.9.0.post1
+pypdfium2==5.15.2
+Pillow==13.0.0
+numpy==2.5.4
+reportlab==5.1.0

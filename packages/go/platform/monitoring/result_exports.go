@@ -27,7 +27,6 @@ type ManagedExportRecord struct {
 	SourceVersion string    `json:"source_version_id"`
 	Format        string    `json:"format"`
 	ExpiresAt     time.Time `json:"expires_at"`
-	manifest      string
 	invalidated   bool
 }
 type ResultExportSpec struct {
@@ -97,7 +96,7 @@ func (s *Service) ResultExportTx(ctx context.Context, tx pgx.Tx, scope Scope, id
 		return out, notFound()
 	}
 	var job string
-	e := tx.QueryRow(ctx, `SELECT e.id::text,e.job_id::text,e.source_kind,COALESCE(e.artifact_version_id,e.generation_id)::text,e.format,e.expires_at,COALESCE(e.manifest_object,''),e.invalidated_at IS NOT NULL,CASE WHEN e.source_kind='derived_evidence' THEN 'inputs' ELSE COALESCE(j.input->>'content','results') END FROM monitoring_exports e JOIN monitoring_jobs j ON j.tenant_id=e.tenant_id AND j.id=e.job_id WHERE e.tenant_id=$1 AND e.id=$2 AND e.source_kind IN ('analysis','derived_evidence') AND j.actor_id=$3 AND j.project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, id, actor, nullable(scope.Project)).Scan(&out.ID, &job, &out.SourceKind, &out.SourceVersion, &out.Format, &out.ExpiresAt, &out.manifest, &out.invalidated, &out.Content)
+	e := tx.QueryRow(ctx, `SELECT e.id::text,e.job_id::text,e.source_kind,COALESCE(e.artifact_version_id,e.generation_id)::text,e.format,e.expires_at,e.invalidated_at IS NOT NULL,CASE WHEN e.source_kind='derived_evidence' THEN 'inputs' ELSE COALESCE(j.input->>'content','results') END FROM monitoring_exports e JOIN monitoring_jobs j ON j.tenant_id=e.tenant_id AND j.id=e.job_id WHERE e.tenant_id=$1 AND e.id=$2 AND e.source_kind IN ('analysis','derived_evidence') AND j.actor_id=$3 AND j.project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, id, actor, nullable(scope.Project)).Scan(&out.ID, &job, &out.SourceKind, &out.SourceVersion, &out.Format, &out.ExpiresAt, &out.invalidated, &out.Content)
 	if e == pgx.ErrNoRows {
 		return out, notFound()
 	}
@@ -173,7 +172,7 @@ func (s *Service) GenerateResultExport(ctx context.Context, lease TaskLease, spe
 		if tag.RowsAffected() != 1 {
 			return problem("export_invalidated", "导出已失效。", 409)
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$2,error_code=NULL,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, lease.job.ID, encodeJSON(map[string]string{"phase": "complete", "rows": countText(volumes.total), "files": strconv.Itoa(volumes.part)}))
+		e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "complete", "rows": countText(volumes.total), "files": strconv.Itoa(volumes.part)})
 		return e
 	})
 }
@@ -188,10 +187,21 @@ func (s *Service) loadResultExport(ctx context.Context, r ManagedExportRecord, g
 	if e := r.CheckAvailable(); e != nil {
 		return out, e
 	}
-	if r.Job.State != "succeeded" || r.manifest == "" {
+	if r.Job.State != "succeeded" {
 		return out, problem("export_not_ready", "导出尚未完成，请查看任务状态。", 409)
 	}
-	if e := s.storage.summaryObject(ctx, r.manifest, &out, true); e != nil {
+	// Object locators are only read for an explicitly authorized content request.
+	// Metadata adapters and the audit worker do not need that SQL privilege.
+	var key string
+	if e := s.db(ctx, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT COALESCE(manifest_object,'') FROM monitoring_exports WHERE id=$1 AND job_id=$2 AND invalidated_at IS NULL AND expires_at>clock_timestamp()`, r.ID, r.Job.ID).Scan(&key)
+	}); e != nil {
+		return out, e
+	}
+	if key == "" {
+		return out, problem("export_not_ready", "导出尚未完成，请查看任务状态。", 409)
+	}
+	if e := s.storage.summaryObject(ctx, key, &out, true); e != nil {
 		return out, storageError(e)
 	}
 	if out.Manifest.ID != r.ID || out.Manifest.SourceKind != r.SourceKind || out.Manifest.SourceVersion != r.SourceVersion || out.Manifest.Format != r.Format || !out.Manifest.ExpiresAt.Equal(r.ExpiresAt) || len(out.Manifest.Files) != len(out.Objects) {

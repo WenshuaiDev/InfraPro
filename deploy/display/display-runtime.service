@@ -1,0 +1,21 @@
+[Unit]
+Description=InfraPro display runtime
+After=network-online.target
+[Service]
+User=infrapro
+WorkingDirectory=/opt/infrapro
+EnvironmentFile=/etc/infrapro/runtime.env
+Environment=INFRAPRO_CONFIG=/etc/infrapro/infrapro.yaml
+ExecStart=/opt/infrapro/build/bin/display-runtime
+Restart=on-failure
+RestartSec=5
+MemoryMax=1G
+CPUQuota=200%
+TasksMax=128
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/infrapro/display-tmp
+[Install]
+WantedBy=multi-user.target

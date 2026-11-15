@@ -17,7 +17,13 @@ import (
 )
 
 type Config struct {
-	Derived Derived
+	Audit                                                       Audit
+	Files                                                       Files
+	Tasks                                                       Tasks
+	Display                                                     Display
+	SpatialBasemaps                                             []SpatialBasemap
+	SpatialPython, SpatialConverterScript, SpatialTempDirectory string
+	Derived                                                     Derived
 	foundation.Config
 	Monitoring                                                                                Monitoring
 	DatabaseURL, RedisURL, RedisKeyPrefix                                                     string
@@ -32,6 +38,19 @@ type Config struct {
 }
 
 type input struct {
+	Audit                      auditInput   `yaml:"audit"`
+	Files                      filesInput   `yaml:"files"`
+	Tasks                      tasksInput   `yaml:"tasks"`
+	NotificationBatch          string       `yaml:"notification_batch"`
+	NotificationAttempts       string       `yaml:"notification_attempts"`
+	NotificationLease          string       `yaml:"notification_lease"`
+	NotificationPoll           string       `yaml:"notification_poll"`
+	NotificationBackoff        string       `yaml:"notification_backoff"`
+	Display                    displayInput `yaml:"display"`
+	SpatialBasemaps            string       `yaml:"spatial_basemaps"`
+	SpatialPython              string       `yaml:"spatial_python"`
+	SpatialConverterScript     string       `yaml:"spatial_converter_script"`
+	SpatialTempDirectory       string       `yaml:"spatial_temp_directory"`
 	Derived                    derivedInput `yaml:"derived"`
 	MonitoringTaskLease        string       `yaml:"monitoring_task_lease"`
 	MonitoringTaskHeartbeat    string       `yaml:"monitoring_task_heartbeat"`
@@ -82,7 +101,7 @@ type input struct {
 }
 
 func loadInput(path string) (input, error) {
-	raw := input{Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
+	raw := input{Audit: defaultAuditInput(), Files: defaultFilesInput(), Tasks: defaultTasksInput(), Display: defaultDisplayInput(), Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
 		MonitoringHotDays: "90", MonitoringOnlineVolume: "online", MonitoringDatabase: "infrapro_monitoring", MonitoringUser: "default", MonitoringPolicy: "monitoring_tiered", MonitoringTLS: "false", MonitoringExportRows: "1000000", MonitoringExportBytes: "268435456",
 		PublicConsoleURL: "http://127.0.0.1:5173/",
 		TrustedOrigins:   "http://127.0.0.1:5173", CookieSecure: "false",
@@ -105,7 +124,7 @@ func loadInput(path string) (input, error) {
 	}
 	v := reflect.ValueOf(&raw).Elem()
 	typ := v.Type()
-	for i := 1; i < v.NumField(); i++ {
+	for i := 0; i < v.NumField(); i++ {
 		if v.Field(i).Kind() != reflect.String || typ.Field(i).Tag.Get("yaml") == "public_screen_url" {
 			continue
 		}
@@ -114,6 +133,10 @@ func loadInput(path string) (input, error) {
 		}
 	}
 	derivedEnvironment(&raw.Derived)
+	displayEnvironment(&raw.Display)
+	tasksEnvironment(&raw.Tasks)
+	auditEnvironment(&raw.Audit)
+	filesEnvironment(&raw.Files)
 	return raw, nil
 }
 
@@ -152,6 +175,23 @@ func Load(path string) (Config, error) {
 		return Config{}, err
 	}
 	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	c.Files, err = parseFiles(raw.Files)
+	if err != nil {
+		return c, err
+	}
+	c.Audit, err = parseAudit(raw.Audit)
+	if err != nil {
+		return c, err
+	}
+	c.Tasks, err = parseTasks(raw.Tasks)
+	if err != nil {
+		return c, err
+	}
+	c.SpatialPython, c.SpatialConverterScript, c.SpatialTempDirectory = raw.SpatialPython, raw.SpatialConverterScript, raw.SpatialTempDirectory
+	c.SpatialBasemaps, err = spatialBasemaps(raw.SpatialBasemaps)
+	if err != nil {
+		return c, err
+	}
 	c.Derived, err = resolveDerived(raw.Derived)
 	if err != nil {
 		return c, err
@@ -217,6 +257,10 @@ func Load(path string) (Config, error) {
 	if err != nil || c.CookieSecure {
 		return c, fmt.Errorf("cookie_secure must be false for this HTTP deployment")
 	}
+	c.Display, err = resolveDisplay(raw.Display, c.PublicConsoleURL, c.CookieSecure)
+	if err != nil {
+		return c, err
+	}
 	for name, pair := range map[string]struct {
 		raw string
 		dst *time.Duration
@@ -236,6 +280,20 @@ func Load(path string) (Config, error) {
 		if err != nil || *pair.dst < 1 {
 			return c, fmt.Errorf("%s must be a positive integer", name)
 		}
+	}
+	return c, nil
+}
+
+// LoadSpatialStorage resolves the private object adapter without requiring a
+// ClickHouse connection, HTTP session keys, or a conversion worker.
+func LoadSpatialStorage(path string) (Monitoring, error) {
+	raw, err := loadInput(path)
+	if err != nil {
+		return Monitoring{}, err
+	}
+	c := Monitoring{ObjectEndpoint: raw.MonitoringObjectEndpoint, ObjectAccessKey: raw.MonitoringObjectAccessKey, ObjectSecretKey: raw.MonitoringObjectSecretKey, Bucket: raw.MonitoringBucket}
+	if c.ObjectEndpoint == "" || c.ObjectAccessKey == "" || c.ObjectSecretKey == "" || c.Bucket == "" {
+		return c, fmt.Errorf("spatial object storage is not configured")
 	}
 	return c, nil
 }

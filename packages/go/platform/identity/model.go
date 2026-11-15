@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"net/http"
 	"regexp"
 	"strings"
@@ -19,7 +20,8 @@ type Error struct {
 	Fields  map[string]string
 }
 
-func (e *Error) Error() string { return e.Message }
+func (e *Error) Error() string   { return e.Message }
+func (e *Error) StatusCode() int { return e.Status }
 func problem(code, message string, status int) *Error {
 	return &Error{Code: code, Message: message, Status: status}
 }
@@ -46,6 +48,29 @@ func PublicError(err error) *Error {
 	var ae *access.Error
 	if errors.As(err, &ae) {
 		return &Error{Code: ae.Code, Message: ae.Message, Status: ae.Status, Fields: ae.Fields}
+	}
+	var public interface {
+		PublicCode() string
+		StatusCode() int
+		Error() string
+	}
+	if errors.As(err, &public) {
+		return &Error{Code: public.PublicCode(), Message: public.Error(), Status: public.StatusCode()}
+	}
+	classified := ar.ClassifyFailure(err)
+	if classified.Code != "operation_failed" {
+		message := "操作未完成，请通过请求编号核对。"
+		switch classified.Code {
+		case "command_id_required":
+			message = "请升级调用端并携带命令 ID。"
+		case "request_conflict":
+			message = "相同命令 ID 已用于不同内容，请核对操作意图。"
+		case "command_receipt_expired":
+			message = "该操作收据已到期，请核对原操作结果。"
+		case "operation_status_unknown":
+			message = "提交结果暂无法确认，请保留原命令 ID 核对，勿重复创建操作。"
+		}
+		return &Error{Code: classified.Code, Message: message, Status: classified.Status}
 	}
 	return ErrUnavailable
 }

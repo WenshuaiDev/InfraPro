@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"math/big"
 	"slices"
 	"strings"
@@ -63,6 +64,7 @@ type CalendarStatistic struct {
 	Partial  bool   `json:"partial"`
 }
 type AnalyticResult struct {
+	TaskRef     *taskrecord.Ref       `json:"task_ref,omitempty"`
 	State       string                `json:"state"`
 	Snapshot    Snapshot              `json:"snapshot"`
 	JobID       string                `json:"job_id,omitempty"`

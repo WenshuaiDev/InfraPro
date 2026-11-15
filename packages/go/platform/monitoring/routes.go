@@ -98,7 +98,10 @@ func operatorAuditTx(ctx context.Context, tx pgx.Tx, tenant, operation, target, 
 		trace = uuid.NewString()
 	}
 	_, e := tx.Exec(ctx, `INSERT INTO monitoring_audit(tenant_id,operation,target_id,reason,trace_id,summary) VALUES($1,$2,$3,$4,$5,$6)`, tenant, operation, target, reason, trace, encodeJSON(value))
-	return e
+	if e != nil {
+		return e
+	}
+	return access.Audit(ctx, tx, "monitoring."+operation, "monitoring_maintenance", target, "", nil, value, access.Meta{ActorType: "maintenance", ActorScope: "tenant", TenantID: tenant, Reason: reason, RequestID: trace})
 }
 func (s *Service) CreateRelocation(ctx context.Context, p RoutePlan, reason string) (Relocation, error) {
 	var out Relocation

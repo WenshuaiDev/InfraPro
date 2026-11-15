@@ -1,6 +1,6 @@
 # InfraPro 技术选型
 
-基线：2026-11-12。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据依用户确认方案新增的组件见第8节；本机验证及目标部署待验证项另行记录。[第9节](#spatial-technology)单独列出下一轮空间可视化的规划选型，尚未安装或实现。
+基线：2026-11-13。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据组件见第8节，空间可视化实现及固定依赖见[第9节](#spatial-technology)。本机自验不代表生产部署或人工验收。
 
 ## 1 选型原则
 
@@ -74,7 +74,7 @@
 
 1. 当前认证属于 InfraPro，本项目不接入跨系统身份平台、OIDC、SSO 或新的 MFA 流程。
 2. 当前交付为 HTTP 同源部署，Cookie 的 `Secure=false`；HTTPS、证书和传输加密升级是另行需求，不能只改 Cookie 选项而声称已支持。
-3. 工程位置使用受校验的结构化字段；当前未采用 PostGIS、地图引擎或坐标转换库。下一轮计划见[空间选型](#spatial-technology)；桩号及未知局部坐标仍不能推导虚构 GIS 结果。
+3. 工程位置使用受校验的结构化字段；空间工作台使用 OpenLayers 处理二维地图与明确的 EPSG:4326／3857 转换，未引入 PostGIS。桩号及未知局部坐标不能推导虚构 GIS 结果。
 4. 权限和来源变更使用 PostgreSQL 短事务及共享协调锁，不引入分布式锁、跨库授权同步或隐式最终一致放行。
 5. 模板和产品采用不可变版本、独立启停和固定依赖；没有审批引擎、任意公式解释器或在线协议执行器。
 6. 监测数据的存储、导入、趋势、统计及集群方案以[总体方案](requirements/monitoring-data-foundation-plan.md)和[详细方案](requirements/monitoring-data-development-plan.md)为准。实施与用户的本机优先调整记录在原路径，目标规模与部署验证仍未完成。
@@ -99,9 +99,9 @@
 
 <a id="spatial-technology"></a>
 
-## 9 工程空间可视化规划选型（未实现）
+## 9 工程空间可视化技术
 
-总体方向已获用户认可，本次仅整理方案。范围见[SV-01–SV-10](requirements.md#spatial-scope)，具体数据流和接口见[空间详细设计](architecture.md#spatial-design)。以下为后续开发采用的技术方向，不表示依赖已安装、版本已锁定或兼容性已验证。
+完整方案于 2026-11-13 获用户确认并授权实施。范围见[SV-01–SV-10](requirements.md#spatial-scope)，数据流和接口见[空间详细设计](architecture.md#spatial-design)，实际测试见[自验记录](verification/spatial-visualization.md)。
 
 | 技术 | 使用位置与方式 | 选择理由及明确限制 |
 | --- | --- | --- |
@@ -109,15 +109,53 @@
 | OpenLayers | 二维地图／GeoJSON 图层，以及使用独立图面坐标的布设图浏览。 | 同一引擎承担图层、缩放、选中和定位；官方有自定义图片坐标示例，不把图面位置当成经纬度。[官方示例](https://openlayers.org/en/latest/examples/static-image.html) |
 | OpenLayers `ol/proj` | EPSG:4326／3857 显示转换及明确坐标对象。 | 只接入本轮声明的转换；其他工程 CRS、垂直基准和供应商偏移不作隐式等价。[投影 API](https://openlayers.org/en/latest/apidoc/module-ol_proj.html) |
 | Three.js、GLTFLoader、Raycaster | 设施级 GLB 显示、相机、命中、对象高亮、模型标记和基础剖切。 | 前端只渲染与交互，持久业务身份由版本映射解释；解码器／纹理同源托管。[GLTFLoader](https://threejs.org/docs/pages/GLTFLoader.html)、[Raycaster](https://threejs.org/docs/pages/Raycaster.html) |
-| Python＋IfcOpenShell／IfcConvert | 独立转换进程解析 IFC，生成 GLB、源构件树、属性索引及命中映射；同时制作合成 IFC 资料。 | 几何与语义分别保留、同版封存；不能只靠文件转 GLB 就声称保留 BIM。[转换文档](https://docs.ifcopenshell.org/ifcconvert/usage)、[属性 API](https://docs.ifcopenshell.org/autoapi/ifcopenshell/util/element/index.html#ifcopenshell.util.element.get_psets) |
+| Python＋IfcOpenShell | 独立转换进程使用 IfcOpenShell 几何及属性 API 解析 IFC，生成 GLB、源构件树、属性索引及命中映射；同时制作合成 IFC 资料。 | 几何与语义分别保留、同版封存；未依赖另装的 IfcConvert 可执行文件。[属性 API](https://docs.ifcopenshell.org/autoapi/ifcopenshell/util/element/index.html#ifcopenshell.util.element.get_psets) |
 | pypdfium2／PDFium | 在隔离处理进程将 PDF 页渲染成归一化图面及浏览图片。 | 浏览无需获得原 PDF，便于独立原件权限；PDFium 不允许并发多线程调用，采用进程并发。[官方 API](https://pypdfium2.readthedocs.io/en/stable/python_api.html) |
 | Go、pgx、Goose、PostgreSQL | 现有 API module 增加 spatial 领域包与独立 worker；元数据、关系、版本、任务、授权和审计采用 PG 事务。 | 保留当前身份和授权规则；本轮不增加 PostGIS，普通包围框候选与地理显示不冒充专业空间分析。 |
 | 现有 S3 兼容服务／minio-go | 保存来源及浏览产物；以独立空间命名和清单管理，不复用监测原文件的访问授权。 | 复用实际 SeaweedFS 基础设施，提取有限 BlobStore 适配；受控同源流式读取，不提供长期裸对象地址。 |
 | 现有 monitoring／派生 Provider／ECharts | 按获准对象查询原始或派生最新值、趋势和状态；成果由分析模块公开读取。 | ClickHouse继续由监测模块拥有；空间模块不另建序列、计算器或图表统计口径。 |
 | Go test、Playwright、既有契约检查 | 格式／坐标／引用与权限集成、真实浏览、撤权竞争、换版与恢复。 | Codex 自制真实文件经过正式处理管线；模拟器只能用于故障注入，不能代替端到端结果。 |
 
-新增第三方依赖和转换环境将在实际实施时锁定版本及镜像／构建摘要，核对原生依赖与许可证，更新第三方来源清单。当前不为规划修改 package.json、锁文件、Go module、镜像或权限目录；新技术也不构成升级现有框架的理由。
+实际固定版本：OpenLayers `10.11.0`、Three.js `0.187.0`，由 console package 与 `pnpm-lock.yaml` 锁定；Python `3.12` 环境使用 IfcOpenShell `0.9.0.post1`、pypdfium2 `5.15.2`、Pillow `13.0.0`、NumPy `2.5.4` 和仅供样本生成的 ReportLab `5.1.0`，完整传递依赖及 SHA-256 保存于 `tools/spatial-converter/requirements.lock`。来源及许可见[第三方清单](../third-party/README.md#空间可视化)。
+
+`deploy/docker/spatial.Dockerfile` 构建同一 API／独立 worker 镜像，采用 Python 3.12 的 Debian trixie 基础环境、非 root 用户、`libgomp1` 和完整哈希安装。该 IfcOpenShell Linux wheel 需要较新的 glibc，bookworm 不满足；构建中执行真实导入检查，转换在独立受限子进程运行。镜像实际构建摘要和样本转换结果随本次自验记录保存；目标生产环境尚未部署。
 
 MapLibre 和 web-ifc 是可行替代路线，本轮不同时引入。CesiumJS／3D Tiles 留给完整三维地理场景；它们不是设施局部模型浏览的必备依赖。相关能力及官方来源保留在[研究说明](requirements/spatial-visualization-technical-research.md)，研究中的候选说明不覆盖本节的规划选择。
 
-**交付不依赖用户提供资料。** 后续 Codex 使用工程几何定义／脚本生成 PNG、JPEG、PDF、GLB、IFC、GeoJSON、本地示例瓦片和多版本样本。图纸／模型生成是开发与演示准备，不是产品提供建模功能。成果标识合成示例；无第三方地图密钥时仍有完整的本地演示路径，外部商业底图配置不作为这轮功能验收前提。
+**交付不依赖用户提供资料。** 已使用脚本生成 PNG、JPEG、PDF、GLB、IFC、GeoJSON、本地示例瓦片和多版本／异常样本。图纸／模型生成用于开发与演示准备，产品本身不提供建模功能。样本标识为合成示例；不配置第三方地图密钥也可完成本地演示。
+
+<a id="in-app-notifications"></a>
+
+## 10 站内通知技术选择
+
+沿用仓库当前已锁定依赖，不引入消息中间件或新的 UI 框架。业务规则见[需求](requirements.md#in-app-notifications)，模块和事务见[架构](architecture.md#in-app-notifications)。
+
+| 技术 | 本轮使用位置与理由 |
+| --- | --- |
+| Go、pgx、Gin | 中性事实写入接入原 pgx.Tx，独立 Go worker 投递；Gin 人员 API 复用身份、CSRF、错误和路由策略。 |
+| PostgreSQL、Goose | 来源事实／接收快照、租约 fence、个人接收序号与修订、状态、偏好、条件、桥接收据；增量迁移 36，支持事务回滚、重复领取、备份恢复。 |
+| React、TypeScript、TanStack Query/Router | 账号级铃铛／中心、共享查询和取消、15s/5s 轮询、白名单原业务导航；复用既有登录失效及授权缓存边界。 |
+| 现有 UI/layouts、Tailwind | headerActions 注入，语义未读提示、键盘和手机布局；共享布局不查询业务数据。 |
+| OpenAPI／既有生成工具 | 通知与个人邀请操作、权限策略、TS 客户端同步；生成检查作为发布自验。 |
+| Go race、真实 PG、Node、Playwright | 事务／租约／竞争／迟提交／备份恢复、客户端取消和实际业务浏览器；合成文件走正式管线。 |
+
+短轮询是本轮明确的交互方案，可靠性来自持久数据库。worker 不需要 Redis、ClickHouse、S3、空间转换器、WebSocket 或 SSE；原业务处理仍依赖各自存储。大屏订阅流和人员通知身份不同，不复用 SDK ack 或终端会话实现已读。生产容量、自动保留期限和实时推送扩展另行验证，不从功能样本推出吞吐保证。
+
+## 文件与附件技术
+
+沿用 Go/Gin/pgx/PostgreSQL 与私有 S3，新增独立 Go worker/checker；普通文件无需 ClickHouse。Go 标准库完成图片重新编码与 Office ZIP/XML 有界核验，Linux seccomp/rlimit 配合容器或 systemd 隔离。React/TypeScript 使用 Web Worker 增量 SHA-256、AbortSignal、TanStack Query 和纯 UI 模式组件；不引入全文件 WebCrypto 缓冲、公共对象 URL 或预签名下载旁路。运行配置与平台限制见 operations/files-and-attachments.md。
+# 审计与操作追踪技术补充（2026-11-14）
+
+沿用 Go、PostgreSQL、React／TypeScript 和现有 S3 协议，不增加消息队列或独立审计搜索集群。Go 的 `auditrecord` 在来源事务中写事实；`audit` 用 pgx 事务、MVCC、租约和 fence 完成查询、固定快照与任务执行。PostgreSQL 保存事实、明确关联、授权向量、收据和物化行；S3 只保存注册的私有 CSV，不能作为事实真相或授权判断来源。
+
+React 工作区复用现有表格、响应式弹层和 DomainFiles，TanStack Query／Router 保存有界 URL 条件并隔离账号空间缓存。OpenAPI 从 Go DTO／权限目录生成，TypeScript 客户端只消费生成模型。CSV 使用标准 encoding/csv、UTF-8 BOM 和公式转义，文件大小和快照预算在生成过程中执行。
+
+独立 Go worker 使用 PostgreSQL 领取及持久重试，不引入 Redis 队列。Redis 仍只承担既有身份功能。业务元数据 Adapter 不启动 ClickHouse、S3 或文件检查器；导出／下载按需要检查其依赖。部署预算见 `deploy/audit/worker.example.yaml`，只允许下调上限。
+
+验证使用真实隔离 PostgreSQL schema、私有 S3 桶、实际来源 worker、Playwright 浏览器和 Go race detector；恢复用 pg_dump／pg_restore 到独立数据库并复制／校验实际对象。纯状态测试的替身不替代完整来源验证。具体证据和未覆盖的生产运行条件见[验收账本](verification/audit-and-operation-tracing.md)。
+
+## 独立诊断技术（2026-11-14）
+
+Go 1.27 net/http 提供独立 server 与 observer，bbolt 1.5 保存本机有限历史及顺序屏障，不新增业务 migration。Argon2id 保存人员密码散列，crypto/tls 校验证书，securefile 使用 no-follow、编辑锁和原子替换保护配置。gopsutil 与 Linux cgroup 分别采集进程、宿主和容器资源；godbus 只读取 systemd 固定属性，Docker 限制为固定 GET。pgx、go-redis、clickhouse-go 与 minio-go 只执行登记的固定探针。
+
+React 19、TypeScript、TanStack Router/Query 和现有 UI/layouts 构建独立页面；客户端只消费 diagnostics OpenAPI。Vite 参与构建及显式开发，release 将资源嵌入 Go；Docker 最终镜像没有 Node。Compose/systemd 生命周期独立于业务。版本由 go.mod 和工作区 lockfile 固定；真实 owning process、TLS 网络、实际容器及私有 D-Bus 契约证据不代表已验证真实多服务器或 systemd unit。

@@ -1,6 +1,6 @@
 # Working Agreement
 
-Use small, independently testable iterations focused on current needs. The user provides requirements and final manual acceptance; Codex owns proposals, implementation, and self-verification.
+Use small, independently testable iterations as internal steps toward the complete requested goal. The user provides requirements and final manual acceptance; Codex owns proposals, implementation, and self-verification.
 
 ## Global Constraints
 
@@ -10,6 +10,15 @@ Work in the current branch and checkout by default. These constraints apply proj
 - **Git worktrees:** Never create a Git worktree unless the user's prompt explicitly requests worktree creation.
 
 Authorization for one action does not authorize the other. General implementation, task-isolation, or parallel-work requests do not authorize either action.
+
+### Continuous Goal Execution
+
+- **Full scope:** Carry the entire user-requested goal through implementation and self-verification. Internal phases, milestones, and iterations do not authorize partial delivery or deferring remaining requirements. Only the user may reduce the requested scope.
+- **Continuous execution:** While authorized work remains actionable, continue directly to the next implementation, integration, documentation, or verification step. Do not ask the user to say "continue" for work already requested.
+- **Progress without ending:** Use intermediate commentary for progress, partial results, and remaining work. Never voluntarily issue a final response or end the turn at an unfinished milestone, even when the goal runner would automatically restart execution. Automatic continuation is not a substitute for completing the goal before returning.
+- **Final-response gate:** Before final delivery, check every requirement in the full requested scope against implementation and verification evidence. All required work and self-checks must be complete, failures resolved, and delivery materials ready. A subset of passing tests or a completed phase does not satisfy this gate. Manual user acceptance remains a separate step and must not be claimed in advance.
+- **Questions and blockers:** Ask necessary questions through an available in-progress input mechanism, keep dependent work pending, and continue unaffected work. Diagnose and recover from ordinary failures. A blocker report must identify the actual missing input or external dependency and must not present an unfinished goal as delivered.
+- **Interruptions:** Respect an explicit user pause or cancellation and mandatory platform limits. These are interruptions, not successful completion. Context compaction is not a reason to stop; after recovery, retain the original goal, completed work, and remaining requirements and continue. Never deliberately end a turn to trigger automatic restart or to turn a partial milestone into a handoff.
 
 ## Workflow
 

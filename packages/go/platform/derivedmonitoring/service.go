@@ -127,6 +127,9 @@ func (s *Service) transact(ctx context.Context, a access.Actor, scope Scope, act
 		return notFound()
 	}
 	op := access.DerivedOperation(scope.Entry, action)
+	if e := access.CheckReadBoundary(a, scope.Entry, op, write); e != nil {
+		return e
+	}
 	err := s.access.Transact(ctx, func(tx pgx.Tx) error {
 		policy, ok := access.PolicyFor(op)
 		if !ok || a.Check == nil {
@@ -142,7 +145,7 @@ func (s *Service) transact(ctx context.Context, a access.Actor, scope Scope, act
 			return e
 		}
 		if scope.Entry == "project" {
-			if _, e := access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project); e != nil {
+			if _, e := access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project); e != nil {
 				return e
 			}
 		} else {

@@ -1,0 +1,28 @@
+[Unit]
+Description=InfraPro independent node observer
+After=network.target
+
+[Service]
+Type=simple
+User=infrapro-observer
+Group=infrapro-observer
+ExecStart=/usr/local/bin/infrapro-diagnostics observer --config /etc/infrapro/observer/observer.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+StateDirectory=infrapro-observer
+StateDirectoryMode=0700
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/infrapro-observer
+LimitNOFILE=1024
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

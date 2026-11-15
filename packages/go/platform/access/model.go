@@ -2,6 +2,7 @@ package access
 
 import (
 	"errors"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"regexp"
 	"strings"
 	"time"
@@ -75,7 +76,13 @@ type Page[T any] struct {
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }
-type Meta struct{ ActorID, ActorType, IP, UserAgent, RequestID, Reason, TenantID, ProjectID, ActorScope string }
+type Meta struct {
+	AuditLinks                                                                            []ar.Link
+	ActorID, ActorType, IP, UserAgent, RequestID, Reason, TenantID, ProjectID, ActorScope string
+	CommandID                                                                             string
+	CommandRequired                                                                       bool
+	command                                                                               *mutationCommand
+}
 type AuditEvent struct {
 	ID         string         `json:"id"`
 	ProjectID  string         `json:"project_id"`
@@ -113,3 +120,6 @@ type AuditDisplay struct {
 }
 
 func denied(err error) bool { return errors.Is(err, ErrDenied) || errors.Is(err, ErrScope) }
+
+// StatusCode allows cross-module metadata adapters to distinguish hidden data from outages.
+func (e *Error) StatusCode() int { return e.Status }

@@ -16,7 +16,7 @@ export function RoleActions({ name, actions, id }: { name: string; actions: Role
   const trigger = useRef<HTMLButtonElement>(null);
   const openingPanel = useRef(false);
   return <DropdownMenu><DropdownMenuTrigger asChild><Button id={id} ref={trigger} data-role-actions variant="ghost" size="icon" className="size-9 max-sm:size-11" aria-label={`${name}的操作`}><MoreHorizontal aria-hidden="true" /></Button></DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-48" onCloseAutoFocus={(event) => { if (openingPanel.current) { event.preventDefault(); openingPanel.current = false; } }}><DropdownMenuLabel>角色操作</DropdownMenuLabel><DropdownMenuSeparator />{actions.map((action) => <DropdownMenuItem key={action.label} disabled={action.disabled} className={action.destructive ? 'text-destructive focus:text-destructive' : undefined} onSelect={() => { openingPanel.current = true; action.run(trigger.current); }}>{action.label}</DropdownMenuItem>)}</DropdownMenuContent>
+    <DropdownMenuContent align="end" className="w-48" onEscapeKeyDown={event => event.stopPropagation()} onCloseAutoFocus={(event) => { if (openingPanel.current) { event.preventDefault(); openingPanel.current = false; } }}><DropdownMenuLabel>角色操作</DropdownMenuLabel><DropdownMenuSeparator />{actions.map((action) => <DropdownMenuItem key={action.label} disabled={action.disabled} className={action.destructive ? 'text-destructive focus:text-destructive' : undefined} onSelect={() => { openingPanel.current = true; action.run(trigger.current); }}>{action.label}</DropdownMenuItem>)}</DropdownMenuContent>
   </DropdownMenu>;
 }
 

@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:manifest",
+  "additionalProperties": false,
+  "properties": {
+    "components": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "expectation": {
+            "enum": [
+              "continuous",
+              "on_demand",
+              "disabled",
+              "external"
+            ],
+            "type": "string"
+          },
+          "expectation_reason": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "application",
+              "worker",
+              "database",
+              "cache",
+              "object_store",
+              "gateway",
+              "tool",
+              "diagnostics"
+            ],
+            "type": "string"
+          },
+          "min_ready_replicas": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "kind",
+          "expectation",
+          "min_ready_replicas"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "dependencies": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_mode": {
+            "enum": [
+              "self_report",
+              "shared_network",
+              "external_probe"
+            ],
+            "type": "string"
+          },
+          "from_replica_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "probe_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "to_component_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "from_replica_id",
+          "to_component_id",
+          "probe_id",
+          "required",
+          "evidence_mode"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "display_name": {
+      "maxLength": 80,
+      "minLength": 1,
+      "type": "string"
+    },
+    "endpoints": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "display_name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "purpose": {
+            "enum": [
+              "liveness",
+              "readiness",
+              "serving",
+              "storage",
+              "asset",
+              "control_plane"
+            ],
+            "type": "string"
+          },
+          "replica_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "replica_id",
+          "purpose",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "nodes": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_revision": {
+            "pattern": "^(0|[1-9][0-9]{0,19})$",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "physical",
+              "vm",
+              "container",
+              "logical_test",
+              "external"
+            ],
+            "type": "string"
+          },
+          "parent_node_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "resource_scope": {
+            "enum": [
+              "host",
+              "vm",
+              "container",
+              "none"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "kind",
+          "resource_scope",
+          "assignment_revision",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "probes": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "adapter": {
+            "enum": [
+              "clickhouse",
+              "docker_container",
+              "host_resources",
+              "http_live",
+              "http_ready",
+              "keeper_live",
+              "native_process",
+              "postgres",
+              "redis",
+              "s3",
+              "self_report",
+              "systemd_unit",
+              "tcp"
+            ],
+            "type": "string"
+          },
+          "binding_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "facet": {
+            "enum": [
+              "presence",
+              "readiness",
+              "loop",
+              "resource"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "interval_ms": {
+            "maximum": 300000,
+            "minimum": 1000,
+            "type": "integer"
+          },
+          "node_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "stale_after_ms": {
+            "maximum": 900000,
+            "minimum": 3000,
+            "type": "integer"
+          },
+          "target_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "target_kind": {
+            "enum": [
+              "node",
+              "replica",
+              "endpoint",
+              "dependency"
+            ],
+            "type": "string"
+          },
+          "timeout_ms": {
+            "maximum": 5000,
+            "minimum": 100,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "node_id",
+          "target_kind",
+          "target_id",
+          "adapter",
+          "binding_id",
+          "facet",
+          "required",
+          "interval_ms",
+          "timeout_ms",
+          "stale_after_ms"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "replicas": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "component_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "expectation": {
+            "enum": [
+              "continuous",
+              "on_demand",
+              "disabled",
+              "external"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "node_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "required_probe_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "component_id",
+          "node_id",
+          "expectation",
+          "required_probe_ids"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "revision": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instance_id",
+    "revision",
+    "display_name",
+    "nodes",
+    "components",
+    "replicas",
+    "endpoints",
+    "dependencies",
+    "probes"
+  ],
+  "type": "object"
+}

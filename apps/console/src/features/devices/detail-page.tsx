@@ -1,3 +1,4 @@
+import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { ArrowLeft, Package, Radio } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -42,7 +43,7 @@ export function DeviceContent({ device, search, onSearch, embedded = false, onDe
     ...(device.actions.state ? [{ label: device.status === 'enabled' ? '停用设备' : '启用设备', disabled: !available, opensPanel: true, run: (trigger: HTMLButtonElement | null) => { returnFocus.current = trigger; setPanel('state'); } }] : []),
     ...(device.actions.delete ? [{ label: '删除设备', disabled: !available, opensPanel: true, run: (trigger: HTMLButtonElement | null) => { returnFocus.current = trigger; setPanel('delete'); } }] : []),
   ];
-  const headerActions = <div className="flex items-center gap-2">
+  const headerActions = <div className="flex items-center gap-2"><ObjectHistory objectType="device" objectId={device.id}/>
     {device.actions.edit && <Button id="edit-device" variant="outline" disabled={!available} onClick={(event) => { returnFocus.current = event.currentTarget; setPanel('edit'); }}>编辑档案</Button>}
     {(device.actions.state || device.actions.delete) && <DirectoryActions id="device-actions" name="设备" actions={actions} />}
   </div>;

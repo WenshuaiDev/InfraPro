@@ -30,3 +30,19 @@ GOWORK=off go build -o ../../build/bin/infrapro ./cmd/infrapro
 ## 派生监测与分析
 
 `pnpm infrapro monitoring derived --help` 提供就绪检查、状态、只读对账／恢复核对，以及通过真实 API 会话执行的暂停、恢复、历史回算和原依据回放。业务命令使用受保护的会话文件及预览收据，不能通过账号 ID 冒充登录。完整步骤和权限边界见[派生监测与分析使用、维护说明](../../docs/operations/derived-monitoring-and-analysis.md)。
+
+## 空间资料维护
+
+`pnpm infrapro spatial verify --tenant <id>` 校验固定版本清单及私有对象大小／SHA-256；`--apply --reason <原因>` 隔离缺失内容或在恢复原字节后恢复可用标记，并写维护审计。仅需数据库与空间对象存储配置；暂时网络错误不改隔离状态。详见[空间运行与恢复](../../docs/operations/spatial-visualization.md)。
+
+## 大屏包维护
+
+`pnpm infrapro display --help` 提供 `backup-manifest`（对象清单）、`verify-storage`（逐文件核验并标记 missing／恢复 ready）、`reclaim`（按引用清理临时对象）和 `restore-invalidate`（更换环境代次并失效旧会话、终端及游标）。这些是部署运维命令，使用受保护的服务配置，不接受人员 ID 冒充登录；完整顺序见[大屏运行与恢复](../../docs/operations/visualization-display.md)。
+
+## 站内通知维护
+
+`pnpm infrapro notifications status` 显示积压、失败原因、最近心跳与大屏交接状态；`check --worker --max-age 1m` 检查协议及心跳。`inspect --event <UUID>` 查看无正文的处理结果，`replay --event <UUID> --reason <原因>` 或 `replay --handoff <UUID> --reason <原因>` 在修复后重放失败记录，保留原接收集和已读状态并单独审计。不提供任意文本／接收人发送入口。完整顺序见[通知运维](../../docs/operations/in-app-notifications.md)。
+
+## 任务索引维护
+
+`pnpm infrapro tasks status` 查询来源回填、交接和 worker 心跳；`backfill --source all` 或 `reconcile --source module:kind` 分批对账；`verify` 检查来源／历史一致性；`replay-handoff --id UUID --reason 原因` 仅重放失败元数据交接。完整备份恢复后执行 `restore-epoch --reason 原因` 废弃旧游标和索引租约，再对账。CLI 不重跑业务任务、不发送结果通知。独立 SQL 角色和升级顺序见[任务运维](../../docs/operations/task-center.md)。

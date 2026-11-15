@@ -1,0 +1,6 @@
+import {execFileSync} from 'node:child_process';
+import {ensureTestDependencies,testEnv} from './test-environment.mjs';
+ensureTestDependencies();
+execFileSync('docker',['compose','-f','deploy/monitoring-contract/compose.yaml','up','-d','--wait'],{stdio:'inherit'});
+const cases=['AnalysisAtomicMultiOutputVersionsAndChangedInputs','AnalysisWholeRangeProjectOwnershipHistoryAndArchive','DerivedFormalPublicationUsesSealedAttempts','DerivedSixteenDistinctInputsFormalAndReplay','DerivedTrialUsesRealSnapshotAndSharedTask','MonitoringCSVPublicationAndFixedDuplicateSet','MonitoringPublicationCommitFailureAndRecovery','MonitoringExpiredWorkerAndWholeBatchInvalidInput','MonitoringExportFixedSnapshotAndTypedParquet','MonitoringExportCommitFailureAndArchivedProject','SpatialRealFilesVersionsAndProjectBoundaries','SpatialRealModelSemanticAndFailurePipeline','SpatialUploadCancelAndProcessingFences','DisplayPackageWorkerLeastPrivilege','DisplayNotificationLateCommitAndFailedReplay'];
+execFileSync('go',['test','-race','-tags','monitoringintegration','-count=1','-v','-timeout=15m','./packages/go/platform/resources','-run',`^Test(${cases.join('|')})$`],{stdio:'inherit',env:{...process.env,...testEnv,INFRAPRO_SPATIAL_CONTRACT:'1',INFRAPRO_MONITORING_CONTRACT:'1'}});

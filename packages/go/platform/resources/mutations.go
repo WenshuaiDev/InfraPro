@@ -447,5 +447,5 @@ func recordChange(ctx context.Context, tx pgx.Tx, a access.Actor, auth authoriza
 	if auth.Entry == "project" {
 		event = "project." + event
 	}
-	return access.Audit(ctx, tx, event, "engineering_"+string(t.Kind), after.ID, "", nil, map[string]any{"id": after.ID, "code": after.Code, "name": after.Name, "changed_fields": fields}, meta)
+	return access.Audit(ctx, tx, event, "engineering_"+string(t.Kind), after.ID, "", before, after, meta)
 }

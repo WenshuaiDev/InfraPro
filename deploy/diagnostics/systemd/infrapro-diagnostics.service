@@ -1,0 +1,28 @@
+[Unit]
+Description=InfraPro independent diagnostics server
+After=network.target
+
+[Service]
+Type=simple
+User=infrapro-diagnostics
+Group=infrapro-diagnostics
+ExecStart=/usr/local/bin/infrapro-diagnostics server --config /etc/infrapro/diagnostics/server.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+StateDirectory=infrapro-diagnostics
+StateDirectoryMode=0700
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/infrapro-diagnostics
+LimitNOFILE=4096
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

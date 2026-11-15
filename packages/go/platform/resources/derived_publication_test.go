@@ -16,6 +16,7 @@ import (
 
 func TestDerivedFormalPublicationUsesSealedAttempts(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	service, channel, cfg := derivedChannelSetup(t, f)
 	service.WithStorage(f.storage)
 	must(t, dm.InitializeStorage(ctx, f.storage))

@@ -1,0 +1,192 @@
+{
+  "generator": "infrapro-spatial-synthetic-v1",
+  "license": "CC0-1.0",
+  "synthetic": true,
+  "files": [
+    {
+      "path": "bridge-elevation.jpg",
+      "sha256": "627db0073e8e2392c42d73c09ea5b796aecb8b5573a8a019bac021ee090060b7",
+      "size": 108549
+    },
+    {
+      "path": "bridge-elevation.png",
+      "sha256": "3c36060a0a826a78f20948a8409b8883c2f1d7f8e08285a4508d8c624600092c",
+      "size": 30840
+    },
+    {
+      "path": "bridge-ifc2x3-v1.ifc",
+      "sha256": "9d9882f45bfe686bbbd50c35fbdee5eb89263a0b1a6d10ef104e73141cbdaf28",
+      "size": 7441
+    },
+    {
+      "path": "bridge-ifc4-v1.ifc",
+      "sha256": "0741d5ed57e5a27d967091780609c0653703c6f89c840724a4828b6779066fb8",
+      "size": 7451
+    },
+    {
+      "path": "bridge-ifc4-v2.ifc",
+      "sha256": "eef3b62f189c39b99bc43fd2d28b5498d5e9fba837dd3e0026c72c5038385657",
+      "size": 6634
+    },
+    {
+      "path": "bridge-layouts-v1.pdf",
+      "sha256": "76a4bcae8140fdb600757e678a02cee6c6c68c28377c0161871fbcbc0e300a2c",
+      "size": 172601
+    },
+    {
+      "path": "bridge-layouts-v2.pdf",
+      "sha256": "1e46d61482c6874a2c4973f62205d13a220d43ccf913b49ffb58504474552835",
+      "size": 120193
+    },
+    {
+      "path": "bridge-mm-z-up.glb",
+      "sha256": "6e2a945edec40649c2413184eeb42f1f9bcf0eb22b164d8f6e5c31cb084e6ba6",
+      "size": 6020
+    },
+    {
+      "path": "bridge-plan-v2.png",
+      "sha256": "6ebe7eac9f82e4a71302f2f5190485223b4e95a8d27615a2c45397985cf1211b",
+      "size": 40065
+    },
+    {
+      "path": "bridge-plan.jpg",
+      "sha256": "339f3afb53f4374ad458f49adc12a19e0d22011f5d4c66274165f426aae4cb18",
+      "size": 110299
+    },
+    {
+      "path": "bridge-plan.png",
+      "sha256": "331909295f16ec52d7f0d38c3fefc3c9dc3f40d8c38d7fdd2c36669085056280",
+      "size": 33802
+    },
+    {
+      "path": "bridge-section.jpg",
+      "sha256": "bc7fcbdd24bff60d5eff7a2b26a70671e56edf48baed795af122981d1e775aa3",
+      "size": 96263
+    },
+    {
+      "path": "bridge-section.png",
+      "sha256": "d4e2c22ccf088353ec8733668dbca2522b5ed83279e406f7a333df00635b85f8",
+      "size": 33815
+    },
+    {
+      "path": "bridge-v1.glb",
+      "sha256": "3e84ac4f6771c689d4b488570ee2abfa4c679a13ca592f8f9301a67549031aba",
+      "size": 5344
+    },
+    {
+      "path": "bridge-v2.glb",
+      "sha256": "437877b418f6ad228849938f2b0513d2fd14b21fcff31ff2d8ec56ab3cc2606d",
+      "size": 5336
+    },
+    {
+      "path": "invalid/broken.glb",
+      "sha256": "92de050b1c6749281707fefdb46d8582504ac1526c4c658cd4a2931926d2f963",
+      "size": 5
+    },
+    {
+      "path": "invalid/broken.pdf",
+      "sha256": "3ce978566f5162e026abf554be3cbc43114309ea9df7c25c31b6c0283b1dcc6a",
+      "size": 18
+    },
+    {
+      "path": "invalid/external-resource.glb",
+      "sha256": "b45788d4cb4942d1c167d91f81d5d2693646a786c0b00eb520ea44840bbb233b",
+      "size": 5340
+    },
+    {
+      "path": "invalid/invalid-coordinates.geojson",
+      "sha256": "16a232d548520e2d14ee5df685f4d48342d8684d9c6b98849081624f0b324364",
+      "size": 232
+    },
+    {
+      "path": "invalid/missing-mapping.glb",
+      "sha256": "07c0b6af948ff87f0552ffcfa24e972c8e0240e92d1dc29795c77e21a170ac9a",
+      "size": 5296
+    },
+    {
+      "path": "invalid/pixel-budget.png",
+      "sha256": "8b875ee7147e35afc8faef6aa05afbec096a564a754c01a802fecccc2437d500",
+      "size": 119590
+    },
+    {
+      "path": "invalid/required-extension.glb",
+      "sha256": "6bebdae2683c311e98b485bb2d7f9d99220b1a4a936dcbca5fff2b1413471607",
+      "size": 5336
+    },
+    {
+      "path": "invalid/unsupported-schema.ifc",
+      "sha256": "1856dbfd3f60d637dccf29d0a94e4ac84d7ad1b1856c7567c319df506ace827e",
+      "size": 92
+    },
+    {
+      "path": "reference-v2.geojson",
+      "sha256": "a1b85f00564171ebd77673853e3a1b86d882da7245168e205a17b5d7b95519a5",
+      "size": 3242
+    },
+    {
+      "path": "reference.geojson",
+      "sha256": "c55c87bd8ab1045e0e2a0b475e6a4c030ec28dfba08a0d7d8005555ca1e93c92",
+      "size": 3239
+    },
+    {
+      "path": "slope-elevation.jpg",
+      "sha256": "98cb0042f67317426e97a38f8b5e548003fd77559e7bbaa9ae54a5d1e9a78d9a",
+      "size": 104877
+    },
+    {
+      "path": "slope-elevation.png",
+      "sha256": "88d19ad90ce42c97b49e117910930ad76e75e6051516b873c0a8ebda0b24ee51",
+      "size": 37448
+    },
+    {
+      "path": "slope-ifc4-v1.ifc",
+      "sha256": "8adaa7072dd9df7b6a97313207d30c52daab11c4909d04e06feff0ed370997da",
+      "size": 2716
+    },
+    {
+      "path": "slope-layouts-v1.pdf",
+      "sha256": "3ebe73a8effa14de6f1f4a5a5572cd038e704b0690eb72db2151f034e0fd6ee3",
+      "size": 166664
+    },
+    {
+      "path": "slope-layouts-v2.pdf",
+      "sha256": "4c99b64765a7e216966c5ec0d953ec2c4247ef18eae861f4279d691c3f2e23f9",
+      "size": 114214
+    },
+    {
+      "path": "slope-plan-v2.png",
+      "sha256": "2fea611405b775c926fad280df73d86b09b90817deae9633ce3fc01ffa7b0b5d",
+      "size": 38861
+    },
+    {
+      "path": "slope-plan.jpg",
+      "sha256": "63e6ec3747202c3062efd100c60daea777b50e1f99eb59ad50cdc45fc19fc8dd",
+      "size": 111457
+    },
+    {
+      "path": "slope-plan.png",
+      "sha256": "b5a8ee3591ba60b7623771dd5f48101f2da7ebe8f80bf1674ec190e19ca49c0d",
+      "size": 32984
+    },
+    {
+      "path": "slope-section.jpg",
+      "sha256": "4106c3e24855dfceb746570b1950117265a854a4a5fe4032b08a0eed85f9d727",
+      "size": 104484
+    },
+    {
+      "path": "slope-section.png",
+      "sha256": "092de945803857ba73fb061bde8ecc5688addf01fae75a6059d2e89e4807d6c4",
+      "size": 37603
+    },
+    {
+      "path": "slope-v1.glb",
+      "sha256": "e5c728782bb41127693fc9eac4538680ee787e829959daf50ef3625f9364e97b",
+      "size": 1820
+    },
+    {
+      "path": "tiles/12/3372/1553.png",
+      "sha256": "48d557c1b1af8e581fe901f38fb120dfcb391d16e1cc9e4bd6163b3cd6e5f3f8",
+      "size": 3397
+    }
+  ]
+}

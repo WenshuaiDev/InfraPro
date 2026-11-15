@@ -6,9 +6,9 @@ import { cn } from '@infrapro/ui/lib/utils';
 import { invitationStatuses, invitationDate } from './invitation-utils';
 
 const statusIcons = { pending: Clock3, used: CheckCircle2, expired: FileClock, revoked: Ban };
-export function InvitationStatus({ status }: { status: Invitation['status'] }) {
+export function InvitationStatus({ status, label }: { status: Invitation['status']; label?: string }) {
   const Icon = statusIcons[status];
-  return <Badge variant="outline" className={cn('gap-1.5 whitespace-nowrap rounded-md py-1 font-medium', status === 'pending' && 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300', status === 'used' && 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300', (status === 'revoked' || status === 'expired') && 'text-muted-foreground')}><Icon className="size-3" aria-hidden="true" />{invitationStatuses[status]}</Badge>;
+  return <Badge variant="outline" className={cn('gap-1.5 whitespace-nowrap rounded-md py-1 font-medium', status === 'pending' && 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300', status === 'used' && 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300', (status === 'revoked' || status === 'expired') && 'text-muted-foreground')}><Icon className="size-3" aria-hidden="true" />{label ?? invitationStatuses[status]}</Badge>;
 }
 export function InvitationExpiry({ item, checkedAt }: { item: Invitation; checkedAt: number }) {
   const remaining = new Date(item.expires_at).getTime() - checkedAt;

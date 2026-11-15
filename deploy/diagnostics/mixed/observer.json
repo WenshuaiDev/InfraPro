@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "docker-observer",
+  "assignment_revision": "1",
+  "server_url": "https://diagnostics.example.invalid:8096",
+  "manifest_file": "/etc/infrapro/observer/manifest.json",
+  "bindings_file": "/etc/infrapro/observer/bindings.json",
+  "credential_file": "/etc/infrapro/observer/key.json",
+  "state_dir": "/var/lib/infrapro-observer",
+  "tls_ca_file": "/etc/infrapro/observer/ca.pem"
+}

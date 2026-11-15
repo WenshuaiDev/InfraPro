@@ -21,6 +21,9 @@ type Service struct {
 func New(a *access.Service) *Service { return &Service{access: a} }
 func fingerprint(v any) string       { h := sha256.Sum256(jsonBytes(v)); return hex.EncodeToString(h[:]) }
 func (s *Service) transact(ctx context.Context, a access.Actor, op access.Operation, scope Scope, exclusive bool, fn func(pgx.Tx, authorization) error) error {
+	if e := access.CheckReadBoundary(a, scope.Entry, op, exclusive); e != nil {
+		return e
+	}
 	if !scope.valid() {
 		return notFound()
 	}

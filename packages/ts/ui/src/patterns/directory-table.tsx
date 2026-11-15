@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '../components/dropdown-menu';
 import { ErrorState, LoadingState } from './feedback';
+import { cn } from '../lib/utils';
 
 export type DirectoryColumn<T> = {
   id: string;
@@ -34,6 +35,7 @@ export function DirectoryTable<T>({
   empty = '暂无记录',
   toolbar,
   pagination,
+  tableClassName,
 }: {
   label: string;
   items: T[];
@@ -45,6 +47,7 @@ export function DirectoryTable<T>({
   empty?: string;
   toolbar?: ReactNode;
   pagination?: ReactNode;
+  tableClassName?: string;
 }) {
   const [hidden, setHidden] = useState<string[]>([]);
   const visible = columns.filter((column) => !hidden.includes(column.id));
@@ -86,7 +89,7 @@ export function DirectoryTable<T>({
         <LoadingState label={`正在读取${label}…`} />
       ) : (
         <div className="overflow-hidden rounded-lg border">
-          <Table aria-label={label} className="w-full table-fixed">
+          <Table aria-label={label} className={cn('w-full table-fixed', tableClassName)}>
             <TableHeader>
               <TableRow>
                 {visible.map((column) => (

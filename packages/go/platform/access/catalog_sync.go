@@ -2,53 +2,21 @@ package access
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"slices"
 	"strings"
 
 	"github.com/jackc/pgx/v5"
 )
 
+// Audit adapts existing source-owned transactions to the single fact writer.
 func Audit(ctx context.Context, tx pgx.Tx, event, objectType, object, account string, before, after any, m Meta) error {
-	truncate := func(value string, n int) string {
-		r := []rune(value)
-		if len(r) > n {
-			return string(r[:n])
-		}
-		return value
-	}
-	m.IP = truncate(m.IP, 100)
-	m.UserAgent = truncate(m.UserAgent, 300)
-	m.RequestID = truncate(m.RequestID, 100)
-	if m.ActorScope == "" {
-		m.ActorScope = "platform"
-	}
-	if m.ActorType == "" {
-		m.ActorType = "account"
-	}
-	payload := map[string]any{"before": before, "after": after}
-	if m.TenantID != "" && (strings.HasPrefix(event, "tenant.role.") || event == "tenant.member.roles_changed" || event == "tenant.member.authorization_changed" || event == "tenant.authorization.preset_synced") {
-		definitions := []Permission{}
-		for _, p := range Catalog() {
-			if p.Scope == "tenant" {
-				definitions = append(definitions, p)
-			}
-		}
-		payload["permission_definitions"] = definitions
-	}
-	if m.TenantID != "" && m.ActorID != "" {
-		var username, display string
-		if e := tx.QueryRow(ctx, "SELECT username,display_name FROM accounts WHERE id=$1", m.ActorID).Scan(&username, &display); e != nil {
-			return e
-		}
-		payload["actor"] = map[string]string{"id": m.ActorID, "username": username, "display_name": display}
-	}
-	details, e := json.Marshal(payload)
-	if e != nil {
+	if e := taskrecord.ObserveAuditCommandTx(ctx, tx); e != nil {
 		return e
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_id,outcome,reason,source_ip,user_agent,request_id,actor_type,object_type,details,tenant_id,actor_scope,project_id) VALUES($1,NULLIF($2,'')::uuid,NULLIF($3,'')::uuid,$4,'success',$5,$6,$7,$8,$9,$10,$11,NULLIF($12,'')::uuid,$13,NULLIF($14,'')::uuid)`, event, m.ActorID, account, object, m.Reason, m.IP, m.UserAgent, m.RequestID, m.ActorType, objectType, details, m.TenantID, m.ActorScope, m.ProjectID)
-	return e
+	_, err := auditrecord.AppendLegacyTx(ctx, tx, auditrecord.LegacyInput{Links: m.AuditLinks, Event: event, ObjectType: objectType, ObjectID: object, AccountID: account, Before: before, After: after, ActorID: m.ActorID, ActorType: m.ActorType, IP: m.IP, UserAgent: m.UserAgent, RequestID: m.RequestID, Reason: m.Reason, Tenant: m.TenantID, Project: m.ProjectID, Entry: m.ActorScope, Outcome: "success"})
+	return err
 }
 func BindBuiltin(ctx context.Context, tx pgx.Tx, account, key string, m Meta) error {
 	var role string

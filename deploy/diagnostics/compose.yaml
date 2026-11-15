@@ -1,0 +1,35 @@
+# Start in an independent Compose project; never add business depends_on.
+services:
+  server:
+    image: ${DIAGNOSTICS_IMAGE:-infrapro-diagnostics:local}
+    user: "${DIAGNOSTICS_UID:-10001}:${DIAGNOSTICS_GID:-10001}"
+    command: [server, --config, /etc/infrapro/diagnostics/server.json]
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 1
+    pids_limit: 64
+    ports: ["${DIAGNOSTICS_BIND:-127.0.0.1}:${DIAGNOSTICS_PORT:-8096}:8096"]
+    volumes:
+      - ${DIAGNOSTICS_CONFIG_DIR:?protected server configuration directory}:/etc/infrapro/diagnostics:ro
+      - ${DIAGNOSTICS_STATE_DIR:?protected state directory}:/var/lib/infrapro-diagnostics
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+  # A protocol-only observer has no Docker socket and no server auth/keyring.
+  observer:
+    profiles: [observer]
+    image: ${DIAGNOSTICS_IMAGE:-infrapro-diagnostics:local}
+    user: "${DIAGNOSTICS_OBSERVER_UID:-10002}:${DIAGNOSTICS_OBSERVER_GID:-10002}"
+    command: [observer, --config, /etc/infrapro/observer/observer.json]
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 32
+    volumes:
+      - ${DIAGNOSTICS_OBSERVER_CONFIG_DIR:-./observer-config}:/etc/infrapro/observer:ro
+      - ${DIAGNOSTICS_OBSERVER_STATE_DIR:-./observer-state}:/var/lib/infrapro-observer
+    tmpfs: ["/tmp:size=8m,mode=1777"]

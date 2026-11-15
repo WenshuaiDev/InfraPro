@@ -10,12 +10,13 @@ type Props = {
   title: string;
   description: string;
   children: ReactNode;
+  footer?: ReactNode;
   returnFocus?: RefObject<HTMLElement | null>;
   fallbackFocusSelector?: string;
   size?: 'default' | 'wide' | 'workspace';
 };
 
-export function ResponsivePanel({ open, onOpenChange, title, description, children, returnFocus, fallbackFocusSelector, size = 'default' }: Props) {
+export function ResponsivePanel({ open, onOpenChange, title, description, children, footer, returnFocus, fallbackFocusSelector, size = 'default' }: Props) {
   const mobile = useIsMobile();
   const previous = useRef<HTMLElement | null>(null);
   const popup = useRef<HTMLDivElement | null>(null);
@@ -44,6 +45,7 @@ export function ResponsivePanel({ open, onOpenChange, title, description, childr
         <DrawerClose render={<Button variant="ghost" size="icon" className="absolute right-3 top-3 size-11" aria-label="关闭面板" />}><X aria-hidden="true" /></DrawerClose>
       </DrawerHeader>
       <div data-slot="drawer-scroll-area" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-6">{children}</div>
+      {footer && <div data-slot="drawer-footer" className="shrink-0 border-t px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6">{footer}</div>}
     </DrawerContent>
   </Drawer>;
 }

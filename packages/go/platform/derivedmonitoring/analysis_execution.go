@@ -116,7 +116,7 @@ func (s *Service) executeAnalysis(ctx context.Context, lease monitoring.TaskLeas
 			if _, e = tx.Exec(ctx, `INSERT INTO analysis_trial_receipts(tenant_id,run_id,result) VALUES($1,$2,$3)`, run.Scope.Tenant, run.ID, jsonBytes(trial)); e != nil {
 				return e
 			}
-			_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$3,error_code=NULL,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, run.Scope.Tenant, run.JobID, jsonBytes(map[string]string{"phase": "completed", "output_count": trial.OutputCount}))
+			e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "output_count": trial.OutputCount})
 			return e
 		})
 	}
@@ -206,7 +206,7 @@ func (s *Service) publishAnalysis(ctx context.Context, lease monitoring.TaskLeas
 		if e = access.Audit(ctx, tx, "derived.analysis.published", "analysis_artifact", manifest.Artifact, "", nil, map[string]any{"version_id": manifest.Generation, "run_id": run.ID, "manifest_root": root, "stale": state.Changed}, access.Meta{ActorID: lease.Actor().ID, ActorType: "account", ActorScope: run.Scope.Entry, TenantID: run.Scope.Tenant, ProjectID: run.Scope.Project, Reason: "完整分析成果发布"}); e != nil {
 			return e
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$3,error_code=NULL,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, run.Scope.Tenant, run.JobID, jsonBytes(map[string]string{"phase": "completed", "artifact_id": manifest.Artifact, "artifact_version_id": manifest.Generation, "output_rows": strconv.FormatUint(manifest.Rows, 10)}))
+		e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "artifact_id": manifest.Artifact, "artifact_version_id": manifest.Generation, "output_rows": strconv.FormatUint(manifest.Rows, 10)})
 		return e
 	})
 }

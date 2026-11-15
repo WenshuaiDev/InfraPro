@@ -13,6 +13,7 @@ import (
 )
 
 type Service struct {
+	readSubjects           func(context.Context, string) (*access.ReadSubject, error)
 	workers                WorkerOptions
 	resultExportTTL        time.Duration
 	access                 *access.Service
@@ -46,6 +47,7 @@ func (s *Service) AuthorizationRevision(ctx context.Context, a access.Actor, sco
 type authorization struct {
 	Scope
 	Account, Revision, ProjectStatus, ResourceRevision, DataRevision string
+	Subject                                                          *access.ReadSubject
 }
 
 // Lock order agrees with existing resource/device operations. A governance
@@ -55,6 +57,9 @@ func (s *Service) transact(ctx context.Context, a access.Actor, scope Scope, act
 		return notFound()
 	}
 	op := access.MonitoringOperation(scope.Entry, action)
+	if e := access.CheckReadBoundary(a, scope.Entry, op, write || governance); e != nil {
+		return e
+	}
 	err := s.db(ctx, func(tx pgx.Tx) error {
 		policy, ok := access.PolicyFor(op)
 		if !ok || a.Check == nil {
@@ -70,9 +75,9 @@ func (s *Service) transact(ctx context.Context, a access.Actor, scope Scope, act
 		if e = a.Check(ctx, tx, policy.Recent); e != nil {
 			return e
 		}
-		auth := authorization{Scope: scope, Account: a.ID, Revision: rev, ResourceRevision: "0", DataRevision: "0"}
+		auth := authorization{Scope: scope, Account: a.ID, Revision: rev, ResourceRevision: "0", DataRevision: "0", Subject: a.ReadSubject()}
 		if scope.Entry == "project" {
-			p, e := access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project)
+			p, e := access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project)
 			if e != nil {
 				return e
 			}
@@ -140,4 +145,9 @@ func (s *Service) HasResourceReferences(ctx context.Context, tx pgx.Tx, id strin
 	var used bool
 	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM monitoring_channel_versions v JOIN engineering_channels c ON c.tenant_id=v.tenant_id AND c.id=v.channel_id JOIN engineering_facilities f ON f.id=c.facility_id WHERE v.first_published_sequence IS NOT NULL AND (c.metric_version_id=$1 OR c.unit_version_id=$1 OR f.type_version_id=$1))`, id).Scan(&used)
 	return used, e
+}
+
+func (s *Service) WithReadSubjects(resolve func(context.Context, string) (*access.ReadSubject, error)) *Service {
+	s.readSubjects = resolve
+	return s
 }

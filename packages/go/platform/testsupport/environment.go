@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/audit"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
@@ -28,7 +29,12 @@ type Environment struct {
 	cleanup func()
 }
 
-func (e *Environment) Close() { e.cleanup() }
+func (e *Environment) Close() {
+	defer e.cleanup()
+	if err := auditCoverage(e.Pool); err != nil {
+		panic(err)
+	}
+}
 func New(ctx context.Context, logger *slog.Logger) (*Environment, error) {
 	dbURL := os.Getenv("INFRAPRO_TEST_DATABASE_URL")
 	redisURL := os.Getenv("INFRAPRO_TEST_REDIS_URL")
@@ -84,6 +90,7 @@ func New(ctx context.Context, logger *slog.Logger) (*Environment, error) {
 		cleanupDB()
 		return nil, e
 	}
+	audit.New(service.Access())
 	return &Environment{Config: cfg, Pool: pool, Redis: cache, Service: service, cleanup: func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()

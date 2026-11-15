@@ -3,6 +3,8 @@ package access
 import (
 	"context"
 	"errors"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"log/slog"
 	"slices"
 	"strconv"
@@ -10,14 +12,17 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service struct {
-	pool       *pgxpool.Pool
-	logger     *slog.Logger
-	logMu      sync.Mutex
-	lastDenial time.Time
+	auditMu     sync.RWMutex
+	auditReader LegacyAuditReader
+	pool        *pgxpool.Pool
+	logger      *slog.Logger
+	logMu       sync.Mutex
+	lastDenial  time.Time
 }
 
 func New(pool *pgxpool.Pool, logger *slog.Logger) *Service {
@@ -25,19 +30,35 @@ func New(pool *pgxpool.Pool, logger *slog.Logger) *Service {
 }
 
 // Transact owns one bounded transaction; callbacks never commit independently.
-func (s *Service) Transact(ctx context.Context, fn func(pgx.Tx) error) error {
+func (s *Service) Transact(ctx context.Context, fn func(pgx.Tx) error) (result error) {
 	tx, e := s.pool.Begin(ctx)
 	if e != nil {
+		ReportOperationFailure(ctx, e)
 		return e
 	}
-	defer tx.Rollback(context.Background())
+	defer func() {
+		cleanup, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = tx.Rollback(cleanup)
+		ReportOperationFailure(ctx, result)
+	}()
 	if _, e = tx.Exec(ctx, "SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='10s'"); e != nil {
 		return e
 	}
 	if e = fn(tx); e != nil {
 		return e
 	}
-	return tx.Commit(ctx)
+	if e = taskrecord.FlushTx(ctx, tx); e != nil {
+		return e
+	}
+	e = tx.Commit(ctx)
+	if e != nil {
+		var database *pgconn.PgError
+		if !errors.As(e, &database) && !errors.Is(e, pgx.ErrTxCommitRollback) {
+			return &ar.CommitUnknown{Cause: e}
+		}
+	}
+	return e
 }
 func Lock(ctx context.Context, tx pgx.Tx, exclusive bool) (string, error) {
 	mode := " FOR SHARE"

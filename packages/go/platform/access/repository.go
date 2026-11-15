@@ -38,6 +38,7 @@ func accountTx(ctx context.Context, tx pgx.Tx, id string) (Account, error) {
 }
 
 type Filter struct {
+	ActorID                                                                        string
 	Cursor, Query, Status, RoleID, ObjectID, ObjectType, From, To, TenantID, Event string
 	Limit                                                                          int
 	Category, Outcome                                                              string

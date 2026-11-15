@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -206,6 +207,9 @@ func (r *Repository) AcceptInvitation(ctx context.Context, tokenHash, username, 
 		if e = audit(ctx, tx, "invitation_accepted", a.ID, inviter, id, "success", m); e != nil {
 			return e
 		}
-		return audit(ctx, tx, "account_created", a.ID, a.ID, id, "success", m)
+		if e = audit(ctx, tx, "account_created", a.ID, a.ID, id, "success", m); e != nil {
+			return e
+		}
+		return access.NotificationReceiptTx(ctx, tx, "identity", "signup.used", "accepted", a.ID, ne.Scope{Kind: "platform"}, ne.Target{Kind: "signup_invitation", ID: id}, ne.Personal(inviter))
 	})
 }

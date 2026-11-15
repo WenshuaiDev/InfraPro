@@ -264,7 +264,7 @@ func (s *Service) executeReplay(ctx context.Context, lease monitoring.TaskLease)
 		if _, e = tx.Exec(ctx, `INSERT INTO derived_replay_receipts(tenant_id,run_id,result) VALUES($1,$2,$3)`, scope.Tenant, run.ID, jsonBytes(result)); e != nil {
 			return e
 		}
-		_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',revision=revision+1,lease_owner=NULL,lease_until=NULL,progress=$3,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, scope.Tenant, task.Job.ID, jsonBytes(map[string]string{"phase": "completed", "matched": strconv.FormatBool(result.Matched), "generation_id": generation}))
+		e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "matched": strconv.FormatBool(result.Matched), "generation_id": generation})
 		return e
 	})
 }

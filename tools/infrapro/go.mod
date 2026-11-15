@@ -13,6 +13,7 @@ require (
 	github.com/ClickHouse/ch-go v0.75.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.51.0 // indirect
 	github.com/WenshuaiDev/InfraPro/packages/go/foundation v0.0.0 // indirect
+	github.com/WenshuaiDev/InfraPro/services/diagnostics v0.0.0
 	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/apache/arrow-go/v18 v18.8.0 // indirect
 	github.com/apache/thrift v0.24.0 // indirect
@@ -61,3 +62,5 @@ require (
 replace github.com/WenshuaiDev/InfraPro/packages/go/platform => ../../packages/go/platform
 
 replace github.com/WenshuaiDev/InfraPro/packages/go/foundation => ../../packages/go/foundation
+
+replace github.com/WenshuaiDev/InfraPro/services/diagnostics => ../../services/diagnostics

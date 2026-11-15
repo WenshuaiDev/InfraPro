@@ -59,6 +59,7 @@ func (f monitoringFixture) exportBytes(t *testing.T, id, part string) []byte {
 }
 func TestMonitoringExportFixedSnapshotAndTypedParquet(t *testing.T) {
 	f := monitoringSetup(t, func(c *md.StorageConfig) { c.ExportRows = 2 })
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	a := f.publish(t, f.validate(t, f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00.000000001Z,-99999999999999999999999999.000000000001,good\n2024-01-01T00:00:00.000000003Z,99999999999999999999999999.000000000003,good\n2262-04-11T23:47:16.854775807Z,0.000000000001,unmarked\n")))
 	input := md.ExportInput{WriteMeta: f.meta("0"), Query: f.query(t), Format: "parquet", Kind: "details"}
 	queued, e := f.service.CreateExport(ctx, f.actor, f.scope, input)
@@ -190,6 +191,7 @@ func TestMonitoringCSVSafeAndStatisticsExport(t *testing.T) {
 
 func TestMonitoringExportCommitFailureAndArchivedProject(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	f.publish(t, f.validate(t, f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00Z,2,good\n2024-01-02T00:00:00Z,4,good\n")))
 	result, e := f.service.CreateExport(ctx, f.actor, f.scope, md.ExportInput{WriteMeta: f.meta("0"), Query: f.query(t), Format: "csv"})
 	must(t, e)

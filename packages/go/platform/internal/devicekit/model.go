@@ -260,3 +260,6 @@ func Time(raw, path string) (time.Time, error) {
 	}
 	return t.UTC(), nil
 }
+
+// StatusCode allows cross-module metadata adapters to distinguish hidden data from outages.
+func (e *Error) StatusCode() int { return e.Status }

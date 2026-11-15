@@ -1,0 +1,23 @@
+# docker compose -f deploy/audit/compose.yaml --env-file /protected/audit.env up -d
+services:
+  audit-worker:
+    build: {context: ../.., dockerfile: deploy/docker/audit.Dockerfile}
+    environment:
+      INFRAPRO_DATABASE_URL: ${AUDIT_WORKER_DATABASE_URL:?use a login inheriting infrapro_audit_worker}
+      INFRAPRO_AUDIT_OBJECT_ENDPOINT: ${AUDIT_OBJECT_ENDPOINT:-}
+      INFRAPRO_AUDIT_ACCESS_KEY: ${AUDIT_ACCESS_KEY:-}
+      INFRAPRO_AUDIT_SECRET_KEY: ${AUDIT_SECRET_KEY:-}
+      INFRAPRO_AUDIT_BUCKET: ${AUDIT_BUCKET:-}
+      INFRAPRO_AUDIT_NODE_ID: ${AUDIT_NODE_ID:-audit-worker-01}
+      INFRAPRO_AUDIT_TEMP_DIRECTORY: /staging
+    volumes: [audit_staging:/staging]
+    read_only: true
+    tmpfs: [/tmp:size=16m,mode=1777]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 2
+    stop_grace_period: 30s
+    restart: unless-stopped
+volumes:
+  audit_staging:

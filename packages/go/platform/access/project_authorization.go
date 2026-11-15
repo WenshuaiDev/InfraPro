@@ -137,6 +137,18 @@ func ExplainProject(v *ProjectAuthorization, catalog map[Code]Permission) {
 	}
 }
 func ProjectActiveOnly(op Operation) bool {
+	if strings.HasPrefix(string(op), "Audit:") {
+		return false
+	}
+	if strings.HasPrefix(string(op), "Files:") {
+		return !FilesReadOperation(op)
+	}
+	if strings.HasPrefix(string(op), "Display:") {
+		return DisplayActiveOnly(op)
+	}
+	if strings.HasPrefix(string(op), "Spatial:") {
+		return !SpatialReadOperation(op)
+	}
 	if strings.HasPrefix(string(op), "Derived:") {
 		return !DerivedReadOperation(op)
 	}

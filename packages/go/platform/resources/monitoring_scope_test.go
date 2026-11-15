@@ -80,6 +80,20 @@ func TestMonitoringPartialProjectMetadataAndDownloadRevocation(t *testing.T) {
 	if len(list.Items) != 1 || !list.Items[0].ScopeClipped || list.Items[0].Counts != nil {
 		t.Fatal(list)
 	}
+	for _, q := range []md.ImportQuery{{Search: batch.Name, Limit: 10}, {Formats: "csv", Limit: 10}} {
+		filtered, err := f.service.QueryImports(ctx, project.actor, scope, q)
+		must(t, err)
+		if len(filtered.Items) != 0 {
+			t.Fatal("hidden source metadata leaked through filters", filtered)
+		}
+	}
+	for _, search := range []string{batch.ID, "共享批次"} {
+		filtered, err := f.service.QueryImports(ctx, project.actor, scope, md.ImportQuery{Search: search, Limit: 10})
+		must(t, err)
+		if len(filtered.Items) != 1 || !filtered.Items[0].ScopeClipped {
+			t.Fatal("visible partial batch was not searchable", filtered)
+		}
+	}
 	_, e = f.service.Source(ctx, project.actor, scope, batch.SourceFile)
 	monitoringCode(t, e, "monitoring_not_found")
 	_, e = f.service.PreviewRevokeBatch(ctx, project.actor, scope, batch.ID, batch.Revision)

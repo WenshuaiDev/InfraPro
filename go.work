@@ -4,5 +4,6 @@ use (
 	./packages/go/foundation
 	./packages/go/platform
 	./services/api
+	./services/diagnostics
 	./tools/infrapro
 )

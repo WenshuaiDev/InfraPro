@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApiError, type TenantInvitationCreated } from '@infrapro/api-client';
@@ -37,9 +37,11 @@ export function ManagementForm({ submit, refresh, children, label = '确认操�
     <div className={stickyActions ? "sticky -bottom-6 -mx-5 flex justify-end gap-2 border-t bg-background/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6" : "flex flex-wrap gap-3"}>{cancel}<Button type="submit" disabled={disabled || phase !== 'authenticated' || !ctx.available || action.isPending || reauth || conflict || unknown}>{action.isPending ? '正在处理…' : label}</Button></div>
   </form></Form>{reauth && <form className="space-y-3 rounded-md border p-3" onSubmit={(e) => { e.preventDefault(); verify.mutate(); }}><Label htmlFor="membership-password">当前密码</Label><Input id="membership-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /><FormNotice error>{verify.error?.message}</FormNotice><Button disabled={verify.isPending}>确认密码</Button></form>}</div>;
 }
-export function MembershipConfirm({ title, description, submit, refresh, children, prepare }: { title: string; description: string; submit: (reason: string) => Promise<void>; refresh: () => Promise<void>; children?: ReactNode; prepare?: () => void }) {
-  const [open, setOpen] = useState(false); const ctx = useTenant();
-  return <AlertDialog open={open} onOpenChange={(next) => { if (next) prepare?.(); setOpen(next); }}><AlertDialogTrigger asChild><Button variant="outline" disabled={!ctx.available}>{title}</Button></AlertDialogTrigger><AlertDialogContent className="max-h-[85dvh] overflow-y-auto"><AlertDialogHeader><AlertDialogTitle>{title}</AlertDialogTitle><AlertDialogDescription>{description}</AlertDialogDescription></AlertDialogHeader>{open && <ManagementForm submit={async (reason) => { await submit(reason); setOpen(false); }} refresh={refresh} cancel={<AlertDialogCancel>取消</AlertDialogCancel>}>{children}</ManagementForm>}</AlertDialogContent></AlertDialog>;
+export function MembershipConfirm({ title, description, submit, refresh, children, prepare, open: controlledOpen, onOpenChange, returnFocus }: { title: string; description: string; submit: (reason: string) => Promise<void>; refresh: () => Promise<void>; children?: ReactNode; prepare?: () => void; open?: boolean; onOpenChange?: (open: boolean) => void; returnFocus?: RefObject<HTMLElement | null> }) {
+  const [localOpen, setLocalOpen] = useState(false); const ctx = useTenant();
+  const open = controlledOpen ?? localOpen;
+  const setOpen = (next: boolean) => { if (next) prepare?.(); setLocalOpen(next); onOpenChange?.(next); };
+  return <AlertDialog open={open} onOpenChange={setOpen}>{controlledOpen === undefined && <AlertDialogTrigger asChild><Button variant="outline" disabled={!ctx.available}>{title}</Button></AlertDialogTrigger>}<AlertDialogContent className="max-h-[85dvh] overflow-y-auto" onCloseAutoFocus={(event) => { if (returnFocus?.current?.isConnected) { event.preventDefault(); returnFocus.current.focus(); } }}><AlertDialogHeader><AlertDialogTitle>{title}</AlertDialogTitle><AlertDialogDescription>{description}</AlertDialogDescription></AlertDialogHeader>{open && <ManagementForm submit={async (reason) => { await submit(reason); setOpen(false); }} refresh={refresh} cancel={<AlertDialogCancel>取消</AlertDialogCancel>}>{children}</ManagementForm>}</AlertDialogContent></AlertDialog>;
 }
 export function InvitationLink({ value, close }: { value?: TenantInvitationCreated; close: () => void }) {
   const [notice, setNotice] = useState(''); const ctx = useTenant();

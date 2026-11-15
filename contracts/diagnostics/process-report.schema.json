@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:process-report",
+  "additionalProperties": false,
+  "properties": {
+    "dependencies": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "checked_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "checked_at",
+          "reason_code"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "emitted_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "lanes": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "active_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "check_grace_ms": {
+            "type": "integer"
+          },
+          "deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "last_attempt_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_success_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_attempt_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "enum": [
+              "idle",
+              "working",
+              "blocked"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "last_attempt_at",
+          "last_success_at",
+          "active_since",
+          "deadline_at",
+          "next_attempt_at",
+          "check_grace_ms",
+          "reason_code"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "node_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "starting",
+        "ready",
+        "unconfigured",
+        "stopping",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "process": {
+      "additionalProperties": false,
+      "properties": {
+        "boot_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "build_id": {
+          "maxLength": 64,
+          "type": "string"
+        },
+        "os_start_time_ms": {
+          "pattern": "^(0|[1-9][0-9]{0,19})$",
+          "type": "string"
+        },
+        "pid": {
+          "type": "integer"
+        },
+        "pid_namespace": {
+          "enum": [
+            "host",
+            "container"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "boot_id",
+        "pid",
+        "os_start_time_ms",
+        "pid_namespace",
+        "build_id"
+      ],
+      "type": "object"
+    },
+    "replica_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "report_seq": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "uptime_ms": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instance_id",
+    "replica_id",
+    "node_id",
+    "process",
+    "report_seq",
+    "emitted_at",
+    "uptime_ms",
+    "phase",
+    "lanes",
+    "dependencies"
+  ],
+  "type": "object"
+}

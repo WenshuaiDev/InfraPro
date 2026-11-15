@@ -1,3 +1,15 @@
+import { auditMethods } from './audit';
+export type { AuditScope,AuditFilter,AuditEvent,AuditEventDetail,AuditCapabilities,AuditExport,AuditExportInput,AuditTrace,AuditTarget,AuditLink,AuditChange } from './audit';
+import { fileMethods } from './files';
+export * from './files';
+import { taskMethods } from './tasks';
+export type { TaskView, TaskDetail, TaskFilter, TaskPage, TaskSummary, TaskCommand, TaskCommandResult, TaskReference, TaskSourceReference, TaskTarget, TaskProgress } from './tasks';
+import { notificationMethods } from './notifications';
+export type { NotificationItem, NotificationPage, NotificationSummary, NotificationFilter, NotificationPreferences, NotificationTarget, NotificationChange } from './notifications';
+import { displayMethods } from './display';
+export * from './display';
+import { spatialMethods } from './spatial';
+export type * from './spatial';
 import { monitoringMethods, type MonitoringRequestOptions } from './monitoring';
 export type * from './monitoring';
 import { derivedMonitoringMethods } from './derived-monitoring';
@@ -47,7 +59,7 @@ export type AccessFilter = { category?: string; outcome?: string; source?: strin
 
 
 export class ApiError extends Error {
-  constructor(message: string, public readonly status?: number, public readonly code?: string, public readonly fields: Record<string, string> = {}, public readonly issues: EngineeringIssue[] = [], public readonly dependencies: Record<string, number> = {}) {
+  constructor(message: string, public readonly status?: number, public readonly code?: string, public readonly fields: Record<string, string> = {}, public readonly issues: EngineeringIssue[] = [], public readonly dependencies: Record<string, number> = {}, public readonly retryable = false, public readonly nextAction = "") {
     super(message);
     this.name = 'ApiError';
   }
@@ -71,12 +83,17 @@ export type LinkResult = components['schemas']['Link'];
 
 type Schema<Name extends keyof components['schemas']> = components['schemas'][Name];
 function accountMethods(base: string, timeoutMs: number) {
+  const pendingCommands=new Map<string,string>();
   let csrfToken = '';
   let identityEpoch = 0;
   const projectEpochs = new Map<string, number>();
   const projectMemberships = new Map<string, string>();
   const projectListeners = new Set<(tenant: string, project: string, code: string) => void>();
   const invalidateProjectScope = (tenant: string, project: string) => { const key = `${tenant}:${project}`; projectEpochs.set(key, (projectEpochs.get(key) ?? 0) + 1); };
+  const spatialEpochs = new Map<string, number>();
+  const spatialRevisions = new Map<string, string>();
+  const spatialListeners = new Set<(tenant:string,project:string|undefined,code:string)=>void>();
+  const invalidateSpatialScope=(tenant:string,project?:string)=>{const key=`${tenant}:${project??''}`;spatialEpochs.set(key,(spatialEpochs.get(key)??0)+1);};
   const monitoringEpochs = new Map<string,number>();
   const monitoringRevisions = new Map<string,string>();
   const monitoringListeners = new Set<(tenant:string,project:string|undefined,code:string,revision?:string)=>void>();
@@ -96,19 +113,30 @@ function accountMethods(base: string, timeoutMs: number) {
   let csrfPending: Promise<void> | undefined;
   const listeners = new Set<() => void>();
   const authorizationListeners = new Set<(revision?: string) => void>();
+  // Only the finite non-secret role/authorization commands call this helper.
+  // A failed transport keeps its key; a confirmed outcome releases the intent.
+  async function commandRequest<T>(path:string,method:string,input:object):Promise<T>{
+    const intent=JSON.stringify([identityEpoch,path,method,input]);
+    let command=pendingCommands.get(intent);
+    if(!command){if(pendingCommands.size>=128)throw new ApiError('待核实命令已达到上限，请先核对已有操作结果。',503,'command_reconciliation_required');command=crypto.randomUUID();pendingCommands.set(intent,command);}
+    try{const out=await request<T>(path,method,input,true,undefined,{headers:{'X-Command-ID':command}});pendingCommands.delete(intent);return out;}
+    catch(error){if(error instanceof ApiError&&error.status&&error.status>=400&&error.status<500&&error.status!==429)pendingCommands.delete(intent);throw error;}
+  }
   async function request<T>(path: string, method = 'GET', body?: unknown, notifyUnauthorized = true, signal?: AbortSignal, options:MonitoringRequestOptions={}): Promise<T> {
     const epoch = identityEpoch;
     const tenant = /^\/tenants\/([^/?]+)/.exec(path)?.[1];
-    const project = (path.includes('/resource-access') || path.includes('/device-access')) ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const project = (path.includes('/resource-access') || path.includes('/device-access') || path.includes('/spatial-access')) ? undefined : /^\/tenants\/[^/]+\/projects\/([^/?]+)/.exec(path)?.[1];
+    const spatialRequest=/\/spatial(?:\/|[?]|$)/.test(path);
+    const spatialKey=`${tenant}:${project??''}`, spatialEpoch=spatialEpochs.get(spatialKey)??0;
     const monitoringRequest = /\/monitoring(?:\/|[?]|$)/.test(path);
     const monitoringKey=`${tenant}:${project??''}`;const monitoringEpoch=monitoringEpochs.get(monitoringKey)??0;
     const resourceRequest = /\/engineering\/(resources|catalog)(?:\/|$)/.test(path);
-    const deviceRequest = /\/(devices|device-(?:tree|catalog|definitions|outputs|requests|access))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
+    const deviceRequest = /\/(devices|monitoring-source-bindings|device-(?:tree|catalog|definitions|outputs|requests|access))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
     const deviceKey = `${tenant}:${project ?? ''}`; const deviceEpoch = deviceEpochs.get(deviceKey) ?? 0;
     const resourceKey = `${tenant}:${project ?? ''}`; const resourceEpoch = resourceEpochs.get(resourceKey) ?? 0;
     const projectKey = `${tenant}:${project}`; const projectEpoch = projectEpochs.get(projectKey) ?? 0;
     const tenantEpoch = tenant ? tenantEpochs.get(tenant) ?? 0 : 0;
-    const current = () => { if (epoch !== identityEpoch || (monitoringRequest && monitoringEpoch !== (monitoringEpochs.get(monitoringKey)??0)) || (deviceRequest && deviceEpoch !== (deviceEpochs.get(deviceKey) ?? 0)) || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
+    const current = () => { if (epoch !== identityEpoch || (spatialRequest && spatialEpoch!==(spatialEpochs.get(spatialKey)??0)) || (monitoringRequest && monitoringEpoch !== (monitoringEpochs.get(monitoringKey)??0)) || (deviceRequest && deviceEpoch !== (deviceEpochs.get(deviceKey) ?? 0)) || (resourceRequest && resourceEpoch !== (resourceEpochs.get(resourceKey) ?? 0)) || (project && projectEpoch !== (projectEpochs.get(projectKey) ?? 0)) || (tenant && tenantEpoch !== (tenantEpochs.get(tenant) ?? 0))) throw new DOMException('Identity or authorization changed', 'AbortError'); };
     if (method !== 'GET' && !csrfToken) await csrf();
     current();
     let response: Response;
@@ -126,12 +154,13 @@ function accountMethods(base: string, timeoutMs: number) {
       return undefined as T;
     }
     let data: unknown;
-    try { data = await response.json(); } catch { throw new ApiError('服务返回了无效数据，请检查连接。', response.status); }
+    try { data = response.ok && options.responseType==='blob' ? await response.blob() : await response.json(); } catch { throw new ApiError('服务返回了无效数据，请检查连接。', response.status); }
     current(); signal?.throwIfAborted();
     if (revision && path !== '/auth/me') authorizationListeners.forEach((listener) => listener(revision));
     if (!response.ok) {
-      const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number> } : {};
+      const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number>; retryable?: boolean; next_action?: string } : {};
       if (notifyUnauthorized && error.code === 'unauthenticated') listeners.forEach((listener) => listener());
+      if(tenant&&spatialRequest&&['permission_denied','authorization_changed','resource_access_changed','project_archived'].includes(error.code??'')){invalidateSpatialScope(tenant,project);spatialListeners.forEach(listener=>listener(tenant,project,error.code!));}
       if(tenant&&monitoringRequest&&['permission_denied','authorization_changed','selection_stale','snapshot_stale','resource_access_changed'].includes(error.code??'')){invalidateMonitoringScope(tenant,project);monitoringListeners.forEach(listener=>listener(tenant,project,error.code!));}
       if (tenant && deviceRequest && ['permission_denied','device_not_found','source_not_found','definition_not_found','device_access_changed','resource_access_changed','project_archived'].includes(error.code ?? '')) {
         deviceListeners.forEach(listener => listener(tenant,project,error.code!));
@@ -144,7 +173,14 @@ function accountMethods(base: string, timeoutMs: number) {
       } else if (error.code === 'permission_denied') authorizationListeners.forEach((listener) => listener());
       if (error.code === 'csrf_invalid') { csrfToken = ''; await csrf().catch(() => undefined); }
       const retry = response.headers.get('Retry-After');
-      throw new ApiError((typeof error.message === 'string' ? error.message : '请求失败，请稍后重试。') + (response.status === 429 && retry ? ` 请在 ${retry} 秒后重试。` : ''), response.status, error.code, error.fields, error.issues ?? [], error.dependencies ?? {});
+      throw new ApiError((typeof error.message === 'string' ? error.message : '请求失败，请稍后重试。') + (response.status === 429 && retry ? ` 请在 ${retry} 秒后重试。` : ''), response.status, error.code, error.fields, error.issues ?? [], error.dependencies ?? {}, error.retryable === true, typeof error.next_action === "string" ? error.next_action : "");
+    }
+    const spatialRevision=response.headers.get('X-Spatial-Authorization-Revision');
+    if(tenant&&spatialRequest&&spatialRevision){
+      const previous=spatialRevisions.get(spatialKey);
+      if(previous&&spatialRevision.split(':').some((part,i)=>BigInt(part)<BigInt(previous.split(':')[i]??'0')))throw new DOMException('Superseded authorization revision','AbortError');
+      spatialRevisions.set(spatialKey,spatialRevision);
+      if(previous!==spatialRevision){if(previous)invalidateSpatialScope(tenant,project);spatialListeners.forEach(listener=>listener(tenant,project,'revision'));if(previous)throw new DOMException('Authorization changed','AbortError');}
     }
     const monitoringRevision=response.headers.get('X-Monitoring-Authorization-Revision');
     if(tenant&&monitoringRequest&&monitoringRevision){
@@ -195,6 +231,15 @@ function accountMethods(base: string, timeoutMs: number) {
   const idPath = (kind: string, id: string) => `/access/${kind}/${encodeURIComponent(id)}`;
   const tenantPath = (id: string) => `/tenants/${encodeURIComponent(id)}`;
   return {
+    ...spatialMethods(request,base),
+    ...notificationMethods(request),
+ ...auditMethods(request),
+ ...taskMethods(request),
+ ...fileMethods(request,base),
+    ...displayMethods(request),
+    invalidateSpatialScope,
+    spatialRevision:(tenant:string,project?:string)=>`${spatialRevisions.get(`${tenant}:${project??''}`)??''}:${spatialEpochs.get(`${tenant}:${project??''}`)??0}`,
+    onSpatialRestriction(listener:(tenant:string,project:string|undefined,code:string)=>void){spatialListeners.add(listener);return ()=>{spatialListeners.delete(listener);};},
     ...projectMethods(request),
     invalidateResourceScope,
     onResourceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { resourceListeners.add(listener); return () => { resourceListeners.delete(listener); }; },
@@ -222,12 +267,12 @@ function accountMethods(base: string, timeoutMs: number) {
     tenantRole: (id: string, role: string, signal?: AbortSignal) => request<TenantRoleDefinition>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}`, 'GET', undefined, true, signal),
     tenantRoleMembers: (id: string, role: string, filter?: AccessFilter, signal?: AbortSignal) => request<Schema<'TenantRoleMembers'>>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}/members?${query(filter)}`, 'GET', undefined, true, signal),
     createTenantRole: (id: string, input: TenantRoleCreateInput, source?: string) => request<Schema<'TenantRoleResult'>>(`${tenantPath(id)}/roles${source ? `/${encodeURIComponent(source)}/copy` : ''}`, 'POST', input),
-    updateTenantRole: (id: string, role: string, input: Schema<'TenantRoleUpdateInput'>) => request<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}`, 'PATCH', input),
+    updateTenantRole: (id: string, role: string, input: Schema<'TenantRoleUpdateInput'>) => commandRequest<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}`, 'PATCH', input),
     previewTenantRole: (id: string, role: string, action: 'permissions' | 'status' | 'archive', input: TenantRolePreviewInput, filter?: AccessFilter) => request<TenantAuthorizationImpact>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}/${action}/preview?${query(filter)}`, 'POST', input),
-    changeTenantRole: (id: string, role: string, action: 'permissions' | 'status' | 'archive', input: TenantRoleChangeInput) => request<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}/${action}`, action === 'archive' ? 'POST' : 'PUT', input),
+    changeTenantRole: (id: string, role: string, action: 'permissions' | 'status' | 'archive', input: TenantRoleChangeInput) => commandRequest<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/roles/${encodeURIComponent(role)}/${action}`, action === 'archive' ? 'POST' : 'PUT', input),
     tenantMemberAuthorization: (id: string, member: string, signal?: AbortSignal) => request<TenantAuthorization>(`${tenantPath(id)}/members/${encodeURIComponent(member)}/authorization`, 'GET', undefined, true, signal),
     previewTenantMemberRoles: (id: string, member: string, input: Schema<'TenantMemberRolesPreviewInput'>, filter?: AccessFilter) => request<TenantAuthorizationImpact>(`${tenantPath(id)}/members/${encodeURIComponent(member)}/roles/preview?${query(filter)}`, 'POST', input),
-    assignTenantMemberRoles: (id: string, member: string, input: Schema<'TenantMemberRolesInput'>) => request<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/members/${encodeURIComponent(member)}/roles`, 'PUT', input),
+    assignTenantMemberRoles: (id: string, member: string, input: Schema<'TenantMemberRolesInput'>) => commandRequest<Schema<'TenantAuthorizationResult'>>(`${tenantPath(id)}/members/${encodeURIComponent(member)}/roles`, 'PUT', input),
     tenantMembers: (id: string, filter?: TenantFilter, signal?: AbortSignal) => request<Schema<'TenantMembers'>>(`${tenantPath(id)}/members?${query(filter)}`, 'GET', undefined, true, signal),
     tenantMember: (id: string, member: string, signal?: AbortSignal) => request<TenantMember>(`${tenantPath(id)}/members/${encodeURIComponent(member)}`, 'GET', undefined, true, signal),
     changeTenantMember: (id: string, member: string, action: 'suspend' | 'resume' | 'remove', input: Schema<'TenantMemberMutationInput'>) => request<Schema<'TenantMembershipResult'>>(`${tenantPath(id)}/members/${encodeURIComponent(member)}/${action}`, 'POST', input),
@@ -250,22 +295,22 @@ function accountMethods(base: string, timeoutMs: number) {
     updateTenant: (id: string, platform: boolean, input: Schema<'UpdateTenantInput'>) => request<Schema<'TenantMutationResult'>>(platform ? `/platform/tenants/${encodeURIComponent(id)}` : `/tenants/${encodeURIComponent(id)}/profile`, 'PATCH', input),
     transferTenant: (id: string, input: Schema<'TransferTenantInput'>) => request<Schema<'TenantMutationResult'>>(`/platform/tenants/${encodeURIComponent(id)}/administrator-transfer`, 'POST', input),
     tenantAudit: (id: string, filter?: TenantFilter, signal?: AbortSignal) => request<Schema<'TenantAuditEvents'>>(`/tenants/${encodeURIComponent(id)}/audit-events?${query(filter)}`, 'GET', undefined, true, signal),
-    invalidateIdentity() { identityEpoch++; },
+    invalidateIdentity() { identityEpoch++; pendingCommands.clear(); },
     onAuthorizationChange(listener: (revision?: string) => void) { authorizationListeners.add(listener); return () => { authorizationListeners.delete(listener); }; },
     permissions: (signal?: AbortSignal) => request<Schema<'Permissions'>>('/access/permissions', 'GET', undefined, true, signal),
     profile: (signal?: AbortSignal) => request<Schema<'Profile'>>('/account/profile', 'GET', undefined, true, signal),
     roles: (filter?: AccessFilter, signal?: AbortSignal) => request<Schema<'Roles'>>(`/access/roles?${query(filter)}`, 'GET', undefined, true, signal),
     role: (id: string, signal?: AbortSignal) => request<Schema<'Role'>>(idPath('roles', id), 'GET', undefined, true, signal),
-    createRole: (input: Schema<'CreateRoleInput'>) => request<Schema<'Role'>>('/access/roles', 'POST', input),
-    updateRole: (id: string, input: Schema<'UpdateRoleInput'>) => request<Schema<'Role'>>(idPath('roles', id), 'PATCH', input),
-    setRolePermissions: (id: string, input: Schema<'RolePermissionsInput'>) => request<Schema<'Role'>>(`${idPath('roles', id)}/permissions`, 'PUT', input),
-    setRoleStatus: (id: string, input: Schema<'RoleStatusInput'>) => request<Schema<'Role'>>(`${idPath('roles', id)}/status`, 'PUT', input),
-    archiveRole: (id: string, input: Schema<'AccessMutation'>) => request<void>(`${idPath('roles', id)}/archive`, 'POST', input),
+    createRole: (input: Schema<'CreateRoleInput'>) => commandRequest<Schema<'Role'>>('/access/roles', 'POST', input),
+    updateRole: (id: string, input: Schema<'UpdateRoleInput'>) => commandRequest<Schema<'Role'>>(idPath('roles', id), 'PATCH', input),
+    setRolePermissions: (id: string, input: Schema<'RolePermissionsInput'>) => commandRequest<Schema<'Role'>>(`${idPath('roles', id)}/permissions`, 'PUT', input),
+    setRoleStatus: (id: string, input: Schema<'RoleStatusInput'>) => commandRequest<Schema<'Role'>>(`${idPath('roles', id)}/status`, 'PUT', input),
+    archiveRole: (id: string, input: Schema<'AccessMutation'>) => commandRequest<void>(`${idPath('roles', id)}/archive`, 'POST', input),
     accounts: (filter?: AccessFilter, signal?: AbortSignal) => request<Schema<'ManagedAccounts'>>(`/access/accounts?${query(filter)}`, 'GET', undefined, true, signal),
     account: (id: string, signal?: AbortSignal) => request<Schema<'ManagedAccount'>>(idPath('accounts', id), 'GET', undefined, true, signal),
     authorization: (id: string, signal?: AbortSignal) => request<Schema<'Authorization'>>(`${idPath('accounts', id)}/authorization`, 'GET', undefined, true, signal),
-    assignRoles: (id: string, input: Schema<'AccountRolesInput'>) => request<Schema<'ManagedAccount'>>(`${idPath('accounts', id)}/roles`, 'PUT', input),
-    setAccountStatus: (id: string, enabled: boolean, input: Schema<'AccessMutation'>) => request<Schema<'ManagedAccount'>>(`${idPath('accounts', id)}/${enabled ? 'enable' : 'disable'}`, 'POST', input),
+    assignRoles: (id: string, input: Schema<'AccountRolesInput'>) => commandRequest<Schema<'ManagedAccount'>>(`${idPath('accounts', id)}/roles`, 'PUT', input),
+    setAccountStatus: (id: string, enabled: boolean, input: Schema<'AccessMutation'>) => commandRequest<Schema<'ManagedAccount'>>(`${idPath('accounts', id)}/${enabled ? 'enable' : 'disable'}`, 'POST', input),
     accessAudit: (filter?: AccessFilter, signal?: AbortSignal) => request<Schema<'AccessAuditEvents'>>(`/access/audit-events?${query(filter)}`, 'GET', undefined, true, signal),
     onUnauthorized(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     accountHelp: () => request<AccountHelp>('/public/account-help'),

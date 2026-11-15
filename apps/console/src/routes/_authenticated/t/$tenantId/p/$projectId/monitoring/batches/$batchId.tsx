@@ -1,4 +1,6 @@
-import {createFileRoute} from '@tanstack/react-router';
-import {ProjectMonitoring} from '../../../../../../../../features/monitoring/context';
-import {MonitoringBatchPage} from '../../../../../../../../features/monitoring/batch-page';
-export const Route=createFileRoute('/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId')({component:function Page(){const {batchId}=Route.useParams();return <ProjectMonitoring><MonitoringBatchPage id={batchId}/></ProjectMonitoring>;}});
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { importSearch } from '../../../../../../../../features/monitoring/import-search';
+export const Route = createFileRoute('/_authenticated/t/$tenantId/p/$projectId/monitoring/batches/$batchId')({
+  validateSearch: importSearch,
+  beforeLoad: ({ params, search }) => { throw redirect({ to: '/t/$tenantId/p/$projectId/monitoring/imports/$batchId', params, search, replace: true }); },
+});

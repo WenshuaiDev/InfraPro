@@ -240,6 +240,14 @@ func TestE2EServer(t *testing.T) {
 	}
 	storage, cleanupMonitoring := browserMonitoring(t, ctx, env)
 	defer cleanupMonitoring()
+	cleanupDisplay := browserDisplay(t, ctx, env, storage)
+	defer cleanupDisplay()
+	cleanupFiles := browserFiles(t, ctx, env)
+	defer cleanupFiles()
+	cleanupSpatial := browserSpatial(t, ctx, env, storage)
+	defer cleanupSpatial()
+	cleanupAudit := browserAudit(t, ctx, env)
+	defer cleanupAudit()
 	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config, storage), ReadHeaderTimeout: 5 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()

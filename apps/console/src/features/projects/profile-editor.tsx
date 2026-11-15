@@ -1,5 +1,6 @@
 import { useLivePage } from '../tenancy/membership-shared';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
@@ -10,7 +11,7 @@ import { Button } from '@infrapro/ui/components/button';
 import { Form } from '@infrapro/ui/components/form';
 import { FormInput } from '@infrapro/ui/patterns/form-input';
 import { FormNotice } from '@infrapro/ui/patterns/feedback';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@infrapro/ui/components/dialog';
+import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { z } from '../../config/validation';
 import { useTenant } from '../tenancy/context';
 import { useProject } from './context';
@@ -19,7 +20,10 @@ import { MutationForm } from './actions';
 import { refreshProjects } from './scope';
 const schema = z.object({ name: z.string().transform((s) => s.normalize('NFKC').trim()).refine((s) => Array.from(s).length >= 1 && Array.from(s).length <= 100, '名称需为 1–100 字符。'), code: z.string().trim().toLowerCase().regex(/^[a-z0-9][a-z0-9_-]{2,31}$/, '编号需为 3–32 位字母、数字、下划线或连字符。'), purpose: z.string().trim().min(1, '请填写业务目的。').max(1000), description: z.string().max(2000), planned_start: z.string(), planned_end: z.string() }).refine((v) => !v.planned_start || !v.planned_end || v.planned_start <= v.planned_end, { message: '结束日期不得早于开始日期。', path: ['planned_end'] });
 export function ProjectCreatePage() { const ctx = useTenant(); if (!ctx.permissions.includes(P.TenantProjectCreate) || !ctx.permissions.includes(P.TenantProjectRead)) return <p>没有项目创建权限。</p>; return <section className="max-w-3xl space-y-5"><h1 className="text-2xl font-semibold">创建项目</h1><p>创建者、负责人和管理员分别记录。仅指定管理员自动成为项目成员。</p><Editor tenant={ctx.tenant.id} available={ctx.available} /></section>; }
-export function ProjectProfileEditor({ profile }: { profile: ProjectProfile }) { const ctx = useProject(); const [open, setOpen] = useState(false); return <Dialog open={open} onOpenChange={setOpen}><DialogTrigger asChild><Button disabled={!ctx.available}>编辑项目资料</Button></DialogTrigger><DialogContent className="max-h-[88dvh] overflow-y-auto sm:max-w-2xl"><DialogHeader><DialogTitle>编辑项目资料</DialogTitle><DialogDescription>编号历史永久归属原项目；计划日期不自动触发归档。</DialogDescription></DialogHeader>{open && <Editor tenant={profile.tenant_id} initial={profile} available={ctx.available} done={() => setOpen(false)} />}</DialogContent></Dialog>; }
+export function ProjectProfileEditor({ profile, blocked = false }: { profile: ProjectProfile; blocked?: boolean }) {
+  const ctx = useProject(), [open, setOpen] = useState(false), returnFocus = useRef<HTMLElement | null>(null);
+  return <><Button id="project-profile-edit" aria-label="编辑项目资料" aria-disabled={!ctx.available || blocked} className="aria-disabled:opacity-50" onClick={event => { if (!ctx.available || blocked) return; returnFocus.current = event.currentTarget; setOpen(true); }}><Pencil aria-hidden="true" />编辑资料</Button><ResponsivePanel open={open} onOpenChange={setOpen} title="编辑项目资料" description="维护业务目的与计划。编号历史保留；计划日期不自动触发归档。" returnFocus={returnFocus} fallbackFocusSelector="#project-profile-edit">{open && <Editor tenant={profile.tenant_id} initial={profile} available={ctx.available && !blocked} done={() => setOpen(false)} />}</ResponsivePanel></>;
+}
 function Editor({ tenant, initial, available, done }: { tenant: string; initial?: ProjectProfile; available: boolean; done?: () => void }) {
   const { client, account } = useIdentity(); const cache = useQueryClient(); const live = useLivePage(); const [profile, setProfile] = useState(initial); const [owner, setOwner] = useState<ProjectPerson>(); const [admin, setAdmin] = useState<ProjectPerson>(); const [result, setResult] = useState<{ id: string; name: string; admin: string; canEnter: boolean }>();
   const form = useForm({ resolver: zodResolver(schema), defaultValues: { name: initial?.name ?? '', code: initial?.code ?? '', purpose: initial?.purpose ?? '', description: initial?.description ?? '', planned_start: initial?.planned_start ?? '', planned_end: initial?.planned_end ?? '' } });

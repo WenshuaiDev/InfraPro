@@ -1,0 +1,10 @@
+# Dedicated login with only package-worker-role.sql membership. Supply secrets
+# through environment variables; never copy the API's full credential set.
+database_url: '' # INFRAPRO_DATABASE_URL
+audit_retention: 2160h
+monitoring_object_endpoint: '' # INFRAPRO_MONITORING_OBJECT_ENDPOINT
+monitoring_object_access_key: '' # INFRAPRO_MONITORING_OBJECT_ACCESS_KEY
+monitoring_object_secret_key: '' # INFRAPRO_MONITORING_OBJECT_SECRET_KEY
+monitoring_bucket: infrapro-monitoring
+# Object credentials are restricted to display/* by object-policy.example.json.
+# No ClickHouse, Redis, session signing, or identity bootstrap configuration.

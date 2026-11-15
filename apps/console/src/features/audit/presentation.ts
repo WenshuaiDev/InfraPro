@@ -1,0 +1,6 @@
+export const outcomes: Record<string,string> = { success:'已生效',failure:'执行失败',denied:'已拒绝',conflict:'修改冲突',cancelled:'实际取消',rate_limited:'受到限流',unknown:'结果待核实' };
+export const phases: Record<string,string> = { transfer:'文件传输',execution:'任务执行', command:'操作提交',accepted:'请求已接受',started:'开始处理',completed:'处理完成',terminal:'执行终态',attempt:'自动尝试',transfer_start:'开始读取',transfer_finish:'读取结束',maintenance:'维护操作',cancel_requested:'取消请求已接受' };
+export const sourceStates: Record<string,string> = { available:'当前可核实',recorded:'已有事实',restricted:'当前访问受限',source_unavailable:'来源暂不可核实',unavailable:'来源暂不可核实',missing:'关联历史不在保留范围内',not_recorded:'历史未记录',unknown:'暂未核实',pending:'等待投递',processing:'正在投递',retry:'等待重试',delivered:'投递已完成',suppressed:'按偏好抑制',failed:'投递失败',none:'未产生通知事实' };
+export const nameSources: Record<string,string> = { recorded:'当时快照',snapshot:'当时快照',historical:'当时快照',current:'当前辅助名称',not_recorded:'历史未记录',redacted:'权限裁剪',system:'系统身份' };
+export const nextActions: Record<string,string> = { narrow_filter:'请缩小时间或对象范围后重新生成。',refresh:'请刷新当前权限与状态后重试。',retry_later:'依赖暂不可用，请稍后重新核实。',regenerate:'请按当前权限重新生成。',retry:'可从任务详情手工重试，生成新的执行代次。',none:'' };
+export function date(value?:string|null) { return value ? new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'}) : '尚未记录'; }

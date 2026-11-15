@@ -40,7 +40,7 @@ func AuthorizeTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, op
 	switch scope.Entry {
 	case "project":
 		var v access.ProjectAuthorization
-		v, err = access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project)
+		v, err = access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project)
 		out.TenantMembership = v.TenantMembershipID
 		out.ProjectMembership = v.MembershipID
 		out.Permissions = v.Permissions
@@ -49,7 +49,11 @@ func AuthorizeTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, op
 			err = tx.QueryRow(ctx, `SELECT p.version::text,r.revision::text,d.revision::text FROM projects p JOIN project_resource_policies r ON r.project_id=p.id JOIN project_device_access_states d ON d.project_id=p.id WHERE p.tenant_id=$1 AND p.id=$2`, scope.Tenant, scope.Project).Scan(&out.ProjectVersion, &out.ResourceAccessRevision, &out.DeviceAccessRevision)
 		}
 	case "tenant":
-		err = access.RequireScopedTx(ctx, tx, a.ID, op, scope.Tenant)
+		// Public task control authenticates globally, then its source callback
+		// requires the exact business capability. Still require current membership.
+		if op != "TasksCommand" {
+			err = access.RequireScopedTx(ctx, tx, a.ID, op, scope.Tenant)
+		}
 		if err == nil {
 			var snap access.Snapshot
 			out.TenantMembership, snap, err = access.TenantSnapshotTx(ctx, tx, a.ID, scope.Tenant, "")
@@ -77,6 +81,10 @@ func AuthorizeTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, op
 	if err != nil {
 		return out, err
 	}
+	if a.ReadSubject() != nil {
+		out.Name = "大屏只读主体"
+		return out, nil
+	}
 	err = tx.QueryRow(ctx, `SELECT COALESCE(NULLIF(display_name,''),username) FROM accounts WHERE id=$1`, a.ID).Scan(&out.Name)
 	return out, err
 }
@@ -84,6 +92,9 @@ func AuthorizeTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, op
 type Locks struct{ CatalogWrite, TenantWrite, Governance bool }
 
 func Transact(ctx context.Context, s *access.Service, a access.Actor, scope Scope, op access.Operation, locks Locks, fn func(pgx.Tx, Authorization) error) error {
+	if e := access.CheckReadBoundary(a, scope.Entry, op, locks.CatalogWrite || locks.TenantWrite || locks.Governance); e != nil {
+		return e
+	}
 	if !scope.Valid() {
 		return NotFound("device")
 	}
@@ -152,7 +163,9 @@ func PublicError(err error) error {
 			}
 			return Problem(code, "所选期间或来源与已有关系冲突。", 409)
 		case "23503", "23514":
-			return Problem("validation_failed", "操作违反对象归属、固定定义或历史引用规则。", 422)
+			out := Problem("validation_failed", "操作违反对象归属、固定定义或历史引用规则。", 422)
+			out.Cause = err
+			return out
 		default:
 			out := Problem("unavailable", "操作暂未完成，请核对原请求收据后重试。", 503)
 			out.Cause = err
@@ -204,11 +217,14 @@ func SaveReceipt(ctx context.Context, tx pgx.Tx, a Authorization, m Meta, op acc
 	return e
 }
 func Audit(ctx context.Context, tx pgx.Tx, a Authorization, m Meta, operation, kind, target string, result Result, meta access.Meta) error {
+	return AuditSnapshots(ctx, tx, a, m, operation, kind, target, nil, result, meta)
+}
+func AuditSnapshots(ctx context.Context, tx pgx.Tx, a Authorization, m Meta, operation, kind, target string, before, after any, meta access.Meta) error {
 	meta.ActorID = a.Account
 	meta.TenantID = a.Tenant
 	meta.ProjectID = a.Project
 	meta.Reason = m.Reason
 	meta.RequestID = m.RequestID
-	// Security events carry only the minimum identity/result. Domain history owns content.
-	return access.Audit(ctx, tx, operation, kind, target, "", nil, result, meta)
+	// The finite audit catalog stores only authorized metadata differences.
+	return access.Audit(ctx, tx, operation, kind, target, "", before, after, meta)
 }

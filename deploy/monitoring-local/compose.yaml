@@ -2,7 +2,7 @@
 name: infrapro-monitoring-local
 x-clickhouse: &clickhouse
   image: clickhouse/clickhouse-server:26.8.36.3-alpine@sha256:f5443f9ffa48f0154cdd50cab39fed732201762574a27f04f1f564bbba81832d
-  mem_limit: 1400m
+  mem_limit: 2g
   volumes: ['./clickhouse.xml:/etc/clickhouse-server/config.d/acceptance.xml:ro']
   depends_on:
     keeper: {condition: service_started}

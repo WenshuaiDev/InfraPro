@@ -9,12 +9,13 @@ import { useMonitoring } from './context';
 import { count, rangeLabel } from './format';
 import { querySlot, useAnalytic } from './query-hooks';
 import type { SelectedChannel } from './channel-picker';
+import { TaskLink } from '../tasks/common';
 import { MonitoringDetailRow } from './detail-row';
 import { detailRowKey, observationTime, calculationStatusNames } from './detail-format';
 
 export function AnalyticState({ result, loading }: { result?: MonitoringAnalyticResult; loading?: boolean }) {
   const { paths } = useMonitoring();
-  if (!result || result.state === 'pending') return <p className="rounded-lg border border-dashed p-4 text-sm" role="status">{result?.state === 'pending' ? <>正在后台计算完整结果，可离开页面。<Link to={paths.jobs} className="ml-2 underline">查看任务</Link></> : loading ? '正在读取数据…' : '等待查询。'}</p>;
+  if (!result || result.state === 'pending') return <p className="rounded-lg border border-dashed p-4 text-sm" role="status">{result?.state === 'pending' ? <>正在后台计算完整结果，可离开页面。{result.task_ref ? <TaskLink source={result.task_ref}/> : <Link to={paths.jobs} className="ml-2 underline">查看任务</Link>}</> : loading ? '正在读取数据…' : '等待查询。'}</p>;
   if (result.state !== 'ready') return <p role="alert" className="rounded-lg border p-4 text-sm">计算{result.state === 'cancelled' ? '已取消' : result.state === 'needs_action' ? '需要处理' : '失败'}，请在<Link to={paths.jobs} className="underline">任务中心</Link>查看原因。</p>;
   return <>{result.coverage?.filter(part => part.state !== 'current').map((part, index) => <p key={`${part.channel_id}:${index}`} role="status" className="break-all rounded-lg border border-dashed p-3 text-sm">{part.state === 'pending' ? '部分范围等待重算；旧结果已隐藏。' : '部分范围尚未计算。'} {rangeLabel(part.range)}</p>)}</>;
 }

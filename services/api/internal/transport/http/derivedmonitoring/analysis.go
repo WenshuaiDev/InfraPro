@@ -69,6 +69,7 @@ func analysis(c *gin.Context, s *dm.Service, a access.Actor, scope dm.Scope, act
 			reply(c, 0, nil, e)
 			return
 		}
+		defer file.Close()
 		_ = http.NewResponseController(c.Writer).SetWriteDeadline(time.Now().Add(30 * time.Minute))
 		c.Header("Content-Type", file.ContentType)
 		c.Header("Content-Length", strconv.FormatInt(file.Size, 10))

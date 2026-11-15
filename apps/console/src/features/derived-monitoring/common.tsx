@@ -1,7 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, type ReactNode } from 'react';
-import { Link, useBlocker } from '@tanstack/react-router';
+import { useBlocker } from '@tanstack/react-router';
 import { ApiError, type DerivedRule, type DerivedIssue, type PermissionCode } from '@infrapro/api-client';
-import { Button } from '@infrapro/ui/components/button';
 import { Input } from '@infrapro/ui/components/input';
 import { Label } from '@infrapro/ui/components/label';
 import { Textarea } from '@infrapro/ui/components/textarea';
@@ -15,11 +14,6 @@ export function useDerived() {
  const m=useMonitoring();
  const allows=(suffix:string)=>m.can(`${m.scope.kind}.derived.${suffix}` as PermissionCode);
  return {...m,allows,editable:m.available&&!m.archived,derivedPath:`${m.paths.root}/derived`,metricsPath:`${m.paths.root}/derived-definitions`,analysisPath:`${m.paths.root}/analysis`,runsPath:`${m.paths.root}/derived-runs`};
-}
-export function DerivedTabs({current}:{current:'channels'|'metrics'|'analysis'|'runs'}){
- const m=useDerived();
- const entries=[{key:'channels',label:'派生通道',to:m.derivedPath,show:m.allows('channels.read')},{key:'metrics',label:'指标定义',to:m.metricsPath,show:m.scope.kind==='tenant'&&m.allows('metrics.read')},{key:'analysis',label:'历史分析',to:m.analysisPath,show:m.allows('analysis.read')||m.allows('analysis.results.read')},{key:'runs',label:'计算运行',to:m.runsPath,show:m.allows('runs.read')||m.allows('analysis.export')}];
- return <nav aria-label="派生监测与分析" className="flex flex-wrap gap-2 border-b pb-3">{m.canRead&&<Button asChild variant="ghost"><Link to={m.paths.root}>监测浏览</Link></Button>}{entries.filter(v=>v.show).map(v=><Button key={v.key} asChild variant={current===v.key?'secondary':'ghost'}><Link to={v.to} aria-current={current===v.key?'page':undefined}>{v.label}</Link></Button>)}{m.archived&&<p className="self-center text-sm text-muted-foreground">项目已归档 · 保留获准历史读取与导出</p>}</nav>;
 }
 export function TextField({label,value,onChange,path,hint,multiline=false,disabled=false,type='text'}:{label:string;value:string;onChange:(v:string)=>void;path?:string;hint?:string;multiline?:boolean;disabled?:boolean;type?:string}){
  const generated=useId(),id=path??generated;

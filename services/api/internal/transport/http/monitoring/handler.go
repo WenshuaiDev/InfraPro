@@ -15,6 +15,7 @@ import (
 
 func reply(c *gin.Context, status int, value any, err error) {
 	if err != nil {
+		access.ReportOperationFailure(c.Request.Context(), err)
 		var e *md.Error
 		if errors.As(err, &e) {
 			c.AbortWithStatusJSON(e.Status, e)

@@ -56,7 +56,7 @@ type authorization struct {
 func (s *Service) authorizeTx(ctx context.Context, tx pgx.Tx, a access.Actor, op access.Operation, scope Scope) (authorization, error) {
 	out := authorization{Scope: scope, Account: a.ID}
 	if scope.Entry == "project" {
-		v, e := access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project)
+		v, e := access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project)
 		if e != nil {
 			return out, e
 		}

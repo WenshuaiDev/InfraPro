@@ -1,0 +1,1249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:display:1",
+  "x-protocol-major": 1,
+  "x-method-capabilities": {
+    "resources.list": "resources.read",
+    "resources.get": "resources.read",
+    "resources.summary": "resources.read",
+    "channels.list": "channels.read",
+    "channels.get": "channels.read",
+    "monitoring.latest": "monitoring.latest",
+    "monitoring.details": "monitoring.details",
+    "monitoring.trends": "monitoring.trends",
+    "monitoring.statistics": "monitoring.statistics",
+    "monitoring.overview": "monitoring.overview",
+    "sources.get": "sources.read",
+    "sources.history": "sources.read",
+    "artifacts.list": "artifacts.read",
+    "artifacts.get": "artifacts.read",
+    "artifacts.read": "artifacts.read",
+    "spatial.list": "spatial.read",
+    "spatial.manifest": "spatial.read",
+    "spatial.objects": "spatial.read",
+    "spatial.placements": "spatial.read",
+    "spatial.readFile": "spatial.read",
+    "alerts.query": "alerts.query",
+    "alerts.summary": "alerts.summary",
+    "alerts.subscribe": "alerts.subscribe"
+  },
+  "$defs": {
+    "EventKind": {
+      "type": "string",
+      "enum": [
+        "snapshot",
+        "update",
+        "pending",
+        "reset",
+        "status",
+        "revoked"
+      ]
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "project_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "project_id"
+      ],
+      "additionalProperties": false
+    },
+    "Schema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "object",
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "array"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {},
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Schema"
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "const": false
+        },
+        "enum": {
+          "type": "array",
+          "items": {}
+        },
+        "minLength": {
+          "type": "integer"
+        },
+        "maxLength": {
+          "type": "integer"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        },
+        "items": {
+          "$ref": "#/$defs/Schema"
+        },
+        "maxItems": {
+          "type": "integer",
+          "maximum": 1000
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "Dynamic": {
+      "type": "object",
+      "properties": {
+        "facility_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "component_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "metric_version_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "value_kind": {
+          "type": "string"
+        },
+        "source_kind": {
+          "type": "string"
+        },
+        "include_future": {
+          "type": "boolean"
+        },
+        "baseline_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "facility_ids",
+        "include_future"
+      ],
+      "additionalProperties": false
+    },
+    "Binding": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "channels",
+            "resources",
+            "spatial",
+            "artifacts"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "dynamic": {
+          "$ref": "#/$defs/Dynamic"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "ids"
+      ],
+      "additionalProperties": false
+    },
+    "BindingSchema": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "channels",
+            "resources",
+            "spatial",
+            "artifacts"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "min_items": {
+          "type": "integer"
+        },
+        "max_items": {
+          "type": "integer",
+          "maximum": 500
+        },
+        "value_kind": {
+          "type": "string"
+        },
+        "source_kind": {
+          "type": "string"
+        },
+        "metric_version_id": {
+          "type": "string"
+        },
+        "unit_dimension": {
+          "type": "string"
+        },
+        "observation_direction": {
+          "type": "string"
+        },
+        "reference_basis": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "Manifest": {
+      "type": "object",
+      "properties": {
+        "manifest_version": {
+          "const": 1
+        },
+        "app_key": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        },
+        "routing": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "hash",
+                "history"
+              ]
+            },
+            "fallback": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "mode"
+          ],
+          "additionalProperties": false
+        },
+        "sdk_protocol": {
+          "type": "object",
+          "properties": {
+            "major": {
+              "const": 1
+            }
+          },
+          "required": [
+            "major"
+          ],
+          "additionalProperties": false
+        },
+        "required_capabilities": {
+          "type": "object",
+          "additionalProperties": {
+            "const": 1
+          }
+        },
+        "optional_capabilities": {
+          "type": "object",
+          "additionalProperties": {
+            "const": 1
+          }
+        },
+        "config_schema": {
+          "$ref": "#/$defs/Schema"
+        },
+        "binding_schema": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/BindingSchema"
+          }
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2048,
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 33554432
+              },
+              "media_type": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "path",
+              "size",
+              "media_type",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "manifest_version",
+        "app_key",
+        "version",
+        "entry",
+        "routing",
+        "sdk_protocol",
+        "required_capabilities",
+        "config_schema",
+        "binding_schema",
+        "files"
+      ],
+      "additionalProperties": false
+    },
+    "ReadScope": {
+      "type": "object",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "spatial": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "dynamic": {
+          "$ref": "#/$defs/Dynamic"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Grant": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scope": {
+          "$ref": "#/$defs/ReadScope"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "metadata",
+              "values",
+              "quality",
+              "source",
+              "properties"
+            ]
+          }
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revoked": {
+          "type": "boolean"
+        },
+        "issued_by": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Command": {
+      "type": "object",
+      "properties": {
+        "expected_revision": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "preparation": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "challenge": {
+          "type": "string"
+        },
+        "audience": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "package_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "config_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "release_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "instance_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "viewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Binding"
+          }
+        },
+        "grant": {
+          "$ref": "#/$defs/Grant"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 134217728
+        },
+        "valid_until": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Instance": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "current_release_id": {
+          "type": "string"
+        },
+        "draft_config_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "tenant_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "project_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "viewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "state",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "Package": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "manifest": {
+          "$ref": "#/$defs/Manifest"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Config": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "package_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Binding"
+          }
+        },
+        "mode": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Capability": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "required_permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subscribe": {
+          "type": "boolean"
+        },
+        "max_targets": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Result": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "List": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "revision": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Instance"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Capability"
+          }
+        },
+        "runtime_origin": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Detail": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "$ref": "#/$defs/Instance"
+        },
+        "access_url": {
+          "type": "string"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Package"
+          }
+        },
+        "configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Config"
+          }
+        },
+        "grant": {
+          "$ref": "#/$defs/Grant"
+        },
+        "releases": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "terminals": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Preparation": {
+      "type": "object",
+      "properties": {
+        "hash": {
+          "type": "string"
+        },
+        "package": {
+          "$ref": "#/$defs/Package"
+        },
+        "config": {
+          "$ref": "#/$defs/Config"
+        },
+        "grant_revision": {
+          "type": "string"
+        },
+        "binding_sets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 500
+          }
+        },
+        "authorization_revision": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Envelope": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "ready",
+            "empty",
+            "pending",
+            "partial"
+          ]
+        },
+        "data": {},
+        "read_at": {
+          "type": "string"
+        },
+        "authorization_revision": {
+          "type": "string"
+        },
+        "generation": {
+          "type": "string"
+        },
+        "source_vector": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "state",
+        "data",
+        "read_at",
+        "authorization_revision",
+        "generation",
+        "source_vector"
+      ],
+      "additionalProperties": false
+    },
+    "SubscriptionEvent": {
+      "type": "object",
+      "properties": {
+        "subscription_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "generation": {
+          "type": "string"
+        },
+        "sequence": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/EventKind"
+        },
+        "result": {
+          "$ref": "#/$defs/Envelope"
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "subscription_id",
+        "generation",
+        "sequence",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "ExactNumber": {
+      "type": "string",
+      "description": "Decimal/integer as exact text; never coerce through JS Number."
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 timestamp; preserves up to nanoseconds."
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Target": {
+      "type": "object",
+      "properties": {
+        "binding": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maxItems": 500
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "TimeRange": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "to": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "Query": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "file_id": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "selection_id": {
+          "type": "string"
+        },
+        "snapshot_id": {
+          "type": "string"
+        },
+        "cursor": {
+          "type": "string"
+        },
+        "search": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "output": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plot_width_px": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plot_point_budget": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "follow_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "qualities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "statuses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "range": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "view_range": {
+          "$ref": "#/$defs/TimeRange"
+        },
+        "all_history": {
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "Call": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "enum": [
+            "resources.list",
+            "resources.get",
+            "resources.summary",
+            "channels.list",
+            "channels.get",
+            "monitoring.latest",
+            "monitoring.details",
+            "monitoring.trends",
+            "monitoring.statistics",
+            "monitoring.overview",
+            "sources.get",
+            "sources.history",
+            "artifacts.list",
+            "artifacts.get",
+            "artifacts.read",
+            "spatial.list",
+            "spatial.manifest",
+            "spatial.objects",
+            "spatial.placements",
+            "spatial.readFile",
+            "alerts.query",
+            "alerts.summary",
+            "alerts.subscribe"
+          ]
+        },
+        "params": {
+          "$ref": "#/$defs/Query"
+        },
+        "generation": {
+          "type": "string",
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Subscribe": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "latest",
+            "trends",
+            "statistics",
+            "overview",
+            "alerts"
+          ]
+        },
+        "query": {
+          "$ref": "#/$defs/Query"
+        },
+        "generation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "Ack": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "generation": {
+          "type": "string"
+        },
+        "sequence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "generation",
+        "sequence"
+      ],
+      "additionalProperties": false
+    },
+    "Control": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "ready",
+            "error",
+            "close"
+          ]
+        },
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "Exchange": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "verifier": {
+          "type": "string"
+        },
+        "audience": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "verifier",
+        "audience"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeContext": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "project_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "instance_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "release_id": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "generation": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "server_time": {
+          "type": "string"
+        },
+        "preview": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "project_id",
+        "instance_id",
+        "environment",
+        "generation",
+        "preview",
+        "mode",
+        "timezone",
+        "server_time"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "x-bridge-control-methods": [
+    "context.get",
+    "config.get",
+    "capabilities.list",
+    "bindings.list",
+    "bindings.resolve",
+    "subscription.create",
+    "subscription.cancel",
+    "subscription.ack",
+    "runtime.ready",
+    "runtime.reportError",
+    "navigation.open"
+  ]
+}

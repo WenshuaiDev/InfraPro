@@ -50,6 +50,7 @@ func createInputChannels(t *testing.T, f monitoringFixture, count int) []string 
 
 func TestDerivedSixteenDistinctInputsFormalAndReplay(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	s, _, cfg := derivedChannelSetup(t, f)
 	s.WithStorage(f.storage)
 	must(t, dm.InitializeStorage(ctx, f.storage))

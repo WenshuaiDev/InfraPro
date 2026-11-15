@@ -19,6 +19,7 @@ import (
 
 func TestAnalysisWholeRangeProjectOwnershipHistoryAndArchive(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	service, _, cfg := derivedChannelSetup(t, f)
 	service.WithStorage(f.storage)
 	options := config.DefaultDerived()

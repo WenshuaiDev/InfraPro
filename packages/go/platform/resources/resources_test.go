@@ -25,7 +25,11 @@ const password = "Engineering river 橋梁 2026!"
 func must(t *testing.T, e error) {
 	t.Helper()
 	if e != nil {
-		t.Fatal(e)
+		cause := e
+		for errors.Unwrap(cause) != nil {
+			cause = errors.Unwrap(cause)
+		}
+		t.Fatalf("%v (cause: %v)", e, cause)
 	}
 }
 func code(t *testing.T, e error, want string) {
@@ -128,7 +132,11 @@ func resourcesSetup(t *testing.T) resourceFixture {
 	m := simple("位移")
 	m.Metric = &eng.Metric{Shape: "decimal", Category: "length", StandardUnit: unit.VersionID, AllowedUnits: []string{unit.VersionID}}
 	metric := f.publish(t, eng.MetricDefinition, f.create(t, eng.MetricDefinition, "displacement", m))
-	return resourceFixture{f, res.New(f.env.Service.Access()), f.actor(user), tenant.TenantID, typ.VersionID, metric.VersionID, unit.VersionID}
+	out := resourceFixture{f, res.New(f.env.Service.Access()), f.actor(user), tenant.TenantID, typ.VersionID, metric.VersionID, unit.VersionID}
+	if os.Getenv("INFRAPRO_AUDIT_SOURCE_ASSERTIONS") == "1" {
+		t.Cleanup(func() { verifyAuditSources(t, out) })
+	}
+	return out
 }
 func (f resourceFixture) write(t *testing.T, target res.Target, op string, in map[string]any) (res.Result, error) {
 	t.Helper()

@@ -12,6 +12,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring/internal/planning"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -584,7 +585,7 @@ func (s *Service) ControlRun(ctx context.Context, a access.Actor, scope Scope, i
 				return e
 			}
 		}
-		job, e := s.monitoring.ControlTaskTx(ctx, tx, a, monitoringScope(scope), r.JobID, in.Revision, action)
+		job, e := s.monitoring.ControlTaskTx(ctx, tx, a, monitoringScope(scope), r.JobID, in.Revision, action, tasks.Command{RequestID: in.RequestID, Reason: in.Reason})
 		if e != nil {
 			return e
 		}

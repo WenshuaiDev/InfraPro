@@ -43,6 +43,17 @@ services:
     ports: ['127.0.0.1:58333:8333']
     volumes: ['./s3.json:/etc/contract/s3.json:ro']
     mem_limit: 768m
+  # Audit restore tests keep source and destination buckets alive together.
+  # A separate disposable volume server provides capacity without replacing
+  # the shared S3 container or removing any existing contract objects.
+  audit-volume:
+    image: chrislusf/seaweedfs:4.53@sha256:ccad23e18639c8b98cee17e7100b95830a06077b56d8e5b006d6dcf8ec5e94a0
+    command: [volume, -ip=audit-volume, -dir=/data, -master=s3:9333, -max=64]
+    depends_on:
+      s3: {condition: service_started}
+    environment:
+      GOMEMLIMIT: 192MiB
+    mem_limit: 256m
   backup-s3:
     image: chrislusf/seaweedfs:4.53@sha256:ccad23e18639c8b98cee17e7100b95830a06077b56d8e5b006d6dcf8ec5e94a0
     command: [server, -ip=backup-s3, -dir=/data, -s3, -s3.config=/etc/contract/s3.json, -volume.max=10, -master.volumeSizeLimitMB=128]

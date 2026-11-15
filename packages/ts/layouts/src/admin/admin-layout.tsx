@@ -10,7 +10,7 @@ import { ThemeSwitch } from './theme-switch';
 import { UserMenu } from './user-menu';
 import { NavigationMenuItem } from './navigation-menu';
 
-type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; mode: AdminLayoutMode; renderWorkspaceSwitcher?: WorkspaceSwitcherRenderer; workspaceSwitcherOpen?: boolean; children: ReactNode };
+type Props = { brand: Brand; groups: NavigationGroup[]; user: LayoutUser; userNavigation: NavigationItem[]; renderLink: LinkRenderer; onNavigate: (href: string) => void; onLogout: () => void; logoutPending?: boolean; notice?: ReactNode; headerActions?: ReactNode; mode: AdminLayoutMode; renderWorkspaceSwitcher?: WorkspaceSwitcherRenderer; workspaceSwitcherOpen?: boolean; children: ReactNode };
 
 function AppSidebar({ brand, groups, renderLink, renderWorkspaceSwitcher, workspaceSwitcherOpen }: Props) {
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
@@ -46,7 +46,7 @@ function Toolbar(props: Props) {
   const searchGroups = accountItems.length ? [...props.groups, { title: '账号快捷入口', items: accountItems }] : props.groups;
   return <header className="@container/app-header sticky top-0 z-30 h-16 border-b border-transparent bg-background/95 backdrop-blur-sm"><div className={`flex h-full min-w-0 items-center px-4 sm:gap-4 ${props.mode === 'workspace' ? 'gap-3' : 'gap-2'}`}>
     {props.mode === 'workspace' ? <><SidebarTrigger variant="outline" /><Separator orientation="vertical" className="h-6" /></> : <div className="min-w-0 max-w-64 flex-1">{props.renderWorkspaceSwitcher?.({ placement: 'header', nestedInDrawer: false, ready: true, onSelected: () => {} }) ?? props.renderLink({ href: '/', className: 'flex min-h-11 items-center gap-2 font-semibold', children: <><span className="[&>svg]:size-5">{props.brand.logo}</span>{props.brand.name}</> })}</div>}
-    <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-2"><CommandSearch groups={searchGroups} onNavigate={props.onNavigate} /><ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div>
+    <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-2"><CommandSearch groups={searchGroups} onNavigate={props.onNavigate} />{props.headerActions}<ThemeSwitch /><UserMenu user={props.user} navigation={props.userNavigation} renderLink={props.renderLink} onLogout={props.onLogout} busy={props.logoutPending} /></div>
   </div></header>;
 }
 function WorkspaceLayout(props: Props) {

@@ -1,3 +1,4 @@
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { RefreshCw, Search, X } from 'lucide-react';
 import { Permissions as P, type ManagedAccount } from '@infrapro/api-client';
@@ -16,7 +17,10 @@ export function AccountsPage() {
   const { client, account, can } = useIdentity();
   const [q, setQ] = useState(''), [status, setStatus] = useState(''), [role, setRole] = useState('');
   const [pageSize, setPageSize] = useState(10);
-  const [selected, setSelected] = useState<{ id: string; mode: AccountMode; viewer: string }>();
+  const [selection, setSelected] = useState<{ id: string; mode: AccountMode; viewer: string }>();
+  const route=useSearch({strict:false}),navigate=useNavigate(),target=route.account;
+  const selected=selection??(target&&account?.id?{id:target,mode:'details' as const,viewer:account.id}:undefined);
+  const close=()=>{setSelected(undefined);if(target)void navigate({to:'/access/accounts',search:{account:undefined}});};
   const returnFocus = useRef<HTMLElement | null>(null);
   const roleFilter = can(P.PlatformRoleRead) ? role : '';
   const list = useCursorList({ queryKey: ['access', account?.id, 'accounts', q, status, roleFilter, pageSize], load: (cursor, signal) => client.accounts({ q, status, role_id: roleFilter, cursor, limit: pageSize }, signal) });
@@ -40,6 +44,6 @@ export function AccountsPage() {
         <ListPagination label="账号列表" unit="个账号" count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
       </TabsContent>
     </Tabs>
-    {selected && selected.viewer === account?.id && <AccountPanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={() => setSelected(undefined)} returnFocus={returnFocus} />}
+    {selected && selected.viewer === account?.id && <AccountPanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={close} returnFocus={returnFocus} />}
   </>;
 }

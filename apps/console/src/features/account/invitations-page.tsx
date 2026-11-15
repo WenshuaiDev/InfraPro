@@ -19,18 +19,18 @@ type Status = Invitation['status'] | 'all';
 type Modal = { kind: 'create'; original?: Invitation } | { kind: 'detail'; id: string } | { kind: 'revoke'; item: Invitation };
 const tabClass = 'h-11 flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:bg-transparent';
 
-export function InvitationsPage() {
+export function InvitationsPage({ invitationID }: { invitationID?: string } = {}) {
   const { account } = useIdentity();
-  return <InvitationsContent key={account?.id} />;
+  return <InvitationsContent key={`${account?.id}:${invitationID ?? ''}`} invitationID={invitationID} />;
 }
 
-function InvitationsContent() {
+function InvitationsContent({ invitationID }: { invitationID?: string }) {
   const { client, account, phase, can, canAll } = useIdentity();
   const cache = useQueryClient();
   const [status, setStatus] = useState<Status>('all');
   const [search, setSearch] = useState('');
   const [query, setQuery] = useState('');
-  const [modal, setModal] = useState<Modal>();
+  const [modal, setModal] = useState<Modal | undefined>(invitationID ? { kind: 'detail', id: invitationID } : undefined);
   const createButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
   useEffect(() => { const timer = setTimeout(() => setQuery(search.trim()), 250); return () => clearTimeout(timer); }, [search]);

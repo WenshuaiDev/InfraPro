@@ -1,0 +1,15 @@
+import { execFileSync } from 'node:child_process';
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { root, loadLab, command, privateJSON } from './fixtures/diagnostics-lab.mjs';
+const lab=loadLab(), dir=join(lab.directory,'linux-contract');mkdirSync(dir,{recursive:true,mode:0o700});
+execFileSync('go',['test','-c','-o',join(dir,'adapters.test'),'./services/diagnostics/internal/adapters'],{cwd:root,env:{...process.env,GOOS:'linux',CGO_ENABLED:'0'},stdio:'inherit'});
+writeFileSync(join(dir,'Dockerfile'),`FROM alpine:3.22\nRUN apk add --no-cache dbus && adduser -D -u ${process.getuid()} diagnostics\n`,{mode:0o600});
+const tag=`infrapro-diagnostics-contract:${lab.run_id}`;
+command('docker',['build','-q','-t',tag,dir]);
+const image=command('docker',['image','inspect','--format','{{.Id}}',tag]).trim();
+const output=command('docker',['run','--rm','--network','none','--memory','256m','--cpus','1','--pids-limit','64','--user',`${process.getuid()}:${process.getgid()}`,'--label',`io.infrapro.lab.run_id=${lab.run_id}`,'--label',`com.docker.compose.project=${lab.compose_project}`,'--mount',`type=bind,source=${dir},target=/tests,readonly`,'-e','DIAGNOSTICS_LINUX_CONTAINER_TEST=1',tag,'/tests/adapters.test','-test.v','-test.run','TestPrivateDBusSystemdContract|TestLinuxContainerResourceCollection']);
+writeFileSync(join(lab.directory,'evidence/linux-contract.log'),output,{mode:0o600});
+if(output.includes('--- SKIP:'))throw Error('L4 required test skipped');
+privateJSON(join(lab.directory,'evidence/linux-contract.json'),{run_id:lab.run_id,evidence_type:'contract/real-container',image,architecture:process.arch,memory_bytes:268435456,cpus:1,result:'passed',command:'node scripts/diagnostics-linux-check.mjs',real_systemd_units:'unverified'});
+console.log(output);

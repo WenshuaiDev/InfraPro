@@ -59,7 +59,7 @@ func filter(c *gin.Context) projects.Filter {
 			n = -1
 		}
 	}
-	return projects.Filter{Query: c.Query("q"), Cursor: c.Query("cursor"), Limit: n, Status: c.Query("status"), Owner: c.Query("owner_tenant_membership_id"), Unavailable: c.Query("administrator_unavailable"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), ObjectID: c.Query("object_id"), ActorID: c.Query("actor_id")}
+	return projects.Filter{Query: c.Query("q"), Cursor: c.Query("cursor"), Limit: n, Status: c.Query("status"), Source: c.Query("source"), Owner: c.Query("owner_tenant_membership_id"), Unavailable: c.Query("administrator_unavailable"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), ObjectID: c.Query("object_id"), ActorID: c.Query("actor_id")}
 }
 func Register(r *gin.Engine, i *identity.Service, s *projects.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
@@ -153,7 +153,7 @@ func Register(r *gin.Engine, i *identity.Service, s *projects.Service) {
 		if presets {
 			path = "/api/v1/access/project-role-presets"
 		}
-		r.GET(path, query("q", "cursor", "limit", "status"), func(c *gin.Context) {
+		r.GET(path, query("q", "cursor", "limit", "status", "source"), func(c *gin.Context) {
 			v, e := s.Roles(c.Request.Context(), actor(c), c.Param("tenant_id"), c.Param("project_id"), filter(c), presets)
 			reply(c, v, e)
 		})

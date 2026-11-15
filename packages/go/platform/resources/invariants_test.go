@@ -67,9 +67,11 @@ func TestAuthorizationHistoryInterpretationAndAuditIsolation(t *testing.T) {
 			}
 		}
 	}
-	// Removing security events never erases resource history.
+	// Public audit is immutable; independent resource history remains usable.
 	_, e = f.env.Pool.Exec(ctx, `DELETE FROM account_security_events WHERE object_id=$1`, facility.ID)
-	must(t, e)
+	if e == nil {
+		t.Fatal("direct audit deletion bypassed immutable history")
+	}
 	h, e := f.srv.Changes(ctx, reader, res.TenantScope(f.tenant), ft, res.Filter{})
 	must(t, e)
 	if len(h.Items) != 1 {

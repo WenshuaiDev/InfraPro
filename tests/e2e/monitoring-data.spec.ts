@@ -31,7 +31,7 @@ async function importAPI(page: Page, f: Awaited<ReturnType<typeof prepare>>, csv
   return batch;
 }
 async function selectPoint(page: Page) {
-  await expect(page.getByRole('heading', { name: '监测数据', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '监测浏览', exact: true })).toBeVisible();
   const mobile = (page.viewportSize()?.width ?? 1440) < 1024;
   if (mobile) await page.getByRole('button', { name: '设施构件树', exact: true }).click();
   const area = mobile ? page.getByRole('dialog', { name: '设施构件树', exact: true }) : page.getByRole('complementary', { name: '监测设施构件树' });
@@ -59,7 +59,7 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await page.getByLabel('来源说明 / 导入原因').fill('生成的本机验收样本');
   await page.getByRole('button', { name: '上传文件', exact: true }).click();
   await expect(page.getByRole('heading', { name: '2. 明确文件映射' })).toBeVisible({ timeout: 30_000 });
-  const batchID = page.url().split('/').at(-1)!;
+  const batchID = new URL(page.url()).pathname.split('/').at(-1)!;
   await page.getByLabel('质量列名（可选）', { exact: true }).fill('quality');
   await page.getByRole('button', { name: '选择映射目标' }).click();
   await expect(page.getByRole('region', { name: '选择监测通道' }).getByRole('combobox', { name: '来源类型' })).toBeDisabled();
@@ -73,12 +73,12 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await page.getByRole('button', { name: '开始全量校验', exact: true }).click();
   await page.getByRole('dialog').getByLabel('操作原因').fill('校验完整文件');
   await page.getByRole('dialog').getByRole('button', { name: '开始全量校验', exact: true }).click();
-  await expect(page.getByText('可发布', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('dialog').getByText('可发布', { exact: true })).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: '发布合格批次' }).click();
   await page.getByRole('dialog').getByLabel('操作原因').fill('核对后发布');
   await page.getByRole('dialog').getByRole('button', { name: '确认发布该批次' }).click();
-  await expect(page.getByText('已生效', { exact: true })).toBeVisible({ timeout: 30_000 });
-  await page.goto(f.root); await selectPoint(page);
+  await expect(page.getByRole('dialog').getByText('已生效', { exact: true })).toBeVisible({ timeout: 30_000 });
+  await page.goto(`${f.root}?point=${f.point}&channel=${f.channel}`);
   await expect(page.getByRole('img', { name: /监测趋势/ })).toBeVisible({ timeout: 30_000 });
   await allHistory(page);
   await expect(page.getByRole('button', { name: '明细', exact: true })).toBeVisible();
@@ -97,10 +97,10 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await expect(page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('heading',{name:'未能完成请求',exact:true})).toBeVisible();
   await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('button', { name: '创建后台导出任务' }).click();
   await expect.poll(()=>exportRequests.length).toBe(2);expect(exportRequests[1]).toBe(exportRequests[0]);
-  await expect(page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('link', { name: '查看任务与下载' })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('button', { name: '查看任务', exact: true })).toBeVisible();
   await page.unroute('**/monitoring/exports');
-  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('link', { name: '查看任务与下载' }).click();
-  await page.getByRole('button', { name: '数据导出', exact: true }).first().click();
+  await page.getByRole('dialog', { name: '导出统计结果', exact: true }).getByRole('button', { name: '查看任务', exact: true }).click();
+  await page.getByRole('button', { name: '查看结果', exact: true }).click({ timeout: 30_000 });
   await expect(page.getByRole('dialog').getByRole('heading', { name: '完整导出结果' })).toBeVisible({ timeout: 30_000 });
   const downloadPromise = page.waitForEvent('download'); await page.getByRole('dialog').getByRole('link', { name: /\.parquet$/ }).click();
   const download = await downloadPromise; expect(await download.failure()).toBeNull();
@@ -110,15 +110,15 @@ test('real upload mapping validation publish, exact browsing, export and revocat
   await expect(page.getByRole('dialog')).toContainText('将撤销采用 3 条');
   await page.getByRole('dialog').getByLabel('撤销理由').fill('合成数据撤销自验');
   await page.getByRole('dialog').getByRole('button', { name: '撤销该批次', exact: true }).click();
-  await expect(page.getByText('已撤销', { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole('dialog').getByText('已撤销', { exact: true })).toBeVisible({ timeout: 20_000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath('monitoring-batch-revoked.png'), fullPage: true });
   await page.getByRole('button',{name:'从原观测重新采用',exact:true}).click();
   await page.getByRole('dialog').getByLabel('重新采用原因').fill('以新采用关系恢复原观测');
   await page.getByRole('dialog').getByRole('button',{name:'建立关联的新批次'}).click();
-  await expect.poll(()=>page.url().split('/').at(-1)).not.toBe(batchID);
-  await page.getByRole('button',{name:'开始全量校验',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新校验');await page.getByRole('dialog').getByRole('button',{name:'开始全量校验',exact:true}).click();await expect(page.getByText('可发布',{exact:true})).toBeVisible({timeout:30000});
-  await page.getByRole('button',{name:'发布合格批次'}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新采用');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByText('已生效',{exact:true})).toBeVisible({timeout:30000});
+  await expect.poll(()=>new URL(page.url()).pathname.split('/').at(-1)).not.toBe(batchID);
+  await page.getByRole('button',{name:'开始全量校验',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新校验');await page.getByRole('dialog').getByRole('button',{name:'开始全量校验',exact:true}).click();await expect(page.getByRole('dialog').getByText('可发布',{exact:true})).toBeVisible({timeout:30000});
+  await page.getByRole('button',{name:'发布合格批次'}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('重新采用');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByRole('dialog').getByText('已生效',{exact:true})).toBeVisible({timeout:30000});
   expect(errors).toEqual([]);
 });
 
@@ -174,8 +174,19 @@ test('project data grants, archive reading and revocation clear cached and late 
  await projectPage.reload();await selectPoint(projectPage);
  await projectPage.getByRole('button',{name:'明细',exact:true}).click();const table=projectPage.getByRole('table',{name:'监测明细'});
  await expect(table).toContainText('22.000000000000');await expect(table.getByRole('row')).toHaveCount(2);await expect(table).not.toContainText('2020-01-01');
+ await projectPage.goto(root+'/imports');
+ await projectPage.getByRole('button',{name:'共享批次（当前授权范围）',exact:true}).click();
+ const shared=projectPage.getByRole('dialog');
+ await expect(shared).toContainText('可见采用 1 条');
+ await expect(shared.getByRole('link',{name:'下载完整原文件'})).toHaveCount(0);
+ await expect(shared.getByRole('button',{name:'预览撤销影响'})).toHaveCount(0);
+ await shared.getByRole('tab',{name:'映射配置',exact:true}).click();
+ await expect(shared).toContainText('完整映射不在当前授权范围内');
+ await shared.getByRole('tab',{name:'处理记录',exact:true}).click();
+ await expect(shared).toContainText('当前范围没有完整批次处理记录的查看权限');
+ await shared.getByRole('button',{name:'关闭批次详情',exact:true}).click();
  // Real project lifecycle must retain reads/exports but remove import/revoke controls.
- await projectPage.goto(`${consoleURL}/t/${f.tenant}/p/${pid}/profile`);await projectPage.getByRole('button',{name:'归档项目',exact:true}).click();
+ await projectPage.goto(`${consoleURL}/t/${f.tenant}/p/${pid}/profile`);await projectPage.getByRole('button',{name:'更多项目操作',exact:true}).click();await projectPage.getByRole('menuitem',{name:'归档项目',exact:true}).click();
  await projectPage.getByRole('dialog').getByRole('button',{name:'预览变更影响'}).click();await projectPage.getByRole('dialog').getByLabel('变更原因').fill('归档读取验收');await projectPage.getByRole('dialog').getByRole('button',{name:'确认归档项目',exact:true}).click();await expect(projectPage.getByRole('dialog')).toHaveCount(0);
  await projectPage.goto(root);await selectPoint(projectPage);await expect(projectPage.getByRole('button',{name:'导出当前明细',exact:true})).toBeVisible();
  await projectPage.goto(root+'/imports');await expect(projectPage.getByRole('button',{name:'导入历史文件',exact:true})).toHaveCount(0);
@@ -197,15 +208,15 @@ test('duplicate confirmation preserves evidence and a conflicting value blocks t
  test.setTimeout(120000);const f=await prepare(page,request),csv='observed_at,value,quality\n2020-01-01T00:00:00Z,2,good\n2020-01-02T00:00:00Z,4,unmarked\n';
  await importAPI(page,f,csv);
  const duplicate=await importAPI(page,f,csv,false,'needs_resolution');
- await page.goto(`${f.root}/imports/${duplicate.id}`);
- await expect(page.getByRole('table',{name:'导入问题报告'})).toContainText('same_observation');
+ await page.goto(`${f.root}/imports/${duplicate.id}?tab=issues`);
+ await expect(page.getByRole('region',{name:'问题定位与重复核对'})).toContainText('same_observation');
  const confirm=page.getByRole('button',{name:'确认同观测并忽略重复',exact:true});await expect(confirm).toBeDisabled();
  await page.getByRole('checkbox',{name:/已核对完整集合，确认全部 2 条/}).check();await page.getByLabel('核对理由').fill('人工核对同一观测的两个来源');await confirm.click();
- await page.getByRole('button',{name:'确认完成，无新增数据',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('仅保留来源核对依据');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByText('完成，无新增数据',{exact:true})).toBeVisible({timeout:30000});
+ await page.getByRole('button',{name:'确认完成，无新增数据',exact:true}).click();await page.getByRole('dialog').getByLabel('操作原因').fill('仅保留来源核对依据');await page.getByRole('dialog').getByRole('button',{name:'确认发布该批次'}).click();await expect(page.getByRole('dialog').getByText('完成，无新增',{exact:true})).toBeVisible({timeout:30000});
  const conflict=await importAPI(page,f,'observed_at,value,quality\n2020-01-01T00:00:00Z,999,good\n2020-01-03T00:00:00Z,6,good\n',false,'needs_resolution');
- await page.goto(`${f.root}/imports/${conflict.id}`);
- await expect(page.getByRole('table',{name:'导入问题报告'})).toContainText('value_conflict');
- await expect(page.getByText('存在错误或同时间异值冲突，整批不能发布。请修正映射，或修正源文件后创建新批次；原文件保留。',{exact:true})).toBeVisible();
+ await page.goto(`${f.root}/imports/${conflict.id}?tab=issues`);
+ await expect(page.getByRole('region',{name:'问题定位与重复核对'})).toContainText('value_conflict');
+ await expect(page.getByText('存在错误，整批不能发布。请核对错误位置与映射；若源文件有误，请修正后创建新批次。',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'发布合格批次',exact:true})).toHaveCount(0);
  const selection=await f.post(f.monitoring+'/selections',{channel_ids:[f.channel]});
  const details=await f.post(f.monitoring+'/queries/details',{selection_id:selection.id,all_history:true},200);expect(details.items).toHaveLength(2);expect(details.items.map((r:{value:string})=>r.value).sort()).toEqual(['2.000000000000','4.000000000000']);

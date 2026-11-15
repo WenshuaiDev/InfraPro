@@ -37,6 +37,9 @@ func monitoringSetup(t *testing.T, options ...func(*md.StorageConfig)) monitorin
 		t.Fatal("requires the disposable monitoring laboratory")
 	}
 	f := resourcesSetup(t)
+	if os.Getenv("INFRAPRO_TASK_ASSERTIONS") == "1" {
+		t.Cleanup(func() { verifyTaskSources(t, f) })
+	}
 	database := "monitoring_it_" + strings.ReplaceAll(uuid.NewString(), "-", "")
 	bucket := "contract-source"
 	cfg := md.StorageConfig{Replicas: []string{"127.0.0.1:59000", "127.0.0.1:59001"}, Database: database, User: "default", Policy: "monitoring_tiered", ObjectEndpoint: "http://127.0.0.1:58333", ObjectAccessKey: "contract-admin", ObjectSecretKey: "contract-admin-test-only", Bucket: bucket, TempDirectory: t.TempDir()}
@@ -160,6 +163,7 @@ func (f monitoringFixture) query(t *testing.T) md.QueryInput {
 
 func TestMonitoringCSVPublicationAndFixedDuplicateSet(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	a := f.validate(t, f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00.000000001Z,10000000000000000000000000.000000000001,good\n2024-01-01T00:00:00.000000003Z,-99999999999999999999999999.999999999999,bad\n2262-04-11T23:47:16.854775807Z,3,unmarked\n"))
 	if a.State != "ready" || a.Counts.Proposed != "3" {
 		t.Fatal(a)
@@ -232,6 +236,7 @@ func TestMonitoringCSVPublicationAndFixedDuplicateSet(t *testing.T) {
 
 func TestMonitoringPublicationCommitFailureAndRecovery(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	batch := f.validate(t, f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00.000000001Z,1,good\n2025-01-01T00:00:00.000000001Z,2,good\n"))
 	queued, e := f.service.QueueImport(ctx, f.actor, f.scope, batch.ID, "publish", f.meta(batch.Revision))
 	must(t, e)
@@ -279,6 +284,7 @@ func TestMonitoringPublicationCommitFailureAndRecovery(t *testing.T) {
 
 func TestMonitoringExpiredWorkerAndWholeBatchInvalidInput(t *testing.T) {
 	f := monitoringSetup(t)
+	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
 	batch := f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00.000000001Z,1,good\n2024-01-01T00:00:00.000000002Z,,good\n2024-01-01T00:00:00.000000003Z,2,good\n")
 	queued, e := f.service.QueueImport(ctx, f.actor, f.scope, batch.ID, "validate", f.meta(batch.Revision))
 	must(t, e)

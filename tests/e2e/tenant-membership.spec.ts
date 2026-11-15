@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { test, expect, consoleURL, createAccount, csrf, login, password } from './fixtures';
-import type { APIRequestContext, Page } from '@playwright/test';
+import type { APIRequestContext, Locator, Page } from '@playwright/test';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
 import { navigateTo } from '../helpers/navigation';
 
@@ -22,7 +22,11 @@ async function invite(request: APIRequestContext, headers: Record<string, string
   const r = await request.post(`${api}/tenants/${tenant}/member-invitations`, { headers, data: { target_account_id: target, client_request_id: randomUUID(), reason: '测试邀请' } }); expect(r.status()).toBe(201); return await r.json() as { link: string; invitation: { id: string; version: string } };
 }
 function credential(link: string) { return new URLSearchParams(new URL(link).hash.slice(1)).get('token'); }
-function row(page: Page, name: string) { return page.getByRole(page.viewportSize()!.width < 768 ? 'article' : 'row').filter({ hasText: name }); }
+function row(page: Page, name: string) { return page.getByRole('row').filter({ hasText: name }); }
+async function menuAction(page: Page, target: Locator, action: string) {
+  await target.getByRole('button', { name: /的操作$/ }).click();
+  await page.getByRole('menuitem', { name: action, exact: true }).click();
+}
 async function uiInvite(page: Page, tenant: string, username: string) {
   await page.goto(`${consoleURL}/t/${tenant}/invitations`); await page.getByRole('button', { name: '邀请成员', exact: true }).click();
   await page.getByLabel('完整用户名').fill(username); await page.getByRole('button', { name: '定位账号' }).click(); await expect(page.getByRole('status').filter({ hasText: username })).toBeVisible();
@@ -53,24 +57,25 @@ test('member journey: explicit login confirmation, two tenants, suspension, remo
     const persistent = await member.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)].join('')); expect(persistent.includes(credential(link)!)).toBe(false);
     await member.getByRole('button', { name: '确认加入', exact: true }).click(); await member.getByRole('link', { name: '进入租户', exact: true }).click(); await expect(member.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
     for (const label of ['编辑资料', '成员管理', '成员邀请', '租户操作记录']) await expect(member.getByRole('button', { name: label, exact: true }).or(member.getByRole('link', { name: label, exact: true }))).toHaveCount(0);
-    await member.getByText('当前租户权限', { exact: true }).click(); await expect(member.getByText('角色：租户普通成员（租户范围）')).toBeVisible();
+    await expect(member.getByText('当前租户权限', { exact: true })).toHaveCount(0); await expect(member.getByText('仅查看', { exact: true })).toBeVisible();
+    expect((await (await recipient.request.get(`${api}/tenants/${f.a}/context`)).json()).roles).toEqual(expect.arrayContaining([expect.objectContaining({ name: '租户普通成员' })]));
     const profile = await (await recipient.request.get(`${api}/tenants/${f.a}/profile`)).json(); expect(Object.keys(profile).sort()).toEqual(['administrator', 'administrator_available', 'code', 'description', 'id', 'name', 'updated_at', 'version']);
     const first = (await (await recipient.request.get(`${api}/tenants/${f.a}/context`)).json()).membership_id as string;
     const secondLink = await uiInvite(page, f.b, f.member.username); await member.goto(secondLink); await member.getByRole('button', { name: '确认加入', exact: true }).click();
-    await page.goto(`${consoleURL}/t/${f.a}/members`); const target = row(page, f.member.username); await target.getByRole('button', { name: '暂停成员', exact: true }).click(); await expect(page.getByRole('alertdialog')).toContainText('将失去本租户访问'); await page.getByLabel('操作原因').fill('重新核验时保留的暂停原因'); const checked = page.waitForResponse((r) => r.url().endsWith(`/tenants/${f.a}/context`)); await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await checked; await expect(page.getByLabel('操作原因')).toHaveValue('重新核验时保留的暂停原因'); await page.getByRole('button', { name: '取消', exact: true }).click(); await expect(target.getByRole('button', { name: '暂停成员', exact: true })).toBeFocused();
-    await target.getByRole('button', { name: '暂停成员', exact: true }).click(); await page.getByLabel('操作原因').fill('暂停 A，保留 B'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(target).toContainText('已暂停');
+    await page.goto(`${consoleURL}/t/${f.a}/members`); const target = row(page, f.member.username); await menuAction(page, target, '暂停成员'); await expect(page.getByRole('alertdialog')).toContainText('将失去本租户访问'); await page.getByLabel('操作原因').fill('重新核验时保留的暂停原因'); const checked = page.waitForResponse((r) => r.url().endsWith(`/tenants/${f.a}/context`)); await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await checked; await expect(page.getByLabel('操作原因')).toHaveValue('重新核验时保留的暂停原因'); await page.getByRole('button', { name: '取消', exact: true }).click(); await expect(target.getByRole('button', { name: /的操作$/ })).toBeFocused();
+    await menuAction(page, target, '暂停成员'); await page.getByLabel('操作原因').fill('暂停 A，保留 B'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(target).toContainText('已暂停');
     expect((await recipient.request.get(`${api}/tenants/${f.a}/profile`)).status()).toBe(404); expect((await recipient.request.get(`${api}/tenants/${f.b}/profile`)).status()).toBe(200);
-    await target.getByRole('button', { name: '恢复成员', exact: true }).click(); await page.getByLabel('操作原因').fill('恢复原关系'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(target).toContainText('有效');
+    await menuAction(page, target, '恢复成员'); await page.getByLabel('操作原因').fill('恢复原关系'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(target).toContainText('有效');
     expect((await (await recipient.request.get(`${api}/tenants/${f.a}/context`)).json()).membership_id).toBe(first);
-    await target.getByRole('button', { name: '移除成员', exact: true }).click(); await page.getByLabel('操作原因').fill('结束本次关系'); const removal = page.waitForResponse((r) => r.url().endsWith(`/members/${first}/remove`) && r.request().method() === 'POST'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); expect((await removal).status()).toBe(200); await expect(page.getByRole('alertdialog')).toHaveCount(0); await expect(target).toHaveCount(0); expect((await recipient.request.get(`${api}/tenants/${f.a}/profile`)).status()).toBe(404);
+    await menuAction(page, target, '移除成员'); await page.getByLabel('操作原因').fill('结束本次关系'); const removal = page.waitForResponse((r) => r.url().endsWith(`/members/${first}/remove`) && r.request().method() === 'POST'); await page.getByRole('button', { name: '确认操作', exact: true }).click(); expect((await removal).status()).toBe(200); await expect(page.getByRole('alertdialog')).toHaveCount(0); await expect(target).toHaveCount(0); expect((await recipient.request.get(`${api}/tenants/${f.a}/profile`)).status()).toBe(404);
     const newLink = await uiInvite(page, f.a, f.member.username); await member.goto(newLink); await member.getByRole('button', { name: '确认加入', exact: true }).click();
     const next = (await (await recipient.request.get(`${api}/tenants/${f.a}/context`)).json()).membership_id as string; expect(next).not.toBe(first);
     await page.goto(`${consoleURL}/t/${f.a}/members/${first}`); await expect(page.getByRole('heading', { name: '本次角色授予记录' })).toBeVisible(); await expect(page.getByText(/已撤销于/)).toBeVisible(); await expect(page.getByText(/结束本次关系/).first()).toBeVisible();
-    await page.goto(`${consoleURL}/t/${f.a}/members`); await page.getByLabel('成员状态', { exact: true }).selectOption('all'); await page.getByLabel('搜索本租户成员').fill(f.member.username); await expect(row(page, f.member.username)).toHaveCount(2);
+    await page.goto(`${consoleURL}/t/${f.a}/members`); await page.getByRole('tab', { name: '全部关系', exact: true }).click(); await page.getByLabel('搜索本租户成员').fill(f.member.username); await expect(row(page, f.member.username)).toHaveCount(2);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: info.outputPath('membership-history-light.png'), fullPage: true, animations: 'disabled' });
     await page.evaluate(() => document.documentElement.classList.add('dark')); await page.screenshot({ path: info.outputPath('membership-history-dark.png'), fullPage: true, animations: 'disabled' });
-    const suspend = row(page, f.member.username).filter({ hasText: '有效' }).getByRole('button', { name: '暂停成员', exact: true });
-    await suspend.focus(); await page.keyboard.press('Enter'); await expect(page.getByRole('alertdialog')).toBeVisible(); await page.getByRole('button', { name: '取消', exact: true }).focus(); await page.keyboard.press('Enter'); await expect(suspend).toBeFocused();
+    const suspend = row(page, f.member.username).filter({ hasText: '有效' }).getByRole('button', { name: /的操作$/ });
+    await suspend.focus(); await page.keyboard.press('Enter'); await page.getByRole('menuitem', { name: '暂停成员', exact: true }).focus(); await page.keyboard.press('Enter'); await expect(page.getByRole('alertdialog')).toBeVisible(); await page.getByRole('button', { name: '取消', exact: true }).focus(); await page.keyboard.press('Enter'); await expect(suspend).toBeFocused();
     if (info.project.name === 'mobile') {
       await page.setViewportSize({ width: 667, height: 375 }); await page.evaluate(() => { document.documentElement.style.fontSize = '24px'; });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: info.outputPath('membership-landscape-large-text.png'), fullPage: true, animations: 'disabled' });
@@ -112,15 +117,16 @@ test('membership HTTP matrix rejects forged scope and fields, protects administr
 });
 
 test('invitation replacement, revocation and refresh clear credentials without automatic acceptance', async ({ page, request, browser }) => {
+  test.setTimeout(90_000);
   const f = await prepare(request); await login(page, f.administrator); const first = await uiInvite(page, f.a, f.member.username);
   const recipient = await browser.newContext(); const p = await recipient.newPage();
   try {
     await login(p, f.member); await p.goto(first); await expect(p.getByRole('button', { name: '确认加入', exact: true })).toBeVisible(); await p.reload(); await expect(p.getByRole('heading', { name: '请重新打开原邀请链接' })).toBeVisible();
-    await row(page, f.member.username).getByRole('button', { name: '重新生成', exact: true }).click(); await page.getByLabel('操作原因').fill('替换失去的链接'); const checked = page.waitForResponse((r) => r.url().endsWith(`/tenants/${f.a}/context`)); await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await checked; await expect(page.getByLabel('操作原因')).toHaveValue('替换失去的链接'); await page.getByRole('button', { name: '确认操作', exact: true }).click();
+    await menuAction(page, row(page, f.member.username), '重新生成'); await page.getByLabel('操作原因').fill('替换失去的链接'); const checked = page.waitForResponse((r) => r.url().endsWith(`/tenants/${f.a}/context`)); await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await checked; await expect(page.getByLabel('操作原因')).toHaveValue('替换失去的链接'); await page.getByRole('button', { name: '确认操作', exact: true }).click();
     await expect(page.getByLabel('完整邀请链接')).toBeVisible(); const replacement = await page.getByLabel('完整邀请链接').inputValue(); await page.getByRole('button', { name: '关闭链接', exact: true }).click();
     await p.goto(first); await expect(p.getByText('已替换', { exact: true })).toBeVisible();
     await p.goto(replacement); await expect(p.getByRole('button', { name: '确认加入', exact: true })).toBeVisible();
-    await row(page, f.member.username).filter({ hasText: '待接受' }).getByRole('button', { name: '撤销邀请', exact: true }).click(); await page.getByLabel('操作原因').fill('撤销');
+    await menuAction(page, row(page, f.member.username).filter({ hasText: '待接受' }), '撤销邀请'); await page.getByLabel('操作原因').fill('撤销');
     // Acceptance in the other browser must happen after revocation has committed, not race the write.
     const revoked = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().includes(`/tenants/${f.a}/member-invitations/`) && r.url().endsWith('/revoke'));
     await page.getByRole('button', { name: '确认操作', exact: true }).click(); expect((await revoked).status()).toBe(200);
@@ -182,6 +188,84 @@ test('rejoining replaces the membership context and rejects delayed reads from t
     await memberPage.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect.poll(() => refreshedContext, { message: 'New membership must trigger a fresh context check' }).toBeGreaterThan(0);
     await expect(memberPage.getByText('仅新关系应读取的资料', { exact: true })).toBeVisible(); release();
-    await memberPage.getByText('当前租户权限', { exact: true }).click(); await expect(memberPage.getByText(`成员关系：${joined.membership_id}`, { exact: true })).toBeVisible(); await expect(memberPage.getByText(`成员关系：${accepted.membership_id}`, { exact: true })).toHaveCount(0); await expect(memberPage.getByText('成员管理验收', { exact: true })).toHaveCount(0);
+    expect((await (await recipient.request.get(`${api}/tenants/${f.a}/context`)).json()).membership_id).toBe(joined.membership_id);
+    await expect(memberPage.getByText('当前租户权限', { exact: true })).toHaveCount(0); await expect(memberPage.getByText(`成员关系：${accepted.membership_id}`, { exact: true })).toHaveCount(0); await expect(memberPage.getByText('成员管理验收', { exact: true })).toHaveCount(0); await expect(memberPage.getByText('仅新关系应读取的资料', { exact: true })).toBeVisible();
   } finally { release(); await memberPage.unrouteAll({ behavior: 'wait' }); await admin.close(); await recipient.close(); }
+});
+
+test('tenant directories preserve filters, detail links and keyboard focus with platform controls', async ({ page, request }, info) => {
+  test.setTimeout(90_000);
+  const f = await prepare(request); await login(page, f.administrator);
+  const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(`${consoleURL}/t/${f.a}/members`);
+  const table = page.getByRole('table', { name: '租户成员列表', exact: true });
+  await expect(table).toContainText(f.administrator.username);
+  await page.getByRole('button', { name: '角色', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: '管理员', exact: true }).click();
+  await expect(table.locator('tbody tr')).toHaveCount(1);
+  await page.getByLabel('搜索本租户成员').fill('missing-member');
+  await expect(page.getByText('没有符合条件的成员', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '重置', exact: true }).click();
+  await expect(table).toContainText(f.administrator.username);
+  const pageSizeRequest = page.waitForRequest((r) => r.url().includes(`/tenants/${f.a}/members?`) && new URL(r.url()).searchParams.get('limit') === '20');
+  await page.getByRole('combobox', { name: '每页条数', exact: true }).click();
+  await page.getByRole('option', { name: '20', exact: true }).click(); await pageSizeRequest;
+  await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
+  const self = row(page, f.administrator.username);
+  await self.getByRole('button', { name: /的操作$/ }).click();
+  await expect(page.getByText('不能通过成员管理操作自己', { exact: true })).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: '暂停成员', exact: true })).toHaveCount(0);
+  await page.getByRole('menuitem', { name: '查看详情', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '成员详情', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '本次角色授予记录', exact: true })).toBeVisible();
+  await page.screenshot({ path: info.outputPath('tenant-member-panel.png'), fullPage: true });
+  await page.getByRole('tab', { name: '授权详情', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '角色与有效权限', exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: '状态记录', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '成员状态记录', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '关闭面板', exact: true }).click();
+  await expect(self.getByRole('button', { name: /的操作$/ })).toBeFocused();
+  await page.screenshot({ path: info.outputPath('tenant-members.png'), fullPage: true });
+  if (info.project.name === 'desktop') {
+    await page.getByRole('button', { name: '显示列', exact: true }).click();
+    await page.getByRole('menuitemcheckbox', { name: '状态变更时间', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await expect(table.getByRole('columnheader', { name: '状态变更时间', exact: true })).toHaveCount(0);
+  }
+  const link = await uiInvite(page, f.a, f.member.username);
+  const invitationRow = row(page, f.member.username);
+  await expect(invitationRow).toContainText('待接受');
+  await page.screenshot({ path: info.outputPath('tenant-invitations.png'), fullPage: true });
+  await page.evaluate(() => document.documentElement.classList.add('dark'));
+  await page.screenshot({ path: info.outputPath('tenant-invitations-dark.png'), fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await menuAction(page, invitationRow, '查看详情');
+  await expect(page.getByRole('dialog', { name: '成员邀请详情', exact: true })).toContainText(f.member.username);
+  await expect(page.getByLabel('完整邀请链接')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('tenant-invitation-panel.png'), fullPage: true });
+  await page.getByRole('dialog', { name: '成员邀请详情', exact: true }).getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(invitationRow.getByRole('button', { name: /的操作$/ })).toBeFocused();
+  await page.getByRole('tab', { name: '已撤销', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '没有符合条件的邀请', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '清除筛选', exact: true }).click();
+  await page.getByLabel('搜索受邀账号').fill(f.member.username);
+  await expect(page.getByRole('table', { name: '租户邀请列表', exact: true }).locator('tbody tr')).toHaveCount(1);
+  await page.getByRole('button', { name: '创建时间', exact: true }).click();
+  await page.getByLabel('创建开始时间（上海）').fill('2020-01-01T00:00');
+  await page.getByLabel('创建结束时间（上海）').fill('2019-01-01T00:00');
+  await expect(page.getByText('创建开始时间不能晚于结束时间。', { exact: true }).first()).toBeVisible();
+  await page.getByLabel('创建结束时间（上海）').fill('2020-01-02T00:00');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('heading', { name: '没有符合条件的邀请', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '重置', exact: true }).click();
+  await expect(invitationRow).toBeVisible();
+  const listed = await (await page.request.get(`${api}/tenants/${f.a}/member-invitations`)).json();
+  await page.goto(`${consoleURL}/t/${f.a}/invitations/${listed.items[0].id}`);
+  await expect(page.getByRole('dialog', { name: '成员邀请详情', exact: true })).toContainText(f.member.username);
+  await page.reload();
+  await expect(page.getByRole('dialog', { name: '成员邀请详情', exact: true })).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(page).toHaveURL(`${consoleURL}/t/${f.a}/invitations`);
+  expect(errors).toEqual([]);
+  expect(link.includes('#token=')).toBe(true);
 });

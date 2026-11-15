@@ -175,3 +175,6 @@ type TemplatePage struct {
 type ExpandTemplateInput struct {
 	Inputs []InputSpec `json:"inputs"`
 }
+
+// StatusCode allows cross-module metadata adapters to distinguish hidden data from outages.
+func (e *Error) StatusCode() int { return e.Status }

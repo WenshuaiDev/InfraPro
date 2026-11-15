@@ -317,7 +317,14 @@ func (s *Service) RetryOperatorJob(ctx context.Context, tenant, id, expected, re
 			}
 		}
 		// User operations still revalidate the original actor in the worker.
-		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='queued',attempts=0,cancel_requested=false,lease_owner=NULL,lease_until=NULL,error_code=NULL,available_at=clock_timestamp(),revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id); e != nil {
+		// A manual restart closes the failed attempt's retry-wait execution before
+		// allocating a new generation. Automatic retries keep that generation open.
+		if j.State == "retry_wait" {
+			if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='failed',lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id); e != nil {
+				return e
+			}
+		}
+		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='queued',notification_generation=notification_generation+1,attempts=0,cancel_requested=false,lease_owner=NULL,lease_until=NULL,error_code=NULL,available_at=clock_timestamp(),revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id); e != nil {
 			return e
 		}
 		return operatorAuditTx(ctx, tx, tenant, "operator.jobs.retry", id, reason, map[string]string{"revision": expected, "request_id": uuid.NewString()})

@@ -1,3 +1,2 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { ProjectPermissionsPage } from '../../../../../../features/projects/pages';
-export const Route = createFileRoute('/_authenticated/t/$tenantId/p/$projectId/permissions')({ component: function Page() { return <ProjectPermissionsPage />; } });
+import { createFileRoute, redirect } from '@tanstack/react-router';
+export const Route = createFileRoute('/_authenticated/t/$tenantId/p/$projectId/permissions')({ beforeLoad: ({ params }) => { throw redirect({ to: '/t/$tenantId/p/$projectId/roles', params, replace: true }); } });

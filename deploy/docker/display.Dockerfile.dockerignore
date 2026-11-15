@@ -1,0 +1,13 @@
+.git
+**/node_modules
+**/dist
+!apps/display-runtime/dist
+!apps/display-runtime/dist/**
+build
+.artifacts
+test-results
+playwright-report
+.env
+**/.env
+**/.env.local
+**/*.local.yaml

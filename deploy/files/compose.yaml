@@ -1,0 +1,60 @@
+# Merge with deploy/compose/compose.yaml. Use a dedicated private bucket and login roles.
+x-files: &files
+  INFRAPRO_FILES_OBJECT_ENDPOINT: ${FILES_OBJECT_ENDPOINT:?configure private S3}
+  INFRAPRO_FILES_ACCESS_KEY: ${FILES_ACCESS_KEY:?configure file namespace credential}
+  INFRAPRO_FILES_SECRET_KEY: ${FILES_SECRET_KEY:?configure file namespace credential}
+  INFRAPRO_FILES_BUCKET: ${FILES_BUCKET:?configure ordinary files bucket}
+  INFRAPRO_FILES_TEMP_DIRECTORY: /staging
+  INFRAPRO_FILES_CHECKER_SOCKET: /staging/checker.sock
+  INFRAPRO_FILES_NODE_ID: files-node-1
+services:
+  files-volume-init:
+    build: {context: ../.., dockerfile: deploy/docker/files.Dockerfile}
+    user: '0:0'
+    entrypoint: [/bin/sh, -c]
+    command: ['chown 10001:10001 /staging && chmod 700 /staging']
+    network_mode: none
+    read_only: true
+    volumes: [files_staging:/staging]
+    restart: 'no'
+  api:
+    user: '10001:10001'
+    depends_on:
+      files-volume-init: {condition: service_completed_successfully}
+    environment:
+      <<: *files
+    volumes: [files_staging:/staging]
+  files-worker:
+    build: {context: ../.., dockerfile: deploy/docker/files.Dockerfile}
+    environment:
+      <<: *files
+      INFRAPRO_DATABASE_URL: ${FILES_WORKER_DATABASE_URL:?bind infrapro_files_worker role}
+    volumes: [files_staging:/staging]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 512m
+    stop_grace_period: 15s
+    depends_on:
+      access-sync: {condition: service_completed_successfully}
+      files-checker: {condition: service_started}
+    restart: unless-stopped
+  files-checker:
+    build: {context: ../.., dockerfile: deploy/docker/files.Dockerfile}
+    entrypoint: [/usr/local/bin/files-checker]
+    command: [--directory, /staging, --socket, /staging/checker.sock]
+    environment: {GOMEMLIMIT: 256MiB, GOMAXPROCS: '2'}
+    network_mode: none
+    depends_on:
+      files-volume-init: {condition: service_completed_successfully}
+    read_only: true
+    user: '10001:10001'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 32
+    mem_limit: 320m
+    volumes: [files_staging:/staging]
+    restart: unless-stopped
+volumes:
+  files_staging:

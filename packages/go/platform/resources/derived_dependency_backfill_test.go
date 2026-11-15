@@ -4,6 +4,7 @@ package resources_test
 
 import (
 	"errors"
+	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -115,5 +116,8 @@ func TestDerivedExplicitDependencyBackfillWaitsForSelectedUpstream(t *testing.T)
 		if channel.AutoStartNS == nil || *channel.AutoStartNS != expected.from || channel.ControlState != "enabled" {
 			t.Fatal("manual dependency backfill changed automatic control", channel)
 		}
+	}
+	if os.Getenv("INFRAPRO_TASK_ASSERTIONS") == "1" {
+		verifyTaskLegacyUpgrade(t, f.resourceFixture)
 	}
 }

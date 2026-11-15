@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"io"
 	"path/filepath"
 	"regexp"
@@ -45,7 +46,18 @@ func batchTx(ctx context.Context, tx pgx.Tx, auth authorization, id string, lock
 	if e != nil {
 		return b, e
 	}
-	return b, batchVisibilityTx(ctx, tx, auth, b)
+	if e = batchVisibilityTx(ctx, tx, auth, b); e != nil {
+		return b, e
+	}
+	// Do not expose a tenant-owned job through a clipped project batch.
+	j, e := scanJob(tx.QueryRow(ctx, jobSelect+` WHERE tenant_id=$1 AND target_id=$2 AND kind IN ('validate','publish') AND project_id IS NOT DISTINCT FROM $3::uuid ORDER BY created_at DESC,id DESC LIMIT 1`, auth.Tenant, id, nullable(auth.Project)))
+	if e == nil {
+		b.JobID = j.ID
+		b.TaskRef = j.TaskRef
+	} else if !taskHidden(e) {
+		return b, e
+	}
+	return b, nil
 }
 func batchVisibilityTx(ctx context.Context, tx pgx.Tx, auth authorization, b ImportBatch) error {
 	if auth.Entry != "project" {
@@ -215,73 +227,7 @@ func (s *Service) Import(ctx context.Context, a access.Actor, scope Scope, id st
 	return out, e
 }
 func (s *Service) Imports(ctx context.Context, a access.Actor, scope Scope, cursor string) (ImportPage, error) {
-	out := ImportPage{Items: []ImportBatch{}}
-	boundary, e := parseListCursor(cursor)
-	if e != nil {
-		return out, e
-	}
-	var candidates []ImportBatch
-	full := map[string]bool{}
-	var revision string
-	e = s.transact(ctx, a, scope, "imports.list", false, false, func(tx pgx.Tx, auth authorization) error {
-		revision = authorizationVersion(auth)
-		rows, e := tx.Query(ctx, batchSelect+` WHERE tenant_id=$1 AND ($2='' OR project_id::text=$2 OR (state IN ('published','revoked') AND EXISTS(SELECT 1 FROM monitoring_data_grants d JOIN project_resource_grants g ON g.id=d.resource_grant_id JOIN project_facility_links l ON l.id=g.link_id WHERE d.tenant_id=$1 AND d.project_id::text=$2 AND d.revoked_at IS NULL AND 'read'=ANY(d.capabilities) AND g.ended_at IS NULL AND l.status='active' AND (semantic_snapshot->'actual_coverage') ? d.channel_id::text))) AND ($3::timestamptz IS NULL OR (created_at,id)<($3::timestamptz,$4::uuid)) ORDER BY created_at DESC,id DESC LIMIT 51`, scope.Tenant, scope.Project, boundary.At, nullable(boundary.ID))
-		if e != nil {
-			return e
-		}
-		for rows.Next() {
-			b, e := scanBatch(rows)
-			if e != nil {
-				rows.Close()
-				return e
-			}
-			candidates = append(candidates, b)
-		}
-		e = rows.Err()
-		rows.Close()
-		if e != nil {
-			return e
-		}
-		if len(candidates) > 50 {
-			candidates = candidates[:50]
-			out.NextCursor = listCursor(candidates[49].CreatedAt, candidates[49].ID)
-		}
-		for _, b := range candidates {
-			e = batchVisibilityTx(ctx, tx, auth, b)
-			if e == nil {
-				full[b.ID] = true
-			} else if !isHidden(e) {
-				return e
-			}
-		}
-		return nil
-	})
-	if e != nil {
-		return out, e
-	}
-	for _, b := range candidates {
-		if full[b.ID] {
-			out.Items = append(out.Items, b)
-			continue
-		}
-		if scope.Entry == "project" && (b.State == "published" || b.State == "revoked") {
-			partial, e := s.partialImport(ctx, a, scope, b.ID)
-			if e != nil {
-				if isHidden(e) {
-					continue
-				}
-				return ImportPage{}, e
-			}
-			out.Items = append(out.Items, partial)
-		}
-	}
-	e = s.transact(ctx, a, scope, "imports.list", false, false, func(_ pgx.Tx, auth authorization) error {
-		if authorizationVersion(auth) != revision {
-			return revisionChanged()
-		}
-		return nil
-	})
-	return out, e
+	return s.QueryImports(ctx, a, scope, ImportQuery{Cursor: cursor})
 }
 
 func (s *Service) UploadPart(ctx context.Context, a access.Actor, scope Scope, id, revision string, part int, hash string, body io.Reader) (UploadPart, error) {
@@ -574,6 +520,31 @@ func (s *Service) QueueImport(ctx context.Context, a access.Actor, scope Scope, 
 			return e
 		}
 		out.JobID = job
+		out.TaskRef = &taskrecord.Ref{SourceRef: taskrecord.SourceRef{Module: "monitoring", Kind: "job", RootID: job}, Generation: "1", TaskID: (taskrecord.SourceRef{Module: "monitoring", Kind: "job", RootID: job}).ID()}
+		if b.JobID != "" {
+			if e = taskrecord.FlushTx(ctx, tx); e != nil {
+				return e
+			}
+			old, e := scanJob(tx.QueryRow(ctx, jobSelect+` WHERE id=$1`, b.JobID))
+			if e != nil {
+				return e
+			}
+			if old.TaskRef != nil {
+				if _, e = tx.Exec(ctx, `INSERT INTO task_transaction_facts(change) SELECT snapshot FROM monitoring_task_metadata WHERE id=$1`, b.JobID); e != nil {
+					return e
+				}
+				if e = taskrecord.FlushTx(ctx, tx); e != nil {
+					return e
+				}
+				relation := "recreated_from"
+				if kind == "publish" {
+					relation = "dependency"
+				}
+				if e = taskrecord.LinkTx(ctx, tx, out.TaskRef.SourceRef, old.TaskRef.SourceRef, relation, "1"); e != nil {
+					return e
+				}
+			}
+		}
 		if e = auditTx(ctx, tx, auth, action, id, in.Reason, in.RequestID, map[string]string{"job_id": job}); e != nil {
 			return e
 		}

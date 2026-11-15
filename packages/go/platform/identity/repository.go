@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +29,14 @@ func (r *Repository) transact(ctx context.Context, fn func(pgx.Tx) error) error 
 	if err = fn(tx); err != nil {
 		return err
 	}
-	return tx.Commit(ctx)
+	err = tx.Commit(ctx)
+	if err != nil {
+		var p *pgconn.PgError
+		if !errors.As(err, &p) && !errors.Is(err, pgx.ErrTxCommitRollback) {
+			return &auditrecord.CommitUnknown{Cause: err}
+		}
+	}
+	return err
 }
 
 const accountColumns = "id::text,username,display_name,status,created_at"
@@ -74,7 +82,15 @@ func audit(ctx context.Context, tx pgx.Tx, event, actor, account, object, outcom
 	case "reset_link_created", "password_reset":
 		objectType = "password_reset"
 	}
-	_, err := tx.Exec(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_id,outcome,reason,source_ip,user_agent,request_id,actor_type,object_type) VALUES($1,NULLIF($2,'')::uuid,NULLIF($3,'')::uuid,$4,$5,$6,$7,$8,$9,$10,$11)`, event, actor, account, object, outcome, m.Reason, m.IP, m.UserAgent, m.RequestID, actorType, objectType)
+	var subject any
+	if account != "" {
+		var name, username string
+		if e := tx.QueryRow(ctx, `SELECT display_name,username FROM accounts WHERE id=$1`, account).Scan(&name, &username); e != nil {
+			return e
+		}
+		subject = map[string]string{"display_name": name, "username": username}
+	}
+	_, err := auditrecord.AppendLegacyTx(ctx, tx, auditrecord.LegacyInput{Event: event, ActorID: actor, AccountID: account, ObjectID: object, ObjectType: objectType, ActorType: actorType, Outcome: outcome, Reason: m.Reason, IP: m.IP, UserAgent: m.UserAgent, RequestID: m.RequestID, Entry: "platform", After: subject})
 	return err
 }
 func (r *Repository) Initialized(ctx context.Context) (bool, error) {

@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -227,6 +228,10 @@ func (s *Service) ChangeStatus(ctx context.Context, a access.Actor, id, target s
 		if p.Hash != in.Hash {
 			return problem("preview_changed", "操作影响已变化，请重新查看并确认。", 409)
 		}
+		notificationAccounts, e := access.LifecycleMembersTx(ctx, tx, id, "")
+		if e != nil {
+			return e
+		}
 		_, e = tx.Exec(ctx, `UPDATE tenants SET status=$2,status_changed_at=clock_timestamp(),status_changed_by=$3,status_change_reason=$4,status_notice=$5,version=version+1,updated_by=$3,updated_at=clock_timestamp() WHERE id=$1`, id, target, a.ID, in.Reason, notice)
 		if e != nil {
 			return e
@@ -248,6 +253,9 @@ func (s *Service) ChangeStatus(ctx context.Context, a access.Actor, id, target s
 		// Explicit public projection is also used for tenant-side filtering, never raw internal reason/details.
 		public := map[string]any{"tenant_id": id, "name": old.Name, "code": old.Code, "before_status": old.Status, "after_status": target, "tenant_notice": notice, "status_changed_at": next.StatusChangedAt}
 		if e = access.Audit(ctx, tx, event, "tenant", id, "", old, map[string]any{"tenant": next, "impact": p.Impact, "authorization_revision": out.Revision, "public": public}, meta(a, m, id, in.Reason, "platform")); e != nil {
+			return e
+		}
+		if e = access.NotificationReceiptTx(ctx, tx, "tenancy", "lifecycle.changed", target, a.ID, ne.BusinessScope(id, ""), ne.Target{Kind: "workspaces"}, ne.Personal(notificationAccounts...)); e != nil {
 			return e
 		}
 		out.TenantID = id

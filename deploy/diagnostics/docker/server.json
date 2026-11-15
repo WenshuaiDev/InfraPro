@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "listen": "0.0.0.0:8096",
+  "public_origin": "https://diagnostics.example.invalid:8096",
+  "allowed_hosts": [
+    "diagnostics.example.invalid:8096",
+    "127.0.0.1:8096"
+  ],
+  "tls": {
+    "cert_file": "/etc/infrapro/diagnostics/tls/server.pem",
+    "key_file": "/etc/infrapro/diagnostics/tls/server-key.pem"
+  },
+  "trusted_proxy_cidrs": [],
+  "manifest_file": "/etc/infrapro/diagnostics/manifest.json",
+  "auth_file": "/etc/infrapro/diagnostics/auth.json",
+  "node_keys_file": "/etc/infrapro/diagnostics/node-keys.json",
+  "state_dir": "/var/lib/infrapro-diagnostics",
+  "local_observer": {
+    "node_id": "local",
+    "assignment_revision": "1",
+    "bindings_file": "/etc/infrapro/diagnostics/bindings.json"
+  },
+  "limits": {},
+  "resource_hints": {
+    "enabled": true,
+    "cpu_ratio": 0.9,
+    "cpu_samples": 3,
+    "memory_available_ratio": 0.1,
+    "disk_available_ratio": 0.1,
+    "disk_available_bytes": "1073741824"
+  }
+}

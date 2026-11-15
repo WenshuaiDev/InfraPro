@@ -685,11 +685,23 @@ func TestIntegrationLimitsAuditCleanupAndRollback(t *testing.T) {
 	if e != nil || len(more.Items) == 0 || more.Items[0].ID >= page.Items[49].ID {
 		t.Fatal("cursor duplicate or gap", e)
 	}
-	if _, e = x.pool.Exec(ctx, "UPDATE account_security_events SET created_at=now()-interval '100 days'; UPDATE account_invitations SET expires_at=now()-interval '100 days'"); e != nil {
+	// Audit facts are immutable and owned by the separate retention protocol.
+	// Seed genuinely old history; identity cleanup must preserve it.
+	if _, e = x.pool.Exec(ctx, `INSERT INTO account_security_events(event_type,account_id,outcome,created_at) VALUES('profile_updated',$1,'success',now()-interval '100 days')`, live.Account.ID); e != nil {
+		t.Fatal(e)
+	}
+	var auditBefore, auditAfter int
+	if e = x.pool.QueryRow(ctx, `SELECT count(*) FROM account_security_events`).Scan(&auditBefore); e != nil {
+		t.Fatal(e)
+	}
+	if _, e = x.pool.Exec(ctx, "UPDATE account_invitations SET expires_at=now()-interval '100 days'"); e != nil {
 		t.Fatal(e)
 	}
 	if e = s.repo.Cleanup(ctx, s.cfg.AuditRetention); e != nil {
 		t.Fatal(e)
+	}
+	if e = x.pool.QueryRow(ctx, `SELECT count(*) FROM account_security_events`).Scan(&auditAfter); e != nil || auditAfter != auditBefore {
+		t.Fatal("identity cleanup removed audit history", e, auditBefore, auditAfter)
 	}
 	initialized, e := s.Initialized(ctx)
 	if e != nil || !initialized {

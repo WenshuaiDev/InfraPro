@@ -13,7 +13,8 @@
     "./styles/base.css": "./src/styles/base.css",
     "./styles/fonts.css": "./src/styles/fonts.css",
     "./theme-init": "./src/providers/theme-state.ts",
-    "./hooks/*": "./src/hooks/*.tsx"
+    "./hooks/*": "./src/hooks/*.tsx",
+    "./patterns/files": "./src/patterns/files/index.tsx"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

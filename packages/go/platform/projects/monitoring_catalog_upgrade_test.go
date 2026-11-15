@@ -9,9 +9,16 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var taskUpgradeCodes = []access.Code{access.ProjectMonitoringJobsRead, access.ProjectMonitoringJobsManage}
+
 var monitoringUpgradeCodes = []access.Code{access.ProjectMonitoringDataRead, access.ProjectMonitoringHistoryRead, access.ProjectMonitoringDataExport, access.ProjectMonitoringImportsRead, access.ProjectMonitoringImportsManage, access.ProjectMonitoringBatchesRevoke, access.ProjectMonitoringSourceRead}
 
 func TestProjectMonitoringCatalogUpgradePreservesFrozenProjects(t *testing.T) {
+	for name, codes := range map[string][]access.Code{"monitoring": monitoringUpgradeCodes, "tasks": taskUpgradeCodes, "combined": append(slices.Clone(monitoringUpgradeCodes), taskUpgradeCodes...)} {
+		t.Run(name, func(t *testing.T) { testProjectCatalogUpgradePreservesFrozenProjects(t, codes) })
+	}
+}
+func testProjectCatalogUpgradePreservesFrozenProjects(t *testing.T, upgradeCodes []access.Code) {
 	for _, state := range []string{"archived", "disabled"} {
 		t.Run(state, func(t *testing.T) {
 			f := setup(t)
@@ -25,10 +32,10 @@ func TestProjectMonitoringCatalogUpgradePreservesFrozenProjects(t *testing.T) {
 				f.lifecycle(t, "disabled")
 			}
 			must(t, f.e.Service.Access().Transact(ctx, func(tx pgx.Tx) error {
-				if _, e := tx.Exec(ctx, `DELETE FROM role_permissions WHERE permission_code=ANY($1::text[])`, monitoringUpgradeCodes); e != nil {
+				if _, e := tx.Exec(ctx, `DELETE FROM role_permissions WHERE permission_code=ANY($1::text[])`, upgradeCodes); e != nil {
 					return e
 				}
-				_, e := tx.Exec(ctx, `DELETE FROM permission_catalog WHERE code=ANY($1::text[])`, monitoringUpgradeCodes)
+				_, e := tx.Exec(ctx, `DELETE FROM permission_catalog WHERE code=ANY($1::text[])`, upgradeCodes)
 				return e
 			}))
 			const facts = `SELECT jsonb_build_array(to_jsonb(p),to_jsonb(t),(SELECT jsonb_agg(to_jsonb(m) ORDER BY m.id) FROM project_memberships m WHERE m.project_id=p.id),(SELECT jsonb_agg(to_jsonb(b) ORDER BY b.id) FROM project_member_roles b WHERE b.project_id=p.id))::text FROM projects p JOIN tenants t ON t.id=p.tenant_id WHERE p.id=$1`
@@ -37,7 +44,7 @@ func TestProjectMonitoringCatalogUpgradePreservesFrozenProjects(t *testing.T) {
 			report, e := f.e.Service.Access().SyncPreview(ctx)
 			must(t, e)
 			if len(report.Conflicts) != 0 {
-				t.Fatalf("v11 monitoring catalog upgrade blocked: %v", report.Conflicts)
+				t.Fatalf("initial catalog upgrade blocked: %v", report.Conflicts)
 			}
 			must(t, f.e.Service.Access().Sync(ctx))
 			must(t, f.e.Service.Access().Check(ctx))
@@ -82,15 +89,21 @@ func TestProjectMonitoringCatalogUpgradePreservesFrozenProjects(t *testing.T) {
 }
 
 func TestProjectMonitoringCatalogSyncStillRejectsFrozenExpansion(t *testing.T) {
-	for _, scenario := range []string{"existing_catalog", "changed_access_revision", "partial_publication"} {
+	testProjectFrozenCatalogExpansion(t, monitoringUpgradeCodes, []string{"existing_catalog", "changed_access_revision", "partial_publication"})
+	t.Run("tasks", func(t *testing.T) {
+		testProjectFrozenCatalogExpansion(t, taskUpgradeCodes, []string{"existing_catalog", "partial_publication"})
+	})
+}
+func testProjectFrozenCatalogExpansion(t *testing.T, upgradeCodes []access.Code, scenarios []string) {
+	for _, scenario := range scenarios {
 		t.Run(scenario, func(t *testing.T) {
 			f := setup(t)
 			p := f.create(t, "monitoring-sync-guard", f.bid)
 			f.change(t, f.b, p.ProjectID, "", access.OpProjectArchive, projects.Change{})
-			_, e := f.e.Pool.Exec(ctx, `DELETE FROM role_permissions WHERE permission_code=ANY($1::text[])`, monitoringUpgradeCodes)
+			_, e := f.e.Pool.Exec(ctx, `DELETE FROM role_permissions WHERE permission_code=ANY($1::text[])`, upgradeCodes)
 			must(t, e)
 			if scenario != "existing_catalog" {
-				codes := monitoringUpgradeCodes
+				codes := upgradeCodes
 				if scenario == "partial_publication" {
 					codes = codes[1:]
 				}

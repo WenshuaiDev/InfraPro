@@ -8,6 +8,7 @@ import type { MonitoringImportBatch, MonitoringMapping } from '../../packages/ts
 import type { DerivedRule, DerivedRun } from '../../packages/ts/api-client/src/derived-monitoring';
 import { test, expect, consoleURL, csrf, login } from './fixtures';
 import { seedResources } from '../helpers/resource-fixture';
+import { navigateTo } from '../helpers/navigation';
 
 const origin=new URL(consoleURL).origin, api=`${origin}/api/v1`;
 const wm=(revision='0')=>({request_id:randomUUID(),expected_revision:revision,reason:'派生监测真实浏览器自验'});
@@ -80,7 +81,7 @@ test('definition, facility-owned binding, trial, automatic publication and retur
  test.setTimeout(240000);const f=await prepare(page,request);const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${f.root}/derived-definitions?id=new`);
  await page.getByLabel('指标编码',{exact:true}).fill('DIFFERENCE');await page.getByLabel('指标名称',{exact:true}).fill(longName);
- await page.getByRole('navigation',{name:'派生监测与分析'}).getByRole('link',{name:'派生通道',exact:true}).click();await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('button',{name:'继续编辑',exact:true}).click();await expect(page.getByLabel('指标名称',{exact:true})).toHaveValue(longName);
+ await navigateTo(page,'派生通道');await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('button',{name:'继续编辑',exact:true}).click();await expect(page.getByLabel('指标名称',{exact:true})).toHaveValue(longName);
  await configureRule(page,f);
  await page.getByLabel('操作原因',{exact:true}).fill('模板生成相邻差分指标');
  await page.getByLabel('指标编码',{exact:true}).fill('bad code');await page.getByRole('button',{name:'创建草稿',exact:true}).click();await expect(page.getByRole('alert')).toBeFocused();await page.getByRole('alert').getByRole('button').first().click();await expect(page.getByLabel('指标编码',{exact:true})).toBeFocused();await page.getByLabel('指标编码',{exact:true}).fill('DIFFERENCE');
@@ -134,7 +135,7 @@ test('definition, facility-owned binding, trial, automatic publication and retur
  await navigation.getByRole('treeitem',{name:`${longName}，业务通道`,exact:true}).locator('[data-select-resource]').first().click();
  await noOverflow(page);await page.screenshot({path:info.outputPath('merged-derived-workspace.png'),fullPage:true});
  await page.goto(`${f.root}/derived/${channelID}`);
- await page.getByRole('navigation',{name:'派生监测与分析'}).getByRole('link',{name:'计算运行',exact:true}).click();
+ await navigateTo(page,'计算运行');
  await expect(page.getByRole('table',{name:'计算运行记录'})).toBeVisible();
  await page.getByRole('button',{name:/试算/}).first().click();
  await expect(page.getByText('已完成',{exact:true}).last()).toBeVisible();await noOverflow(page);
@@ -166,7 +167,7 @@ test('analysis multi-output version, result evidence, comparison and exact expor
  await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});
  const downloadPromise=page.waitForEvent('download');await page.getByRole('link',{name:/\.csv$/}).first().click();const download=await downloadPromise;expect(await download.failure()).toBeNull();const downloaded=readFileSync((await download.path())!,'utf8');expect(downloaded).toContain('artifact_version_id');expect(downloaded).toContain('half_even');expect(downloaded).toContain('2.000000000000000000');
  await page.getByLabel('导出内容',{exact:true}).selectOption('inputs');await page.getByLabel('导出或任务操作原因',{exact:true}).fill('下载完整固定输入候选和基准');const previousExport=new URL(page.url()).searchParams.get('export_id');await page.getByRole('button',{name:'生成完整导出',exact:true}).click();await expect.poll(()=>new URL(page.url()).searchParams.get('export_id')).not.toBe(previousExport);await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});const inputPromise=page.waitForEvent('download');await page.getByRole('link',{name:/\.csv$/}).first().click();const inputDownload=await inputPromise;expect(await inputDownload.failure()).toBeNull();expect(readFileSync((await inputDownload.path())!,'utf8')).toContain('evidence_path');
- await page.reload();await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});const exportID=new URL(page.url()).searchParams.get('export_id')!;await page.goto(`${f.root}/derived-runs?export_id=${exportID}`);await expect(page.getByRole('table',{name:'历史分析导出记录'})).toContainText('CSV');await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});
+ await page.reload();await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});const exportID=new URL(page.url()).searchParams.get('export_id')!;await page.goto(`${f.root}/derived-runs?export_id=${exportID}`);await expect(page.getByRole('table',{name:'历史分析导出记录'})).toContainText('CSV',{timeout:30000});await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});
  await page.emulateMedia({colorScheme:'dark'});await noOverflow(page);await page.screenshot({path:info.outputPath('analysis-artifact-dark.png'),fullPage:true});expect(errors).toEqual([]);
 });
 
@@ -194,7 +195,7 @@ test('a restricted project artifact supports its authorized slice and clears wid
  const partial=await f.post(grants,{...wm(revoked.access_revision),channel_id:f.channel.id,resource_grant_id:resourceGrant.id,range:{from:sliceFrom,to:sliceTo},capabilities:['read','history','export']},200);
  const root=`${consoleURL}/t/${f.tenant}/p/${project.project_id}/monitoring`,artifactURL=`${root}/analysis/${run.analysis.artifact_id}?version=${run.analysis.artifact_version_id}`;
  await page.goto(artifactURL);
- const selection=section(page,'按获准片段读取成果');await expect(selection).toBeVisible();
+ const selection=section(page,'按获准片段读取成果');await expect(selection).toBeVisible({timeout:30000});
  await selection.getByLabel('起点（含）',{exact:true}).fill(sliceFrom);await selection.getByLabel('终点（不含）',{exact:true}).fill(sliceTo);await selection.getByLabel('输出标识（逗号分隔，可留空）',{exact:true}).fill('point');await selection.getByRole('button',{name:'读取获准片段',exact:true}).click();
  const values=page.getByRole('table',{name:'计算输出与匹配解释'});await expect(values).toContainText('12.000000000000000000');await expect(values.getByRole('row')).toHaveCount(2);await expect(page.getByText('当前为所选范围及输出的获准片段；整份成果行数不在此片段中披露。',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'与另一成果版本比较',exact:true}).click();const comparison=section(page,'比较固定成果：左侧 V1');await comparison.getByLabel('比较原因',{exact:true}).fill('只比较获准原值片段');await comparison.getByRole('button',{name:'提交所选片段比较',exact:true}).click();await expect(comparison.getByText('已完成',{exact:true})).toBeVisible({timeout:30000});await expect(comparison.getByText('输出范围：2020-01-01T00:01:00.000000000Z 至 2020-01-01T00:02:00.000000000Z（终点不含）',{exact:true})).toBeVisible();

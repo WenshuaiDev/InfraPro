@@ -44,6 +44,9 @@ func Register(r *gin.Engine, i *identity.Service, service *s.Service) {
 				if action == "channel-candidates" {
 					allowed = append(allowed, "compatible_only")
 				}
+				if kind == "source" && action == "list" {
+					allowed = append(allowed, "facility_id", "parent_id", "channel_id", "state")
+				}
 				var f s.Filter
 				f, err = h.Filter(ctx, allowed...)
 				if err != nil {
@@ -51,6 +54,8 @@ func Register(r *gin.Engine, i *identity.Service, service *s.Service) {
 					return
 				}
 				switch kind + ":" + action {
+				case "source:list":
+					out, err = service.Directory(cc, a, scope, f)
 				case "source:detail":
 					out, err = service.Current(cc, a, scope, target)
 				case "source:history":

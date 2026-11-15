@@ -101,6 +101,21 @@ func TestDerivedControlReceiptMandateAndPauseFence(t *testing.T) {
 		_, e = host.EnqueueTaskTx(ctx, tx, monitoring.EnqueueTask{ID: jobID, Scope: monitoring.TenantScope(f.scope.Tenant), Kind: "derive", Target: runID, TargetRevision: "1", Input: []byte(`{"mode":"automatic"}`)})
 		return e
 	}))
+
+	outcome := func(id, state string) {
+		t.Helper()
+		must(t, f.e.Service.Access().Transact(ctx, func(tx pgx.Tx) error {
+			return f.s.TaskOutcomeTx(ctx, tx, monitoring.Task{Job: monitoring.Job{ID: id, Kind: "derive"}, Scope: monitoring.TenantScope(f.scope.Tenant)}, state, "input_unavailable")
+		}))
+	}
+	outcome(jobID, "failed")
+	outcome(jobID, "failed")
+	var eventCount, occurrences int
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT count(*) FROM notification_events WHERE event_type='derived.condition'`).Scan(&eventCount))
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT occurrences FROM notification_conditions WHERE source_module='derivedmonitoring'`).Scan(&occurrences))
+	if eventCount != 1 || occurrences != 2 {
+		t.Fatal("automatic failure not coalesced", eventCount, occurrences)
+	}
 	permit := monitoring.RawSystemPermit{Tenant: f.scope.Tenant, RunID: runID, MandateRevision: "2"}
 	// This checks a real persisted automatic run, not a client-supplied actor.
 	from, to := int64(100), int64(200)
@@ -121,6 +136,11 @@ func TestDerivedControlReceiptMandateAndPauseFence(t *testing.T) {
 	must(t, f.e.Pool.QueryRow(ctx, `SELECT state,fence FROM monitoring_jobs WHERE id=$1`, jobID).Scan(&state, &fence))
 	if state != "cancelled" || fence != 1 || paused.Channel.ControlState != "paused" {
 		t.Fatal("pause did not fence prior work", state, fence, paused)
+	}
+	outcome(jobID, "succeeded")
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT count(*) FROM notification_events WHERE event_type='derived.condition'`).Scan(&eventCount))
+	if eventCount != 1 {
+		t.Fatal("pause falsely reported recovery")
 	}
 	_, e = host.RawReader().CheckSystem(ctx, permit, snapshot.ID, false)
 	if e == nil {
@@ -144,6 +164,19 @@ func TestDerivedControlReceiptMandateAndPauseFence(t *testing.T) {
 	must(t, e)
 	if restarted.Channel.ControlState != "enabled" || restarted.Channel.MandateRevision != "4" {
 		t.Fatal(restarted)
+	}
+	_, newJob := queueAutomaticFixture(t, f, host, restarted.Channel, trial.PlanHash, preview.InputRanges, 300, 400)
+	outcome(newJob, "failed")
+	outcome(jobID, "succeeded")
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT count(*) FROM notification_events WHERE event_type='derived.condition'`).Scan(&eventCount))
+	if eventCount != 2 {
+		t.Fatal("old generation closed new fault", eventCount)
+	}
+	outcome(newJob, "succeeded")
+	outcome(newJob, "succeeded")
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT count(*) FROM notification_events WHERE event_type='derived.condition'`).Scan(&eventCount))
+	if eventCount != 3 {
+		t.Fatal("current recovery duplicated or absent", eventCount)
 	}
 	_, e = f.s.ControlChannel(ctx, actor, f.scope, channel.Resource.ID, dm.ControlInput{WriteMeta: wm(paused.Channel.ControlRevision), PreviewID: resume.ID, PreviewHash: resume.Hash}, access.Meta{})
 	code(t, e, "revision_changed")

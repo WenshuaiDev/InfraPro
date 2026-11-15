@@ -133,7 +133,7 @@ func (s *Service) publishFormal(ctx context.Context, lease monitoring.TaskLease,
 			if e = access.Audit(ctx, tx, "derived.results.published", "derived_channel", run.ChannelID, "", map[string]any{"head_revision": headRevision}, map[string]any{"generation_id": target.Generation, "run_id": run.ID, "output_range": run.OutputRange, "row_count": strconv.FormatUint(manifest.Rows, 10), "manifest_root": manifestRoot}, access.Meta{ActorType: "system", ActorScope: "tenant", TenantID: run.Scope.Tenant, Reason: "固定输入计算结果发布"}); e != nil {
 				return e
 			}
-			_, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',progress=$3,error_code=NULL,lease_owner=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, run.Scope.Tenant, run.JobID, jsonBytes(map[string]string{"phase": "completed", "generation_id": target.Generation, "output_rows": strconv.FormatUint(manifest.Rows, 10)}))
+			e = lease.CompleteTx(ctx, tx, map[string]string{"phase": "completed", "generation_id": target.Generation, "output_rows": strconv.FormatUint(manifest.Rows, 10)})
 			if e != nil {
 				return e
 			}

@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:server",
+  "additionalProperties": false,
+  "properties": {
+    "allowed_hosts": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "auth_file": {
+      "type": "string"
+    },
+    "development_origins": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "limits": {
+      "additionalProperties": false,
+      "properties": {
+        "concurrent_probes": {
+          "type": "integer"
+        },
+        "history_points": {
+          "type": "integer"
+        },
+        "max_nodes": {
+          "type": "integer"
+        },
+        "max_probes": {
+          "type": "integer"
+        },
+        "max_replicas": {
+          "type": "integer"
+        },
+        "probes_per_node": {
+          "type": "integer"
+        },
+        "store_max_bytes": {
+          "type": "integer"
+        }
+      },
+      "required": [],
+      "type": "object"
+    },
+    "listen": {
+      "type": "string"
+    },
+    "local_observer": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "assignment_revision": {
+              "pattern": "^(0|[1-9][0-9]{0,19})$",
+              "type": "string"
+            },
+            "bindings_file": {
+              "type": "string"
+            },
+            "node_id": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "node_id",
+            "assignment_revision",
+            "bindings_file"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "manifest_file": {
+      "type": "string"
+    },
+    "node_keys_file": {
+      "type": "string"
+    },
+    "public_origin": {
+      "type": "string"
+    },
+    "resource_hints": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_ratio": {
+          "type": "number"
+        },
+        "cpu_samples": {
+          "type": "integer"
+        },
+        "disk_available_bytes": {
+          "type": "string"
+        },
+        "disk_available_ratio": {
+          "type": "number"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "memory_available_ratio": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "enabled",
+        "cpu_ratio",
+        "cpu_samples",
+        "memory_available_ratio",
+        "disk_available_ratio",
+        "disk_available_bytes"
+      ],
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "state_dir": {
+      "type": "string"
+    },
+    "tls": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "cert_file": {
+              "type": "string"
+            },
+            "key_file": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cert_file",
+            "key_file"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "trusted_proxy_cidrs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instance_id",
+    "listen",
+    "public_origin",
+    "allowed_hosts",
+    "tls",
+    "trusted_proxy_cidrs",
+    "manifest_file",
+    "auth_file",
+    "node_keys_file",
+    "state_dir",
+    "local_observer",
+    "limits",
+    "resource_hints"
+  ],
+  "type": "object"
+}

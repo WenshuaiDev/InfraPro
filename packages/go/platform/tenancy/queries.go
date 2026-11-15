@@ -2,9 +2,7 @@ package tenancy
 
 import (
 	"context"
-	"strconv"
-	"strings"
-	"time"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/jackc/pgx/v5"
@@ -213,74 +211,12 @@ func (s *Service) Candidates(ctx context.Context, a access.Actor, f Filter) (acc
 	return v, e
 }
 func (s *Service) Audit(ctx context.Context, a access.Actor, id string, f Filter) (access.Page[AuditEvent], error) {
-	v := access.Page[AuditEvent]{Items: []AuditEvent{}}
-	e := s.transact(ctx, a, access.OpTenantAudit, id, "", func(tx pgx.Tx, _ string) error {
-		cursor := f.Cursor
-		f.Cursor = ""
-		if e := f.validate(false); e != nil {
-			return e
-		}
-		before := int64(9223372036854775807)
-		if cursor != "" {
-			var e error
-			before, e = strconv.ParseInt(cursor, 10, 64)
-			if e != nil || before < 1 {
-				return access.Validation("cursor", "分页位置无效。")
-			}
-		}
-		var from, to *time.Time
-		for _, p := range []struct {
-			raw  string
-			dest **time.Time
-		}{{f.From, &from}, {f.To, &to}} {
-			if p.raw != "" {
-				t, e := time.Parse(time.RFC3339, p.raw)
-				if e != nil {
-					return access.Validation("time", "时间格式无效。")
-				}
-				*p.dest = &t
-			}
-		}
-		if from != nil && to != nil && from.After(*to) {
-			return access.Validation("time", "起始时间不得晚于结束时间。")
-		}
-		events := []string{"resource_access.policy.updated", "resource_access.link.created", "resource_access.link.revoked", "resource_access.grants.changed", "resource.create", "resource.update", "resource.retire", "resource.restore", "resource.delete", "engineering.create", "engineering.copy", "engineering.save", "engineering.publish", "engineering.state", "engineering.new-draft", "engineering.delete-draft", "tenant.disabled", "tenant.enabled", "tenant.role.created", "tenant.role.copied", "tenant.role.updated", "tenant.role.permissions_changed", "tenant.role.status_changed", "tenant.role.deleted", "tenant.member.roles_changed", "tenant.member.authorization_changed", "tenant.authorization.preset_synced", "tenant.invitation.created", "tenant.invitation.expired", "tenant.invitation.revoked", "tenant.invitation.regenerated", "tenant.invitation.invalidated", "tenant.invitation.accepted", "tenant.member.joined", "tenant.member.suspended", "tenant.member.resumed", "tenant.member.removed", "tenant.created", "tenant.profile.updated", "tenant.administrator.transferred", "tenant.administrator.unavailable", "tenant.administrator.available"}
-		_, own, err := access.TenantSnapshotTx(ctx, tx, a.ID, id, "")
-		if err != nil {
-			return err
-		}
-		for _, c := range own.Permissions {
-			if c == access.TenantProjectRead {
-				events = append(events, "tenant.project.governance")
-				break
-			}
-		}
-		rows, e := tx.Query(ctx, `SELECT id::text,tenant_id::text,event_type,
- CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN '' ELSE COALESCE(actor_id::text,'') END,
- CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN 'platform' ELSE actor_type END,actor_scope,
- CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public'->>'tenant_notice','') ELSE reason END,
- CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN '' ELSE request_id END,created_at,
- CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public','{}'::jsonb) ELSE details END
- FROM account_security_events WHERE project_id IS NULL AND tenant_id=$1 AND id<$2 AND event_type=ANY($3::text[]) AND ($4='' OR event_type=$4) AND ($5::timestamptz IS NULL OR created_at>=$5) AND ($6::timestamptz IS NULL OR created_at<=$6) AND ($7='' OR (CASE WHEN event_type IN ('tenant.disabled','tenant.enabled') THEN COALESCE(details->'after'->'public'->>'tenant_notice','') ELSE reason END) ILIKE '%'||$7||'%' OR event_type ILIKE '%'||$7||'%') AND ($9='' OR object_type=$9) AND ($10='' OR object_id=$10) ORDER BY id DESC LIMIT $8`, id, before, events, f.Event, from, to, strings.TrimSpace(f.Query), f.Limit+1, f.ObjectType, f.ObjectID)
-		if e != nil {
-			return e
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var ev AuditEvent
-			if e = rows.Scan(&ev.ID, &ev.TenantID, &ev.Event, &ev.ActorID, &ev.ActorType, &ev.ActorScope, &ev.Reason, &ev.RequestID, &ev.CreatedAt, &ev.Details); e != nil {
-				return e
-			}
-			redactStatusMetadata(ev.Details)
-			v.Items = append(v.Items, ev)
-		}
-		if len(v.Items) > f.Limit {
-			v.Items = v.Items[:f.Limit]
-			v.NextCursor = v.Items[f.Limit-1].ID
-		}
-		return rows.Err()
-	})
-	return v, e
+	page, e := s.access.ReadAudit(ctx, a, auditrecord.Scope{Kind: "tenant", Tenant: id}, access.Filter{Cursor: f.Cursor, Query: f.Query, Limit: f.Limit, Event: f.Event, From: f.From, To: f.To, ObjectID: f.ObjectID, ObjectType: f.ObjectType})
+	out := access.Page[AuditEvent]{Items: []AuditEvent{}, NextCursor: page.NextCursor}
+	for _, v := range page.Items {
+		out.Items = append(out.Items, AuditEvent{ID: v.ID, TenantID: v.TenantID, Event: v.EventType, ActorID: v.ActorID, ActorType: v.ActorType, ActorScope: v.ActorScope, Reason: v.Reason, RequestID: v.RequestID, CreatedAt: v.CreatedAt, Details: v.Details})
+	}
+	return out, e
 }
 
 // Older profile/transfer snapshots can include governance fields. Redact at every nesting level.

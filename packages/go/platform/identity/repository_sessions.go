@@ -139,7 +139,7 @@ func (r *Repository) Revoke(ctx context.Context, p Principal, id string, idle ti
 		if id == "" {
 			event = "logout_all"
 		}
-		return audit(ctx, tx, event, p.Account.ID, p.Account.ID, id, "success", m)
+		return securityReceipt(ctx, tx, event, p.Account.ID, p.Account.ID, id, m)
 	})
 }
 func (r *Repository) ConfirmPassword(ctx context.Context, p Principal, password, newHash string, idle time.Duration, threshold int, m Meta) error {
@@ -207,7 +207,7 @@ func (r *Repository) ConfirmPassword(ctx context.Context, p Principal, password,
 		if err != nil {
 			return err
 		}
-		return audit(ctx, tx, event, p.Account.ID, p.Account.ID, "", "success", m)
+		return securityReceipt(ctx, tx, event, p.Account.ID, p.Account.ID, "", m)
 	})
 	if e != nil {
 		return e

@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 	"encoding/json"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	"io"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -17,7 +18,16 @@ type Download struct {
 	SHA256      string
 	ContentType string
 	Write       func(context.Context, io.Writer) error
+	Observer    *access.TransferObserver
 }
+
+func JobGeneration(job Job) string {
+	if job.TaskRef != nil {
+		return job.TaskRef.Generation
+	}
+	return ""
+}
+func (d Download) Close() error { return d.Observer.Close() }
 
 func (s *Service) Source(ctx context.Context, a access.Actor, scope Scope, id string) (Download, error) {
 	out := Download{ContentType: "application/octet-stream"}
@@ -65,7 +75,8 @@ func (s *Service) Source(ctx context.Context, a access.Actor, scope Scope, id st
 				return e
 			}
 		}
-		return nil
+		out.Observer, e = s.access.BeginTransferTx(ctx, tx, a.ID, "", ar.Scope{Kind: scope.Entry, Tenant: scope.Tenant, Project: scope.Project}, "monitoring", ar.Link{Kind: "domain_file", Module: "monitoring", TargetKind: "source", TargetID: id, Relation: "input"})
+		return e
 	})
 	if e != nil {
 		return out, e
@@ -111,5 +122,6 @@ func (s *Service) Source(ctx context.Context, a access.Actor, scope Scope, id st
 			}
 		}
 	}
+	out.Write = out.Observer.Wrap(out.Write)
 	return out, nil
 }

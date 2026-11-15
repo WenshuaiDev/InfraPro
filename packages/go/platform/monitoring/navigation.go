@@ -22,7 +22,10 @@ type MonitoringPoint struct {
 	Direction    string          `json:"direction_description"`
 	Reference    string          `json:"reference_description"`
 }
-type ChannelNavigationQuery struct{ Cursor, Search, Facility, OwnerKind, OwnerID, SourceKind, Channel string }
+type ChannelNavigationQuery struct {
+	Cursor, Search, Facility, OwnerKind, OwnerID, SourceKind, Channel string
+	IDs                                                               []string
+}
 type MonitoringChannel struct {
 	UnitVersionID   *string         `json:"unit_version_id"`
 	OutputSemantics json.RawMessage `json:"output_semantics"`
@@ -66,7 +69,7 @@ const visibleDataChannel = `c.deleted_at IS NULL AND ($2='' OR EXISTS(SELECT 1 F
 
 func navigationPermission(ctx context.Context, tx pgx.Tx, auth authorization) error {
 	if auth.Entry == "project" {
-		_, e := access.RequireProjectTx(ctx, tx, auth.Account, access.ProjectResourceOperation("channel", "detail"), auth.Tenant, auth.Project)
+		_, e := access.RequireActorProjectTx(ctx, tx, authorizationActor(auth), access.ProjectResourceOperation("channel", "detail"), auth.Tenant, auth.Project)
 		return e
 	}
 	return access.RequireScopedTx(ctx, tx, auth.Account, access.ResourceOperation("channel", "detail"), auth.Tenant)
@@ -134,7 +137,7 @@ func (s *Service) channels(ctx context.Context, a access.Actor, scope Scope, q C
 			return e
 		}
 		out.Authorization = authorizationVersion(auth)
-		rows, e := tx.Query(ctx, `SELECT c.id::text,c.point_id::text,c.code,c.name,c.status,c.metric_version_id::text,COALESCE(m.content->>'name',dm.name,''),COALESCE(u.content->'unit'->>'symbol',''),CASE WHEN c.source_kind='derived' THEN 'decimal' ELSE m.content->'metric'->>'shape' END,c.observation_direction,c.reference_basis,c.timestamp_meaning,COALESCE(c.sampling,'null'::jsonb),c.source_kind,c.owner_kind,CASE c.owner_kind WHEN 'facility' THEN c.facility_id::text WHEN 'component' THEN c.component_id::text ELSE c.point_id::text END,CASE c.owner_kind WHEN 'facility' THEN f.name WHEN 'component' THEN co.name ELSE p.name END,CASE c.owner_kind WHEN 'facility' THEN f.code WHEN 'component' THEN co.code ELSE p.code END,c.facility_id::text,f.name,COALESCE(p.position,'null'::jsonb),COALESCE(c.quantity_spec,'null'::jsonb),COALESCE(c.output_contract_hash,''),c.unit_version_id::text,COALESCE(c.output_semantics,'null'::jsonb) FROM engineering_channels c JOIN engineering_facilities f ON f.tenant_id=c.tenant_id AND f.id=c.facility_id LEFT JOIN engineering_points p ON p.tenant_id=c.tenant_id AND p.id=c.point_id LEFT JOIN engineering_components co ON co.tenant_id=c.tenant_id AND co.id=c.component_id LEFT JOIN engineering_versions m ON m.id=c.metric_version_id LEFT JOIN derived_metric_versions dm ON dm.tenant_id=c.tenant_id AND dm.id=c.derived_metric_version_id LEFT JOIN engineering_versions u ON u.id=COALESCE(c.unit_version_id,NULLIF(c.quantity_spec->>'base_unit_version_id','')::uuid) WHERE c.tenant_id=$1 AND ($3='' OR c.owner_kind=$3) AND ($4='' OR CASE c.owner_kind WHEN 'facility' THEN c.facility_id::text WHEN 'component' THEN c.component_id::text ELSE c.point_id::text END=$4) AND ($5='' OR c.facility_id::text=$5) AND ($6='' OR c.source_kind=$6) AND ($7='' OR c.id::text>$7) AND ($8='' OR c.id::text=$8) AND ($9='' OR c.name ILIKE '%'||$9||'%' OR c.code ILIKE '%'||$9||'%' OR f.name ILIKE '%'||$9||'%' OR p.name ILIKE '%'||$9||'%' OR co.name ILIKE '%'||$9||'%') AND `+visibleDataChannel+` ORDER BY c.id LIMIT 101`, scope.Tenant, scope.Project, q.OwnerKind, q.OwnerID, q.Facility, q.SourceKind, q.Cursor, q.Channel, search)
+		rows, e := tx.Query(ctx, `SELECT c.id::text,c.point_id::text,c.code,c.name,c.status,c.metric_version_id::text,COALESCE(m.content->>'name',dm.name,''),COALESCE(u.content->'unit'->>'symbol',''),CASE WHEN c.source_kind='derived' THEN 'decimal' ELSE m.content->'metric'->>'shape' END,c.observation_direction,c.reference_basis,c.timestamp_meaning,COALESCE(c.sampling,'null'::jsonb),c.source_kind,c.owner_kind,CASE c.owner_kind WHEN 'facility' THEN c.facility_id::text WHEN 'component' THEN c.component_id::text ELSE c.point_id::text END,CASE c.owner_kind WHEN 'facility' THEN f.name WHEN 'component' THEN co.name ELSE p.name END,CASE c.owner_kind WHEN 'facility' THEN f.code WHEN 'component' THEN co.code ELSE p.code END,c.facility_id::text,f.name,COALESCE(p.position,'null'::jsonb),COALESCE(c.quantity_spec,'null'::jsonb),COALESCE(c.output_contract_hash,''),c.unit_version_id::text,COALESCE(c.output_semantics,'null'::jsonb) FROM engineering_channels c JOIN engineering_facilities f ON f.tenant_id=c.tenant_id AND f.id=c.facility_id LEFT JOIN engineering_points p ON p.tenant_id=c.tenant_id AND p.id=c.point_id LEFT JOIN engineering_components co ON co.tenant_id=c.tenant_id AND co.id=c.component_id LEFT JOIN engineering_versions m ON m.id=c.metric_version_id LEFT JOIN derived_metric_versions dm ON dm.tenant_id=c.tenant_id AND dm.id=c.derived_metric_version_id LEFT JOIN engineering_versions u ON u.id=COALESCE(c.unit_version_id,NULLIF(c.quantity_spec->>'base_unit_version_id','')::uuid) WHERE c.tenant_id=$1 AND ($3='' OR c.owner_kind=$3) AND ($4='' OR CASE c.owner_kind WHEN 'facility' THEN c.facility_id::text WHEN 'component' THEN c.component_id::text ELSE c.point_id::text END=$4) AND ($5='' OR c.facility_id::text=$5) AND ($6='' OR c.source_kind=$6) AND ($7='' OR c.id::text>$7) AND ($8='' OR c.id::text=$8) AND ($9='' OR c.name ILIKE '%'||$9||'%' OR c.code ILIKE '%'||$9||'%' OR f.name ILIKE '%'||$9||'%' OR p.name ILIKE '%'||$9||'%' OR co.name ILIKE '%'||$9||'%') AND ($10::uuid[] IS NULL OR c.id=ANY($10::uuid[])) AND `+visibleDataChannel+` ORDER BY c.id LIMIT 101`, scope.Tenant, scope.Project, q.OwnerKind, q.OwnerID, q.Facility, q.SourceKind, q.Cursor, q.Channel, search, q.IDs)
 		if e != nil {
 			return e
 		}

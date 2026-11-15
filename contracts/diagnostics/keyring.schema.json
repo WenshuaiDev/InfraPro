@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infrapro:diagnostics:v1:keyring",
+  "additionalProperties": false,
+  "properties": {
+    "instance_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+      "type": "string"
+    },
+    "keys": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_revision": {
+            "pattern": "^(0|[1-9][0-9]{0,19})$",
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "generation": {
+            "pattern": "^(0|[1-9][0-9]{0,19})$",
+            "type": "string"
+          },
+          "key_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "node_id": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "type": "string"
+          },
+          "secret_sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key_id",
+          "node_id",
+          "generation",
+          "secret_sha256",
+          "enabled",
+          "assignment_revision"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "revision": {
+      "pattern": "^(0|[1-9][0-9]{0,19})$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "instance_id",
+    "revision",
+    "keys"
+  ],
+  "type": "object"
+}

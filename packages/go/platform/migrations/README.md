@@ -26,3 +26,11 @@
 `00011_device_product_resources.sql` 在 v10 项目资源授权基线上增加公共／私有厂家和产品、不可变版本／槽位／依赖、设备／输出代次、安装及纠错引用、即时来源期间、独立项目设备授权、历史与收据。`btree_gist` 安装在 public；安装、输出和来源期间采用数据库排斥约束。旧租户／项目只初始化协调行，can_source_manage 默认 false，不创建业务样例或设备授权。Down 只提示从完整备份恢复；升级顺序见[设备操作手册](../../../../docs/architecture.md#migrations)。
 
 `00012_monitoring_metadata.sql` 增加监测控制元数据、纳秒 `int8range` 数据授权、持久任务、不可变源文件／映射／发布依据及永久通道引用保护。原始逐条观测不进入 PostgreSQL。升级不创建样本、数据授权或批次；系统角色按权限目录同步新增能力，自定义角色不扩权。有数据后禁止 destructive down，使用验证过的恢复或前向修复。阶段证据见[监测自验记录](../../../../docs/verification/monitoring-data.md)。
+
+`00034_spatial.sql` 增加空间资料／固定版本、分片上传与任务、挂载、构件和图形关联、项目固定版本授权、视图配置及审计。正式版本和内容引用受约束；结束项目设施关联会结束对应空间授权。迁移不注入样本，不复制资源或观测。运行与恢复见[空间手册](../../../../docs/operations/spatial-visualization.md)。
+
+`00035_display.sql` 增加默认关闭的大屏设置、0–N 实例、包上传／校验／封存、不可变配置／发布、读取授权、一次性配对、终端、只读运行主体、租约与持久订阅事件。monitoring_selections、monitoring_snapshots、monitoring_jobs 增加受复合外键约束的 display_subject_id，保持人员查询归属并禁止两类主体混用。默认不创建实例或授权，不清理原监测历史；拒绝直接 Down。备份恢复必须更换环境代次，见[大屏运行与恢复](../../../../docs/operations/visualization-display.md)。
+
+`00036_notifications.sql` 增量建立通知协议、事实和原接收集、分批投递、个人接收序号／已读／归档、偏好、条件周期、worker 心跳及大屏持久交接，增加任务的手工通知代次。账号与业务原数据保留，不从旧审计或运行日志补发。拒绝 Down；备份须包含原业务事实、交接收据及个人状态，按[通知运维手册](../../../../docs/operations/in-app-notifications.md)执行协调恢复。
+
+`00037_task_records.sql` 建立统一任务协议、来源身份、当前投影、每代执行／尝试、不可变事件和受控关联，以及事务事实 journal。`00038_task_sources.sql` 增加各来源修订、初始发起人与每代执行身份、白名单快照、旧错误证据、大屏自有交接、回算展示分组、独立索引角色和对账视图。`00039_task_notification_refs.sql` 兼容 v1 事实并加入可选固定代次 TaskRef 的 v2 通知；不重算已有指纹，不补发通知。协调升级、历史纳入和完整恢复按[任务运维](../../../../docs/operations/task-center.md)执行；不支持破坏性 Down 或任意新旧版本混跑。

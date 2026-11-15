@@ -39,7 +39,14 @@ func reply(c *gin.Context, v any, e error) {
 	}
 }
 func meta(c *gin.Context, reason string) access.Meta {
-	return access.Meta{Reason: reason, ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
+	return access.Meta{Reason: reason, ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID"), CommandID: commandHeader(c), CommandRequired: true}
+}
+
+func commandHeader(c *gin.Context) string {
+	if len(c.Request.Header.Values("X-Command-ID")) != 1 {
+		return ""
+	}
+	return c.GetHeader("X-Command-ID")
 }
 
 type mutation struct {

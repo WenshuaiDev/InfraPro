@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	"log/slog"
 	"net"
 	"net/http"
@@ -14,8 +15,10 @@ import (
 	httptransport "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http"
 )
 
-func Run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
+func Run(ctx context.Context, cfg config.Config, logger *slog.Logger, reporters ...diagnosticreport.Sink) error {
+	reporter := diagnosticreport.Optional(reporters)
 	resources, err := runtime.Open(ctx, cfg, logger, true)
+	reporter.Dependency("bootstrap", err == nil, diagnosticreport.Result(err))
 	if err != nil {
 		return err
 	}
@@ -37,7 +40,7 @@ func Run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
 		return fmt.Errorf("listen on %s: %w", cfg.HTTPAddr, err)
 	}
 	server := &http.Server{
-		Handler:           httptransport.NewRouter(logger, resources.Identity, cfg, resources.Monitoring),
+		Handler:           diagnosticreport.Readiness(httptransport.NewRouter(logger, resources.Identity, cfg, resources.Monitoring), reporter),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,
@@ -45,6 +48,8 @@ func Run(ctx context.Context, cfg config.Config, logger *slog.Logger) error {
 	}
 	done := make(chan error, 1)
 	go func() { done <- server.Serve(listener) }()
+	reporter.Ready()
+	reporter.Idle("http", time.Time{})
 	logger.Info("api listening", "address", listener.Addr().String())
 	select {
 	case err := <-done:

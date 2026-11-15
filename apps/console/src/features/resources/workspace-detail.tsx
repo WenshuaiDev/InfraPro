@@ -1,3 +1,5 @@
+import { FacilityBindings } from '../bindings/facility';
+import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import type { ResourceDetail, ResourceKind, ResourceTarget, ResourceTreeNode, ResourceTreeRef } from '@infrapro/api-client';
@@ -43,7 +45,7 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
   const filtered = !!query.trim() || status !== 'all';
   const filteredChildren = useResourceTree({ ...childFilter(node), q: query.trim() || undefined, status }, resource.kind !== 'channel' && view === 'children' && filtered);
   const list = filtered ? filteredChildren : children;
-  const currentView = view === 'source' && resource.kind !== 'channel' || view === 'children' && resource.kind === 'channel' || view === 'usage' && resource.kind !== 'facility' ? 'details' : view ?? 'details';
+  const currentView = view === 'bindings' && (scope.kind !== 'tenant' || resource.deleted_at || resource.kind !== 'facility' && resource.kind !== 'point') || view === 'source' && resource.kind !== 'channel' || view === 'children' && resource.kind === 'channel' || view === 'usage' && resource.kind !== 'facility' ? 'details' : view ?? 'details';
   const type = resource.definitions.find((v) => v.kind === 'type-definitions');
   const category = type?.content.components?.find((c) => c.key === resource.category_key)?.name;
   const disabled = blocked || !canManage || !available;
@@ -54,13 +56,16 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
   const derivedPath: string = `${scope.kind === 'project' ? `/t/${scope.tenantId}/p/${scope.projectId}` : `/t/${scope.tenantId}`}/monitoring/derived/${resource.id}`;
   const source = () => derived ? <section className="space-y-3"><h3 className="font-semibold">派生计算</h3><p className="text-sm text-muted-foreground">此通道通过固定版本的规则和输入绑定计算。可在派生通道详情中查看配置、最新输出及历史依据。</p>{canDerivedRead && <Button asChild variant="outline"><Link to={derivedPath}>查看派生计算</Link></Button>}</section> : <ChannelSource target={{ facility_id: node.facility_id, point_id: resource.point_id!, channel_id: resource.id }} />;
   const counts = children.summary?.counts;
+  const bindingEntry = scope.kind === 'tenant' && (resource.kind === 'facility' || resource.kind === 'point') && !resource.deleted_at;
   return <>
     <article className="min-w-0 overflow-hidden rounded-lg border bg-card" aria-label="当前资源详情">
       <div className="space-y-4 p-4 sm:p-5">
         <nav aria-label="当前资源路径" className="flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-muted-foreground"><FolderTree className="mr-1 size-3.5" aria-hidden="true" />{path.map((item, index) => <span className="flex min-w-0 items-center gap-1" key={item.id}>{index > 0 && <ChevronRight className="size-3 shrink-0" aria-hidden="true" />}<button type="button" onClick={() => select(item)} aria-current={item.id === node.id ? 'location' : undefined} className="min-h-8 cursor-pointer rounded text-left break-words hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring">{item.name}</button></span>)}</nav>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-3"><ResourceIcon kind={node.kind} /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="break-words text-xl font-semibold tracking-tight">{resource.name}</h2><Badge variant="outline" className="font-normal">{resource.status === 'normal' ? '正常' : '已退役'}</Badge></div><p className="mt-1 break-all text-xs text-muted-foreground">{resource.code} · {category ?? resourceLabels[node.kind]}{type && ` · ${type.content.name} V${type.number}`}</p></div></div>
+          <div className="flex min-w-0 flex-1 items-start gap-3"><ResourceIcon kind={node.kind} /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="break-words text-xl font-semibold tracking-tight">{resource.name}</h2><ObjectHistory objectType={node.kind} objectId={resource.id}/><Badge variant="outline" className="font-normal">{resource.status === 'normal' ? '正常' : '已退役'}</Badge></div><p className="mt-1 break-all text-xs text-muted-foreground">{resource.code} · {category ?? resourceLabels[node.kind]}{type && ` · ${type.content.name} V${type.number}`}</p></div></div>
           <div className="flex flex-wrap items-center gap-2">
+            {bindingEntry && <Button size="sm" variant="outline" disabled={blocked} onClick={() => onView('bindings')}>设备绑定</Button>}
+            {resource.kind!=='channel'&&<Button size="sm" variant="outline" disabled={blocked} onClick={()=>void navigate({to:scope.kind==='project'?'/t/$tenantId/p/$projectId/spatial':'/t/$tenantId/spatial',params:{tenantId:scope.tenantId,...(scope.kind==='project'?{projectId:scope.projectId}:{})},search:{facility:node.facility_id,owner:resource.id,owner_kind:resource.kind}})}>查看空间位置</Button>}
             {canMonitor && (resource.kind === 'point' || resource.kind === 'channel') && <Button size="sm" variant="outline" disabled={blocked || !available} onClick={() => void navigate({ to: scope.kind === 'project' ? '/t/$tenantId/p/$projectId/monitoring' : '/t/$tenantId/monitoring', params: { tenantId: scope.tenantId, ...(scope.kind === 'project' ? { projectId: scope.projectId } : {}) }, search: { point: resource.kind === 'point' ? resource.id : resource.point_id, channel: resource.kind === 'channel' ? resource.id : undefined } })}>查看监测数据</Button>}
             {canManage && <>
             {resource.actions.edit && <Button size="sm" variant="outline" disabled={disabled} onClick={(event) => openPanel({ mode: 'edit', target, resource }, event.currentTarget)}><Pencil className="size-3.5" aria-hidden="true" />编辑资料</Button>}
@@ -77,6 +82,7 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
           <TabsTrigger className={tabClass} value="details">基本资料</TabsTrigger>
           {resource.kind !== 'channel' && <TabsTrigger className={tabClass} value="children">{resource.kind === 'point' ? '业务通道' : '下级资源'}</TabsTrigger>}
           {resource.kind === 'channel' && <TabsTrigger className={tabClass} value="source">{derived ? '派生计算' : '数据来源'}</TabsTrigger>}
+          {bindingEntry && <TabsTrigger className={tabClass} value="bindings">设备绑定</TabsTrigger>}
           {canGovern && resource.kind === 'facility' && <TabsTrigger className={tabClass} value="usage">项目使用</TabsTrigger>}
           {canHistory && <TabsTrigger className={tabClass} value="changes">{resource.kind === 'facility' ? '设施变更记录' : '变更记录'}</TabsTrigger>}
         </TabsList></div>
@@ -90,6 +96,7 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
           <div className="flex flex-wrap items-center gap-2"><DirectorySearch label="搜索直属资源名称或编号" value={query} onChange={setQuery} /><ListFilter label="直属资源状态" caption="状态" value={status} onChange={(value) => setStatus(value as typeof status)} options={[{ value: 'all', label: '全部状态' }, { value: 'normal', label: '正常' }, { value: 'retired', label: '已退役' }]} />{filtered && <Button variant="ghost" size="sm" onClick={() => { setQuery(''); setStatus('all'); }}>重置下级筛选</Button>}</div>
           {list.isPending ? <LoadingState /> : list.error && !list.isFetchNextPageError ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : <><ChildrenList items={list.items} select={select} empty={filtered ? '没有符合条件的直属资源' : resource.kind === 'point' ? '暂无业务通道' : '暂无直属资源'} /><div className="text-xs text-muted-foreground" role="status">已显示 {list.items.length} / {list.summary?.total ?? 0} 项</div><TreeMore query={list} /></>}
         </TabsContent>
+        {bindingEntry && <TabsContent value="bindings" className="p-4 sm:p-5"><FacilityBindings facility={node.facility_id} point={resource.kind === 'point' ? resource.id : undefined} name={resource.name} blocked={blocked} /></TabsContent>}
         {resource.kind === 'channel' && <TabsContent value="source" className="p-4 sm:p-5">{source()}</TabsContent>}
         {resource.kind === 'facility' && <TabsContent value="usage" className="p-4 sm:p-5">{canGovern ? <FacilityUsage facility={node.facility_id} /> : <ErrorState message="没有项目资源授权查看权限。" />}</TabsContent>}
         <TabsContent value="changes" className="p-4 sm:p-5">{canHistory ? <ResourceHistory facility={node.facility_id} resource={resource.kind === 'facility' ? undefined : { kind: resource.kind, id: resource.id }} /> : <ErrorState message="没有资源历史查看权限。" />}</TabsContent>

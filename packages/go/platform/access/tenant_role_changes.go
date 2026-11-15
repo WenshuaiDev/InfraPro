@@ -2,6 +2,9 @@ package access
 
 import (
 	"context"
+	"errors"
+	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"slices"
 	"strings"
 	"time"
@@ -361,8 +364,35 @@ func (s *Service) ChangeTenantAuthorization(ctx context.Context, a Actor, tenant
 	default:
 		return out, ErrDenied
 	}
+	events := map[Operation]string{OpTenantRoleUpdate: "tenant.role.updated", OpTenantRolePermissions: "tenant.role.permissions_changed", OpTenantRoleStatus: "tenant.role.status_changed", OpTenantRoleArchive: "tenant.role.deleted", OpTenantMemberRoles: "tenant.member.roles_changed"}
+	m.command = &mutationCommand{action: events[op], payload: map[string]any{"id": id, "before": in}, result: func() string { return id }}
+	ctx = WithOperation(ctx, s, a.ID, op, m.RequestID)
 	e := s.tenantTransaction(ctx, a, op, tenant, true, func(tx pgx.Tx, _ string, have []Code) error {
 		if e := ValidReason(in.Reason); e != nil {
+			return e
+		}
+		membership, _, e := TenantSnapshotTx(ctx, tx, a.ID, tenant, "")
+		if e != nil {
+			return e
+		}
+		receipt, e := beginMutationTx(ctx, tx, a, m, ar.Scope{Kind: "tenant", Tenant: tenant}, membership)
+		if e != nil {
+			return e
+		}
+		if receipt.Replayed {
+			if e = tx.QueryRow(ctx, `SELECT revision::text FROM authorization_state WHERE id=1`).Scan(&out.Revision); e != nil {
+				return e
+			}
+			if op == OpTenantMemberRoles {
+				v, e := TenantAuthorizationTx(ctx, tx, tenant, id, out.Revision)
+				out.Authorization = &v
+				return e
+			}
+			if op == OpTenantRoleArchive {
+				return nil
+			}
+			v, e := tenantRoleTx(ctx, tx, tenant, id)
+			out.Role = &v
 			return e
 		}
 		p, e := prepareTenantChange(ctx, tx, a, tenant, id, op, in, have)
@@ -504,12 +534,55 @@ func (s *Service) ChangeTenantAuthorization(ctx context.Context, a Actor, tenant
 				}
 			}
 		}
+		if changed && op != OpTenantRoleUpdate {
+			ids := []string{}
+			for _, v := range p.Members {
+				ids = append(ids, v.Before.AccountID)
+			}
+			if e = NotificationReceiptTx(ctx, tx, "access", "role.changed", "changed", a.ID, ne.BusinessScope(tenant, ""), ne.Target{Kind: "workspaces"}, ne.Personal(ids...)); e != nil {
+				return e
+			}
+		}
 		if e = pageTenantImpact(&p, Filter{}, slices.Contains(have, TenantMemberRead)); e != nil {
 			return e
 		}
 		out.Impact = p.Impact
-		return nil
+		return completeMutationTx(ctx, tx, m, receipt)
 	})
+	var unknown *ar.CommitUnknown
+	if errors.As(e, &unknown) && (m.CommandID != "" || m.CommandRequired) {
+		probe, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		original := e
+		probeError := s.tenantTransaction(probe, a, op, tenant, false, func(tx pgx.Tx, revision string, _ []Code) error {
+			membership, _, err := TenantSnapshotTx(probe, tx, a.ID, tenant, revision)
+			if err != nil {
+				return err
+			}
+			receipt, err := beginMutationTx(probe, tx, a, m, ar.Scope{Kind: "tenant", Tenant: tenant}, membership)
+			if err != nil {
+				return err
+			}
+			if !receipt.Replayed {
+				return original
+			}
+			out.Revision = revision
+			if op == OpTenantMemberRoles {
+				v, err := TenantAuthorizationTx(probe, tx, tenant, id, revision)
+				out.Authorization = &v
+				return err
+			}
+			if op == OpTenantRoleArchive {
+				return nil
+			}
+			v, err := tenantRoleTx(probe, tx, tenant, id)
+			out.Role = &v
+			return err
+		})
+		if probeError == nil {
+			e = nil
+		}
+	}
 	return out, e
 }
 func (s *Service) TenantRoleMembers(ctx context.Context, a Actor, tenant, id string, f Filter) (Page[TenantAuthorization], error) {

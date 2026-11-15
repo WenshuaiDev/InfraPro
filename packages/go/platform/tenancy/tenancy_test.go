@@ -130,7 +130,7 @@ func TestLifecycleIsolationHistoryAndRecovery(t *testing.T) {
 	code(t, e, "permission_denied")
 	c, e := s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(c.Permissions) != 55 || len(c.Roles) != 1 || len(c.Sources) != 55 {
+	if len(c.Permissions) != 85 || len(c.Roles) != 1 || len(c.Sources) != 85 {
 		t.Fatal(c)
 	}
 	originalMember := c.MembershipID
@@ -202,6 +202,14 @@ func TestLifecycleIsolationHistoryAndRecovery(t *testing.T) {
 	code(t, f.status(t, f.a, false), "tenant_admin_transfer_required")
 	f.transfer(t, b, f.b.Account.ID)
 	must(t, f.status(t, f.a, false))
+	// Platform administrator transfers are not tenant business history. Produce
+	// tenant-owned changes to exercise paging under the unified projection.
+	for _, description := range []string{"分页验收一", "分页验收二"} {
+		current, err := s.Get(ctx, f.actor(f.b), a.TenantID, false)
+		must(t, err)
+		_, err = s.Update(ctx, f.actor(f.b), a.TenantID, update(tenancy.Fields{Name: current.Name, Code: current.Code, Description: description}, current.Version, "租户资料分页验收"), false, access.Meta{})
+		must(t, err)
+	}
 	audit, e := s.Audit(ctx, f.actor(f.b), a.TenantID, tenancy.Filter{Limit: 2})
 	must(t, e)
 	if len(audit.Items) != 2 || audit.NextCursor == "" {
@@ -514,7 +522,7 @@ func TestPlatformActionsAreIndependentAndTenantOnlyIdentity(t *testing.T) {
 	}
 	context, e := f.s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(context.Permissions) != 55 {
+	if len(context.Permissions) != 85 {
 		t.Fatal(context)
 	}
 	_, e = f.s.Memberships(ctx, f.actor(f.a), "", tenancy.Filter{})

@@ -140,6 +140,7 @@ func devicePolicies() []Policy {
 		}
 		add("project", v.kind, v.action, "GET", j+v.path, codes...)
 	}
+	add("tenant", "source", "list", "GET", t+"/monitoring-source-bindings", TenantEngineeringResourceRead)
 	for _, scope := range []string{"tenant", "project"} {
 		base := t
 		read, history, deviceRead, deviceHistory, manage := TenantEngineeringResourceRead, TenantEngineeringResourceRead, TenantDeviceRead, TenantDeviceHistoryRead, TenantMonitoringSourceManage

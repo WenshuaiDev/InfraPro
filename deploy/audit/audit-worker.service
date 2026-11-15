@@ -1,0 +1,26 @@
+[Unit]
+Description=InfraPro audit exports and durable fact handoffs
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=infrapro
+Group=infrapro
+WorkingDirectory=/opt/infrapro
+Environment=INFRAPRO_CONFIG=/etc/infrapro/audit-worker.yaml
+EnvironmentFile=/etc/infrapro/audit-worker.env
+ExecStart=/opt/infrapro/bin/audit-worker
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+StateDirectory=infrapro/audit
+ReadWritePaths=/var/lib/infrapro/audit
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

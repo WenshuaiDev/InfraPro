@@ -1,0 +1,14 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { RouterProvider } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '@infrapro/ui/theme';
+import { initializeTheme } from '@infrapro/ui/theme-init';
+import { SessionProvider } from './session-provider';
+import { router } from './router';
+import './styles.css';
+initializeTheme();
+const cache = new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: true }, mutations: { retry: false } } });
+const root = document.getElementById('root');
+if (!root) throw new Error('Application root missing');
+createRoot(root).render(<StrictMode><ThemeProvider><QueryClientProvider client={cache}><SessionProvider><RouterProvider router={router} /></SessionProvider></QueryClientProvider></ThemeProvider></StrictMode>);

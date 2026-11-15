@@ -22,6 +22,7 @@ export type MonitoringResolveInput = Schema<'MonitoringResolveInput'>;
 export type MonitoringImportCounts = Schema<'MonitoringImportCounts'>;
 export type MonitoringImportBatch = Schema<'MonitoringImportBatch'>;
 export type MonitoringImportPage = Schema<'MonitoringImportPage'>;
+export type MonitoringImportFilter = Partial<Schema<'MonitoringImportFilter'>>;
 export type MonitoringImportIssue = Schema<'MonitoringImportIssue'>;
 export type MonitoringIssuePage = Schema<'MonitoringIssuePage'>;
 export type MonitoringJob = Schema<'MonitoringJob'>;
@@ -55,7 +56,7 @@ export type MonitoringExportFile = Schema<'MonitoringExportFile'>;
 export type MonitoringExportField = Schema<'MonitoringExportField'>;
 export type MonitoringExportManifest = Schema<'MonitoringExportManifest'>;
 export type MonitoringScope = {kind:'tenant';tenantId:string}|{kind:'project';tenantId:string;projectId:string};
-export type MonitoringRequestOptions = { binary?: Blob; headers?: Record<string,string>; timeoutMs?: number };
+export type MonitoringRequestOptions = { responseType?: 'blob'; binary?: Blob; headers?: Record<string,string>; timeoutMs?: number };
 type Request = <T>(path:string,method?:string,body?:unknown,notify?:boolean,signal?:AbortSignal,options?:MonitoringRequestOptions)=>Promise<T>;
 const id=encodeURIComponent;
 export const monitoringRoot=(scope:MonitoringScope)=>`/tenants/${id(scope.tenantId)}${scope.kind==='project'?`/projects/${id(scope.projectId)}`:''}/monitoring`;
@@ -73,6 +74,7 @@ monitoringQuery:(scope:MonitoringScope,kind:'overview'|'latest'|'statistics'|'tr
 monitoringDetails:(scope:MonitoringScope,input:MonitoringQuery,signal?:AbortSignal)=>post<MonitoringDetailPage>(`${monitoringRoot(scope)}/queries/details`,input,signal),
 monitoringRenew:(scope:MonitoringScope,snapshot:string,input:MonitoringQuery,signal?:AbortSignal)=>post<MonitoringSnapshot>(`${monitoringRoot(scope)}/snapshots/${id(snapshot)}/renew`,input,signal),
 monitoringImports:(scope:MonitoringScope,cursor?:string,signal?:AbortSignal)=>get<MonitoringImportPage>(`${monitoringRoot(scope)}/imports`,{cursor},signal),
+monitoringImportList:(scope:MonitoringScope,filter:MonitoringImportFilter={},signal?:AbortSignal)=>get<MonitoringImportPage>(`${monitoringRoot(scope)}/imports`,{...filter,limit:filter.limit === undefined ? undefined : String(filter.limit)},signal),
 monitoringImport:(scope:MonitoringScope,batch:string,signal?:AbortSignal)=>get<MonitoringImportBatch>(`${monitoringRoot(scope)}/imports/${id(batch)}`,{},signal),
 monitoringCreateImport:(scope:MonitoringScope,input:MonitoringImportInput,signal?:AbortSignal)=>post<MonitoringImportBatch>(`${monitoringRoot(scope)}/imports`,input,signal),
 monitoringUploadPart:(scope:MonitoringScope,batch:string,revision:string,part:number,sha256:string,body:Blob,signal?:AbortSignal)=>request<MonitoringUploadPart>(`${monitoringRoot(scope)}/imports/${id(batch)}/upload/parts/${part}`,'PUT',undefined,true,signal,{binary:body,headers:{'X-Expected-Revision':revision,'X-Content-SHA256':sha256},timeoutMs:180000}),

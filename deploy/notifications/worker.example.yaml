@@ -1,0 +1,7 @@
+# Supply the actual protected database URL through INFRAPRO_DATABASE_URL.
+# The worker only opens PostgreSQL; it does not read source payloads or tokens.
+notification_batch: '32'
+notification_lease: 30s
+notification_poll: 1s
+notification_attempts: '8'
+notification_backoff: 5m

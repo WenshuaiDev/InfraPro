@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"github.com/jackc/pgx/v5"
 	"slices"
 	"strings"
@@ -267,6 +268,27 @@ func (s *Service) Change(ctx context.Context, a access.Actor, tenant, project, t
 		if e != nil {
 			return e
 		}
+		notificationAccounts := []string{}
+		for _, v := range p.Members {
+			notificationAccounts = append(notificationAccounts, v.Before.AccountID)
+		}
+		if op == access.OpProjectArchive || op == access.OpProjectRestore {
+			notificationAccounts, e = access.LifecycleMembersTx(ctx, tx, tenant, project)
+			if e != nil {
+				return e
+			}
+		}
+		if op == access.OpProjectOwnerChange || op == access.OpProjectTransfer || op == access.OpProjectRecoverAdmin {
+			candidate, e := candidateTx(ctx, tx, tenant, in.Candidate)
+			if e != nil {
+				return e
+			}
+			prior := old.Administrator.AccountID
+			if op == access.OpProjectOwnerChange {
+				prior = old.Owner.AccountID
+			}
+			notificationAccounts = append(notificationAccounts, prior, candidate.AccountID)
+		}
 		object := target
 		if object == "" {
 			object = project
@@ -353,7 +375,14 @@ func (s *Service) Change(ctx context.Context, a access.Actor, tenant, project, t
 			return e
 		}
 		out, e = complete(ctx, tx, a, tenant, project, object, ver, op, in.WriteMeta, payload, p.Before, after, m)
-		return e
+		if e != nil {
+			return e
+		}
+		typ := "membership.changed"
+		if op == access.OpProjectArchive || op == access.OpProjectRestore {
+			typ = "lifecycle.changed"
+		}
+		return access.NotificationReceiptTx(ctx, tx, "projects", typ, string(op), a.ID, ne.BusinessScope(tenant, project), ne.Target{Kind: "workspaces"}, ne.Personal(notificationAccounts...))
 	})
 	return out, e
 }
@@ -399,7 +428,10 @@ func (s *Service) AddMember(ctx context.Context, a access.Actor, tenant, project
 			return e
 		}
 		out, e = complete(ctx, tx, a, tenant, project, mid, "1", access.OpProjectMemberAdd, in.WriteMeta, in, nil, after, m)
-		return e
+		if e != nil {
+			return e
+		}
+		return access.NotificationReceiptTx(ctx, tx, "projects", "membership.changed", "joined", a.ID, ne.BusinessScope(tenant, project), ne.Target{Kind: "workspaces"}, ne.Personal(candidate.AccountID))
 	})
 	return out, e
 }

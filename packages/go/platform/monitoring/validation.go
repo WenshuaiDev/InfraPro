@@ -46,7 +46,11 @@ type validationInput struct {
 }
 
 func authorizationVersion(auth authorization) string {
-	return auth.Revision + ":" + auth.ResourceRevision + ":" + auth.DataRevision
+	v := auth.Revision + ":" + auth.ResourceRevision + ":" + auth.DataRevision
+	if auth.Subject != nil {
+		v += ":" + auth.Subject.Revision
+	}
+	return v
 }
 
 func semanticsTx(ctx context.Context, tx pgx.Tx, tenant string, ids []string, write bool) (map[string]channelSemantics, error) {

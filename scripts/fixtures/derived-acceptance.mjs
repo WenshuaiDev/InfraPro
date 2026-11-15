@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { request } from '@playwright/test';
 
 export async function seedDerivedAcceptance(directory, origin) {
-  if (origin !== 'http://127.0.0.1:15373') throw new Error('Synthetic derived fixture requires its dedicated loopback session.');
+  if (!['http://127.0.0.1:15373','http://127.0.0.1:15473','http://127.0.0.1:15573','http://127.0.0.1:15773','http://127.0.0.1:15576'].includes(origin)) throw new Error('Synthetic derived fixture requires its dedicated loopback session.');
   const client = await request.newContext(), api = `${origin}/api/v1`;
   const state = { synthetic: true, fixture: 'development-plan-25.1', channels: {}, expected: {}, batches: {} };
   const save = () => writeFileSync(join(directory, 'acceptance.json'), JSON.stringify(state, null, 2), { mode: 0o600 });
@@ -52,7 +52,7 @@ export async function seedDerivedAcceptance(directory, origin) {
     const secondPoint = await call(`${base}/engineering/resources/facilities/${facility.id}/points`, { request_id: randomUUID(), code: 'P2', name: '位移B验收测点' });
     state.facility = facility.id; state.point = point.id; state.second_point = secondPoint.id;
     for (const key of ['A', 'B']) state.channels[key] = await call(`${base}/engineering/resources/facilities/${facility.id}/points/${key === 'A' ? point.id : secondPoint.id}/channels`, { request_id: randomUUID(), code: key, name: `位移${key}`, metric_version_id: metric.version_id, unit_version_id: unit.version_id, timestamp_meaning: 'observation_time' });
-    mkdirSync(join(directory, 'samples'), { mode: 0o700 });
+    mkdirSync(join(directory, 'samples'), { mode: 0o700, recursive: true });
     const csv = 'observed_at,A,B,quality\n2024-01-01T00:00:00Z,10,6,good\n2024-01-01T00:10:00Z,14,9,good\n2024-01-01T00:30:00Z,20,11,good\n';
     writeFileSync(join(directory, 'samples', 'A-B.csv'), csv, { mode: 0o600 });
     writeFileSync(join(directory, 'samples', 'append-00-40.csv'), 'observed_at,A,B,quality\n2024-01-01T00:40:00Z,26,13,good\n', { mode: 0o600 });

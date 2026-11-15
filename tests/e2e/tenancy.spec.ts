@@ -75,14 +75,17 @@ test('tenant UI creates, edits, transfers with old sessions and protects account
     await expect(page.getByRole('heading', { name, exact: true })).toBeVisible(); const tenantId = new URL(page.url()).pathname.split('/').at(-1)!;
     const beta = await create(request, headers, b.id, '租户乙');
     await guest.reload(); await expect(guest.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
-    await guest.getByText('当前租户权限', { exact: true }).click(); await expect(guest.getByText('角色：租户管理员（租户范围）')).toBeVisible();
+    await expect(guest.getByText('当前租户权限', { exact: true })).toHaveCount(0);
+    expect((await (await guestContext.request.get(`${api}/tenants/${tenantId}/context`)).json()).roles).toEqual(expect.arrayContaining([expect.objectContaining({ name: '租户管理员' })]));
     expect((await guestContext.request.get(`${api}/tenants/${beta.tenant_id}/profile`)).status()).toBe(404); expect((await request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404);
     await guest.getByRole('button', { name: '编辑资料', exact: true }).click(); await guest.getByLabel('租户名称', { exact: true }).fill(`${name}已改`); await save(guest); await guest.reload(); await expect(guest.getByRole('main').getByText(`${name}已改`, { exact: true })).toBeVisible();
     await guest.screenshot({ path: info.outputPath('tenant-profile.png'), fullPage: true }); expect(await guest.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.reload(); await page.getByRole('button', { name: '交接管理员', exact: true }).click(); await select(page, bob.username); await save(page);
     expect((await guestContext.request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(404); await refresh(guest); await expect(guest.getByRole('heading', { name: '当前租户不可访问' })).toBeVisible();
     expect((await bobContext.request.get(`${api}/tenants/${tenantId}/profile`)).status()).toBe(200); await successor.goto(`${consoleURL}/t/${tenantId}/profile`); await expect(successor.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible();
-    await navigateTo(successor, '租户操作记录'); await expect(successor.getByRole('table', { name: '租户操作记录', exact: true }).getByRole('button', { name: '交接管理员', exact: true })).toBeVisible(); await successor.getByLabel('搜索操作或原因').fill('租户浏览器验收原因'); await expect(successor.getByRole('table', { name: '租户操作记录', exact: true }).getByRole('button', { name: '交接管理员', exact: true })).toBeVisible();
+    // The current audit workspace exposes tenant-originated facts; the platform
+    // administrator transfer is not copied into the tenant's event list.
+    await navigateTo(successor, '租户操作记录'); await expect(successor.getByRole('table', { name: '审计事件', exact: true }).getByRole('button', { name: '租户 · 资料：已更新', exact: true })).toBeVisible(); await successor.getByLabel('搜索当前获准内容').fill('租户浏览器验收原因'); await successor.getByRole('button', { name: '应用筛选', exact: true }).click(); await expect(successor.getByRole('table', { name: '审计事件', exact: true }).getByRole('button', { name: '租户 · 资料：已更新', exact: true })).toBeVisible();
     await navigateTo(page, '账号管理'); await page.getByLabel('搜索用户名或显示名称').fill(bob.username); await page.getByRole('button', { name: '浏览器验收', exact: true }).click(); await page.getByRole('tab', { name: '租户任职', exact: true }).click(); await expect(page.getByRole('heading', { name: '当前租户任职' })).toBeVisible();
     await page.getByRole('button', { name: '停用账号', exact: true }).click(); await page.getByRole('dialog').getByLabel('变更原因').fill('必须先交接'); await page.getByRole('button', { name: '确认停用账号' }).click(); await expect(page.getByRole('dialog').getByText(/请先交接该账号负责的 2 个租户/)).toBeVisible();
     expect((await guestContext.request.get(`${api}/auth/me`)).status()).toBe(200);
@@ -117,9 +120,10 @@ test('tenant navigation rejects late reads and writes and keeps tabs independent
 
 test('tenant HTTP contracts enforce scoped permissions, narrow candidates and strict payloads', async ({ page, request, browser }) => {
   const member = await createAccount(request, false); const headers = await owner(request); const target = await accountID(request, member.username);
-  let response = await request.post(`${api}/access/roles`, { headers, data: { name: `仅建档_${randomBytes(4).toString('hex')}`, description: '', reason: '范围测试' } }); const role = await response.json();
-  response = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: [P.PlatformTenantCreate], reason: '范围测试' } }); expect(response.status()).toBe(200);
-  response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [role.id], reason: '范围测试' } }); expect(response.status()).toBe(200);
+  const commandHeaders = () => ({ ...headers, 'X-Command-ID': randomUUID() });
+  let response = await request.post(`${api}/access/roles`, { headers: commandHeaders(), data: { name: `仅建档_${randomBytes(4).toString('hex')}`, description: '', reason: '范围测试' } }); expect(response.status()).toBe(200); const role = await response.json();
+  response = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: commandHeaders(), data: { expected_version: role.version, permission_codes: [P.PlatformTenantCreate], reason: '范围测试' } }); expect(response.status()).toBe(200);
+  response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: commandHeaders(), data: { expected_version: target.management_version, role_ids: [role.id], reason: '范围测试' } }); expect(response.status()).toBe(200);
   const isolated = await browser.newContext();
   try {
     const r = isolated.request; const h = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(r) }; expect((await r.post(`${api}/auth/login`, { headers: h, data: member })).status()).toBe(200);
@@ -143,9 +147,9 @@ test('tenant HTTP contracts enforce scoped permissions, narrow candidates and st
       await expect(page.getByLabel('租户名称', { exact: true })).toBeDisabled(); await expect(page.getByLabel('搜索接任账号')).toBeDisabled(); releaseCreate(); await expect(page.getByRole('dialog')).toBeHidden();
     } finally { releaseCreate(); await page.unrouteAll({ behavior: 'wait' }); }
     await expect(page.getByRole('status').filter({ hasText: `仅创建权限结果（${narrowCode}）` })).toContainText(`管理员：浏览器验收（${member.username}）`);
-    const auditor = await request.post(`${api}/access/roles`, { headers, data: { name: `审计_${randomBytes(4).toString('hex')}`, description: '', reason: '审计隔离' } }); const ar = await auditor.json();
-    expect((await request.put(`${api}/access/roles/${ar.id}/permissions`, { headers, data: { expected_version: ar.version, permission_codes: [P.PlatformAuditRead], reason: '审计隔离' } })).status()).toBe(200);
-    const latest = await accountID(request, member.username); expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: latest.management_version, role_ids: [ar.id], reason: '审计隔离' } })).status()).toBe(200);
+    const auditor = await request.post(`${api}/access/roles`, { headers: commandHeaders(), data: { name: `审计_${randomBytes(4).toString('hex')}`, description: '', reason: '审计隔离' } }); expect(auditor.status()).toBe(200); const ar = await auditor.json();
+    expect((await request.put(`${api}/access/roles/${ar.id}/permissions`, { headers: commandHeaders(), data: { expected_version: ar.version, permission_codes: [P.PlatformAuditRead], reason: '审计隔离' } })).status()).toBe(200);
+    const latest = await accountID(request, member.username); expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: commandHeaders(), data: { expected_version: latest.management_version, role_ids: [ar.id], reason: '审计隔离' } })).status()).toBe(200);
     response = await r.get(`${api}/access/audit-events`); expect(response.status()).toBe(200); for (const ev of (await response.json()).items) expect(ev.tenant_id).toBe('');
     expect((await r.get(`${api}/access/audit-events?tenant_id=${result.tenant_id}`)).status()).toBe(403);
   } finally { await isolated.close(); }

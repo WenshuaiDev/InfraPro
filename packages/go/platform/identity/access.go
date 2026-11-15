@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/jackc/pgx/v5"
+	"time"
 )
 
 type AuthContext struct {
@@ -76,4 +77,24 @@ func (s *Service) ReadProfile(ctx context.Context, p Principal) (Profile, error)
 }
 func (s *Service) SetAccountStatus(ctx context.Context, p Principal, id, version string, enabled bool, m access.Meta) (access.Account, error) {
 	return s.access.SetAccountStatus(ctx, s.AccessActor(p), id, version, enabled, m, s.repo.SetStatusTx)
+}
+
+// CheckDisplaySession keeps runtime reads tied to the current personnel session
+// without storing its cookie or borrowing a manager's account for terminals.
+func (s *Service) CheckDisplaySession(ctx context.Context, tx pgx.Tx, account, session string) error {
+	return CheckDisplaySessionTx(ctx, tx, account, session, s.cfg.SessionIdle)
+}
+func CheckDisplaySessionTx(ctx context.Context, tx pgx.Tx, account, session string, idle time.Duration) error {
+	var active bool
+	if e := tx.QueryRow(ctx, `SELECT status='active' FROM accounts WHERE id=$1 FOR UPDATE`, account).Scan(&active); e != nil || !active {
+		return ErrUnauthorized
+	}
+	tag, e := tx.Exec(ctx, `UPDATE account_sessions ss SET last_activity_at=clock_timestamp() FROM accounts a WHERE ss.id=$1 AND ss.account_id=$2 AND a.id=ss.account_id AND ss.auth_version=a.auth_version AND ss.revoked_at IS NULL AND ss.expires_at>clock_timestamp() AND ss.last_activity_at>clock_timestamp()-$3::interval`, session, account, interval(idle))
+	if e != nil {
+		return e
+	}
+	if tag.RowsAffected() != 1 {
+		return ErrUnauthorized
+	}
+	return nil
 }

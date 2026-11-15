@@ -11,6 +11,7 @@ import { Permissions as P } from '@infrapro/api-client';
 import { ArrowLeft, Eye, Settings2, ShieldCheck, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@infrapro/layouts';
+import { ObjectHistory } from '../audit/object-history';
 import { Button } from '@infrapro/ui/components/button';
 import { Checkbox } from '@infrapro/ui/components/checkbox';
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
@@ -290,6 +291,7 @@ function GrantEditor({
         </Link>
       </Button>
       <PageHeader title={resource.name} description={`${initial.policy.project_name} · 管理资源与权限`} />
+      <ObjectHistory objectType="resource_access" objectId={project}/>
       <Hint>
         {initial.link
           ? '勾选项目可以查看的资源，再点资源名称设置允许的操作。'

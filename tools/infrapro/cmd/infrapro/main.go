@@ -17,6 +17,9 @@ func main() {
 	app := command.New(os.Stdin, os.Stdout, os.Stderr)
 	if err := app.Run(ctx, os.Args[1:]); err != nil {
 		fmt.Fprintln(os.Stderr, "操作失败：", err)
+		if exit, ok := err.(interface{ ExitCode() int }); ok {
+			os.Exit(exit.ExitCode())
+		}
 		os.Exit(1)
 	}
 }

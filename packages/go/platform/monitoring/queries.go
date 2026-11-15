@@ -135,7 +135,7 @@ func (s *Service) Select(ctx context.Context, a access.Actor, scope Scope, in Se
 		}
 		out.Hash = digest(ids)
 		out.Count = fmt.Sprint(len(ids))
-		return tx.QueryRow(ctx, `INSERT INTO monitoring_selections(tenant_id,project_id,actor_id,channel_ids,selection_hash,authorization_revision,expires_at) VALUES($1,$2,$3,$4,$5,$6,clock_timestamp()+interval '15 minutes') RETURNING id::text,expires_at`, scope.Tenant, nullable(scope.Project), a.ID, ids, out.Hash, authorizationVersion(auth)).Scan(&out.ID, &out.ExpiresAt)
+		return tx.QueryRow(ctx, `INSERT INTO monitoring_selections(tenant_id,project_id,actor_id,display_subject_id,channel_ids,selection_hash,authorization_revision,expires_at) VALUES($1,$2,$3,$7,$4,$5,$6,clock_timestamp()+interval '15 minutes') RETURNING id::text,expires_at`, scope.Tenant, nullable(scope.Project), a.OwnerAccount(), ids, out.Hash, authorizationVersion(auth), a.OwnerSubject()).Scan(&out.ID, &out.ExpiresAt)
 	})
 	return out, e
 }
@@ -226,7 +226,7 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 	e := s.transact(ctx, a, scope, action, false, false, func(tx pgx.Tx, auth authorization) error {
 		var selectionHash, selectionAuth string
 		var expired bool
-		e := tx.QueryRow(ctx, `SELECT channel_ids::text[],selection_hash,authorization_revision,expires_at<=clock_timestamp() FROM monitoring_selections WHERE tenant_id=$1 AND id=$2 AND actor_id=$3 AND project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, in.Selection, a.ID, nullable(scope.Project)).Scan(&plan.channels, &selectionHash, &selectionAuth, &expired)
+		e := tx.QueryRow(ctx, `SELECT channel_ids::text[],selection_hash,authorization_revision,expires_at<=clock_timestamp() FROM monitoring_selections WHERE tenant_id=$1 AND id=$2 AND COALESCE(actor_id,display_subject_id)=$3 AND project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, in.Selection, a.ID, nullable(scope.Project)).Scan(&plan.channels, &selectionHash, &selectionAuth, &expired)
 		if e == pgx.ErrNoRows {
 			return notFound()
 		}
@@ -328,14 +328,14 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 				}
 			}
 			plan.snapshot.QueryHash = filterHash(in)
-			e = tx.QueryRow(ctx, `INSERT INTO monitoring_snapshots(tenant_id,selection_id,actor_id,watermark,route_revision,query_hash,revision_vector,authorization_revision,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,clock_timestamp()+interval '15 minutes') RETURNING id::text,watermark::text,route_revision::text,expires_at`, scope.Tenant, in.Selection, a.ID, seq, route, plan.snapshot.QueryHash, encodeJSON(plan.vector), plan.authorization).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt)
+			e = tx.QueryRow(ctx, `INSERT INTO monitoring_snapshots(tenant_id,selection_id,actor_id,display_subject_id,watermark,route_revision,query_hash,revision_vector,authorization_revision,expires_at) VALUES($1,$2,$3,$9,$4,$5,$6,$7,$8,clock_timestamp()+interval '15 minutes') RETURNING id::text,watermark::text,route_revision::text,expires_at`, scope.Tenant, in.Selection, a.OwnerAccount(), seq, route, plan.snapshot.QueryHash, encodeJSON(plan.vector), plan.authorization, a.OwnerSubject()).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt)
 			if e != nil {
 				return e
 			}
 		} else {
 			var vector []byte
 			var authRevision string
-			e = tx.QueryRow(ctx, `SELECT id::text,watermark::text,route_revision::text,expires_at,query_hash,revision_vector,authorization_revision,(expires_at<=clock_timestamp() AND (NOT $5::bool OR lease_until IS NULL OR lease_until<=clock_timestamp())) FROM monitoring_snapshots WHERE tenant_id=$1 AND id=$2 AND selection_id=$3 AND actor_id=$4`, scope.Tenant, in.Snapshot, in.Selection, a.ID, useLease).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt, &plan.snapshot.QueryHash, &vector, &authRevision, &expired)
+			e = tx.QueryRow(ctx, `SELECT id::text,watermark::text,route_revision::text,expires_at,query_hash,revision_vector,authorization_revision,(expires_at<=clock_timestamp() AND (NOT $5::bool OR lease_until IS NULL OR lease_until<=clock_timestamp())) FROM monitoring_snapshots WHERE tenant_id=$1 AND id=$2 AND selection_id=$3 AND COALESCE(actor_id,display_subject_id)=$4`, scope.Tenant, in.Snapshot, in.Selection, a.ID, useLease).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt, &plan.snapshot.QueryHash, &vector, &authRevision, &expired)
 			if e == pgx.ErrNoRows {
 				return notFound()
 			}
@@ -535,7 +535,7 @@ func (s *Service) RenewSnapshot(ctx context.Context, a access.Actor, scope Scope
 		if authorizationVersion(auth) != plan.authorization {
 			return revisionChanged()
 		}
-		return tx.QueryRow(ctx, `UPDATE monitoring_snapshots SET expires_at=clock_timestamp()+interval '15 minutes' WHERE tenant_id=$1 AND id=$2 AND actor_id=$3 RETURNING expires_at`, scope.Tenant, id, a.ID).Scan(&plan.snapshot.ExpiresAt)
+		return tx.QueryRow(ctx, `UPDATE monitoring_snapshots SET expires_at=clock_timestamp()+interval '15 minutes' WHERE tenant_id=$1 AND id=$2 AND COALESCE(actor_id,display_subject_id)=$3 RETURNING expires_at`, scope.Tenant, id, a.ID).Scan(&plan.snapshot.ExpiresAt)
 	})
 	return plan.snapshot, e
 }
@@ -550,4 +550,30 @@ func queryWindow(in QueryInput) *Window {
 	}
 	w, _ := in.Range.window()
 	return &w
+}
+
+// CheckSelectionTargets prevents a caller from reusing a larger selection when
+// narrowing a named display binding. Ownership alone is not a scope proof.
+func (s *Service) CheckSelectionTargets(ctx context.Context, a access.Actor, scope Scope, id string, ids []string) error {
+	if !access.ValidID(id) {
+		return notFound()
+	}
+	return s.transact(ctx, a, scope, "selections.create", false, false, func(tx pgx.Tx, _ authorization) error {
+		var selected []string
+		e := tx.QueryRow(ctx, `SELECT channel_ids::text[] FROM monitoring_selections WHERE tenant_id=$1 AND project_id IS NOT DISTINCT FROM $2::uuid AND id=$3 AND COALESCE(actor_id,display_subject_id)=$4 AND expires_at>clock_timestamp()`, scope.Tenant, nullable(scope.Project), id, a.ID).Scan(&selected)
+		if e == pgx.ErrNoRows {
+			return notFound()
+		}
+		if e != nil {
+			return e
+		}
+		selected = slices.Clone(selected)
+		ids = slices.Clone(ids)
+		slices.Sort(selected)
+		slices.Sort(ids)
+		if !slices.Equal(selected, ids) {
+			return notFound()
+		}
+		return nil
+	})
 }

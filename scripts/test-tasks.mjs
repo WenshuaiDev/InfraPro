@@ -1,0 +1,16 @@
+import {execFileSync} from 'node:child_process';
+import {mkdirSync,openSync,closeSync,readFileSync} from 'node:fs';
+import {ensureTestDependencies,testEnv} from './test-environment.mjs';
+ensureTestDependencies();
+execFileSync('docker',['compose','-f','deploy/monitoring-contract/compose.yaml','up','-d','--wait'],{stdio:'inherit'});
+const env={...process.env,...testEnv,INFRAPRO_MONITORING_CONTRACT:'1',INFRAPRO_SPATIAL_CONTRACT:'1',INFRAPRO_TASK_ASSERTIONS:'1'};
+const cases=['Task.*','DerivedExplicitDependencyBackfillWaitsForSelectedUpstream','DerivedExplicitPrestartBackfillAndRetiredCorrection','MonitoringCSVPublicationAndFixedDuplicateSet','MonitoringPublicationCommitFailureAndRecovery','MonitoringExpiredWorkerAndWholeBatchInvalidInput','MonitoringUnsealedPhysicalWriteUsesNewAttempt','MonitoringActualAdoptionsRevokeAndReadopt','MonitoringExportFixedSnapshotAndTypedParquet','MonitoringExportCommitFailureAndArchivedProject','DerivedTrialUsesRealSnapshotAndSharedTask','DerivedInteractiveBudgetHandsOffWithoutFailure','DerivedBackgroundTrialPartitionsAndResumesCompleteSnapshot','DerivedFormalPublicationUsesSealedAttempts','DerivedSixteenDistinctInputsFormalAndReplay','AnalysisAtomicMultiOutputVersionsAndChangedInputs','AnalysisWholeRangeProjectOwnershipHistoryAndArchive','SpatialRealFilesVersionsAndProjectBoundaries','SpatialRealModelSemanticAndFailurePipeline','SpatialUploadCancelAndProcessingFences','DisplayPackageWorkerLeastPrivilege','DisplayLifecycleAndSubjectBoundary','DisplayNotificationLateCommitAndFailedReplay'];
+mkdirSync('.artifacts/task-center',{recursive:true});
+const log=openSync('.artifacts/task-center/sources.log','w');
+try {execFileSync('go',['test','-race','-tags','monitoringintegration','-count=1','-v','-timeout=20m','./packages/go/platform/resources','-run',`^Test(${cases.join('|')})$`],{env,stdio:['ignore',log,log]});}
+finally{closeSync(log);process.stdout.write(readFileSync('.artifacts/task-center/sources.log','utf8'));}
+execFileSync('go',['test','-race','-count=1','-timeout=10m','./packages/go/platform/derivedmonitoring','-run','^Test(CalculationSharedTaskLeaseFenceAndCancellation|DerivedControlReceiptMandateAndPauseFence)$'],{stdio:'inherit',env});
+execFileSync('go',['test','-race','-count=1','-timeout=10m','./packages/go/platform/access','./packages/go/platform/projects','./packages/go/platform/tenancy','-run','^Test(MonitoringArchiveAndBuiltinPermissions|CatalogPolicy|IntegrationCatalogPreflightPreservesCustomRoles|ProjectMonitoringCatalog.*|TenantRoleSyncPreviewNoopAndOldFacts|TenantRoleUnionIsolationAndInvitationLoss|TenantRoleCreationProtectionAndVersions|LifecycleIsolationHistoryAndRecovery|PlatformActionsAreIndependentAndTenantOnlyIdentity|ProjectAuditIsolationAndTenantRoleIndependence)$'],{stdio:'inherit',env});
+execFileSync('go',['test','-race','-count=1','-timeout=10m','./packages/go/platform/taskrecord','./packages/go/platform/tasks','./packages/go/platform/notificationevent','./services/api/internal/transport/http','-run','Test(Task|Notification)'],{stdio:'inherit',env});
+execFileSync('go',['test','-race','-count=1','-timeout=10m','./packages/go/platform/notifications'],{stdio:'inherit',env:{...env,INFRAPRO_NOTIFICATIONS_RESTORE:'1'}});
+execFileSync('node',['--test','tests/unit/tasks-client.test.mjs'],{stdio:'inherit',env});

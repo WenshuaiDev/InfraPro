@@ -1,0 +1,24 @@
+[Unit]
+Description=InfraPro isolated file checker
+After=local-fs.target
+[Service]
+User=infrapro-files
+Group=infrapro-files
+UMask=0077
+RuntimeDirectory=infrapro-files
+RuntimeDirectoryMode=0700
+ExecStart=/opt/infrapro/bin/files-checker --directory /run/infrapro-files --socket /run/infrapro-files/checker.sock
+Environment=GOMEMLIMIT=256MiB GOMAXPROCS=2
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateDevices=yes
+ReadWritePaths=/run/infrapro-files
+MemoryMax=320M
+TasksMax=32
+LimitNOFILE=64
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

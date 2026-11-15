@@ -85,8 +85,8 @@ func TestTenantRoleUnionIsolationAndInvitationLoss(t *testing.T) {
 			n++
 		}
 	}
-	if len(catalog) != 55 || n != 46 {
-		t.Fatal(catalog)
+	if len(catalog) != 85 || n != 76 {
+		t.Fatalf("tenant permission count=%d selectable=%d; want 85/76", len(catalog), n)
 	}
 	_, e = s.TenantRoles(ctx, f.actor(f.b), a.TenantID, access.Filter{})
 	code(t, e, "permission_denied")
@@ -192,7 +192,7 @@ func TestTenantRoleCreationProtectionAndVersions(t *testing.T) {
 		t.Fatal(v)
 	}
 	var preciseAudit bool
-	must(t, f.e.Pool.QueryRow(ctx, `SELECT tenant_id=$2::uuid AND actor_id=$3::uuid AND actor_scope='tenant' AND reason='编辑' AND details->'before'=$4::jsonb AND details->'after'=$5::jsonb AND jsonb_array_length(details->'permission_definitions')=55 FROM account_security_events WHERE event_type='tenant.role.updated' AND object_id=$1`, r.ID, a.TenantID, f.a.Account.ID, fmt.Sprintf(`{"version":%q,"name":"同名","description":""}`, r.Version), fmt.Sprintf(`{"version":%q,"name":"改名","description":"说明"}`, v.Role.Version)).Scan(&preciseAudit))
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT tenant_id=$2::uuid AND actor_id=$3::uuid AND actor_scope='tenant' AND reason='编辑' AND details->'before'=$4::jsonb AND details->'after'=$5::jsonb AND NOT(details ? 'permission_definitions') AND schema_version=1 AND jsonb_array_length(changes)=3 FROM account_security_events WHERE event_type='tenant.role.updated' AND object_id=$1`, r.ID, a.TenantID, f.a.Account.ID, fmt.Sprintf(`{"version":%q,"name":"同名","description":""}`, r.Version), fmt.Sprintf(`{"version":%q,"name":"改名","description":"说明"}`, v.Role.Version)).Scan(&preciseAudit))
 	if !preciseAudit {
 		t.Fatal("role metadata audit omitted identity or included unrelated changes")
 	}

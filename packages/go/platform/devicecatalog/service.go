@@ -102,7 +102,7 @@ func complete(ctx context.Context, tx pgx.Tx, a k.Authorization, m Meta, op acce
 	if e := catalogChange(ctx, tx, a, m, op, manufacturer, product, version, before, after); e != nil {
 		return e
 	}
-	if e := k.Audit(ctx, tx, a, m, string(op), "device_"+kind, id, result, meta); e != nil {
+	if e := k.AuditSnapshots(ctx, tx, a, m, string(op), "device_"+kind, id, before, after, meta); e != nil {
 		return e
 	}
 	return k.SaveReceipt(ctx, tx, a, m, op, input, kind, id, result)

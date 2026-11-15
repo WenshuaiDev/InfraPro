@@ -287,12 +287,20 @@ func (s *Service) publishJob(ctx context.Context, j Job) error {
 		if _, e = tx.Exec(ctx, `UPDATE monitoring_import_batches SET state=$3,semantic_snapshot=jsonb_set(semantic_snapshot,'{actual_coverage}',$4::jsonb),revision=revision+1,error_code=NULL,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2`, j.tenant, j.Target, state, encodeJSON(actualCoverage)); e != nil {
 			return e
 		}
-		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET state='succeeded',revision=revision+1,lease_until=NULL,lease_owner=NULL,progress=$2,updated_at=clock_timestamp() WHERE id=$1`, j.ID, encodeJSON(map[string]string{"adopted": strconv.FormatUint(adopted, 10), "sequence": strconv.FormatInt(seq, 10)})); e != nil {
+		if e = s.FinalizeTaskTx(ctx, tx, j.ID, j.fence, "succeeded", "", map[string]string{"adopted": strconv.FormatUint(adopted, 10), "sequence": strconv.FormatInt(seq, 10)}); e != nil {
 			return e
 		}
 		var meta WriteMeta
 		_ = json.Unmarshal(j.input, &meta)
-		return auditTx(ctx, tx, auth, "imports.publish", j.Target, meta.Reason, meta.RequestID, map[string]string{"state": state, "adopted": strconv.FormatUint(adopted, 10), "sequence": strconv.FormatInt(seq, 10)})
+		summary := map[string]string{"state": state, "adopted": strconv.FormatUint(adopted, 10), "sequence": strconv.FormatInt(seq, 10)}
+		if e = auditTx(ctx, tx, auth, "imports.publish", j.Target, meta.Reason, meta.RequestID, summary); e != nil {
+			return e
+		}
+		var generation string
+		if e = tx.QueryRow(ctx, `SELECT notification_generation::text FROM monitoring_jobs WHERE id=$1`, j.ID).Scan(&generation); e != nil {
+			return e
+		}
+		return auditPublishedTx(ctx, tx, auth, j.Target, j.ID, generation, meta.Reason, summary)
 	})
 }
 

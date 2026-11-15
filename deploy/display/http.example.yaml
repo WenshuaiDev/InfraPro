@@ -1,0 +1,21 @@
+# Merge into the existing InfraPro configuration; inject database/Redis/CSRF and
+# monitoring credentials through the deployment secret mechanism.
+public_console_url: http://console.infra.lan/console/
+trusted_origins: http://console.infra.lan
+cookie_secure: 'false'
+display:
+  runtime_origin: http://display.infra.lan
+  asset_origin: http://display-assets.infra.lan
+  runtime_addr: 127.0.0.1:5180
+  asset_addr: 127.0.0.1:5181
+  shell_directory: /opt/infrapro/apps/display-runtime/dist
+  lease: 60s
+  switch_grace: 30s
+  pool_size: '8'
+  max_instances: '100'
+  max_sessions: '100'
+  max_subscriptions: '16'
+  max_queries: '8'
+  max_package_jobs: '8'
+  max_result_bytes: '8388608'
+  max_file_bytes: '4194304'

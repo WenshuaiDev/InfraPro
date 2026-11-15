@@ -4,8 +4,11 @@ export type DeviceScope = { kind: 'tenant'; tenantId: string } | { kind: 'projec
 export type DeviceTenantScope = Extract<DeviceScope, { kind: 'tenant' }>;
 export type DeviceCatalogScope = { kind: 'platform' } | { kind: 'tenant'; tenantId: string; source: 'public' | 'private' };
 export type DeviceCatalogWriteScope = { kind: 'platform' } | { kind: 'tenant'; tenantId: string; source: 'private' };
-export type DeviceFilter = {q?: string; cursor?: string; limit?: number; manufacturer_id?: string; product_id?: string; product_version_id?: string; device_id?: string; status?: string; installation?: 'recorded'|'unrecorded'|'location'|'resource'; facility_id?: string; source?: 'all'|'public'|'private'; state?: string; level?: 'manufacturer'|'product'|'device'|'output'; parent_id?: string; kind?: string; slot_key?: string; metric_version_id?: string; unit_version_id?: string; compatible_only?: boolean};
+export type DeviceFilter = {q?: string; cursor?: string; limit?: number; manufacturer_id?: string; product_id?: string; product_version_id?: string; device_id?: string; status?: string; installation?: 'recorded'|'unrecorded'|'location'|'resource'; facility_id?: string; channel_id?: string; source?: 'all'|'public'|'private'; state?: string; level?: 'manufacturer'|'product'|'device'|'output'; parent_id?: string; kind?: string; slot_key?: string; metric_version_id?: string; unit_version_id?: string; compatible_only?: boolean};
 export type DeviceSourceTarget = { facility_id: string; point_id: string; channel_id: string };
+export type DeviceBindingDirectoryItem = Schema<'DeviceBindingDirectoryItem'>;
+export type DeviceBindingDirectoryPage = Schema<'DeviceBindingDirectoryPage'>;
+export type DeviceBindingFilter = Pick<DeviceFilter, 'q' | 'cursor' | 'limit' | 'facility_id' | 'parent_id' | 'channel_id'> & { state?: DeviceBindingDirectoryItem['state'] };
 export type Device = Schema<'Device'>;
 export type DeviceActions = Schema<'DeviceActions'>;
 export type DeviceCatalogActions = Schema<'DeviceCatalogActions'>;
@@ -137,6 +140,7 @@ const grants = (tenant: string, project: string) => `/tenants/${id(tenant)}/proj
 export function deviceMethods(request: Request) {
  const get = <T>(path:string,f:DeviceFilter={},signal?:AbortSignal) => request<T>(`${path}?${query(f)}`,'GET',undefined,true,signal);
  return {
+  deviceBindingDirectory: (scope:DeviceTenantScope,f:DeviceBindingFilter={},signal?:AbortSignal) => get<DeviceBindingDirectoryPage>(`${root(scope)}/monitoring-source-bindings`,f,signal),
   deviceManufacturers: (scope:DeviceCatalogScope,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceManufacturerPage>(`${catalog(scope)}/manufacturers`,f,signal),
   deviceManufacturer: (scope:DeviceCatalogWriteScope,manufacturer:string,signal?:AbortSignal) => get<DeviceManufacturer>(`${catalog(scope)}/manufacturers/${id(manufacturer)}`,{},signal),
   deviceProducts: (scope:DeviceCatalogScope,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceProductPage>(`${catalog(scope)}/products`,f,signal),

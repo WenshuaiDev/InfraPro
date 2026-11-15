@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"log/slog"
 	"math/rand/v2"
 	"slices"
@@ -17,23 +20,53 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+type JobQuery struct {
+	Action string     `json:"action"`
+	Input  QueryInput `json:"input"`
+}
+
+// Only the result-navigation response uses this request-shaped encoding.
+// Stored QueryInput JSON and its existing snapshot fingerprints stay unchanged.
+func (q JobQuery) MarshalJSON() ([]byte, error) {
+	raw, err := json.Marshal(q.Input)
+	if err != nil {
+		return nil, err
+	}
+	var input map[string]json.RawMessage
+	if err = json.Unmarshal(raw, &input); err != nil {
+		return nil, err
+	}
+	for key, value := range input {
+		v := string(value)
+		if v == "null" || v == `""` || v == "false" || (v == "0" && key != "digits") {
+			delete(input, key)
+		}
+	}
+	return json.Marshal(struct {
+		Action string                     `json:"action"`
+		Input  map[string]json.RawMessage `json:"input"`
+	}{q.Action, input})
+}
+
 type Job struct {
-	TraceID                       string          `json:"trace_id"`
-	ResultState                   string          `json:"result_state,omitempty"`
-	ID                            string          `json:"id"`
-	Kind                          string          `json:"kind"`
-	Target                        string          `json:"target_id"`
-	TargetRevision                string          `json:"target_revision"`
-	State                         string          `json:"state"`
-	Revision                      string          `json:"revision"`
-	Attempts                      int             `json:"attempts"`
-	Progress                      json.RawMessage `json:"progress"`
-	ErrorCode                     string          `json:"error_code"`
-	CreatedAt                     time.Time       `json:"created_at"`
-	UpdatedAt                     time.Time       `json:"updated_at"`
-	tenant, project, actor, owner string
-	fence                         int64
-	input                         json.RawMessage
+	Query                                  *JobQuery       `json:"query,omitempty"`
+	TaskRef                                *taskrecord.Ref `json:"task_ref,omitempty"`
+	TraceID                                string          `json:"trace_id"`
+	ResultState                            string          `json:"result_state,omitempty"`
+	ID                                     string          `json:"id"`
+	Kind                                   string          `json:"kind"`
+	Target                                 string          `json:"target_id"`
+	TargetRevision                         string          `json:"target_revision"`
+	State                                  string          `json:"state"`
+	Revision                               string          `json:"revision"`
+	Attempts                               int             `json:"attempts"`
+	Progress                               json.RawMessage `json:"progress"`
+	ErrorCode                              string          `json:"error_code"`
+	CreatedAt                              time.Time       `json:"created_at"`
+	UpdatedAt                              time.Time       `json:"updated_at"`
+	tenant, project, actor, owner, subject string
+	fence                                  int64
+	input                                  json.RawMessage
 }
 type JobPage struct {
 	Items      []Job  `json:"items"`
@@ -74,13 +107,17 @@ func workerActor(id string) access.Actor {
 	}}
 }
 
-const jobSelect = `SELECT id::text,kind,target_id::text,target_revision::text,state,revision::text,attempts,progress,COALESCE(error_code,''),created_at,updated_at,trace_id::text,tenant_id::text,COALESCE(project_id::text,''),COALESCE(actor_id::text,''),COALESCE(lease_owner,''),fence,input FROM monitoring_jobs`
+const jobSelect = `SELECT id::text,kind,target_id::text,target_revision::text,state,revision::text,attempts,progress,COALESCE(error_code,''),created_at,updated_at,trace_id::text,tenant_id::text,COALESCE(project_id::text,''),COALESCE(actor_id::text,''),COALESCE(lease_owner,''),fence,input,COALESCE(display_subject_id::text,''),monitoring_task_snapshot(monitoring_jobs) FROM monitoring_jobs`
 
 func scanJob(row pgx.Row) (Job, error) {
 	var j Job
-	e := row.Scan(&j.ID, &j.Kind, &j.Target, &j.TargetRevision, &j.State, &j.Revision, &j.Attempts, &j.Progress, &j.ErrorCode, &j.CreatedAt, &j.UpdatedAt, &j.TraceID, &j.tenant, &j.project, &j.actor, &j.owner, &j.fence, &j.input)
+	var fact *taskrecord.Change
+	e := row.Scan(&j.ID, &j.Kind, &j.Target, &j.TargetRevision, &j.State, &j.Revision, &j.Attempts, &j.Progress, &j.ErrorCode, &j.CreatedAt, &j.UpdatedAt, &j.TraceID, &j.tenant, &j.project, &j.actor, &j.owner, &j.fence, &j.input, &j.subject, &fact)
 	if e == pgx.ErrNoRows {
 		return j, notFound()
+	}
+	if e == nil && fact != nil {
+		j.TaskRef = &taskrecord.Ref{SourceRef: fact.SourceRef, Generation: fact.Generation, TaskID: fact.SourceRef.ID()}
 	}
 	return j, e
 }
@@ -276,7 +313,10 @@ func (s *Service) reapExpiredJobs(ctx context.Context) error {
 			if j.Kind == "publish" || j.Kind == "validate" {
 				_, e = tx.Exec(ctx, `UPDATE monitoring_import_batches SET state='failed',error_code='job_attempts_exhausted',revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2 AND revision=$3 AND state IN ('validating','preparing')`, j.tenant, j.Target, j.TargetRevision)
 			}
-			return e
+			if e != nil {
+				return e
+			}
+			return s.RecordTaskOutcomeTx(ctx, tx, j.ID)
 		})
 		if e != nil {
 			return e
@@ -284,7 +324,10 @@ func (s *Service) reapExpiredJobs(ctx context.Context) error {
 	}
 	return nil
 }
-func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
+func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger, reporters ...diagnosticreport.Sink) error {
+	reporter := diagnosticreport.Optional(reporters)
+	foreground := diagnosticreport.NewGroup(reporter, "foreground", s.workers.Foreground)
+	historical := diagnosticreport.NewGroup(reporter, "historical", s.workers.Historical)
 	work, cancel := context.WithCancel(ctx)
 	defer cancel()
 	var workers sync.WaitGroup
@@ -296,17 +339,22 @@ func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
 			if work.Err() != nil {
 				return
 			}
+			reporter.Begin("scheduler", diagnosticreport.Deadline(work))
+			var iterationErr error
 			if s.scheduler != nil {
 				if e := s.scheduler.Tick(work, time.Now()); e != nil && work.Err() == nil {
+					iterationErr = e
 					logger.Warn("monitoring calculation scheduling incomplete", "code", jobError(e))
 				}
 			}
 			if time.Now().After(nextVerification) {
 				nextVerification = time.Now().Add(time.Minute)
 				if e := s.scheduleVerification(work); e != nil && work.Err() == nil {
+					iterationErr = e
 					logger.Warn("monitoring reconciliation scheduling incomplete", "code", jobError(e))
 				}
 			}
+			reporter.End("scheduler", diagnosticreport.Result(iterationErr), time.Now().Add(time.Second))
 			select {
 			case <-work.Done():
 				return
@@ -314,7 +362,7 @@ func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
 			}
 		}
 	})
-	lane := func(queue string) {
+	lane := func(queue string, number int, group *diagnosticreport.Group) {
 		owner := uuid.NewString()
 		tick := time.NewTicker(time.Second)
 		defer tick.Stop()
@@ -322,7 +370,13 @@ func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
 			if work.Err() != nil {
 				return
 			}
-			worked, e := s.runOne(work, owner, "", "", queue)
+			group.Begin(number, diagnosticreport.Deadline(work))
+			worked, e := s.runOne(group.Context(work, number), owner, "", "", queue)
+			next := time.Now().Add(time.Second)
+			if worked {
+				next = time.Now()
+			}
+			group.End(number, diagnosticreport.Result(e), next)
 			if e != nil && work.Err() == nil {
 				logger.Warn("monitoring task incomplete", "queue", queue, "code", jobError(e))
 			}
@@ -337,10 +391,10 @@ func (s *Service) RunWorker(ctx context.Context, logger *slog.Logger) error {
 		}
 	}
 	for i := 0; i < s.workers.Foreground; i++ {
-		workers.Go(func() { lane("foreground") })
+		workers.Go(func() { lane("foreground", i, foreground) })
 	}
 	for i := 0; i < s.workers.Historical; i++ {
-		workers.Go(func() { lane("historical") })
+		workers.Go(func() { lane("historical", i, historical) })
 	}
 	<-work.Done()
 	cancel()
@@ -370,6 +424,9 @@ func jobError(e error) string {
 }
 func (s *Service) finishJob(ctx context.Context, j Job, cause error) error {
 	return s.db(ctx, func(tx pgx.Tx) error {
+		if _, e := access.Lock(ctx, tx, false); e != nil {
+			return e
+		}
 		var state string
 		var fence int64
 		var cancelled bool
@@ -420,7 +477,10 @@ func (s *Service) finishJob(ctx context.Context, j Job, cause error) error {
 		if (next == "failed" || next == "needs_action") && (j.Kind == "validate" || j.Kind == "publish") {
 			_, e = tx.Exec(ctx, `UPDATE monitoring_import_batches SET state='failed',error_code=$3,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND id=$2 AND revision=$4 AND state IN ('validating','preparing')`, j.tenant, j.Target, code, j.TargetRevision)
 		}
-		return e
+		if e != nil {
+			return e
+		}
+		return s.RecordTaskOutcomeTx(ctx, tx, j.ID)
 	})
 }
 func (s *Service) Jobs(ctx context.Context, a access.Actor, scope Scope, cursor string) (JobPage, error) {
@@ -551,6 +611,15 @@ func (s *Service) Job(ctx context.Context, a access.Actor, scope Scope, id strin
 		if e = s.jobPermissionTx(ctx, tx, auth, out); e != nil {
 			return e
 		}
+		if out.Kind == "summary" {
+			var input summaryJobInput
+			if e = json.Unmarshal(out.input, &input); e != nil {
+				return e
+			}
+			if input.Mode == "query" {
+				out.Query = &JobQuery{Action: input.Action, Input: input.Query}
+			}
+		}
 		return presentJobTx(ctx, tx, &out)
 	})
 	return out, e
@@ -572,6 +641,9 @@ func (s *Service) CancelImport(ctx context.Context, a access.Actor, scope Scope,
 		if b.Revision != in.ExpectedRevision || b.State == "published" || b.State == "revoked" || b.State == "completed_noop" {
 			return revisionChanged()
 		}
+		if e = tasks.SetCommandTx(ctx, tx, a, tasks.Command{RequestID: in.RequestID, Action: "cancel", Reason: in.Reason}); e != nil {
+			return e
+		}
 		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET cancel_requested=true,state=CASE WHEN state IN ('queued','retry_wait') THEN 'cancelled' ELSE state END,revision=revision+1,updated_at=clock_timestamp() WHERE tenant_id=$1 AND target_id=$2 AND state IN ('queued','retry_wait','running')`, scope.Tenant, id); e != nil {
 			return e
 		}
@@ -580,6 +652,9 @@ func (s *Service) CancelImport(ctx context.Context, a access.Actor, scope Scope,
 		}
 		out, e = batchTx(ctx, tx, auth, id, false)
 		if e != nil {
+			return e
+		}
+		if e = s.recordImportOutcomesTx(ctx, tx, scope.Tenant, id); e != nil {
 			return e
 		}
 		return saveReceiptTx(ctx, tx, auth, "imports.cancel:"+id, in.RequestID, in, out)
@@ -609,6 +684,9 @@ func (s *Service) CancelJob(ctx context.Context, a access.Actor, scope Scope, id
 		if j.State != "queued" && j.State != "retry_wait" && j.State != "running" {
 			return revisionChanged()
 		}
+		if e = s.setTaskCommandTx(ctx, tx, a, id, tasks.Command{RequestID: in.RequestID, Action: "cancel", Reason: in.Reason}); e != nil {
+			return e
+		}
 		if _, e = tx.Exec(ctx, `UPDATE monitoring_jobs SET cancel_requested=true,state=CASE WHEN state='running' THEN state ELSE 'cancelled' END,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id); e != nil {
 			return e
 		}
@@ -619,6 +697,9 @@ func (s *Service) CancelJob(ctx context.Context, a access.Actor, scope Scope, id
 		}
 		out, e = scanJob(tx.QueryRow(ctx, jobSelect+` WHERE id=$1`, id))
 		if e != nil {
+			return e
+		}
+		if e = s.RecordTaskOutcomeTx(ctx, tx, id); e != nil {
 			return e
 		}
 		return saveReceiptTx(ctx, tx, auth, "jobs.cancel:"+id, in.RequestID, in, out)
@@ -648,4 +729,18 @@ func presentJobTx(ctx context.Context, tx pgx.Tx, j *Job) error {
 		j.Progress = encodeJSON(map[string]string{"phase": j.ResultState})
 	}
 	return nil
+}
+
+func (s *Service) jobActor(ctx context.Context, j Job) (access.Actor, error) {
+	if j.subject == "" {
+		return workerActor(j.actor), nil
+	}
+	if s.readSubjects == nil {
+		return access.Actor{}, access.ErrDenied
+	}
+	v, e := s.readSubjects(ctx, j.subject)
+	if e != nil {
+		return access.Actor{}, e
+	}
+	return v.ReadActor(), nil
 }

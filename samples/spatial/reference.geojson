@@ -1,0 +1,178 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "bridge-site",
+      "properties": {
+        "name": "Synthetic bridge",
+        "category": "bridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.38,
+          39.9
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "reference-road",
+      "properties": {
+        "name": "Illustrative road"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            116.37,
+            39.9
+          ],
+          [
+            116.39,
+            39.9
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "slope-area",
+      "properties": {
+        "name": "Synthetic slope"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              116.395,
+              39.895
+            ],
+            [
+              116.405,
+              39.895
+            ],
+            [
+              116.405,
+              39.905
+            ],
+            [
+              116.395,
+              39.905
+            ],
+            [
+              116.395,
+              39.895
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "bridge-reference-points",
+      "properties": {
+        "name": "Synthetic multiple points"
+      },
+      "geometry": {
+        "type": "MultiPoint",
+        "coordinates": [
+          [
+            116.382,
+            39.9
+          ],
+          [
+            116.383,
+            39.901
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "reference-multiple-lines",
+      "properties": {
+        "name": "Synthetic multiple lines"
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              116.37,
+              39.897
+            ],
+            [
+              116.38,
+              39.897
+            ]
+          ],
+          [
+            [
+              116.37,
+              39.899
+            ],
+            [
+              116.38,
+              39.899
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "slope-multiple-areas",
+      "properties": {
+        "name": "Synthetic multiple areas"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                116.385,
+                39.9
+              ],
+              [
+                116.386,
+                39.9
+              ],
+              [
+                116.386,
+                39.901
+              ],
+              [
+                116.385,
+                39.9
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                116.387,
+                39.902
+              ],
+              [
+                116.388,
+                39.902
+              ],
+              [
+                116.388,
+                39.903
+              ],
+              [
+                116.387,
+                39.902
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

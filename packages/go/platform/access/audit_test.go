@@ -1,6 +1,8 @@
 package access_test
 
 import (
+	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/audit"
 	"slices"
 	"testing"
 	"time"
@@ -24,7 +26,7 @@ func TestAuditNamesOutcomesAndScope(t *testing.T) {
 	}
 	for _, event := range page.Items {
 		d := event.Display
-		if d == nil || d.ActorName != "管理" || d.ActorUsername != "Admin" || d.ActorNameSource != "current" || d.TargetName != r.Name || d.TargetNameSource != "snapshot" || d.Outcome != "success" {
+		if d == nil || d.ActorName != "管理" || d.ActorUsername != "Admin" || d.ActorNameSource != "snapshot" || d.TargetName != r.Name || d.TargetNameSource != "snapshot" || d.Outcome != "success" {
 			t.Fatalf("unreadable role: %+v", d)
 		}
 		if event.EventType == "RoleSetPermissions" && d.PermissionNames[string(access.AuditRead)] != "查看平台审计" {
@@ -69,7 +71,7 @@ func TestAuditNamesOutcomesAndScope(t *testing.T) {
 	_, err = s.AuditEvents(ctx, e.Service.AccessActor(reader), access.Filter{TenantID: tenant.TenantID})
 	code(t, err, "permission_denied")
 	_, err = s.AuditEvents(ctx, e.Service.AccessActor(reader), access.Filter{Cursor: tenantEvent})
-	code(t, err, "validation_failed")
+	auditCode(t, err)
 	page, err = s.AuditEvents(ctx, e.Service.AccessActor(reader), access.Filter{Query: "审计原始角色名"})
 	must(t, err)
 	if len(page.Items) != 3 || page.Items[0].Display.TargetName != r.Name {
@@ -86,7 +88,7 @@ func TestAuditChronologicalPagination(t *testing.T) {
 	// an ID would disagree with the numeric keyset predicate and skip records.
 	for _, hour := range []int{2, 1, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2} {
 		var id string
-		must(t, e.Pool.QueryRow(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_type,object_id,outcome,reason,created_at) VALUES('audit.test',$1::uuid,$1::uuid,'account',$1::text,'success','时间分页回归',$2) RETURNING id::text`, p.Account.ID, time.Date(2026, 1, 1, hour, 0, 0, 0, time.UTC)).Scan(&id))
+		must(t, e.Pool.QueryRow(ctx, `INSERT INTO account_security_events(event_type,actor_id,account_id,object_type,object_id,outcome,reason,created_at,visibility_class) VALUES('profile_updated',$1::uuid,$1::uuid,'account',$1::text,'success','时间分页回归',$2,'platform') RETURNING id::text`, p.Account.ID, time.Now().UTC().Truncate(24*time.Hour).Add(time.Duration(hour-24)*time.Hour)).Scan(&id))
 		ids = append(ids, id)
 	}
 	first, err := s.AuditEvents(ctx, actor, access.Filter{Query: "时间分页回归", Limit: 2})
@@ -125,13 +127,21 @@ func TestAuditChronologicalPagination(t *testing.T) {
 	if len(legacy.Items) != 2 || legacy.Items[0].ID != ids[0] {
 		t.Fatal("legacy cursor is incompatible")
 	}
-	bounded, err := s.AuditEvents(ctx, actor, access.Filter{Query: "时间分页回归", From: "2026-01-01T02:00:00Z", To: "2026-01-01T02:00:00Z"})
+	bounded, err := s.AuditEvents(ctx, actor, access.Filter{Query: "时间分页回归", From: time.Now().UTC().Truncate(24 * time.Hour).Add(-22 * time.Hour).Format(time.RFC3339), To: time.Now().UTC().Truncate(24 * time.Hour).Add(-22*time.Hour + time.Second).Format(time.RFC3339)})
 	must(t, err)
 	if len(bounded.Items) != 10 || !slices.Equal([]string{bounded.Items[0].ID, bounded.Items[9].ID}, []string{ids[11], ids[0]}) {
 		t.Fatal("time boundary lost events")
 	}
 	for _, filter := range []access.Filter{{Cursor: "invalid"}, {Cursor: "0"}, {Category: "bad"}, {Outcome: "bad"}, {From: "bad"}, {From: "2026-02-01T00:00:00Z", To: "2026-01-01T00:00:00Z"}} {
 		_, err := s.AuditEvents(ctx, actor, filter)
-		code(t, err, "validation_failed")
+		auditCode(t, err)
+	}
+}
+
+func auditCode(t *testing.T, e error) {
+	t.Helper()
+	var ae *audit.Error
+	if !errors.As(e, &ae) || (ae.Code != "audit_filter_invalid" && ae.Code != "audit_cursor_stale") {
+		t.Fatalf("expected bounded audit input error, got %v", e)
 	}
 }

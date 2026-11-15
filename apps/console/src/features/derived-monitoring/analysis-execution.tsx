@@ -1,15 +1,16 @@
+import type { DerivedSearch } from './search';
 import { useState } from 'react';
 import type { AnalysisArtifactDetail, AnalysisRunInput, AnalysisVersion, DerivedRun } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
 import { useOperation } from '../account/use-operation';
 import { useRequestMeta } from '../engineering/use-request-meta';
 import { qualityNames } from '../monitoring/format';
-import { CommandError, Section, TextField, useDerived } from './common';
+import { CommandError, Section, TextField, useDerived, isoNS } from './common';
 import { RangeFields, recentNSRange } from './channel-controls';
 import { RunPanel } from './run-panel';
 
-export function AnalysisExecution({version,artifact}:{version:AnalysisVersion;artifact?:AnalysisArtifactDetail}) {
- const m=useDerived(),meta=useRequestMeta(),[range,setRange]=useState(()=>artifact?.version.output_range??recentNSRange()),[source,setSource]=useState(artifact?.run.source_range??range),[outputs,setOutputs]=useState<string[]>(artifact?.run.outputs??version.body.rule.outputs.map(v=>v.key));
+export function AnalysisExecution({version,artifact,prefill}:{version:AnalysisVersion;artifact?:AnalysisArtifactDetail;prefill?:DerivedSearch}) {
+ const m=useDerived(),meta=useRequestMeta(),[range,setRange]=useState(()=>artifact?.version.output_range??(prefill?.from&&prefill.to&&Number.isFinite(Date.parse(prefill.from))&&Number.isFinite(Date.parse(prefill.to))?{from_ns:isoNS(prefill.from),to_ns:isoNS(prefill.to)}:recentNSRange())),[source,setSource]=useState(artifact?.run.source_range??range),[outputs,setOutputs]=useState<string[]>(artifact?.run.outputs??version.body.rule.outputs.map(v=>v.key));
  const [quality,setQuality]=useState<NonNullable<AnalysisRunInput['quality']>>((artifact?.run.quality??version.body.rule.policies.quality??['good','unmarked']) as NonNullable<AnalysisRunInput['quality']>),[name,setName]=useState(artifact?.artifact.name??version.name),[reason,setReason]=useState(''),[run,setRun]=useState<DerivedRun>();
  const whole=version.body.rule.clock.kind==='whole_range';
  const operation=useOperation({mutationFn:(trial:boolean)=>{const body={config_version_id:version.id,config_hash:version.config_hash,output_range:range,source_range:whole?{...source,to_ns:range.to_ns}:undefined,outputs,quality,...(!trial?artifact?{artifact_id:artifact.artifact.id}:{artifact_name:name}:{})};const input={...body,...meta(trial?'analysis-trial':'analysis-run',body,reason)};return trial?m.client.analysisTrial(m.scope,input):m.client.analysisStartRun(m.scope,input);},onSuccess:setRun});

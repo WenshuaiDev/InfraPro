@@ -47,10 +47,12 @@ func Builtins() []Builtin {
 	}...)
 	for i := range out {
 		if out[i].Key == TenantAdminKey {
-			out[i].Permissions = append(append(out[i].Permissions, monitoringCodes("tenant")...), derivedCodes("tenant")...)
+			out[i].Permissions = append(out[i].Permissions, append(filesCodes("tenant"), auditCodes("tenant")...)...)
+			out[i].Permissions = append(append(append(out[i].Permissions, monitoringCodes("tenant")...), derivedCodes("tenant")...), spatialCodes("tenant")...)
 		}
 		if out[i].Key == ProjectAdminKey {
-			out[i].Permissions = append(append(out[i].Permissions, monitoringCodes("project")...), derivedCodes("project")...)
+			out[i].Permissions = append(out[i].Permissions, append(filesCodes("project"), auditCodes("project")...)...)
+			out[i].Permissions = append(append(append(out[i].Permissions, monitoringCodes("project")...), derivedCodes("project")...), append(spatialCodes("project"), displayCodes()...)...)
 		}
 	}
 	return out

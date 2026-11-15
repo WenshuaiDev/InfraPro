@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	ne "github.com/WenshuaiDev/InfraPro/packages/go/platform/notificationevent"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"strings"
@@ -147,7 +148,15 @@ func complete(ctx context.Context, tx pgx.Tx, a access.Actor, tenant, project, t
 	meta.ProjectID = project
 	meta.ActorScope = "project"
 	meta.Reason = m.Reason
-	if e := access.Audit(ctx, tx, "project."+string(op), "project", target, "", before, after, meta); e != nil {
+	kind := "project"
+	if strings.HasPrefix(string(op), "ProjectRole") {
+		kind = "project_role"
+	}
+	if strings.HasPrefix(string(op), "ProjectMember") {
+		kind = "project_member"
+	}
+	meta.RequestID = m.RequestID
+	if e := access.Audit(ctx, tx, "project."+string(op), kind, target, "", before, after, meta); e != nil {
 		return r, e
 	}
 	if op == access.OpProjectCreate || op == access.OpProjectTransfer || op == access.OpProjectRecoverAdmin {
@@ -265,7 +274,10 @@ func (s *Service) Create(ctx context.Context, a access.Actor, tenant string, in 
 			return e
 		}
 		out, e = complete(ctx, tx, a, tenant, pid, pid, "1", access.OpProjectCreate, in.WriteMeta, in, nil, after, m)
-		return e
+		if e != nil {
+			return e
+		}
+		return access.NotificationReceiptTx(ctx, tx, "projects", "membership.changed", "administrator_appointed", a.ID, ne.BusinessScope(tenant, pid), ne.Target{Kind: "workspaces"}, ne.Personal(admin.AccountID))
 	})
 	return out, e
 }

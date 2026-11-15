@@ -24,12 +24,18 @@ type Resources struct {
 }
 
 func Open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool) (*Resources, error) {
+	return open(ctx, cfg, logger, requireRedis, 12)
+}
+func OpenDisplay(ctx context.Context, cfg config.Config, logger *slog.Logger) (*Resources, error) {
+	return open(ctx, cfg, logger, false, int32(cfg.Display.PoolSize))
+}
+func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool, poolSize int32) (*Resources, error) {
 	pc, e := pgxpool.ParseConfig(cfg.DatabaseURL)
 	if e != nil {
 		return nil, fmt.Errorf("invalid database configuration")
 	}
 	pc.ConnConfig.ConnectTimeout = 3 * time.Second
-	pc.MaxConns = 12
+	pc.MaxConns = poolSize
 	pc.ConnConfig.RuntimeParams["statement_timeout"] = "10000"
 	pool, e := pgxpool.NewWithConfig(ctx, pc)
 	if e != nil {

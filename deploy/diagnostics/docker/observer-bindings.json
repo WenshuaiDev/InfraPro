@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "docker-observer",
+  "assignment_revision": "1",
+  "bindings": [
+    {
+      "id": "observer-resources",
+      "adapter": "host_resources",
+      "scope": "container",
+      "mount_paths": [
+        {
+          "id": "observer-state",
+          "path": "/var/lib/infrapro-observer"
+        }
+      ],
+      "network_interfaces": []
+    }
+  ]
+}

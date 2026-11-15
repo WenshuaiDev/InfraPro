@@ -1,0 +1,23 @@
+[Unit]
+Description=InfraPro personal notification delivery
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=infrapro
+Group=infrapro
+WorkingDirectory=/opt/infrapro
+Environment=INFRAPRO_CONFIG=/etc/infrapro/notification-worker.yaml
+EnvironmentFile=/etc/infrapro/notification-worker.env
+ExecStart=/opt/infrapro/bin/notification-worker
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
