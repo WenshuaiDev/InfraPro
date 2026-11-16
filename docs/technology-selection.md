@@ -159,3 +159,8 @@ React 工作区复用现有表格、响应式弹层和 DomainFiles，TanStack Qu
 Go 1.27 net/http 提供独立 server 与 observer，bbolt 1.5 保存本机有限历史及顺序屏障，不新增业务 migration。Argon2id 保存人员密码散列，crypto/tls 校验证书，securefile 使用 no-follow、编辑锁和原子替换保护配置。gopsutil 与 Linux cgroup 分别采集进程、宿主和容器资源；godbus 只读取 systemd 固定属性，Docker 限制为固定 GET。pgx、go-redis、clickhouse-go 与 minio-go 只执行登记的固定探针。
 
 React 19、TypeScript、TanStack Router/Query 和现有 UI/layouts 构建独立页面；客户端只消费 diagnostics OpenAPI。Vite 参与构建及显式开发，release 将资源嵌入 Go；Docker 最终镜像没有 Node。Compose/systemd 生命周期独立于业务。版本由 go.mod 和工作区 lockfile 固定；真实 owning process、TLS 网络、实际容器及私有 D-Bus 契约证据不代表已验证真实多服务器或 systemd unit。
+
+
+## 独立解析服务
+
+Go 独立解析服务已经实现，代码、存储和执行边界见[解析服务开发规格](development/parsing-service-and-method-binding-spec.md#engineering)。沿用仓库固定依赖，执行子进程使用 Go 标准库及既有 x/sys 的 Linux 资源／seccomp 能力；平台继续使用 pgx、Goose 和 S3 客户端，未引入协议 DSL 或动态插件。自验与部署状态见[验收报告](verification/parsing-service.md)。

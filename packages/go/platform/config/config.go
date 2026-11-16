@@ -17,6 +17,7 @@ import (
 )
 
 type Config struct {
+	Parsing                                                     Parsing
 	Audit                                                       Audit
 	Files                                                       Files
 	Tasks                                                       Tasks
@@ -38,6 +39,7 @@ type Config struct {
 }
 
 type input struct {
+	Parsing                    parsingInput `yaml:"parsing"`
 	Audit                      auditInput   `yaml:"audit"`
 	Files                      filesInput   `yaml:"files"`
 	Tasks                      tasksInput   `yaml:"tasks"`
@@ -101,7 +103,7 @@ type input struct {
 }
 
 func loadInput(path string) (input, error) {
-	raw := input{Audit: defaultAuditInput(), Files: defaultFilesInput(), Tasks: defaultTasksInput(), Display: defaultDisplayInput(), Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
+	raw := input{Parsing: defaultParsingInput(), Audit: defaultAuditInput(), Files: defaultFilesInput(), Tasks: defaultTasksInput(), Display: defaultDisplayInput(), Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
 		MonitoringHotDays: "90", MonitoringOnlineVolume: "online", MonitoringDatabase: "infrapro_monitoring", MonitoringUser: "default", MonitoringPolicy: "monitoring_tiered", MonitoringTLS: "false", MonitoringExportRows: "1000000", MonitoringExportBytes: "268435456",
 		PublicConsoleURL: "http://127.0.0.1:5173/",
 		TrustedOrigins:   "http://127.0.0.1:5173", CookieSecure: "false",
@@ -135,6 +137,7 @@ func loadInput(path string) (input, error) {
 	derivedEnvironment(&raw.Derived)
 	displayEnvironment(&raw.Display)
 	tasksEnvironment(&raw.Tasks)
+	parsingEnvironment(&raw.Parsing)
 	auditEnvironment(&raw.Audit)
 	filesEnvironment(&raw.Files)
 	return raw, nil
@@ -180,6 +183,10 @@ func Load(path string) (Config, error) {
 		return c, err
 	}
 	c.Audit, err = parseAudit(raw.Audit)
+	if err != nil {
+		return c, err
+	}
+	c.Parsing, err = parseParsing(raw.Parsing)
 	if err != nil {
 		return c, err
 	}

@@ -27,6 +27,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-pa
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks/$taskId'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t/$tenantId'
+import { Route as AuthenticatedPlatformParsingRouteImport } from './routes/_authenticated/platform/parsing'
 import { Route as AuthenticatedNotificationsPreferencesRouteImport } from './routes/_authenticated/notifications/preferences'
 import { Route as AuthenticatedNotificationsNotificationIdRouteImport } from './routes/_authenticated/notifications/$notificationId'
 import { Route as AuthenticatedAccessRolesRouteImport } from './routes/_authenticated/access/roles'
@@ -40,6 +41,7 @@ import { Route as AuthenticatedTTenantIdSpatialRouteImport } from './routes/_aut
 import { Route as AuthenticatedTTenantIdRolesRouteImport } from './routes/_authenticated/t/$tenantId/roles'
 import { Route as AuthenticatedTTenantIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/profile'
 import { Route as AuthenticatedTTenantIdPermissionsRouteImport } from './routes/_authenticated/t/$tenantId/permissions'
+import { Route as AuthenticatedTTenantIdParsingRouteImport } from './routes/_authenticated/t/$tenantId/parsing'
 import { Route as AuthenticatedTTenantIdFilesRouteImport } from './routes/_authenticated/t/$tenantId/files'
 import { Route as AuthenticatedTTenantIdDevicesRouteImport } from './routes/_authenticated/t/$tenantId/devices'
 import { Route as AuthenticatedTTenantIdBindingsRouteImport } from './routes/_authenticated/t/$tenantId/bindings'
@@ -204,6 +206,12 @@ const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
   path: '/t/$tenantId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlatformParsingRoute =
+  AuthenticatedPlatformParsingRouteImport.update({
+    id: '/platform/parsing',
+    path: '/platform/parsing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedNotificationsPreferencesRoute =
   AuthenticatedNotificationsPreferencesRouteImport.update({
     id: '/notifications/preferences',
@@ -280,6 +288,12 @@ const AuthenticatedTTenantIdPermissionsRoute =
   AuthenticatedTTenantIdPermissionsRouteImport.update({
     id: '/permissions',
     path: '/permissions',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdParsingRoute =
+  AuthenticatedTTenantIdParsingRouteImport.update({
+    id: '/parsing',
+    path: '/parsing',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
 const AuthenticatedTTenantIdFilesRoute =
@@ -743,6 +757,7 @@ export interface FileRoutesByFullPath {
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -754,6 +769,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/t/$tenantId/devices': typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   '/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
   '/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesRouteWithChildren
@@ -846,6 +862,7 @@ export interface FileRoutesByTo {
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
@@ -856,6 +873,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
   '/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
   '/t/$tenantId/spatial': typeof AuthenticatedTTenantIdSpatialRoute
@@ -946,6 +964,7 @@ export interface FileRoutesById {
   '/_authenticated/access/roles': typeof AuthenticatedAccessRolesRoute
   '/_authenticated/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/_authenticated/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/_authenticated/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/_authenticated/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -957,6 +976,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/_authenticated/t/$tenantId/devices': typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   '/_authenticated/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/_authenticated/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/_authenticated/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/_authenticated/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
   '/_authenticated/t/$tenantId/roles': typeof AuthenticatedTTenantIdRolesRouteWithChildren
@@ -1051,6 +1071,7 @@ export interface FileRouteTypes {
     | '/access/roles'
     | '/notifications/$notificationId'
     | '/notifications/preferences'
+    | '/platform/parsing'
     | '/t/$tenantId'
     | '/tasks/$taskId'
     | '/notifications/'
@@ -1062,6 +1083,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/bindings'
     | '/t/$tenantId/devices'
     | '/t/$tenantId/files'
+    | '/t/$tenantId/parsing'
     | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
     | '/t/$tenantId/roles'
@@ -1154,6 +1176,7 @@ export interface FileRouteTypes {
     | '/access/roles'
     | '/notifications/$notificationId'
     | '/notifications/preferences'
+    | '/platform/parsing'
     | '/t/$tenantId'
     | '/tasks/$taskId'
     | '/notifications'
@@ -1164,6 +1187,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/audit'
     | '/t/$tenantId/bindings'
     | '/t/$tenantId/files'
+    | '/t/$tenantId/parsing'
     | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
     | '/t/$tenantId/spatial'
@@ -1253,6 +1277,7 @@ export interface FileRouteTypes {
     | '/_authenticated/access/roles'
     | '/_authenticated/notifications/$notificationId'
     | '/_authenticated/notifications/preferences'
+    | '/_authenticated/platform/parsing'
     | '/_authenticated/t/$tenantId'
     | '/_authenticated/tasks/$taskId'
     | '/_authenticated/notifications/'
@@ -1264,6 +1289,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/bindings'
     | '/_authenticated/t/$tenantId/devices'
     | '/_authenticated/t/$tenantId/files'
+    | '/_authenticated/t/$tenantId/parsing'
     | '/_authenticated/t/$tenantId/permissions'
     | '/_authenticated/t/$tenantId/profile'
     | '/_authenticated/t/$tenantId/roles'
@@ -1471,6 +1497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/platform/parsing': {
+      id: '/_authenticated/platform/parsing'
+      path: '/platform/parsing'
+      fullPath: '/platform/parsing'
+      preLoaderRoute: typeof AuthenticatedPlatformParsingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/notifications/preferences': {
       id: '/_authenticated/notifications/preferences'
       path: '/notifications/preferences'
@@ -1560,6 +1593,13 @@ declare module '@tanstack/react-router' {
       path: '/permissions'
       fullPath: '/t/$tenantId/permissions'
       preLoaderRoute: typeof AuthenticatedTTenantIdPermissionsRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/parsing': {
+      id: '/_authenticated/t/$tenantId/parsing'
+      path: '/parsing'
+      fullPath: '/t/$tenantId/parsing'
+      preLoaderRoute: typeof AuthenticatedTTenantIdParsingRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
     '/_authenticated/t/$tenantId/files': {
@@ -2294,6 +2334,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdBindingsRoute: typeof AuthenticatedTTenantIdBindingsRoute
   AuthenticatedTTenantIdDevicesRoute: typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   AuthenticatedTTenantIdFilesRoute: typeof AuthenticatedTTenantIdFilesRoute
+  AuthenticatedTTenantIdParsingRoute: typeof AuthenticatedTTenantIdParsingRoute
   AuthenticatedTTenantIdPermissionsRoute: typeof AuthenticatedTTenantIdPermissionsRoute
   AuthenticatedTTenantIdProfileRoute: typeof AuthenticatedTTenantIdProfileRoute
   AuthenticatedTTenantIdRolesRoute: typeof AuthenticatedTTenantIdRolesRouteWithChildren
@@ -2336,6 +2377,7 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
     AuthenticatedTTenantIdDevicesRoute:
       AuthenticatedTTenantIdDevicesRouteWithChildren,
     AuthenticatedTTenantIdFilesRoute: AuthenticatedTTenantIdFilesRoute,
+    AuthenticatedTTenantIdParsingRoute: AuthenticatedTTenantIdParsingRoute,
     AuthenticatedTTenantIdPermissionsRoute:
       AuthenticatedTTenantIdPermissionsRoute,
     AuthenticatedTTenantIdProfileRoute: AuthenticatedTTenantIdProfileRoute,
@@ -2421,6 +2463,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccessRolesRoute: typeof AuthenticatedAccessRolesRoute
   AuthenticatedNotificationsNotificationIdRoute: typeof AuthenticatedNotificationsNotificationIdRoute
   AuthenticatedNotificationsPreferencesRoute: typeof AuthenticatedNotificationsPreferencesRoute
+  AuthenticatedPlatformParsingRoute: typeof AuthenticatedPlatformParsingRoute
   AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedNotificationsInvitationsInvitationIdRoute: typeof AuthenticatedNotificationsInvitationsInvitationIdRoute
@@ -2448,6 +2491,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedNotificationsNotificationIdRoute,
   AuthenticatedNotificationsPreferencesRoute:
     AuthenticatedNotificationsPreferencesRoute,
+  AuthenticatedPlatformParsingRoute: AuthenticatedPlatformParsingRoute,
   AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedNotificationsInvitationsInvitationIdRoute:

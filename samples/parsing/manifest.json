@@ -1,0 +1,81 @@
+{
+  "source": "synthetic",
+  "protocol": "H7710S-DDP sections 1, 2.1-2.3",
+  "samples": [
+    {
+      "file": "measurement.bin",
+      "sha256": "87b7f3f0e959ee6881bba0d4d0ddb045cddc2786f947b2f64f5976a2a501c63e",
+      "byte_length": 81
+    },
+    {
+      "file": "logout.bin",
+      "sha256": "736f39ecd5b5f3a1a1381486caf84fa5ffbd48d67b0db5106d4c996552cff4c2",
+      "byte_length": 16
+    },
+    {
+      "file": "registration.bin",
+      "sha256": "5d53b24e8eb0f85be10646073ab51379b6ea544b8badf8d9ec1069b45d924e42",
+      "byte_length": 22
+    },
+    {
+      "file": "ack.bin",
+      "sha256": "41f596556de3b9862e305f1b94f12d0643c66bfe26cc7f4621dcbae63e8d3e4f",
+      "byte_length": 16
+    },
+    {
+      "file": "source-status.bin",
+      "sha256": "d58979366930610b14a02f06d2bcafd9eea14b2738336ed223756372aa250af7",
+      "byte_length": 107
+    },
+    {
+      "file": "bad-length.bin",
+      "sha256": "fa00f0bc9fcb8dd595d3e3d6bbcd27379e585057a20708797f08f9a22c963025",
+      "byte_length": 81
+    },
+    {
+      "file": "two-frames.bin",
+      "sha256": "123e2aec76e82a9741a3f37ee42090d310ffb966dfe0b279189f44beff240f06",
+      "byte_length": 162
+    },
+    {
+      "file": "unknown-payload.bin",
+      "sha256": "f609558f00aa0c5a308f9510e3ec86464feb7f57d237a4a090b87828d7341e55",
+      "byte_length": 20
+    }
+  ],
+  "expected": {
+    "measurement.bin": {
+      "identity": "00000000001",
+      "payload_range": [
+        15,
+        80
+      ],
+      "observed_at": "2026-11-16T00:00:00Z",
+      "displacement": "12.34",
+      "unit": "mm",
+      "value_range": [
+        71,
+        79
+      ]
+    },
+    "logout.bin": {
+      "kind": "control",
+      "records": 0
+    },
+    "registration.bin": {
+      "kind": "control",
+      "mobile_ip": "10.0.0.1",
+      "mobile_port": "8080"
+    },
+    "source-status.bin": {
+      "1.0.0": "rejected",
+      "1.1.0": "suspect"
+    },
+    "bad-length.bin": "rejected",
+    "two-frames.bin": "rejected",
+    "unknown-payload.bin": {
+      "frame": "parsed",
+      "example": "rejected"
+    }
+  }
+}

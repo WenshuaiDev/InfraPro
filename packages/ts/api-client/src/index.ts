@@ -1,3 +1,5 @@
+import { parsingMethods } from './parsing';
+export * from './parsing';
 import { auditMethods } from './audit';
 export type { AuditScope,AuditFilter,AuditEvent,AuditEventDetail,AuditCapabilities,AuditExport,AuditExportInput,AuditTrace,AuditTarget,AuditLink,AuditChange } from './audit';
 import { fileMethods } from './files';
@@ -236,6 +238,7 @@ function accountMethods(base: string, timeoutMs: number) {
  ...auditMethods(request),
  ...taskMethods(request),
  ...fileMethods(request,base),
+ ...parsingMethods(request),
     ...displayMethods(request),
     invalidateSpatialScope,
     spatialRevision:(tenant:string,project?:string)=>`${spatialRevisions.get(`${tenant}:${project??''}`)??''}:${spatialEpochs.get(`${tenant}:${project??''}`)??0}`,

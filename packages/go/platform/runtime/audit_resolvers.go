@@ -55,6 +55,8 @@ func (r auditDisclosure) ResolveTx(ctx context.Context, tx pgx.Tx, a access.Acto
 		var e error
 		allowed := true
 		switch ref.Metadata {
+		case "parsing":
+			name, e = r.b.Parsing.AuditMetadataTx(ctx, tx, a, k.Scope{Entry: ref.Scope.Kind, Tenant: ref.Scope.Tenant, Project: ref.Scope.Project}, ref.ObjectType, ref.ObjectID)
 		case "governance":
 			name, e = access.AuditMetadataTx(ctx, tx, a, ref.Scope, ref.ObjectType, ref.ObjectID)
 		case "engineering":
@@ -157,6 +159,8 @@ func (r auditTrace) ResolveTx(ctx context.Context, tx pgx.Tx, a access.Actor, li
 				views, err = r.b.Spatial.TaskResolveTx(ctx, tx, a, []taskrecord.SourceRef{ref}, "detail")
 			case "display":
 				views, err = r.b.Displays.TaskResolveTx(ctx, tx, a, []taskrecord.SourceRef{ref}, "detail")
+			case "parsing":
+				views, err = r.b.Parsing.TaskResolveTx(ctx, tx, a, []taskrecord.SourceRef{ref}, "detail")
 			case "audit":
 				views, err = r.b.Audit.TaskResolveTx(ctx, tx, a, []taskrecord.SourceRef{ref}, "detail")
 			case "files":

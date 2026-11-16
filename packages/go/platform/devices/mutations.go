@@ -92,6 +92,16 @@ func (s *Service) Create(ctx context.Context, a access.Actor, scope Scope, in De
 				return e
 			}
 		}
+		if in.ParsingAdoption != nil {
+			if s.parsing == nil && in.ParsingAdoption.Mode != "unconfigured" {
+				return k.Problem("parsing_unavailable", "解析采用服务未装配。", 503)
+			}
+			if s.parsing != nil {
+				if e = s.parsing.AdoptOnCreateTx(ctx, tx, a, scope, out.ID, in.ParsingAdoption.Mode, in.ParsingAdoption.DefaultRevision, in.Reason); e != nil {
+					return e
+				}
+			}
+		}
 		out.Changed = true
 		d.OutputRevision = out.OutputRevision
 		return complete(ctx, tx, auth, in.Meta, op, in, "device", out.ID, out.ID, "", "", nil, map[string]any{"device": d, "outputs": outputs}, []string{"device", "outputs"}, out, meta)
@@ -112,7 +122,7 @@ func impactTx(ctx context.Context, tx pgx.Tx, tenant, device string) (impact, er
 	var out impact
 	e := tx.QueryRow(ctx, `SELECT
  EXISTS(SELECT 1 FROM project_device_grants WHERE tenant_id=$1 AND device_id=$2 AND ended_at IS NULL) OR EXISTS(SELECT 1 FROM monitoring_source_bindings b JOIN project_resource_grants g ON g.channel_id=b.channel_id JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE b.tenant_id=$1 AND b.device_id=$2 AND b.ended_at IS NULL AND g.ended_at IS NULL),
- EXISTS(SELECT 1 FROM device_installations WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM monitoring_source_bindings WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM project_device_grants WHERE tenant_id=$1 AND device_id=$2),
+ EXISTS(SELECT 1 FROM device_installations WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM monitoring_source_bindings WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM project_device_grants WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM parsing_device_adoptions WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM parsing_configs WHERE tenant_id=$1 AND device_id=$2) OR EXISTS(SELECT 1 FROM parsing_runs WHERE tenant_id=$1 AND device_id=$2),
  EXISTS(SELECT 1 FROM monitoring_source_bindings WHERE tenant_id=$1 AND device_id=$2 AND ended_at IS NULL),
  md5(jsonb_build_array(
  (SELECT jsonb_agg(to_jsonb(g) ORDER BY g.id) FROM project_device_grants g WHERE g.tenant_id=$1 AND g.device_id=$2),
@@ -203,7 +213,7 @@ func devicePreviewTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id st
 	}
 	if in.Action == "delete" && impact.Referenced {
 		out.CanSubmit = false
-		out.Blockers = append(out.Blockers, Issue{Path: "/id", Code: "device_referenced", Message: "设备存在安装、来源或项目授权履历，请停用保留。"})
+		out.Blockers = append(out.Blockers, Issue{Path: "/id", Code: "device_referenced", Message: "设备存在安装、来源、项目授权或解析配置／运行履历，请停用保留。"})
 	}
 	return out, before, after, nil
 }

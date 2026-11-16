@@ -1,0 +1,1059 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "InfraPro fixed parsing service",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8091"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "ParsingWireCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "contract_version": {
+            "type": "integer"
+          },
+          "entries": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireEntry"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limits": {
+            "$ref": "#/components/schemas/ParsingWireLimits"
+          },
+          "service_build_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "service_release": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract_version",
+          "service_release",
+          "service_build_digest",
+          "entries",
+          "limits"
+        ],
+        "type": "object"
+      },
+      "ParsingWireCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ParsingWireRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "status"
+        ],
+        "type": "object"
+      },
+      "ParsingWireContext": {
+        "additionalProperties": false,
+        "properties": {
+          "received_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "transport": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "received_at",
+          "transport"
+        ],
+        "type": "object"
+      },
+      "ParsingWireDiagnostic": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ParsingWireLocation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "type": "object"
+      },
+      "ParsingWireEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "category": {
+            "type": "string"
+          },
+          "contract_version": {
+            "type": "integer"
+          },
+          "example": {
+            "type": "boolean"
+          },
+          "input_unit": {
+            "type": "string"
+          },
+          "manifest_base64": {
+            "type": "string"
+          },
+          "manifest_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "max_length": {
+            "type": "integer"
+          },
+          "method_id": {
+            "type": "string"
+          },
+          "method_version": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "output_contract_base64": {
+            "type": "string"
+          },
+          "output_contract_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "outputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireOutput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "protocol_reference": {
+            "type": "string"
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "sample_suite_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "transports": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "contract_version",
+          "method_id",
+          "method_version",
+          "name",
+          "category",
+          "example",
+          "protocol_reference",
+          "input_unit",
+          "transports",
+          "max_length",
+          "outputs",
+          "artifact_digest",
+          "output_contract_digest",
+          "sample_suite_digest",
+          "release_notes",
+          "manifest_digest",
+          "manifest_base64",
+          "output_contract_base64"
+        ],
+        "type": "object"
+      },
+      "ParsingWireError": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object"
+      },
+      "ParsingWireField": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/ParsingWireLocation"
+          },
+          "raw_text": {
+            "type": "string"
+          },
+          "step_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value",
+          "location",
+          "step_ids"
+        ],
+        "type": "object"
+      },
+      "ParsingWireIdentity": {
+        "additionalProperties": false,
+        "properties": {
+          "authenticated": {
+            "type": "boolean"
+          },
+          "hex": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/ParsingWireLocation"
+          },
+          "role": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "hex",
+          "location",
+          "authenticated"
+        ],
+        "type": "object"
+      },
+      "ParsingWireInput": {
+        "additionalProperties": false,
+        "properties": {
+          "byte_length": {
+            "type": "integer"
+          },
+          "bytes_base64": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "bytes_base64",
+          "sha256",
+          "byte_length"
+        ],
+        "type": "object"
+      },
+      "ParsingWireLimits": {
+        "additionalProperties": false,
+        "properties": {
+          "concurrency": {
+            "type": "integer"
+          },
+          "depth": {
+            "type": "integer"
+          },
+          "execution_seconds": {
+            "type": "integer"
+          },
+          "input_bytes": {
+            "type": "integer"
+          },
+          "records": {
+            "type": "integer"
+          },
+          "response_bytes": {
+            "type": "integer"
+          },
+          "steps": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_bytes",
+          "response_bytes",
+          "records",
+          "steps",
+          "depth",
+          "execution_seconds",
+          "concurrency"
+        ],
+        "type": "object"
+      },
+      "ParsingWireLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "json_pointer": {
+            "type": "string"
+          },
+          "range": {
+            "$ref": "#/components/schemas/ParsingWireRange"
+          }
+        },
+        "required": [
+          "range"
+        ],
+        "type": "object"
+      },
+      "ParsingWireManifest": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "category": {
+            "type": "string"
+          },
+          "contract_version": {
+            "type": "integer"
+          },
+          "example": {
+            "type": "boolean"
+          },
+          "input_unit": {
+            "type": "string"
+          },
+          "max_length": {
+            "type": "integer"
+          },
+          "method_id": {
+            "type": "string"
+          },
+          "method_version": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "output_contract_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "outputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireOutput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "protocol_reference": {
+            "type": "string"
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "sample_suite_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "transports": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "contract_version",
+          "method_id",
+          "method_version",
+          "name",
+          "category",
+          "example",
+          "protocol_reference",
+          "input_unit",
+          "transports",
+          "max_length",
+          "outputs",
+          "artifact_digest",
+          "output_contract_digest",
+          "sample_suite_digest",
+          "release_notes"
+        ],
+        "type": "object"
+      },
+      "ParsingWireMeasurement": {
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/ParsingWireLocation"
+          },
+          "output_key": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string"
+          },
+          "step_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "output_key",
+          "value_type",
+          "value",
+          "unit",
+          "location",
+          "step_ids"
+        ],
+        "type": "object"
+      },
+      "ParsingWireMethod": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "id": {
+            "type": "string"
+          },
+          "manifest_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "artifact_digest",
+          "manifest_digest"
+        ],
+        "type": "object"
+      },
+      "ParsingWireOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregation": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "output_key": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "timestamp_meaning": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "value_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "output_key",
+          "value_type",
+          "meaning",
+          "unit",
+          "timestamp_meaning",
+          "aggregation",
+          "direction",
+          "reference"
+        ],
+        "type": "object"
+      },
+      "ParsingWireRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "type": "integer"
+          },
+          "start": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "ParsingWireRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer"
+          },
+          "measurements": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireMeasurement"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_status": {
+            "type": "string"
+          },
+          "time_source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "observed_at",
+          "time_source",
+          "measurements"
+        ],
+        "type": "object"
+      },
+      "ParsingWireRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/ParsingWireContext"
+          },
+          "contract_version": {
+            "type": "integer"
+          },
+          "execution_id": {
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ParsingWireInput"
+          },
+          "method": {
+            "$ref": "#/components/schemas/ParsingWireMethod"
+          },
+          "trace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract_version",
+          "execution_id",
+          "method",
+          "input",
+          "context",
+          "trace_id"
+        ],
+        "type": "object"
+      },
+      "ParsingWireResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireCheck"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contract_version": {
+            "type": "integer"
+          },
+          "diagnostics": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireDiagnostic"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_id": {
+            "type": "string"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireField"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "identities": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireIdentity"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_sha256": {
+            "type": "string"
+          },
+          "message_kind": {
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/ParsingWireMethod"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireRecord"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "service_build_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "service_release": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ParsingWireStep"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "contract_version",
+          "execution_id",
+          "method",
+          "input_sha256",
+          "service_release",
+          "service_build_digest",
+          "status",
+          "message_kind",
+          "identities",
+          "records",
+          "fields",
+          "steps",
+          "diagnostics",
+          "checks"
+        ],
+        "type": "object"
+      },
+      "ParsingWireSemantics": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregation": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string"
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "timestamp_meaning": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "value_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value_type",
+          "meaning",
+          "unit",
+          "timestamp_meaning",
+          "aggregation",
+          "direction",
+          "reference"
+        ],
+        "type": "object"
+      },
+      "ParsingWireStep": {
+        "additionalProperties": false,
+        "properties": {
+          "field_keys": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "input_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "output_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "parent_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "range": {
+            "$ref": "#/components/schemas/ParsingWireRange"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "rule_id",
+          "range",
+          "status",
+          "parent_ids",
+          "field_keys",
+          "input_digest",
+          "output_digest"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "machineToken": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "machineToken": []
+    }
+  ],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Bounded machine response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine authentication required"
+          },
+          "413": {
+            "description": "Budget exceeded"
+          },
+          "429": {
+            "description": "Four child processes are already running"
+          },
+          "503": {
+            "description": "Artifact unavailable"
+          },
+          "504": {
+            "description": "Child process exceeded five seconds and was reaped"
+          }
+        },
+        "security": []
+      }
+    },
+    "/readyz": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Bounded machine response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine authentication required"
+          },
+          "413": {
+            "description": "Budget exceeded"
+          },
+          "429": {
+            "description": "Four child processes are already running"
+          },
+          "503": {
+            "description": "Artifact unavailable"
+          },
+          "504": {
+            "description": "Child process exceeded five seconds and was reaped"
+          }
+        }
+      }
+    },
+    "/v1/catalog": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Bounded machine response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsingWireCatalog"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine authentication required"
+          },
+          "413": {
+            "description": "Budget exceeded"
+          },
+          "429": {
+            "description": "Four child processes are already running"
+          },
+          "503": {
+            "description": "Artifact unavailable"
+          },
+          "504": {
+            "description": "Child process exceeded five seconds and was reaped"
+          }
+        }
+      }
+    },
+    "/v1/parse": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Bounded machine response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsingWireResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Machine authentication required"
+          },
+          "413": {
+            "description": "Budget exceeded"
+          },
+          "429": {
+            "description": "Four child processes are already running"
+          },
+          "503": {
+            "description": "Artifact unavailable"
+          },
+          "504": {
+            "description": "Child process exceeded five seconds and was reaped"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParsingWireRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

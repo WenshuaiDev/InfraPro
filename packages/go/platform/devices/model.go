@@ -105,14 +105,19 @@ type OutputSlot struct {
 	Template    c.Slot                `json:"template"`
 	Current     *Output               `json:"current"`
 }
+type ParsingAdoptionIntent struct {
+	Mode            string `json:"mode"`
+	DefaultRevision string `json:"expected_default_revision,omitempty"`
+}
 type DeviceCreate struct {
 	Meta
-	Status           string `json:"status,omitempty"`
-	Code             string `json:"code"`
-	Name             string `json:"name"`
-	ProductVersionID string `json:"product_version_id"`
-	SerialNumber     string `json:"serial_number,omitempty"`
-	Description      string `json:"description,omitempty"`
+	ParsingAdoption  *ParsingAdoptionIntent `json:"parsing_adoption,omitempty"`
+	Status           string                 `json:"status,omitempty"`
+	Code             string                 `json:"code"`
+	Name             string                 `json:"name"`
+	ProductVersionID string                 `json:"product_version_id"`
+	SerialNumber     string                 `json:"serial_number,omitempty"`
+	Description      string                 `json:"description,omitempty"`
 }
 type DeviceUpdate struct {
 	RevisionInput

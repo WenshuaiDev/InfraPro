@@ -36,6 +36,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/middleware"
+	parsinghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/parsing"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/csrf"
 )
@@ -141,6 +142,7 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		engineeringhttp.Register(r, service, business.Engineering)
 		devicecataloghttp.Register(r, service, business.DeviceCatalog)
 		deviceshttp.Register(r, service, business.Devices)
+		parsinghttp.Register(r, service, business.Parsing)
 		sourceshttp.Register(r, service, business.Sources)
 		tenantService := tenancy.New(service.Access(), tenancy.Options{ConsoleURL: cfg.PublicConsoleURL, Limit: service.Limit, CredentialLimit: service.Rate})
 		tenancyhttp.Register(r, service, tenantService)

@@ -15,7 +15,7 @@ import (
 //go:embed *.sql
 var files embed.FS
 
-const Version int64 = 43
+const Version int64 = 44
 
 func Up(ctx context.Context, databaseURL string) error {
 	db, err := sql.Open("pgx", databaseURL)

@@ -3476,3 +3476,18 @@ API 元数据不依赖 S3、ClickHouse、文件检查器或通知进程。React 
 manifest 定义期望槽位和 required probes，bindings 保存私有定位与凭据引用；查询 DTO 不含 bindings。generation/epoch/boot/sequence 屏障、完整帧和幂等 ack 在同一事务提交。查询时重新计算新鲜度，重启缓存先是 historical；重复 attempt 不续采样时间。状态、覆盖和资源范围分别计算。人员 API 在首字节前重新核权，轮询不续空闲会话，撤权清理浏览器缓存。
 
 [运维与人工步骤](operations/independent-runtime-diagnostics.md)、[进程报告接入](development/diagnostic-process-reports.md)、[自验台账](verification/independent-runtime-diagnostics.md)。
+
+
+## 解析服务与设备固定采用（2026-11-16）
+
+`services/parser` 是独立 Go module，使用内部机器 HTTP 接口；不导入 platform，不连接业务数据库、Redis、ClickHouse 或对象存储。`foundation/parsingcontract` 拥有严格 JSON、十进制字符串、原字节定位、清单与响应验证。Go 模型生成 OpenAPI 3.1 与 TypeScript 类型，业务 API 和服务 API 分别位于 `contracts/openapi/api.yaml`、`contracts/openapi/parsing-service.yaml`。
+
+HTTP 主程序把方法标识／版本路由到发行包中不可变 SHA-256 执行文件，每次调用启动受预算限制、可终止的子进程；不把机器令牌或平台存储配置传入子进程。DDP 封装 1.0.0 和模拟监测 JSON 1.0.0／1.1.0 分别登记，后者明确为联调示例。协议代码升级必须形成新方法版本，保留旧产物；发布和回滚都检查数据库登记的完整版本覆盖。
+
+`platform/parsing` 拥有 migration 44 的目录、配置及修订、产品默认、设备采用历史、样本、运行／代次／尝试、对象意图与幂等收据。公共产品由平台维护、私有产品由所属租户维护。设备创建通过事务内窄接口明确继承固定默认修订，省略意图保持未配置；默认变化不更新旧设备。设备升级、特化、恢复、回退、清空及最多 200 台批量操作均重新鉴权、CAS 并保留历史。
+
+私有 S3 保存原字节、原输入表示和响应；PG 是可见状态、租约、fence 与任务事实的真相。现有 monitoring-worker 增加 parsing 与维护 lane，不要求 ClickHouse 才能执行试解析。调用前冻结配置与输出快照，离开事务读写 S3／HTTP；领取和提交都检查本代操作者当前资格，迟到结果不得覆盖取消或新代。任务来源 `parsing:run` 支持 platform／tenant，project 只允许获准设备摘要和历史读取。
+
+React 页面使用当前 Query 授权修订缓存、服务端筛选、分页、共享表格和遮罩 Drawer。结构化运行读取与原文读取分别授权；所有下载经业务 API 当前授权，结果不持久缓存。页面显示原字节依据、实际检查、固定产物和配置、映射状态与尝试；始终区分业务质量未评定及未正式采用。本模块不产生标准监测观测。
+
+运行预算、诊断接入、启动和联合 PG／S3／发行包恢复见[运行手册](operations/parsing-service.md)。Linux 子进程内核限额和独立恢复已有测试入口，生产部署、真实设备联调及用户人工接受不是开发自验的同义词。

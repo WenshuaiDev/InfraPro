@@ -80,3 +80,22 @@ func TestDatabaseMaintenanceOnlyRequiresDatabase(t *testing.T) {
 		}
 	}
 }
+
+func TestMissingParsingConfigurationKeepsApplicationReadable(t *testing.T) {
+	baseEnv(t)
+	t.Setenv("INFRAPRO_PARSING_ENABLED", "true")
+	t.Setenv("INFRAPRO_PARSING_URL", "")
+	t.Setenv("INFRAPRO_PARSING_TOKEN_FILE", "")
+	c, e := Load("")
+	if e != nil || c.Parsing.Enabled {
+		t.Fatal("missing parsing configuration broke existing app", e)
+	}
+	t.Setenv("INFRAPRO_PARSING_URL", "http://127.0.0.1:8091")
+	t.Setenv("INFRAPRO_PARSING_TOKEN_FILE", "/private/token")
+	t.Setenv("INFRAPRO_PARSING_OBJECT_ENDPOINT", "http://127.0.0.1:58333")
+	t.Setenv("INFRAPRO_PARSING_OBJECT_SECRET_KEY", "")
+	c, e = Load("")
+	if e != nil || c.Parsing.Enabled || c.Parsing.ObjectEndpoint != "" {
+		t.Fatal("incomplete optional storage broke app", e)
+	}
+}

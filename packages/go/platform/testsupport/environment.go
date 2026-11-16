@@ -5,11 +5,15 @@ package testsupport
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/pressly/goose/v3"
 	"log/slog"
 	"net/url"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -36,6 +40,11 @@ func (e *Environment) Close() {
 	}
 }
 func New(ctx context.Context, logger *slog.Logger) (*Environment, error) {
+	return NewAtMigration(ctx, logger, migrations.Version)
+}
+
+// NewAtMigration builds an isolated historical schema for additive-upgrade tests.
+func NewAtMigration(ctx context.Context, logger *slog.Logger, version int64) (*Environment, error) {
 	dbURL := os.Getenv("INFRAPRO_TEST_DATABASE_URL")
 	redisURL := os.Getenv("INFRAPRO_TEST_REDIS_URL")
 	u, e := url.Parse(dbURL)
@@ -56,7 +65,22 @@ func New(ctx context.Context, logger *slog.Logger) (*Environment, error) {
 	q.Set("search_path", schema)
 	u.RawQuery = q.Encode()
 	dbURL = u.String()
-	if e = migrations.Up(ctx, dbURL); e != nil {
+	if version == migrations.Version {
+		e = migrations.Up(ctx, dbURL)
+	} else {
+		_, file, _, _ := runtime.Caller(0)
+		var db *sql.DB
+		db, e = sql.Open("pgx", dbURL)
+		if e == nil {
+			var provider *goose.Provider
+			provider, e = goose.NewProvider(goose.DialectPostgres, db, os.DirFS(filepath.Join(filepath.Dir(file), "../migrations")))
+			if e == nil {
+				_, e = provider.UpTo(ctx, version)
+			}
+			db.Close()
+		}
+	}
+	if e != nil {
 		cleanupDB()
 		return nil, e
 	}

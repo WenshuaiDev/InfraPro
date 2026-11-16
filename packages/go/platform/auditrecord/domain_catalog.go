@@ -8,6 +8,7 @@ func registerDomainEvents(add func(string, string, string, string, string, strin
 			add(module, "business", "command", scope, metadata, prefix+action, businessFields)
 		}
 	}
+	register("parsing", "entry", "parsing", "parsing.", "catalog.sync methods.state configs.create configs.revision configs.state defaults.set device-configs.create device-configs.revision device.inherit_default device.upgrade_default device.override device.restore_inheritance device.rollback device.clear batch.commands samples.create samples.content samples.confirm samples.read runs.response runs.create runs.compare runs.cancel runs.retry")
 	register("engineering", "entry", "engineering", "engineering.", "create save new-draft delete-draft copy publish state delete category-save category-delete")
 	register("resources", "tenant", "resources", "resource.", "create update retire restore delete")
 	register("resources", "project", "resources", "project.resource.", "create update retire restore delete")

@@ -53,6 +53,7 @@ func ComposeTasks(a *access.Service, business ...Business) *tasks.Service {
 	sources["derived"] = taskSource{b.DerivedMonitoring.TaskResolveTx, b.Monitoring.TaskControl, b.Monitoring.TaskTargetTx, func(c context.Context, t pgx.Tx, a access.Actor, f tasks.Filter) ([]tasks.Operation, error) {
 		return b.Monitoring.TaskOperationsTx(c, t, a, f, "derived")
 	}}
+	sources["parsing"] = taskSource{b.Parsing.TaskResolveTx, b.Parsing.TaskControl, b.Parsing.TaskTargetTx, b.Parsing.TaskOperationsTx}
 	sources["spatial"] = taskSource{b.Spatial.TaskResolveTx, b.Spatial.TaskControl, b.Spatial.TaskTargetTx, b.Spatial.TaskOperationsTx}
 	sources["display"] = taskSource{b.Displays.TaskResolveTx, b.Displays.TaskControl, b.Displays.TaskTargetTx, b.Displays.TaskOperationsTx}
 	sources["files"] = fileTaskSource{taskSource: taskSource{b.Files.TaskResolveTx, b.Files.TaskControl, b.Files.TaskTargetTx, b.Files.TaskOperationsTx}, files: b.Files}

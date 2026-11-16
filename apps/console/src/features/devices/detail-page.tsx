@@ -1,3 +1,4 @@
+import { DeviceParsing } from '../parsing/configs';
 import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { ArrowLeft, Package, Radio } from 'lucide-react';
@@ -22,7 +23,7 @@ import { OutputEditor } from './output-editor';
 import { OutputSources } from './source-panel';
 import { DeviceHistory } from './history';
 import { useDeviceCommand, CommandFeedback } from './command';
-export type DeviceDetailSearch={tab?:'details'|'outputs'|'installations'|'changes';output?:string};
+export type DeviceDetailSearch={tab?:'details'|'outputs'|'installations'|'changes'|'parsing';output?:string};
 export function DevicePage({ id, search, onSearch }: { id: string; search: DeviceDetailSearch; onSearch: (value: DeviceDetailSearch) => void }) {
   const { scope, client, prefix, paths } = useDevices();
   const query = useQuery({ queryKey: [...prefix, 'detail', id], queryFn: ({ signal }) => client.device(scope, id, signal) });
@@ -56,11 +57,12 @@ export function DeviceContent({ device, search, onSearch, embedded = false, onDe
         </Card>
       </aside>}
       <Tabs value={tab} className="min-w-0 gap-5" onValueChange={(value) => onSearch({ tab: value as DeviceDetailSearch['tab'] })}>
-        <TabsList className="h-auto max-w-full flex-wrap" aria-label="设备详情"><TabsTrigger value="details">设备档案</TabsTrigger><TabsTrigger value="outputs">{scope.kind === 'project' ? '获准输出' : '输出槽'}</TabsTrigger><TabsTrigger value="installations">安装履历</TabsTrigger>{device.actions.history && <TabsTrigger value="changes">变更记录</TabsTrigger>}</TabsList>
+        <TabsList className="h-auto max-w-full flex-wrap" aria-label="设备详情"><TabsTrigger value="details">设备档案</TabsTrigger><TabsTrigger value="outputs">{scope.kind === 'project' ? '获准输出' : '输出槽'}</TabsTrigger><TabsTrigger value="installations">安装履历</TabsTrigger><TabsTrigger value="parsing">解析配置</TabsTrigger>{device.actions.history && <TabsTrigger value="changes">变更记录</TabsTrigger>}</TabsList>
         <TabsContent value="details" className="min-w-0 space-y-5">
           <Card className="shadow-none"><CardHeader><CardTitle><h2>设备档案</h2></CardTitle><CardDescription>设备自身的身份与业务资料。</CardDescription></CardHeader><CardContent><dl className="grid gap-5 sm:grid-cols-2">{[['设备编号', device.code], ['序列号', device.serial_number || '未填写'], ['登记时间', new Date(device.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })], ['业务说明', device.description || '未填写'], ...(embedded ? [['采用产品', `${device.product.name} · v${device.product.number}`], ['产品型号', device.product.model], ['设备厂家', device.product.manufacturer_name], ['产品来源', device.product.source === 'public' ? '平台公共' : '本租户私有']] : [])].map(([label, value]) => <div key={label} className="min-w-0"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 whitespace-pre-wrap break-words text-sm">{value}</dd></div>)}</dl></CardContent></Card>
           <Card className="gap-4 shadow-none"><CardHeader><CardTitle><h2>当前安装</h2></CardTitle><CardDescription>安装记录与设备输出、来源配置分别维护。</CardDescription></CardHeader><CardContent>{device.current_installation ? <InstallationFacts value={device.current_installation} /> : <p className="text-sm text-muted-foreground">无当前安装记录</p>}</CardContent></Card>
         </TabsContent>
+        <TabsContent value="parsing"><DeviceParsing device={device}/></TabsContent>
         <TabsContent value="outputs" className="min-w-0"><Outputs device={device} selected={search.output} onSelect={(output) => onSearch({ tab: 'outputs', output })} /></TabsContent>
         <TabsContent value="installations" className="min-w-0"><Installations device={device} /></TabsContent>
         {device.actions.history && <TabsContent value="changes" className="min-w-0"><DeviceHistory device={device.id} /></TabsContent>}

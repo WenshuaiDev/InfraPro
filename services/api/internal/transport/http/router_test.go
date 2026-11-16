@@ -248,6 +248,8 @@ func TestE2EServer(t *testing.T) {
 	defer cleanupSpatial()
 	cleanupAudit := browserAudit(t, ctx, env)
 	defer cleanupAudit()
+	cleanupParsing := browserParsing(t, ctx, env)
+	defer cleanupParsing()
 	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config, storage), ReadHeaderTimeout: 5 * time.Second}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()

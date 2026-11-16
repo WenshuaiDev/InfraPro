@@ -13,8 +13,9 @@ type CatalogEntry struct {
 }
 
 var RuntimeCatalog = []CatalogEntry{
+	{"parser", "独立解析服务", "application", "services/parser/cmd/parser/main.go", []string{"catalog", "parse"}, "disabled", "启用试解析时部署；不读取业务存储，按固定产物启动有界子进程"},
 	{"api", "业务 API", "application", "services/api/cmd/api/main.go", []string{"http"}, "continuous", "人员及业务接口进程"},
-	{"monitoring-worker", "监测与派生计算", "worker", "services/api/cmd/monitoring-worker/main.go", []string{"scheduler", "foreground", "historical"}, "continuous", "派生计算在此进程内运行"},
+	{"monitoring-worker", "监测、派生计算与试解析", "worker", "services/api/cmd/monitoring-worker/main.go", []string{"scheduler", "foreground", "historical", "parsing", "parsing-maintenance"}, "continuous", "派生计算在此进程内运行"},
 	{"notification-worker", "通知投递", "worker", "services/api/cmd/notification-worker/main.go", []string{"delivery"}, "continuous", "实际投递循环，本地报告独立于数据库心跳"},
 	{"task-index-worker", "任务索引", "worker", "services/api/cmd/task-index-worker/main.go", []string{"reconcile", "backfill"}, "continuous", "任务索引回填与对账"},
 	{"spatial-worker", "空间转换", "worker", "services/api/cmd/spatial-worker/main.go", []string{"converter", "convert"}, "continuous", "Python 子进程按需运行"},

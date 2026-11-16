@@ -1,3 +1,4 @@
+import { ProductParsing } from '../parsing/configs';
 import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -96,8 +97,9 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
             </div>
             {!viewingDraft && version && <DeviceIssues issues={version.issues} />}
             <Tabs value={tab} onValueChange={setTab} className="min-w-0 gap-5">
-              <div className="min-w-0 overflow-x-auto"><TabsList aria-label="产品详情"><TabsTrigger value="outputs">输出槽 <Badge variant="secondary" className="px-1.5 py-0">{content.output_slots.length}</Badge></TabsTrigger><TabsTrigger value="info">产品信息</TabsTrigger><TabsTrigger value="compare">版本比较</TabsTrigger>{c.owned && <TabsTrigger value="history">变更记录</TabsTrigger>}</TabsList></div>
+              <div className="min-w-0 overflow-x-auto"><TabsList aria-label="产品详情"><TabsTrigger value="outputs">输出槽 <Badge variant="secondary" className="px-1.5 py-0">{content.output_slots.length}</Badge></TabsTrigger><TabsTrigger value="info">产品信息</TabsTrigger>{!viewingDraft && <TabsTrigger value="parsing">解析配置</TabsTrigger>}<TabsTrigger value="compare">版本比较</TabsTrigger>{c.owned && <TabsTrigger value="history">变更记录</TabsTrigger>}</TabsList></div>
               <TabsContent value="outputs"><ProductOutputs key={viewingDraft ? `draft:${product!.draft!.revision}` : version!.id} content={content} definitions={definitions} /></TabsContent>
+              {!viewingDraft && version && <TabsContent value="parsing"><ProductParsing key={version.id} product={id} version={version.id} slots={content.output_slots} definitions={definitions} source={source}/></TabsContent>}
               <TabsContent value="info"><ProductInformation content={content} /></TabsContent>
               <TabsContent value="compare" className="space-y-5">{previous ? <><DeviceSelect name="compare-version" label="对比基准版本" value={previous.id} onChange={setCompare} options={compareOptions.map((item) => ({ value: item.id, label: `v${item.number}` }))} /><ProductDiff before={previous.content} after={content} definitions={definitions} beforeLabel={`v${previous.number} · 基准`} afterLabel={viewingDraft ? '当前草稿' : `v${version!.number} · 当前`} /></> : <EmptyState title="暂无可比较的版本" description="发布另一个版本或创建新草稿后，可在这里对照变化。" />}</TabsContent>
               {c.owned && <TabsContent value="history"><CatalogHistory product={id} /></TabsContent>}

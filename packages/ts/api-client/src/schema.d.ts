@@ -12329,6 +12329,742 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/parsing/methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:methods:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/catalog-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:catalog:status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/catalog-syncs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:catalog:sync"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/catalog-syncs/{sync_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:catalog:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/methods/{method_id}/versions/{version}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:methods:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}/parsing-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:configs:list"];
+        put?: never;
+        post: operations["Parsing:platform:configs:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}/parsing-configs/{config_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:configs:revision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}/parsing-configs/{config_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:configs:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/device-definitions/products/{id}/versions/{version_id}/parsing-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:defaults:detail"];
+        put: operations["Parsing:platform:defaults:set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:samples:list"];
+        put?: never;
+        post: operations["Parsing:platform:samples:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/samples/{sample_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:samples:download"];
+        put: operations["Parsing:platform:samples:content"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/samples/{sample_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:samples:confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/samples/{sample_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:samples:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:runs:list"];
+        put?: never;
+        post: operations["Parsing:platform:runs:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:runs:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs/{run_id}/executions/{generation}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:runs:execution"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs/{run_id}/executions/{generation}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:runs:result"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs/{run_id}/executions/{generation}/response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:platform:runs:response"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/parsing/runs/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:platform:runs:compare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:methods:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}/parsing-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:configs:list"];
+        put?: never;
+        post: operations["Parsing:tenant:configs:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}/parsing-configs/{config_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:configs:revision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}/parsing-configs/{config_id}/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:configs:state"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-definitions/products/{id}/versions/{version_id}/parsing-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:defaults:detail"];
+        put: operations["Parsing:tenant:defaults:set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/samples": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:samples:list"];
+        put?: never;
+        post: operations["Parsing:tenant:samples:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/samples/{sample_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:samples:download"];
+        put: operations["Parsing:tenant:samples:content"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/samples/{sample_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:samples:confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/samples/{sample_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:samples:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:runs:list"];
+        put?: never;
+        post: operations["Parsing:tenant:runs:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:runs:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs/{run_id}/executions/{generation}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:runs:execution"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs/{run_id}/executions/{generation}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:runs:result"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs/{run_id}/executions/{generation}/response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:runs:response"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/runs/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:runs:compare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/products/{id}/versions/{version_id}/parsing-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:public-configs:list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/device-catalog/products/{id}/versions/{version_id}/parsing-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:public-defaults:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:device:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:device:history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing/configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:tenant:device-configs:list"];
+        put?: never;
+        post: operations["Parsing:tenant:device-configs:create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing/configs/{config_id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:device-configs:revision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:device:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/devices/{device_id}/parsing/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:device:commands"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/device-adoptions/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:batch:preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/parsing/device-adoptions/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Parsing:tenant:batch:commands"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices/{device_id}/parsing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:project:device:detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/devices/{device_id}/parsing/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Parsing:project:device:history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -12455,7 +13191,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "tenant.monitoring.jobs.read" | "tenant.monitoring.jobs.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "project.monitoring.jobs.read" | "project.monitoring.jobs.manage" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export" | "tenant.spatial.read" | "tenant.spatial.manage" | "tenant.spatial.placement.manage" | "tenant.spatial.publish" | "tenant.spatial.source.download" | "tenant.project.spatial_access.read" | "tenant.project.spatial_access.manage" | "project.spatial.view" | "project.spatial.source.download" | "project.spatial.views.manage" | "project.display.view" | "project.display.settings" | "project.display.manage" | "project.display.upload" | "project.display.configure" | "project.display.grant" | "project.display.preview" | "project.display.publish" | "project.display.terminals" | "tenant.attachments.read" | "tenant.attachments.download" | "tenant.attachments.manage" | "project.attachments.read" | "project.attachments.download" | "project.attachments.manage" | "platform.audit.export" | "platform.audit.technical.read" | "platform.audit.exports.manage" | "tenant.audit.export" | "tenant.audit.technical.read" | "tenant.audit.exports.manage" | "project.audit.export" | "project.audit.technical.read" | "project.audit.exports.manage";
+        PermissionCode: "parsing.method.read" | "parsing.method.manage" | "device.product.parsing.manage" | "parsing.test.execute" | "parsing.run.read" | "parsing.sample.read" | "tenant.parsing.method.read" | "tenant.device.product.parsing.manage" | "tenant.device.parsing.manage" | "tenant.parsing.test.execute" | "tenant.parsing.run.read" | "tenant.parsing.sample.read" | "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "tenant.monitoring.jobs.read" | "tenant.monitoring.jobs.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "project.monitoring.jobs.read" | "project.monitoring.jobs.manage" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export" | "tenant.spatial.read" | "tenant.spatial.manage" | "tenant.spatial.placement.manage" | "tenant.spatial.publish" | "tenant.spatial.source.download" | "tenant.project.spatial_access.read" | "tenant.project.spatial_access.manage" | "project.spatial.view" | "project.spatial.source.download" | "project.spatial.views.manage" | "project.display.view" | "project.display.settings" | "project.display.manage" | "project.display.upload" | "project.display.configure" | "project.display.grant" | "project.display.preview" | "project.display.publish" | "project.display.terminals" | "tenant.attachments.read" | "tenant.attachments.download" | "tenant.attachments.manage" | "project.attachments.read" | "project.attachments.download" | "project.attachments.manage" | "platform.audit.export" | "platform.audit.technical.read" | "platform.audit.exports.manage" | "tenant.audit.export" | "tenant.audit.technical.read" | "tenant.audit.exports.manage" | "project.audit.export" | "project.audit.technical.read" | "project.audit.exports.manage";
         Permission: {
             name: string;
             group: string;
@@ -15142,6 +15878,11 @@ export interface components {
             serial_number?: string;
             /** @enum {string} */
             status?: "enabled" | "disabled";
+            parsing_adoption?: {
+                /** @enum {string} */
+                mode: "inherit_default" | "unconfigured";
+                expected_default_revision?: string;
+            };
         };
         DeviceError: {
             code: string;
@@ -20208,6 +20949,499 @@ export interface components {
                 restricted: number;
                 retired: number;
             };
+        };
+        ParsingAdoption: {
+            actor_id: string;
+            config_revision_id: string | null;
+            device_id: string;
+            ended_at: string | null;
+            id: string;
+            mode: string;
+            reason: string;
+            revision: string;
+            snapshot: components["schemas"]["ParsingSnapshot"] | null;
+            source_default_revision: string | null;
+            /** Format: date-time */
+            started_at: string;
+        };
+        ParsingAdoptionPage: {
+            items: components["schemas"]["ParsingAdoption"][] | null;
+            next_cursor: string;
+        };
+        ParsingAttempt: {
+            attempt: number;
+            error_code: string;
+            execution_id: string;
+            fence: string;
+            finished_at: string | null;
+            /** Format: date-time */
+            started_at: string;
+            state: string;
+        };
+        ParsingBatchCommand: {
+            action: string;
+            adoption_id?: string;
+            config_revision_id?: string;
+            devices: components["schemas"]["ParsingBatchDevice"][] | null;
+            expected_default_revision?: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        ParsingBatchDevice: {
+            device_id: string;
+            expected_revision: string;
+        };
+        ParsingBinding: {
+            confirmed: boolean;
+            output_key: string;
+            slot_key: string;
+        };
+        ParsingCatalogStatus: {
+            added: number;
+            created_at: string | null;
+            error_code: string;
+            id: string;
+            state: string;
+        };
+        ParsingCommand: {
+            action: string;
+            adoption_id?: string;
+            config_revision_id?: string;
+            expected_default_revision?: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        ParsingCompareInput: {
+            left: components["schemas"]["ParsingRunInput"];
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            right: components["schemas"]["ParsingRunInput"];
+        };
+        ParsingCompareResult: {
+            left: components["schemas"]["ParsingResult"];
+            right: components["schemas"]["ParsingResult"];
+        };
+        ParsingConfigInput: {
+            expected_revision: string;
+            ignored_outputs: components["schemas"]["ParsingIgnored"][] | null;
+            method_id: string;
+            method_version: string;
+            name: string;
+            output_bindings: components["schemas"]["ParsingBinding"][] | null;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            source_revision_id?: string;
+        };
+        ParsingConfigRevision: {
+            config_id: string;
+            content_digest: string;
+            /** Format: date-time */
+            created_at: string;
+            created_by: string;
+            enabled: boolean;
+            id: string;
+            name: string;
+            number: string;
+            product_version_id: string;
+            reason: string;
+            revision: string;
+            snapshot: components["schemas"]["ParsingSnapshot"];
+        };
+        ParsingConfigRevisionPage: {
+            items: components["schemas"]["ParsingConfigRevision"][] | null;
+            next_cursor: string;
+        };
+        ParsingDefault: {
+            config: components["schemas"]["ParsingConfigRevision"] | null;
+            product_version_id: string;
+            revision: string;
+        };
+        ParsingDefaultInput: {
+            config_revision_id: string;
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        ParsingDeviceState: {
+            can_manage: boolean;
+            can_test: boolean;
+            current: components["schemas"]["ParsingAdoption"] | null;
+            default_changed: boolean;
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            mode: string;
+            product_default: components["schemas"]["ParsingDefault"];
+            revision: string;
+        };
+        ParsingExecution: {
+            actor_id: string;
+            attempts: components["schemas"]["ParsingAttempt"][] | null;
+            error_code: string;
+            fence: string;
+            finished_at: string | null;
+            generation: string;
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            response_status: string | null;
+            result_object_id: string | null;
+            run_id: string;
+            started_at: string | null;
+            state: string;
+        };
+        ParsingFrozenInput: {
+            adoption_id?: string;
+            config: components["schemas"]["ParsingConfigRevision"] | null;
+            context: components["schemas"]["ParsingWireContext"];
+            device_status?: string;
+            entry: components["schemas"]["ParsingWireEntry"];
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            sample: components["schemas"]["ParsingSample"];
+            trace_id: string;
+        };
+        ParsingIgnored: {
+            output_key: string;
+            reason: string;
+        };
+        ParsingMapping: {
+            method_semantics: components["schemas"]["ParsingWireSemantics"];
+            output_generation?: number;
+            output_id?: string;
+            output_key: string;
+            output_semantic_hash?: string;
+            reason?: string;
+            slot_key?: string;
+            slot_semantics?: {
+                aggregation_description: string;
+                metric_version_id: string;
+                observation_direction: string;
+                reference_basis: string;
+                timestamp_meaning: string;
+                unit_version_id: string | null;
+                value_shape: string;
+            } | null;
+            status: string;
+        };
+        ParsingMeta: {
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+        };
+        ParsingMethod: {
+            available: boolean;
+            /** Format: date-time */
+            created_at: string;
+            entry: components["schemas"]["ParsingWireEntry"];
+            execution_enabled: boolean;
+            id: string;
+            revision: string;
+            state: string;
+        };
+        ParsingMethodPage: {
+            items: components["schemas"]["ParsingMethod"][] | null;
+            next_cursor: string;
+        };
+        ParsingPreview: {
+            can_submit: boolean;
+            current: components["schemas"]["ParsingDeviceState"];
+            issues: {
+                code: string;
+                message: string;
+                path: string;
+            }[] | null;
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            target: components["schemas"]["ParsingConfigRevision"] | null;
+        };
+        ParsingResult: {
+            config_revision_id?: string;
+            error_code?: string;
+            generation?: string;
+            id: string;
+            other_id?: string;
+            replayed: boolean;
+            revision: string;
+            state?: string;
+            task_ref?: components["schemas"]["TaskRef"] | null;
+        };
+        ParsingResultView: {
+            business_quality: string;
+            formally_adopted: boolean;
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            next_cursor: string;
+            response: components["schemas"]["ParsingWireResponse"] | null;
+            result_digest?: string;
+            state: string;
+        };
+        ParsingRun: {
+            compared_to_run_id: string | null;
+            control_revision: string;
+            /** Format: date-time */
+            created_at: string;
+            created_by: string;
+            current_generation: string;
+            device_id: string | null;
+            error_code: string;
+            id: string;
+            input_snapshot: components["schemas"]["ParsingFrozenInput"];
+            kind: string;
+            method_id: string;
+            method_name: string;
+            method_version: string;
+            product_version_id: string | null;
+            revision: string;
+            sample_id: string;
+            state: string;
+            task_ref: components["schemas"]["TaskRef"];
+            tenant_id: string | null;
+        };
+        ParsingRunDetail: {
+            can_read_sample: boolean;
+            current_changed: boolean;
+            executions: components["schemas"]["ParsingExecution"][] | null;
+            run: components["schemas"]["ParsingRun"];
+        };
+        ParsingRunInput: {
+            compared_to_run_id?: string;
+            config_revision_id?: string;
+            device_id?: string;
+            kind: string;
+            method_id?: string;
+            method_version?: string;
+            preview_hash?: string;
+            reason?: string;
+            replay_run_id?: string;
+            request_id: string;
+            sample_id: string;
+            transport: string;
+        };
+        ParsingRunPage: {
+            items: components["schemas"]["ParsingRun"][] | null;
+            next_cursor: string;
+        };
+        ParsingSample: {
+            byte_length: number;
+            /** Format: date-time */
+            created_at: string;
+            created_by: string;
+            id: string;
+            /** Format: date-time */
+            received_at: string;
+            representation: string;
+            sha256: string;
+            source: string;
+            state: string;
+        };
+        ParsingSampleInput: {
+            preview_hash?: string;
+            reason?: string;
+            /** Format: date-time */
+            received_at: string;
+            representation: string;
+            request_id: string;
+            source: string;
+        };
+        ParsingSamplePage: {
+            items: components["schemas"]["ParsingSample"][] | null;
+            next_cursor: string;
+        };
+        ParsingSnapshot: {
+            example: boolean;
+            ignored_outputs: components["schemas"]["ParsingIgnored"][] | null;
+            mapping: components["schemas"]["ParsingMapping"][] | null;
+            method: components["schemas"]["ParsingWireMethod"];
+            output_bindings: components["schemas"]["ParsingBinding"][] | null;
+            output_contract_digest: string;
+            owner_id: string;
+            owner_kind: string;
+            product_version_id: string;
+            source_revision_id?: string;
+            tenant_id?: string;
+        };
+        ParsingStateInput: {
+            expected_revision: string;
+            preview_hash?: string;
+            reason?: string;
+            request_id: string;
+            state: string;
+        };
+        ParsingWireCatalog: {
+            contract_version: number;
+            entries: components["schemas"]["ParsingWireEntry"][] | null;
+            limits: components["schemas"]["ParsingWireLimits"];
+            service_build_digest: string;
+            service_release: string;
+        };
+        ParsingWireCheck: {
+            range?: components["schemas"]["ParsingWireRange"] | null;
+            rule_id: string;
+            status: string;
+        };
+        ParsingWireContext: {
+            /** Format: date-time */
+            received_at: string;
+            transport: string;
+        };
+        ParsingWireDiagnostic: {
+            code: string;
+            location?: components["schemas"]["ParsingWireLocation"] | null;
+            message: string;
+            severity: string;
+        };
+        ParsingWireEntry: {
+            artifact_digest: string;
+            category: string;
+            contract_version: number;
+            example: boolean;
+            input_unit: string;
+            manifest_base64: string;
+            manifest_digest: string;
+            max_length: number;
+            method_id: string;
+            method_version: string;
+            name: string;
+            output_contract_base64: string;
+            output_contract_digest: string;
+            outputs: components["schemas"]["ParsingWireOutput"][] | null;
+            protocol_reference: string;
+            release_notes: string;
+            sample_suite_digest: string;
+            transports: string[] | null;
+        };
+        ParsingWireError: {
+            code: string;
+            message: string;
+        };
+        ParsingWireField: {
+            key: string;
+            location: components["schemas"]["ParsingWireLocation"];
+            raw_text?: string;
+            step_ids: string[] | null;
+            value: string;
+        };
+        ParsingWireIdentity: {
+            authenticated: boolean;
+            hex: string;
+            location: components["schemas"]["ParsingWireLocation"];
+            role: string;
+            text?: string;
+        };
+        ParsingWireInput: {
+            byte_length: number;
+            bytes_base64: string;
+            sha256: string;
+        };
+        ParsingWireLimits: {
+            concurrency: number;
+            depth: number;
+            execution_seconds: number;
+            input_bytes: number;
+            records: number;
+            response_bytes: number;
+            steps: number;
+        };
+        ParsingWireLocation: {
+            json_pointer?: string;
+            range: components["schemas"]["ParsingWireRange"];
+        };
+        ParsingWireManifest: {
+            artifact_digest: string;
+            category: string;
+            contract_version: number;
+            example: boolean;
+            input_unit: string;
+            max_length: number;
+            method_id: string;
+            method_version: string;
+            name: string;
+            output_contract_digest: string;
+            outputs: components["schemas"]["ParsingWireOutput"][] | null;
+            protocol_reference: string;
+            release_notes: string;
+            sample_suite_digest: string;
+            transports: string[] | null;
+        };
+        ParsingWireMeasurement: {
+            location: components["schemas"]["ParsingWireLocation"];
+            output_key: string;
+            raw_text?: string;
+            step_ids: string[] | null;
+            unit: string;
+            value: string | null;
+            value_type: string;
+        };
+        ParsingWireMethod: {
+            artifact_digest: string;
+            id: string;
+            manifest_digest: string;
+            version: string;
+        };
+        ParsingWireOutput: {
+            aggregation: string;
+            direction: string;
+            meaning: string;
+            output_key: string;
+            reference: string;
+            timestamp_meaning: string;
+            unit: string;
+            value_type: string;
+        };
+        ParsingWireRange: {
+            end: number;
+            start: number;
+        };
+        ParsingWireRecord: {
+            index: number;
+            measurements: components["schemas"]["ParsingWireMeasurement"][] | null;
+            observed_at: string | null;
+            source_status?: string;
+            time_source: string;
+        };
+        ParsingWireRequest: {
+            context: components["schemas"]["ParsingWireContext"];
+            contract_version: number;
+            execution_id: string;
+            input: components["schemas"]["ParsingWireInput"];
+            method: components["schemas"]["ParsingWireMethod"];
+            trace_id: string;
+        };
+        ParsingWireResponse: {
+            checks: components["schemas"]["ParsingWireCheck"][] | null;
+            contract_version: number;
+            diagnostics: components["schemas"]["ParsingWireDiagnostic"][] | null;
+            execution_id: string;
+            fields: components["schemas"]["ParsingWireField"][] | null;
+            identities: components["schemas"]["ParsingWireIdentity"][] | null;
+            input_sha256: string;
+            message_kind: string;
+            method: components["schemas"]["ParsingWireMethod"];
+            records: components["schemas"]["ParsingWireRecord"][] | null;
+            service_build_digest: string;
+            service_release: string;
+            status: string;
+            steps: components["schemas"]["ParsingWireStep"][] | null;
+        };
+        ParsingWireSemantics: {
+            aggregation: string;
+            direction: string;
+            meaning: string;
+            reference: string;
+            timestamp_meaning: string;
+            unit: string;
+            value_type: string;
+        };
+        ParsingWireStep: {
+            field_keys: string[] | null;
+            id: string;
+            input_digest: string;
+            output_digest: string;
+            parent_ids: string[] | null;
+            range: components["schemas"]["ParsingWireRange"];
+            rule_id: string;
+            status: string;
         };
     };
     responses: never;
@@ -96098,6 +97332,6203 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeviceError"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:methods:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingMethodPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:catalog:status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingCatalogStatus"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:catalog:sync": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:catalog:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sync_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:methods:state": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                method_id: string;
+                version: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingStateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:configs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingConfigRevisionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:configs:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:configs:revision": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+                version_id: string;
+                config_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:configs:state": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+                version_id: string;
+                config_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingStateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:defaults:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingDefault"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:defaults:set": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingDefaultInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingSamplePage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingSampleInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:download": {
+        parameters: {
+            query?: {
+                representation?: "original";
+            };
+            header?: never;
+            path: {
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:content": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Command-ID": string;
+            };
+            path: {
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:confirm": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:samples:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingSample"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+                device_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingRunPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingRunDetail"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:execution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingExecution"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:result": {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResultView"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:platform:runs:compare": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingCompareInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingCompareResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:methods:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingMethodPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:configs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingConfigRevisionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:configs:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:configs:revision": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+                config_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:configs:state": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+                config_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingStateInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:defaults:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingDefault"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:defaults:set": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingDefaultInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingSamplePage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingSampleInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:download": {
+        parameters: {
+            query?: {
+                representation?: "original";
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:content": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                "X-Command-ID": string;
+            };
+            path: {
+                tenant_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:confirm": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingMeta"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:samples:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingSample"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+                device_id?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingRunPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingRunInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingRunDetail"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:execution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingExecution"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:result": {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResultView"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:response": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                run_id: string;
+                generation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:runs:compare": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingCompareInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            202: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingCompareResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:public-configs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingConfigRevisionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:public-defaults:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingDefault"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingDeviceState"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device:history": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingAdoptionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device-configs:list": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingConfigRevisionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device-configs:create": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device-configs:revision": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                device_id: string;
+                config_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingConfigInput"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device:preview": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingPreview"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:device:commands": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:batch:preview": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingBatchCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingPreview"][];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:tenant:batch:commands": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path: {
+                tenant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParsingBatchCommand"];
+            };
+        };
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingResult"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:project:device:detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingDeviceState"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Parsing:project:device:history": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                q?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 当前权限检查后的解析配置或证据；不产生正式观测。 */
+            200: {
+                headers: {
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParsingAdoptionPage"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 授权、固定版本、修订、预算或依赖检查失败。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

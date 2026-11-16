@@ -129,3 +129,9 @@
 - [自有进程 reporter 接入](development/diagnostic-process-reports.md)
 - [逐项自验台账](verification/independent-runtime-diagnostics.md)
 - [原生、Compose、systemd 模板](../deploy/diagnostics/README.md)
+
+## 解析服务与固定方法采用
+
+- [完整开发规格](development/parsing-service-and-method-binding-spec.md)
+- [PAR-001—PAR-076 自验与人工验收](verification/parsing-service.md)
+- [启动、停止、发布、兼容回滚和联合恢复](operations/parsing-service.md)

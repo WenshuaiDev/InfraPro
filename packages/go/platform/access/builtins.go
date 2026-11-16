@@ -47,6 +47,7 @@ func Builtins() []Builtin {
 	}...)
 	for i := range out {
 		if out[i].Key == TenantAdminKey {
+			out[i].Permissions = append(out[i].Permissions, parsingCodes("tenant")...)
 			out[i].Permissions = append(out[i].Permissions, append(filesCodes("tenant"), auditCodes("tenant")...)...)
 			out[i].Permissions = append(append(append(out[i].Permissions, monitoringCodes("tenant")...), derivedCodes("tenant")...), spatialCodes("tenant")...)
 		}

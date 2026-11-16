@@ -1,5 +1,17 @@
 // Generated from platform/access/catalog.go. Run pnpm permissions:generate.
 export const Permissions = {
+  ParsingMethodRead: 'parsing.method.read',
+  ParsingMethodManage: 'parsing.method.manage',
+  DeviceProductParsingManage: 'device.product.parsing.manage',
+  ParsingTestExecute: 'parsing.test.execute',
+  ParsingRunRead: 'parsing.run.read',
+  ParsingSampleRead: 'parsing.sample.read',
+  TenantParsingMethodRead: 'tenant.parsing.method.read',
+  TenantDeviceProductParsingManage: 'tenant.device.product.parsing.manage',
+  TenantDeviceParsingManage: 'tenant.device.parsing.manage',
+  TenantParsingTestExecute: 'tenant.parsing.test.execute',
+  TenantParsingRunRead: 'tenant.parsing.run.read',
+  TenantParsingSampleRead: 'tenant.parsing.sample.read',
   PlatformTenantDisable: 'platform.tenant.disable',
   PlatformTenantEnable: 'platform.tenant.enable',
   TenantPermissionRead: 'tenant.permission.read',

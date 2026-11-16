@@ -1,0 +1,10 @@
+import {execFileSync} from 'node:child_process';
+import {mkdirSync,openSync,closeSync,writeFileSync} from 'node:fs';
+import {ensureTestDependencies,testEnv} from './test-environment.mjs';
+ensureTestDependencies();mkdirSync('.artifacts/parsing',{recursive:true});const checks=[];
+const run=(name,cmd,args)=>{const fd=openSync(`.artifacts/parsing/${name}.log`,'w',0o600);let passed=false;try{execFileSync(cmd,args,{env:{...process.env,...testEnv},stdio:['ignore',fd,fd]});passed=true;}finally{closeSync(fd);checks.push({name,passed,command:[cmd,...args]});writeFileSync('.artifacts/parsing/regression.json',JSON.stringify({checks},null,2));}console.log(name+' passed');};
+if(!process.argv.includes('--after-business'))run('regression-business','go',['test','-race','-p','2','-count=1','-timeout','15m','./packages/go/platform/taskrecord','./packages/go/platform/tasks','./packages/go/platform/devicecatalog','./packages/go/platform/devices','./packages/go/platform/access','./packages/go/platform/config','./packages/go/platform/audit','-skip','^TestAuditFiftyThousandRowBoundaryAndMidstreamRevoke$']);
+if(process.argv.includes('--after-business'))run('regression-access-recheck','go',['test','-race','-count=1','-timeout','10m','./packages/go/platform/access','./packages/go/platform/config']);
+run('regression-audit-boundary','go',['test','-count=1','-timeout','4m','./packages/go/platform/audit','-run','^TestAuditFiftyThousandRowBoundaryAndMidstreamRevoke$']);
+run('regression-diagnostics','go',['test','-race','-count=1','-timeout','5m','./services/diagnostics/...','./packages/go/foundation/diagnosticreport/...','./packages/go/foundation/securefile/...','-skip','^TestRealFixedProtocols$|^TestRealDockerReadOnlyObservations$|^TestPrivateDBusSystemdContract$|^TestLinuxContainerResourceCollection$']);
+run('regression-ui','node',['--test','tests/unit/tasks-client.test.mjs']);

@@ -14,6 +14,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/parsing"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/spatial"
@@ -24,6 +25,7 @@ import (
 
 // Business is the composition root for the finite cross-module reference readers.
 type Business struct {
+	Parsing           *parsing.Service
 	Audit             *audit.Service
 	Files             *files.Service
 	Displays          *display.Service
@@ -41,6 +43,8 @@ func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 	r := resources.New(a)
 	c := devicecatalog.New(a)
 	d := devices.New(a, installationResources{r})
+	parser := parsing.New(a)
+	d.WithParsing(parser)
 	m := monitoring.New(a)
 	derived := derivedmonitoring.New(a).WithResources(r).WithMonitoring(m)
 	if e := derived.RegisterTasks(); e != nil {
@@ -52,7 +56,7 @@ func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 	}
 	sp := spatial.New(a, spatialObjects{r}).WithReaders(spatialMonitoring{m}, spatialArtifacts{derived})
 	r.WithExternalReferences(resourceReferences{deviceReferences{d}, monitoringReferences{m}, derived, spatialReferences{sp}})
-	business := Business{Files: files.New(a, fileHosts{}), Displays: display.New(a), Spatial: sp, DerivedMonitoring: derived, Monitoring: m, Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c, m, derived}), Resources: r, DeviceCatalog: c}
+	business := Business{Parsing: parser, Files: files.New(a, fileHosts{}), Displays: display.New(a), Spatial: sp, DerivedMonitoring: derived, Monitoring: m, Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c, m, derived}), Resources: r, DeviceCatalog: c}
 	business.Audit = audit.New(a)
 	business.Audit.WithResolvers(auditDisclosure{business}, auditTrace{business})
 	business.Audit.WithHandoffBridge(display.BridgeAuditTx)
@@ -94,6 +98,18 @@ func (b Business) Configure(cfg config.Config) Business {
 		b.Audit.WithStorage(objects)
 	}
 	b.configureFiles(cfg.Files)
+	if cfg.Parsing.Timeout > 0 {
+		p := cfg.Parsing
+		b.Parsing.WithOptions(parsing.Options{Enabled: p.Enabled, URL: p.URL, TokenFile: p.TokenFile, Timeout: p.Timeout, Queue: p.Queue, Concurrency: p.Concurrency, StorageBudget: p.StorageBudget})
+	}
+	if cfg.Parsing.ObjectEndpoint != "" {
+		p := cfg.Parsing
+		objects, e := blobstore.Open(p.ObjectEndpoint, p.ObjectAccessKey, p.ObjectSecretKey, p.Bucket, "parsing")
+		if e != nil {
+			panic(e)
+		}
+		b.Parsing.WithStorage(objects)
+	}
 	displayOptions := display.DefaultOptions()
 	if cfg.Display.RuntimeOrigin != "" {
 		d := cfg.Display
@@ -122,6 +138,13 @@ func (b Business) Configure(cfg config.Config) Business {
 	})
 
 	if cfg.Monitoring.ObjectEndpoint != "" {
+		parsingObjects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "parsing")
+		if err != nil {
+			panic(err)
+		}
+		if cfg.Parsing.ObjectEndpoint == "" {
+			b.Parsing.WithStorage(parsingObjects)
+		}
 		objects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "spatial")
 		if err != nil {
 			panic(err)

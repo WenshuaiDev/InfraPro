@@ -1,6 +1,6 @@
 # 任务来源接入指南
 
-本指南对应[已确认方案](../requirements/task-center-development-plan.md)和当前 v39 数据库。运行、迁移与恢复见[任务运维](../operations/task-center.md)，功能证据见[自验记录](../verification/task-center.md)。
+本指南对应[已确认方案](../requirements/task-center-development-plan.md)和当前 v44 数据库。运行、迁移与恢复见[任务运维](../operations/task-center.md)，功能证据见[自验记录](../verification/task-center.md)。
 
 ## 职责与登记
 
@@ -10,6 +10,7 @@
 
 | 来源 | 任务类型 | 执行拥有者 |
 | --- | --- | --- |
+| parsing:run | parsing.test | parsing_runs／parsing_run_executions；平台或租户，禁止项目来源 |
 | monitoring:job | monitoring.import.validate、monitoring.import.adopt、monitoring.export、monitoring.query | monitoring_jobs；query 仅实际持久化的耗时查询 |
 | derived:run | derived.trial、derived.backfill、derived.replay、analysis.trial、analysis.run、analysis.compare | derived_runs 与共享 monitoring_jobs |
 | derived:export | analysis.export、derived.evidence.export | monitoring_exports 与共享 monitoring_jobs |
@@ -71,3 +72,5 @@
 必须有真实来源命令，覆盖登记回滚、内联／后台成功、取消、人工与内部重试、租约丢失、重复／乱序事实、管理摘要分权、撤权、结果过期／失效、无业务依赖的元数据读取、迁移和恢复。受限进程必须用真实受限 SQL 角色测试。协议纯函数用单元测试，不能用投影插入替代真实来源验收。
 
 执行 `pnpm tasks:contracts` 更新任务和通知契约；若改动来源 DTO，还需对应来源生成器。完成后运行 `pnpm check`、`pnpm build`、`pnpm test:tasks` 和 `pnpm tasks:browser`，保留日志及对应源码 manifest。
+
+解析来源使用同事务 `publishTaskTx`／`PublishTx`，冻结样本、配置、方法产物与输入摘要；终态由租约和 fence 校验后接受。取消和重试交给 parsing Source Adapter，重试新代并封存旧代。平台身份不获得租户运行或原文读取权；任务回跳固定 `run + generation`。详见[解析运行手册](../operations/parsing-service.md)和[自验报告](../verification/parsing-service.md)。

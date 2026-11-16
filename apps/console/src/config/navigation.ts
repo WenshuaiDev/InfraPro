@@ -7,6 +7,7 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string' || value.length > 2048) return '/';
+ if(value==='/platform/parsing'||new RegExp(`^/t/${uuid}/parsing$`).test(value))return value;
  if (new RegExp(`^/t/${uuid}/bindings$`).test(value)) return value;
  if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?files$`).test(value)) return value;
  if (new RegExp(`^/tasks(?:/${uuid})?$`).test(value)) return value;
@@ -25,6 +26,7 @@ export function relativePath(path: string) {
   return base && (path === base || path.startsWith(`${base}/`)) ? path.slice(base.length) || '/' : path;
 }
 export function allowedPath(path: string, can: (permission: PermissionCode) => boolean) {
+  if (path.startsWith('/platform/parsing')) return can(P.ParsingMethodRead)||can(P.ParsingRunRead);
   if (path.startsWith('/platform/device-products')) return can(P.DeviceDefinitionRead);
   if (path.startsWith('/platform/engineering/')) { const kind = path.split('/').at(-1); return can(kind === 'type-definitions' ? P.EngineeringTypeRead : kind === 'monitoring-templates' ? P.EngineeringTemplateRead : P.EngineeringMetricRead); }
   if (path.startsWith('/platform/tenants')) return [P.PlatformTenantRead, P.PlatformTenantCreate, P.PlatformTenantUpdate, P.PlatformTenantTransferAdmin].some(can);
@@ -64,7 +66,7 @@ export function platformNavigation(path: string, can: (permission: PermissionCod
       { title: '指标目录', href: '/platform/engineering/metrics', icon: Ruler, active: path === '/platform/engineering/metrics' },
       { title: '单位目录', href: '/platform/engineering/units', icon: Ruler, active: path === '/platform/engineering/units' },
       { title: '公共监测模板', href: '/platform/engineering/monitoring-templates', icon: ClipboardList, active: path === '/platform/engineering/monitoring-templates' },
-    ] }, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
+    ] }, {title:'解析方法',href:'/platform/parsing',icon:Cpu,active:path.startsWith('/platform/parsing')}, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
     { title: '账号与权限', items: [
       { title: '账号管理', href: '/access/accounts', icon: Users, active: path === '/access/accounts' },
       { title: '账号开户邀请', href: '/invitations', icon: MailPlus, active: path === '/invitations' },
@@ -122,6 +124,7 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
           ...([P.TenantEngineeringResourceRead, P.TenantProjectRead, P.TenantEngineeringResourceAuthorizationRead].every(tenantCan) ? [{ title: '项目资源授权', href: `/t/${tenant}/resource-access`, icon: KeyRound, active: path.startsWith(`/t/${tenant}/resource-access`) }] : []),
         ]),
         ...navigationSection('设备管理', Cpu, [
+          ...([P.TenantParsingMethodRead,P.TenantParsingRunRead].some(tenantCan)?[{title:'试解析与运行',href:`/t/${tenant}/parsing`,icon:Cpu,active:path.startsWith(`/t/${tenant}/parsing`)}]:[]),
           ...([P.TenantDeviceDefinitionRead, P.TenantDeviceCatalogRead].some(tenantCan) ? [{ title: '设备产品目录', href: `/t/${tenant}/device-products`, icon: Factory, active: path.startsWith(`/t/${tenant}/device-products`) }] : []),
           ...(tenantCan(P.TenantDeviceRead) ? [{ title: '设备台账', href: `/t/${tenant}/devices`, icon: Cpu, active: path.startsWith(`/t/${tenant}/devices`) }] : []),
         ]),

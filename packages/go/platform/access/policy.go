@@ -219,5 +219,5 @@ func RoutePolicy(method, path string) (Policy, bool) {
 }
 
 func Policies() []Policy {
-	return append(append(append(append(append(append(append(append(append(append(basePolicies(), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)
+	return append(parsingPolicies(), append(append(append(append(append(append(append(append(append(append(basePolicies(), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)...)
 }

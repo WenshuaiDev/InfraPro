@@ -1,0 +1,14 @@
+# Merge into the existing API/monitoring-worker configuration. Secrets belong in
+# the owning private configuration file (0600) or existing environment injection.
+parsing:
+  enabled: "false"
+  url: "http://127.0.0.1:8091"
+  token_file: "/etc/infrapro/parser-machine-token"
+  timeout: "10s"
+  queue: "20"
+  concurrency: "2"
+  storage_budget: "10737418240"
+  object_endpoint: "https://s3.example.invalid"
+  object_access_key: "REPLACE_FROM_PRIVATE_CONFIGURATION"
+  object_secret_key: "REPLACE_FROM_PRIVATE_CONFIGURATION"
+  bucket: "infrapro-parsing"

@@ -7,6 +7,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/parsing"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/spatial"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 )
@@ -14,6 +15,7 @@ import (
 // No storage, Redis, identity or converter is initialized by the index process.
 func ComposeTaskIndexer(a *access.Service) *tasks.Indexer {
 	return tasks.NewIndexer(a, map[string]tasks.IndexSource{
+		"parsing:run":    parsing.TaskIndex{},
 		"audit:export":   audit.TaskIndex{},
 		"derived:group":  derivedmonitoring.TaskGroupIndex{},
 		"monitoring:job": monitoring.TaskIndex{Module: "monitoring", Kind: "job"},

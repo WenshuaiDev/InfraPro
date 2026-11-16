@@ -48,7 +48,7 @@ type Service struct {
 func New(a *access.Service, sources map[string]Source) *Service {
 	copy := map[string]Source{}
 	for k, s := range sources {
-		if !slices.Contains([]string{"monitoring", "derived", "spatial", "display", "files", "audit"}, k) || s == nil {
+		if !slices.Contains([]string{"monitoring", "derived", "spatial", "display", "files", "audit", "parsing"}, k) || s == nil {
 			panic("unregistered task source")
 		}
 		copy[k] = s
@@ -184,6 +184,12 @@ func ScopeTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope taskrecord.Sc
 func Has(codes []access.Code, code string) bool { return slices.Contains(codes, access.Code(code)) }
 func CanManage(codes []access.Code, d taskrecord.Definition, scope string) bool {
 	switch d.Module {
+	case "parsing":
+		read, execute := access.ParsingRunRead, access.ParsingTestExecute
+		if scope == "tenant" {
+			read, execute = access.TenantParsingRunRead, access.TenantParsingTestExecute
+		}
+		return Has(codes, string(read)) && Has(codes, string(execute))
 	case "audit":
 		return Has(codes, scope+".audit.read") && Has(codes, scope+".audit.exports.manage")
 	case "files":
@@ -210,6 +216,12 @@ func CanUse(codes []access.Code, d taskrecord.Definition, scope, mode string) bo
 		return false
 	}
 	switch d.Module {
+	case "parsing":
+		read := access.ParsingRunRead
+		if scope == "tenant" {
+			read = access.TenantParsingRunRead
+		}
+		return Has(codes, string(read))
 	case "audit":
 		return Has(codes, scope+".audit.read")
 	case "files":

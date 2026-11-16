@@ -13,6 +13,7 @@ import (
 type Service struct {
 	access    *access.Service
 	resources InstallationResources
+	parsing   ParsingAdopter
 }
 
 func New(a *access.Service, r InstallationResources) *Service {
@@ -175,3 +176,10 @@ func slotTx(ctx context.Context, tx pgx.Tx, d Device, key string) (c.Slot, error
 	}
 	return slot, e
 }
+
+// ParsingAdopter freezes an explicit creation intent inside the device transaction.
+type ParsingAdopter interface {
+	AdoptOnCreateTx(context.Context, pgx.Tx, access.Actor, Scope, string, string, string, string) error
+}
+
+func (s *Service) WithParsing(p ParsingAdopter) *Service { s.parsing = p; return s }

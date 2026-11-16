@@ -18,7 +18,7 @@ for (const [path, content] of [[tsPath, ts], [apiPath, yaml]]) {
 function files(dir) { return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? files(`${dir}/${entry.name}`) : [`${dir}/${entry.name}`]); }
 for (const dir of ['packages/go/platform', 'services/api', 'tools/infrapro', 'apps/console/src', 'packages/ts/api-client/src']) {
   for (const path of files(dir).filter((p) => /\.(go|tsx?)$/.test(p) && !p.endsWith('_test.go') && !p.endsWith('.generated.ts') && !p.endsWith('schema.d.ts') && !p.endsWith('/catalog.go') && !p.endsWith('/project_catalog.go') && !p.endsWith('/engineering_catalog.go') && !p.endsWith('/resource_catalog.go') && !p.endsWith('/project_resource_catalog.go') && !p.endsWith('/device_catalog.go'))) {
-    if (path.endsWith('/audit_catalog.go') || path.endsWith('/monitoring_catalog.go') || path.endsWith('/derived_catalog.go') || path.endsWith('/spatial_catalog.go') || path.endsWith('/display_catalog.go') || path.endsWith('/files_catalog.go')) continue;
+    if (path.endsWith('/parsing_catalog.go') || path.endsWith('/audit_catalog.go') || path.endsWith('/monitoring_catalog.go') || path.endsWith('/derived_catalog.go') || path.endsWith('/spatial_catalog.go') || path.endsWith('/display_catalog.go') || path.endsWith('/files_catalog.go')) continue;
     const text = readFileSync(path, 'utf8');
     if (codes.some((code) => text.includes(`"${code}"`) || text.includes(`'${code}'`))) throw new Error(`Permission literal outside catalog: ${path}`);
     if (/(?:===|==|!=|!==)\s*["'](?:platform_admin|member)["']/.test(text)) throw new Error(`Role identity used as condition: ${path}`);

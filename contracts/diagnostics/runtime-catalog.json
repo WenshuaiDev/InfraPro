@@ -2,6 +2,18 @@
   "schema_version": 1,
   "entries": [
     {
+      "id": "parser",
+      "display_name": "独立解析服务",
+      "kind": "application",
+      "entry_point": "services/parser/cmd/parser/main.go",
+      "lanes": [
+        "catalog",
+        "parse"
+      ],
+      "default_expectation": "disabled",
+      "reason": "启用试解析时部署；不读取业务存储，按固定产物启动有界子进程"
+    },
+    {
       "id": "api",
       "display_name": "业务 API",
       "kind": "application",
@@ -14,13 +26,15 @@
     },
     {
       "id": "monitoring-worker",
-      "display_name": "监测与派生计算",
+      "display_name": "监测、派生计算与试解析",
       "kind": "worker",
       "entry_point": "services/api/cmd/monitoring-worker/main.go",
       "lanes": [
         "scheduler",
         "foreground",
-        "historical"
+        "historical",
+        "parsing",
+        "parsing-maintenance"
       ],
       "default_expectation": "continuous",
       "reason": "派生计算在此进程内运行"

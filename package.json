@@ -22,7 +22,7 @@
     "test:e2e": "node scripts/e2e.mjs",
     "test:e2e:preview": "INFRAPRO_E2E_PREVIEW=1 node scripts/e2e.mjs",
     "contracts:generate": "node scripts/contracts.mjs",
-    "contracts:check": "node scripts/diagnostics-contract.mjs --check && node scripts/diagnostics-coverage.mjs && node scripts/audit-contract.mjs --check && node scripts/files-contract.mjs --check && node scripts/task-contract.mjs --check && node scripts/notification-contract.mjs --check && node scripts/display-contract.mjs --check && node scripts/spatial-contract.mjs --check && node scripts/contracts.mjs --check",
+    "contracts:check": "node scripts/parsing-contract.mjs --check && node scripts/parsing-architecture.mjs && node scripts/diagnostics-contract.mjs --check && node scripts/diagnostics-coverage.mjs && node scripts/audit-contract.mjs --check && node scripts/files-contract.mjs --check && node scripts/task-contract.mjs --check && node scripts/notification-contract.mjs --check && node scripts/display-contract.mjs --check && node scripts/spatial-contract.mjs --check && node scripts/contracts.mjs --check",
     "test:identity": "node scripts/test-identity.mjs",
     "setup:local": "node scripts/setup-local.mjs",
     "test:http": "node scripts/test-http.mjs",
@@ -92,7 +92,12 @@
     "diagnostics:browser": "node scripts/diagnostics-browser-check.mjs",
     "diagnostics:acceptance": "node scripts/diagnostics-acceptance-ledger.mjs --require-complete",
     "test:diagnostics": "node scripts/test-diagnostics.mjs",
-    "diagnostics:delivery": "node scripts/diagnostics-delivery-check.mjs"
+    "diagnostics:delivery": "node scripts/diagnostics-delivery-check.mjs",
+    "parser:contracts": "node scripts/parsing-contract.mjs && node scripts/task-contract.mjs && node scripts/permissions.mjs && pnpm contracts:generate",
+    "test:parsing": "node scripts/test-parsing.mjs",
+    "parsing:browser": "node scripts/parsing-browser-check.mjs",
+    "parsing:lab": "node scripts/parsing-lab.mjs",
+    "test:parsing:regression": "node scripts/parsing-regression.mjs"
   },
   "devDependencies": {
     "@infrapro/eslint-config": "workspace:*",

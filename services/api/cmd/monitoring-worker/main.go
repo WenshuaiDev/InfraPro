@@ -32,7 +32,7 @@ func run() (resultErr error) {
 	if e != nil {
 		return e
 	}
-	if len(cfg.Monitoring.Replicas) == 0 {
+	if len(cfg.Monitoring.Replicas) == 0 && !cfg.Parsing.Enabled {
 		return fmt.Errorf("monitoring storage is not configured")
 	}
 	logger := logging.New(os.Stdout, cfg.LogLevel)
@@ -45,9 +45,23 @@ func run() (resultErr error) {
 	}
 	defer resources.Close()
 	business := runtime.Compose(resources.Identity.Access(), resources.Monitoring).Configure(cfg)
-	if e = business.DerivedMonitoring.Ready(ctx); e != nil {
-		return e
+	if len(cfg.Monitoring.Replicas) > 0 {
+		if e = business.DerivedMonitoring.Ready(ctx); e != nil {
+			return e
+		}
 	}
 	reporter.Ready()
-	return business.Monitoring.RunWorker(ctx, logger, reporter)
+	work, cancel := context.WithCancel(ctx)
+	defer cancel()
+	done := make(chan struct{})
+	go func() { defer close(done); _ = business.Parsing.RunWorker(work, reporter) }()
+	var err error
+	if len(cfg.Monitoring.Replicas) > 0 {
+		err = business.Monitoring.RunWorker(work, logger, reporter)
+	} else {
+		<-work.Done()
+	}
+	cancel()
+	<-done
+	return err
 }
