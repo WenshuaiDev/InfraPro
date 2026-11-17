@@ -63,7 +63,11 @@ func (s *Service) rawAuthorizationTx(ctx context.Context, tx pgx.Tx, a access.Ac
 	if e != nil {
 		return auth, e
 	}
-	if _, e = tx.Exec(ctx, `SELECT id FROM accounts WHERE id=$1 FOR UPDATE`, a.ID); e != nil {
+	// This seam only proves read eligibility. Keep the shared identity lock
+	// already held by personnel display reads; upgrading it in concurrent
+	// readers deadlocks. Account mutation still conflicts with FOR SHARE, and
+	// callers performing business writes retain any stronger lock they own.
+	if _, e = tx.Exec(ctx, `SELECT id FROM accounts WHERE id=$1 FOR SHARE`, a.ID); e != nil {
 		return auth, e
 	}
 	if e = a.Check(ctx, tx, false); e != nil {

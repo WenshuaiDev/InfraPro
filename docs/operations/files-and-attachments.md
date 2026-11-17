@@ -1,12 +1,11 @@
 # 文件与附件运行、升级和恢复
 
-状态：Awaiting acceptance（2026-11-14 自验通过）。功能、自验与人工接受分别记录于 [自验矩阵](../verification/files-and-attachments.md) 和 [验收手册](files-and-attachments-acceptance.md)。
 
 ## 组成与启动
 
 普通附件使用现有 PostgreSQL、私有 S3、API、`files-worker` 和 `files-checker`。任务与通知元数据仅访问 PostgreSQL，不需要 ClickHouse、S3 或检查器可用。通知由已有 `notification-worker` 投递，任务历史由已有 `task-index-worker` 对账。专业监测、空间和大屏继续使用各自原生存储与 worker。
 
-开发启动 `pnpm dev` 会构建并启动文件 worker 和 checker；`--no-files` 可关闭这两个进程。API 与 worker 必须使用同一普通附件 bucket、暂存目录和 socket。未配置 S3 时，开发脚本以 `--allow-unconfigured` 让文件 worker 空闲等待并明确记录未配置，API 与其他模块继续运行；页面可查询获准元数据，上传显示依赖不可用。独立 `files-worker` 不带此开关，保持严格启动检查。独立合成环境使用 `pnpm files:demo`，无需用户提供业务文件。不要在已有业务环境重新 bootstrap。
+开发启动 `pnpm dev` 会构建并启动文件 worker 和 checker；`--no-files` 可关闭这两个进程。API 与 worker 必须使用同一普通附件 bucket、暂存目录和 socket。未配置 S3 时，开发脚本以 `--allow-unconfigured` 让文件 worker 空闲等待并明确记录未配置，API 与其他模块继续运行；页面可查询获准元数据，上传显示依赖不可用。独立 `files-worker` 不带此开关，保持严格启动检查。本机完整环境使用 `pnpm local:start`，操作见本机工程环境说明。不要在已有业务环境重新 bootstrap。
 
 配置模板为 `deploy/files/config.example.yaml`，环境变量是 `INFRAPRO_FILES_` 加模板字段大写；凭据使用 `INFRAPRO_FILES_ACCESS_KEY`、`INFRAPRO_FILES_SECRET_KEY`。数据库地址为 `INFRAPRO_DATABASE_URL`；`INFRAPRO_CONFIG` 指向受限 YAML/JSON。worker 通过独立 `LoadFiles` 读取数据库和 files 配置，不借用监测配置。配置默认值、范围由 `config/files.go` 与对应测试维护。
 
@@ -79,3 +78,7 @@ pnpm infrapro files restore reconcile --reason '核对冻结快照与全部正�
 ```
 
 恢复核对推进 restore epoch，中断旧执行、作废旧上传资格、游标、读取租约和 writer fence。缺失/损坏任一必需对象时保留 reconciling，禁止清理且不报告恢复完成；补齐并重做核对才重新在线。历史修订与保护引用保留，原任务保留中断事实，获准操作可开启新代次，不补发历史通知。验证命令为 `pnpm test:files:restore`，使用真正的独立 PostgreSQL 数据库及 S3 bucket，并自动清理其临时资源。
+
+## 上传配额与生产代理
+
+`files.max_file_bytes` 是可配置的整文件限额（默认 100 MiB），分片仍不超过 8 MiB。配置和 schema 55 升级、代理规则及验收见[上传限额与代理部署](upload-limits-and-proxy.md)。历史文件和已有上传不受新建上传配额降低的影响。

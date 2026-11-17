@@ -7,6 +7,7 @@ files:
   node_id: files-node-1
   temp_directory: /run/infrapro-files
   checker_socket: /run/infrapro-files/checker.sock
+  # Whole-file admission quota, configurable above/below the default; parts stay bounded.
   max_file_bytes: 104857600
   part_bytes: 8388608
   max_active_per_account: 3

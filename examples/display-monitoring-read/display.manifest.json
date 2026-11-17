@@ -1,0 +1,92 @@
+{
+  "manifest_version": 2,
+  "app_key": "monitoring-read-example",
+  "name": "项目监测读取验收",
+  "version": "1.1.0",
+  "entry": "index.html",
+  "routing": {
+    "mode": "hash"
+  },
+  "sdk_protocol": {
+    "major": 1
+  },
+  "required_capabilities": {
+    "views.read": 1,
+    "queries.read": 1
+  },
+  "optional_capabilities": {
+    "resources.directory": 1,
+    "resources.detail": 1,
+    "channels.read": 1,
+    "devices.read": 1,
+    "devices.history": 1,
+    "sources.directory": 1,
+    "sources.history": 1,
+    "map.read": 1,
+    "spatial.catalog": 1,
+    "spatial.links": 1,
+    "spatial.read": 1,
+    "statistics.resources": 1,
+    "statistics.devices": 1,
+    "statistics.monitoring": 1,
+    "monitoring.latest": 1,
+    "monitoring.details": 1,
+    "monitoring.trends": 1,
+    "monitoring.statistics": 1,
+    "monitoring.overview": 1
+  },
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "title": "标题",
+        "maxLength": 80,
+        "default": "项目监测读取验收"
+      }
+    },
+    "required": [
+      "title"
+    ]
+  },
+  "binding_schema": {},
+  "read_view_schema": {
+    "project_resources": {
+      "domain": "resources",
+      "required": false,
+      "purpose": "工程目录、设施树、地图与统计",
+      "allow_dynamic": true
+    },
+    "project_raw": {
+      "domain": "channels",
+      "required": false,
+      "purpose": "原始数据与当前来源",
+      "allow_dynamic": true
+    },
+    "focus_derived": {
+      "domain": "channels",
+      "required": false,
+      "purpose": "明确选定的派生指标",
+      "allow_dynamic": false
+    },
+    "project_devices": {
+      "domain": "devices",
+      "required": false,
+      "purpose": "设备档案、输出和统计",
+      "allow_dynamic": true
+    },
+    "project_spatial": {
+      "domain": "spatial",
+      "required": false,
+      "purpose": "固定空间版本与图形查看",
+      "allow_dynamic": true
+    },
+    "count_channels": {
+      "domain": "channels",
+      "required": false,
+      "purpose": "资源计数所选通道，包含原始与明确选定的派生",
+      "allow_dynamic": true
+    }
+  },
+  "files": []
+}

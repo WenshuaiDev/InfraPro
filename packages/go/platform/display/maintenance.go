@@ -104,7 +104,7 @@ func (s *Service) InvalidateAfterRestore(ctx context.Context) (string, error) {
 		if e := tx.QueryRow(ctx, `UPDATE display_environment SET generation=gen_random_uuid() WHERE id=1 RETURNING generation::text`).Scan(&generation); e != nil {
 			return e
 		}
-		for _, q := range []string{`UPDATE display_sessions SET state='revoked',lease_until=clock_timestamp(),last_error='environment_restored'`, `UPDATE display_subscriptions SET state='canceled',generation=generation+1`, `UPDATE display_terminals SET state='unpaired',generation=generation+1,token_hash=NULL,pair_hash=NULL,pair_expires_at=NULL,actual_release_id=NULL,environment=(SELECT generation FROM display_environment WHERE id=1)`} {
+		for _, q := range []string{`UPDATE display_sessions SET state='revoked',lease_until=clock_timestamp(),last_error='environment_restored'`, `UPDATE display_subscriptions SET state='canceled',generation=generation+1`, `UPDATE display_read_queries SET state='expired',consumers=0,expires_at=clock_timestamp()`, `UPDATE display_read_jobs SET state='canceled',fence=fence+1,lease_until=NULL,updated_at=clock_timestamp() WHERE state IN ('queued','running')`, `UPDATE display_terminals SET state='unpaired',generation=generation+1,token_hash=NULL,pair_hash=NULL,pair_expires_at=NULL,actual_release_id=NULL,environment=(SELECT generation FROM display_environment WHERE id=1)`} {
 			if _, e := tx.Exec(ctx, q); e != nil {
 				return e
 			}

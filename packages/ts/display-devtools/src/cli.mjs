@@ -25,7 +25,8 @@ try {
         if (e.code !== "ENOENT") throw e;
       }
       await mkdir(dir, { recursive: true });
-      await cp(fileURLToPath(new URL("../templates/", import.meta.url)), dir, {
+      if(options.template && !["monitoring-read","engineering-structure"].includes(options.template))throw new Error("Unknown template");
+      await cp(fileURLToPath(new URL(options.template === "engineering-structure" ? "../lib/templates-structure/" : options.template === "monitoring-read" ? "../lib/templates-read/" : "../templates/", import.meta.url)), dir, {
         recursive: true,
       });
       console.log(
@@ -98,7 +99,7 @@ try {
     }
     default:
       console.log(
-        "infrapro-display init DIR | validate DIR|ZIP [--manifest FILE] | pack DIR --manifest FILE --out ZIP | dev DIR [--scenario normal|empty|pending|disconnected|revoked|unavailable] | login DIR --console URL --runtime ORIGIN --instance UUID --config UUID | upload ZIP --console URL --runtime ORIGIN --instance UUID [--resume UPLOAD_UUID]",
+        "infrapro-display init DIR [--template monitoring-read|engineering-structure] | validate DIR|ZIP [--manifest FILE] | pack DIR --manifest FILE --out ZIP | dev DIR [--scenario normal|empty|pending|partial|disconnected|revoked|unavailable|overlap|scope-changed] | login DIR --console URL --runtime ORIGIN --instance UUID --config UUID | upload ZIP --console URL --runtime ORIGIN --instance UUID [--resume UPLOAD_UUID]",
       );
       if (command) process.exitCode = 1;
   }

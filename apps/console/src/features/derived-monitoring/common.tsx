@@ -6,6 +6,7 @@ import { Label } from '@infrapro/ui/components/label';
 import { Textarea } from '@infrapro/ui/components/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@infrapro/ui/components/alert-dialog';
 import { useMonitoring } from '../monitoring/context';
+import { issueFieldPath } from './workspace-model';
 
 // All requests and caches inherit the explicit workspace; project pages never
 // substitute a tenant identity when a project operation is denied.
@@ -31,7 +32,16 @@ export function CommandError({error,issues:provided}:{error:Error|null;issues?:D
  useEffect(()=>{if(error||provided?.length)ref.current?.focus();},[error,provided]);
  if(!error&&!provided?.length)return null;
  const issues=provided?.length?provided:error instanceof ApiError?error.issues:[];
- const navigate=(path:string)=>{path=path.replace(/^\/body(?=\/)/,'');let target:HTMLElement|null=null;while(path&&!target){target=document.getElementById(path);path=path.slice(0,path.lastIndexOf('/'));}target?.scrollIntoView({block:'center'});target?.focus();};
+ const navigate=(path:string)=>{
+  path=issueFieldPath(path);
+  document.dispatchEvent(new CustomEvent('derived:reveal-issue',{detail:path}));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   let target:HTMLElement|null=null;
+   while(path&&!target){target=document.getElementById(path);path=path.slice(0,path.lastIndexOf('/'));}
+   for(let parent=target?.parentElement;parent;parent=parent.parentElement)if(parent instanceof HTMLDetailsElement)parent.open=true;
+   target?.scrollIntoView({block:'center'});target?.focus();
+  }));
+ };
  return <div ref={ref} role="alert" tabIndex={-1} className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4"><h2 className="font-semibold">{error?.message??'规则校验未通过，请修正以下项目'}</h2>{issues.length>0&&<ul className="space-y-2 text-sm">{issues.map((v,i)=><li key={i}><button type="button" className="text-left underline underline-offset-4" onClick={()=>navigate(v.path)}>{v.message} · {v.path}</button></li>)}</ul>}</div>;
 }
 export function UnsavedChanges({dirty}:{dirty:boolean}){

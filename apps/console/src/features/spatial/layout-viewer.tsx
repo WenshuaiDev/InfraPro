@@ -9,19 +9,21 @@ import VectorSource from "ol/source/Vector";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
+import LineString from "ol/geom/LineString";
 import { Style, Circle, Fill, Stroke, Text } from "ol/style";
 import Translate from "ol/interaction/Translate";
 import Draw from "ol/interaction/Draw";
 import type { SpatialPage } from "@infrapro/api-client";
 import { Button } from "@infrapro/ui/components/button";
 import { Failure, useBlobURL, useSpatialFile } from "./common";
-import { sameObject, type SceneProps } from "./state";
+import { sameObject, placementRef, canPlace, type SceneProps } from "./state";
 import "ol/ol.css";
 export default function LayoutViewer({
   page,
   version,
   ...props
 }: SceneProps & { page: SpatialPage; version: string }) {
+  const [showLabels, setShowLabels] = useState(false);
   const [fileID, setFileID] = useState(
       page.resolutions[0]?.file_id ?? page.file_id,
     ),
@@ -85,7 +87,7 @@ export default function LayoutViewer({
       if (feature) {
         const owner = feature.get("owner");
         p.onPick({ owner, page: page.id });
-      } else if (p.editing && p.placing === "point") {
+      } else if (p.editing && canPlace(p.placing)) {
         p.onPick({
           anchor: [
             e.coordinate[0]! / page.width,
@@ -149,14 +151,17 @@ export default function LayoutViewer({
         if (p.page_id !== page.id) continue;
         const x = p.anchor[0]! * page.width,
           y = (1 - p.anchor[1]!) * page.height,
-          selected = sameObject(props.selected, {
-            kind: "point",
-            id: p.point_id,
-          }),
+          selected = sameObject(props.selected, placementRef(p)),
           retired = p.object?.retired;
+        if(p.geometry?.vertices?.length) {
+          const coordinates=p.geometry.vertices.map(v=>[v[0]!*page.width,(1-v[1]!)*page.height]);
+          const shape=p.geometry.kind==='region'?new Polygon([[...coordinates,coordinates[0]!]]):new LineString(coordinates);
+          const area=new Feature({geometry:shape,owner:placementRef(p),part:'geometry'});
+          area.setStyle(new Style({stroke:new Stroke({color:selected?'#c2410c':'#0369a1',width:selected?3:2}),fill:new Fill({color:'rgba(3,105,161,.12)'})}));source.current.addFeature(area);
+        }
         const feature = new Feature({
           geometry: new Point([x, y]),
-          owner: { kind: "point", id: p.point_id },
+          owner: placementRef(p),
           placement: p,
           part: "anchor",
         });
@@ -177,14 +182,14 @@ export default function LayoutViewer({
             x + (p.label_offset[0] ?? 12) * resolution,
             y - (p.label_offset[1] ?? -12) * resolution,
           ]),
-          owner: { kind: "point", id: p.point_id },
+          owner: placementRef(p),
           placement: p,
           part: "label",
         });
         label.setStyle(
           new Style({
             text: new Text({
-              text: `${retired ? "已退役 · " : ""}${p.object?.name ?? p.point_id.slice(0, 8)}${p.basis_changed ? " · 依据变化" : ""}`,
+              text: `${retired ? "已退役 · " : ""}${p.object?.name ?? placementRef(p).id.slice(0, 8)}${p.basis_changed ? " · 依据变化" : ""}`,
               font: "12px system-ui",
               textAlign: "left",
               fill: new Fill({ color: "#0f172a" }),
@@ -193,7 +198,7 @@ export default function LayoutViewer({
             }),
           }),
         );
-        source.current.addFeature(label);
+        if (showLabels || selected) source.current.addFeature(label);
       }
       for (const l of props.links) {
         if (l.page_id !== page.id || !l.region.length) continue;
@@ -227,7 +232,7 @@ export default function LayoutViewer({
     render();
     map.getView().on("change:resolution", render);
     return () => map.getView().un("change:resolution", render);
-  }, [url, page, props.placements, props.links, props.selected]);
+  }, [url, page, props.placements, props.links, props.selected, showLabels]);
   useEffect(() => {
     const map = mapRef.current,
       key = props.selected
@@ -235,7 +240,7 @@ export default function LayoutViewer({
         : "";
     if (!map || !key || focused.current === key || props.editing) return;
     const point = props.placements.find(
-        (p) => p.point_id === props.selected?.id && p.page_id === page.id,
+        (p) => sameObject(placementRef(p), props.selected) && p.page_id === page.id,
       ),
       link = props.links.find(
         (l) => l.component_id === props.selected?.id && l.page_id === page.id,
@@ -310,7 +315,7 @@ export default function LayoutViewer({
         aria-label={`布设图第 ${page.number} 页，可用加减键缩放和方向键平移`}
         className="h-full min-h-96 bg-slate-100"
       />
-      <div className="absolute left-3 top-3 flex gap-2">
+      <div className="absolute left-3 right-3 top-3 flex flex-wrap gap-2">
         <Button
           size="sm"
           variant="secondary"
@@ -343,6 +348,14 @@ export default function LayoutViewer({
           }}
         >
           −
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          aria-pressed={showLabels}
+          onClick={() => setShowLabels(!showLabels)}
+        >
+          测点标签
         </Button>
       </div>
       {file.isPending && (

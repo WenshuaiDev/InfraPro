@@ -128,14 +128,15 @@ type Adoption struct {
 	Reason                string     `json:"reason"`
 }
 type DeviceState struct {
-	Revision       string    `json:"revision"`
-	Mode           string    `json:"mode"`
-	Current        *Adoption `json:"current"`
-	Default        Default   `json:"product_default"`
-	DefaultChanged bool      `json:"default_changed"`
-	Mapping        []Mapping `json:"mapping"`
-	CanManage      bool      `json:"can_manage"`
-	CanTest        bool      `json:"can_test"`
+	Ingress        *IngressImpact `json:"ingress,omitempty"`
+	Revision       string         `json:"revision"`
+	Mode           string         `json:"mode"`
+	Current        *Adoption      `json:"current"`
+	Default        Default        `json:"product_default"`
+	DefaultChanged bool           `json:"default_changed"`
+	Mapping        []Mapping      `json:"mapping"`
+	CanManage      bool           `json:"can_manage"`
+	CanTest        bool           `json:"can_test"`
 }
 type Command struct {
 	Meta

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { test, expect, login, createAccount, csrf, consoleURL } from './fixtures';
 import { expectIdentity, logout, navigateTo } from '../helpers/navigation';
 
@@ -9,11 +10,11 @@ test('cursor tables retain rows on failure and append real invitation and event 
   // Real writes in the isolated test schema; revoke each batch to respect the active-link cap.
   for (let offset = 0; offset < 51; offset += 10) {
     for (let index = offset; index < Math.min(offset + 10, 51); index++) {
-      expect((await context.request.post(`${api}/invitations`, { headers, data: { note: `游标验收-${index}` } })).status()).toBe(200);
+      expect((await context.request.post(`${api}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: `游标验收-${index}` } })).status()).toBe(200);
     }
     const response = await context.request.get(`${api}/invitations`);
     const result = await response.json() as { items: { id: string; status: string }[] };
-    for (const item of result.items.filter((item) => item.status === 'pending')) expect((await context.request.post(`${api}/invitations/${item.id}/revoke`, { headers })).status()).toBe(204);
+    for (const item of result.items.filter((item) => item.status === 'pending')) expect((await context.request.post(`${api}/invitations/${item.id}/revoke`, { headers: { ...headers, 'X-Command-ID': randomUUID() } })).status()).toBe(204);
   }
   await page.goto(`${consoleURL}/invitations`);
   const rows = page.getByRole('table', { name: '我的邀请', exact: true }).locator('tbody tr');
@@ -51,7 +52,7 @@ test('a late invitation query cannot populate the next account cache', async ({ 
   const nextAccount = await createAccount(request);
   await login(page, account);
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
-  expect((await context.request.post(`${new URL('/api/v1', consoleURL).href}/invitations`, { headers, data: { note: '只能属于前一账号的延迟列表' } })).status()).toBe(200);
+  expect((await context.request.post(`${new URL('/api/v1', consoleURL).href}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: '只能属于前一账号的延迟列表' } })).status()).toBe(200);
   let release = () => {};
   let notify = () => {};
   let delivered = () => {};

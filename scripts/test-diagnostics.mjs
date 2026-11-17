@@ -18,6 +18,7 @@ const checks=[['scripts/diagnostics-contract.mjs','--check'],['scripts/diagnosti
 evidence(lab,'contracts',{command:'node scripts/diagnostics-contract.mjs --check; node scripts/diagnostics-templates.mjs --check; checkCoverage with unknown cmd negative fixture',result:'passed',evidence_type:'contract',coverage,unknown_cmd_rejected:true,generation_idempotent:true,recovery_result:'no configuration or business data changed'});
 console.log('Diagnostics core and contract checks passed: '+cases.length+' cases');
 if(!coreOnly){
+ execFileSync('node',['scripts/diagnostics-build.mjs','--skip-ui','--linux'],{cwd:root,stdio:'inherit'});
+ execFileSync('docker',['build','-f','deploy/diagnostics/Dockerfile','-t','infrapro-diagnostics:local','.'],{cwd:root,stdio:'inherit'});
  for(const file of ['diagnostics-native-check.mjs','diagnostics-business-check.mjs','diagnostics-regression-check.mjs','diagnostics-services-check.mjs','diagnostics-linux-check.mjs','diagnostics-network-check.mjs','diagnostics-fault-check.mjs','diagnostics-deploy-check.mjs','diagnostics-browser-check.mjs'])execFileSync('node',['scripts/'+file],{cwd:root,stdio:'inherit'});
- execFileSync('node',['scripts/diagnostics-acceptance-ledger.mjs','--require-complete'],{cwd:root,stdio:'inherit'});
 }

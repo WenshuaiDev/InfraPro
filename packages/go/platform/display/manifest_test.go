@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"testing"
 )
 
@@ -38,6 +39,20 @@ func testPackage(t *testing.T, change func(*Manifest), extra map[string][]byte) 
 		t.Fatal(e)
 	}
 	return out.Bytes()
+}
+
+func TestDisplayManifestReadViewsCompatibility(t *testing.T) {
+	for _, version := range []int{1, 2, 3} {
+		b := testPackage(t, func(m *Manifest) {
+			m.Version = version
+			m.Required = map[string]int{"views.read": 1, "statistics.resources": 1}
+			m.ReadViews = map[string]displayread.ViewSchema{"project_resources": {Domain: "resources", Required: true, Purpose: "目录"}}
+		}, nil)
+		_, err := ValidateZIP(context.Background(), bytes.NewReader(b), int64(len(b)))
+		if (err == nil) != (version == 2) {
+			t.Fatalf("manifest %d: %v", version, err)
+		}
+	}
 }
 func TestPackageBoundary(t *testing.T) {
 	cases := []struct {

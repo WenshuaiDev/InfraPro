@@ -64,7 +64,7 @@ export async function navigateTo(page: Page, name: string) {
     await page.getByRole('banner').getByRole('button', { name: '切换侧栏', exact: true }).click();
     await expect(navigation).toBeVisible();
   }
-  const section = ({ '监测浏览': '监测数据', '导入与批次': '监测数据', '监测任务': '监测数据', '派生指标定义': '监测数据', '派生通道': '监测数据', '历史分析': '监测数据', '计算运行': '监测数据', '设施管理': '工程资源', '项目资源授权': '工程资源', '设备产品目录': '设备管理', '设备台账': '设备管理', '设施类型定义': '工程配置', '指标目录': '工程配置', '单位目录': '工程配置', '公共监测模板': '工程配置' } as Record<string, string>)[name];
+  const section = ({ '监测浏览': '监测数据', '导入与批次': '监测数据', '监测任务': '监测数据', '派生监测': '监测数据', '派生指标定义': '监测数据', '派生通道': '监测数据', '历史分析': '监测数据', '计算运行': '监测数据', '设施管理': '工程资源', '项目资源授权': '工程资源', '设备产品目录': '设备管理', '设备台账': '设备管理', '设施类型定义': '工程配置', '指标目录': '工程配置', '单位目录': '工程配置', '公共监测模板': '工程配置' } as Record<string, string>)[name];
   if (section) {
     const trigger = navigation.getByRole('button', { name: section, exact: true });
     await expect(trigger.or(navigation.getByRole('link', { name, exact: true })).first()).toBeVisible();
@@ -83,6 +83,10 @@ export async function navigateTo(page: Page, name: string) {
 }
 
 export async function logout(page: Page) {
+  // The startup screen also has a heading. First wait for authenticated chrome,
+  // then the landing content so its redirect cannot close the opened menu.
+  await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('heading').first()).toBeVisible();
   await page.getByRole('button', { name: '账号菜单', exact: true }).click();
   await page.getByRole('menuitem', { name: '退出登录', exact: true }).click();
 }

@@ -120,14 +120,20 @@ func verifyAuditSources(t *testing.T, f resourceFixture) {
 		filter := audit.Filter{From: time.Now().Add(-time.Hour).UTC().Format(time.RFC3339Nano), To: time.Now().UTC().Format(time.RFC3339Nano), Limit: 100}
 		for {
 			page, e := s.Events(ctx, actor, scope, filter)
-			must(t, e)
+			if e != nil {
+				t.Fatalf("audit source list in %+v: %+v", scope, e)
+			}
 			for _, event := range page.Items {
 				detail, e := s.Event(ctx, actor, scope, event.ID)
-				must(t, e)
+				if e != nil {
+					t.Fatalf("audit source detail %s in %+v: %+v", event.ID, scope, e)
+				}
 				for _, link := range detail.Links {
 					if link.Available {
 						_, e = s.Target(ctx, actor, scope, event.ID, link.ID)
-						must(t, e)
+						if e != nil {
+							t.Fatalf("audit source target %s/%+v in %+v: %+v", event.ID, link, scope, e)
+						}
 					}
 				}
 				checked++

@@ -8,16 +8,18 @@ func registerDomainEvents(add func(string, string, string, string, string, strin
 			add(module, "business", "command", scope, metadata, prefix+action, businessFields)
 		}
 	}
-	register("parsing", "entry", "parsing", "parsing.", "catalog.sync methods.state configs.create configs.revision configs.state defaults.set device-configs.create device-configs.revision device.inherit_default device.upgrade_default device.override device.restore_inheritance device.rollback device.clear batch.commands samples.create samples.content samples.confirm samples.read runs.response runs.create runs.compare runs.cancel runs.retry")
+	register("ingestion", "entry", "ingestion", "ingestion.", "relays.create sources.create sources.revision sources.confirm sources.publish sources.pause sources.resume sources.block sources.unblock sources.planning terminals.create terminals.revision associations.create associations.state changes.cancel grants.save unmatched.close recovery.create recovery.cancel recovery.retry messages.read messages.response epochs.confirm")
+	register("parsing", "entry", "parsing", "parsing.", "ingestion-catalog.sync capabilities.state catalog.sync methods.state configs.create configs.revision configs.state defaults.set device-configs.create device-configs.revision device.inherit_default device.upgrade_default device.override device.restore_inheritance device.rollback device.clear batch.commands samples.create samples.content samples.confirm samples.read runs.response runs.create runs.compare runs.cancel runs.retry")
+	register("devicecatalog", "entry", "devicecatalog", "classification.", "draft publish assign")
 	register("engineering", "entry", "engineering", "engineering.", "create save new-draft delete-draft copy publish state delete category-save category-delete")
-	register("resources", "tenant", "resources", "resource.", "create update retire restore delete")
-	register("resources", "project", "resources", "project.resource.", "create update retire restore delete")
+	register("resources", "tenant", "resources", "resource.", "create update retire restore delete move adopt-type structure-records")
+	register("resources", "project", "resources", "project.resource.", "create update retire restore delete move structure-records")
 	register("resources", "tenant", "resources", "resource_access.", "policy.updated link.created link.revoked grants.changed")
 	for _, scope := range []string{"platform", "tenant"} {
 		register("devicecatalog", scope, "devicecatalog", "Device:"+scope+":manufacturer:", "create update state delete")
 		register("devicecatalog", scope, "devicecatalog", "Device:"+scope+":product:", "create draft-save draft-create draft-delete publish state delete copy")
 	}
-	for kind, actions := range map[string]string{"device": "create update state delete", "output": "create update replace end", "installation": "create end relocate correct", "access": "change"} {
+	for kind, actions := range map[string]string{"device": "create update state delete", "output": "create update replace end", "installation": "create end relocate correct legacy-resolve", "access": "change"} {
 		register("devices", "tenant", "devices", "Device:tenant:"+kind+":", actions)
 	}
 	for _, scope := range []string{"tenant", "project"} {

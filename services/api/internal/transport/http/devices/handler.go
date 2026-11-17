@@ -47,7 +47,7 @@ func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
 				case "tree:list":
 					allowed = append(allowed, "level", "parent_id", "manufacturer_id", "product_id", "source", "status")
 				case "device:list":
-					allowed = append(allowed, "manufacturer_id", "product_id", "product_version_id", "status", "installation", "source")
+					allowed = append(allowed, "manufacturer_id", "product_id", "product_version_id", "status", "installation", "source", "category_id", "category_scope", "category_group")
 					if entry == "tenant" {
 						allowed = append(allowed, "facility_id")
 					}
@@ -62,7 +62,7 @@ func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
 				case "installation:list":
 					allowed = append(allowed, "state")
 				case "installation:targets":
-					allowed = append(allowed, "kind", "state")
+					allowed = append(allowed, "kind", "state", "facility_id")
 				case "access:detail", "access:candidates":
 					allowed = []string{"q", "cursor", "limit", "kind", "device_id"}
 				}
@@ -93,6 +93,8 @@ func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
 					out, err = s.Generations(cc, a, scope, device, f)
 				case "installation:list":
 					out, err = s.Installations(cc, a, scope, device, f)
+				case "installation:legacy-sections":
+					out, err = s.LegacySections(cc, a, scope, device, f)
 				case "installation:targets":
 					if f.State != "" && f.State != "history" {
 						err = h.Invalid("安装目标模式无效。")
@@ -132,6 +134,15 @@ func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
 					}
 				}
 				switch kind + ":" + action {
+				case "installation:legacy-preview", "installation:legacy-resolve":
+					var in d.LegacySectionResolution
+					if err = h.Decode(raw, &in); err == nil {
+						if action == "legacy-preview" {
+							out, err = s.PreviewLegacySection(cc, a, scope, device, ctx.Param("evidence_id"), in)
+						} else {
+							out, err = s.ResolveLegacySection(cc, a, scope, device, ctx.Param("evidence_id"), in, meta)
+						}
+					}
 				case "device:create":
 					var in d.DeviceCreate
 					if err = h.Decode(raw, &in); err == nil {

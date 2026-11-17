@@ -19,6 +19,7 @@ func browserParsing(t *testing.T, ctx context.Context, env *testsupport.Environm
 	}
 	opts := config.Parsing{Enabled: true, URL: os.Getenv("INFRAPRO_PARSING_URL"), TokenFile: os.Getenv("INFRAPRO_PARSING_TOKEN_FILE"), Queue: 20, Concurrency: 2, StorageBudget: 1 << 30, Timeout: 10000000000}
 	env.Config.Parsing = opts
+	env.Config.IngestionFile = os.Getenv("INFRAPRO_INGESTION_FILE")
 	m := &env.Config.Parsing
 	m.ObjectEndpoint = "http://127.0.0.1:58333"
 	m.ObjectAccessKey = "contract-admin"
@@ -32,7 +33,7 @@ func browserParsing(t *testing.T, ctx context.Context, env *testsupport.Environm
 		t.Fatal(e)
 	}
 	if path := os.Getenv("INFRAPRO_E2E_OPS_CONFIG"); path != "" {
-		raw, _ := json.Marshal(map[string]any{"database_url": env.Config.DatabaseURL, "redis_url": env.Config.RedisURL, "support_contact": env.Config.SupportContact, "csrf_auth_key": hex.EncodeToString(env.Config.CSRFKey), "parsing": map[string]string{"enabled": "true", "url": opts.URL, "token_file": opts.TokenFile, "object_endpoint": m.ObjectEndpoint, "object_access_key": m.ObjectAccessKey, "object_secret_key": m.ObjectSecretKey, "bucket": m.Bucket}})
+		raw, _ := json.Marshal(map[string]any{"ingestion_file": env.Config.IngestionFile, "database_url": env.Config.DatabaseURL, "redis_url": env.Config.RedisURL, "support_contact": env.Config.SupportContact, "csrf_auth_key": hex.EncodeToString(env.Config.CSRFKey), "parsing": map[string]string{"enabled": "true", "url": opts.URL, "token_file": opts.TokenFile, "object_endpoint": m.ObjectEndpoint, "object_access_key": m.ObjectAccessKey, "object_secret_key": m.ObjectSecretKey, "bucket": m.Bucket}})
 		if e = os.WriteFile(path, raw, 0600); e != nil {
 			t.Fatal(e)
 		}

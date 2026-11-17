@@ -44,3 +44,27 @@ test("standalone pack round trip, duplicate fields, traversal, links and tamperi
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('Manifest 2 named view validation and Manifest 1 format gate agree', async()=>{
+  const {validateManifest}=await import('../../packages/ts/display-devtools/src/package.mjs');
+  const m=JSON.parse(await readFile(new URL('../../samples/display-sdk/display.manifest.json',import.meta.url),'utf8'));
+  m.files=[{path:'index.html',size:1,media_type:'text/html',sha256:'a'.repeat(64)}];m.manifest_version=2;
+  m.required_capabilities={'views.read':1,'queries.read':1,'statistics.resources':1,'statistics.monitoring':1};
+  m.read_view_schema={project:{domain:'resources',required:true,purpose:'统计',allow_dynamic:false}};
+  validateManifest(m);
+  for(const change of [v=>v.manifest_version=1,v=>v.read_view_schema.project.domain='tenant',v=>v.read_view_schema.project.ids=['unscoped'],v=>v.read_view_schema.project.allow_dynamic='true',v=>v.read_view_schema.project.purpose='a'.repeat(241),v=>v.read_view_schema=Array(2)]){
+    const copy=structuredClone(m);change(copy);assert.throws(()=>validateManifest(copy),{code:'package_invalid'});
+  }
+  m.manifest_version=1;m.read_view_schema={};assert.throws(()=>validateManifest(m));
+});
+
+test('full structure manifests declare the model and reject future versions',async()=>{
+  const {validateManifest}=await import('../../packages/ts/display-devtools/src/package.mjs');
+  const manifest=JSON.parse(await readFile(new URL('../../examples/display-engineering-structure/display.manifest.json',import.meta.url),'utf8'));
+  manifest.files=[{path:'index.html',size:1,media_type:'text/html',sha256:'a'.repeat(64)}];
+  assert.doesNotThrow(()=>validateManifest(manifest));
+  for(const version of [0,3,'2',null]){
+    const invalid=structuredClone(manifest);invalid.read_view_schema.project_resources.structure_model=version;
+    assert.throws(()=>validateManifest(invalid));
+  }
+});

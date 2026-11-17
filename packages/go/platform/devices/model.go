@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/classification"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
@@ -48,25 +49,26 @@ type ProductSummary struct {
 	Source           string `json:"source"`
 }
 type Device struct {
-	ID                   string         `json:"id"`
-	TenantID             string         `json:"tenant_id"`
-	Code                 string         `json:"code"`
-	Name                 string         `json:"name"`
-	SerialNumber         string         `json:"serial_number"`
-	Description          string         `json:"description"`
-	Status               string         `json:"status"`
-	ProductID            string         `json:"product_id"`
-	ProductVersionID     string         `json:"product_version_id"`
-	Product              ProductSummary `json:"product"`
-	Revision             string         `json:"revision"`
-	OutputRevision       string         `json:"output_revision"`
-	InstallationRevision string         `json:"installation_revision"`
-	CreatedAt            time.Time      `json:"created_at"`
-	UpdatedAt            time.Time      `json:"updated_at"`
-	DeletedAt            *time.Time     `json:"deleted_at"`
-	Visibility           string         `json:"visibility"`
-	Actions              Actions        `json:"actions"`
-	CurrentInstallation  *Installation  `json:"current_installation"`
+	Classification       *classification.Effective `json:"classification,omitempty"`
+	ID                   string                    `json:"id"`
+	TenantID             string                    `json:"tenant_id"`
+	Code                 string                    `json:"code"`
+	Name                 string                    `json:"name"`
+	SerialNumber         string                    `json:"serial_number"`
+	Description          string                    `json:"description"`
+	Status               string                    `json:"status"`
+	ProductID            string                    `json:"product_id"`
+	ProductVersionID     string                    `json:"product_version_id"`
+	Product              ProductSummary            `json:"product"`
+	Revision             string                    `json:"revision"`
+	OutputRevision       string                    `json:"output_revision"`
+	InstallationRevision string                    `json:"installation_revision"`
+	CreatedAt            time.Time                 `json:"created_at"`
+	UpdatedAt            time.Time                 `json:"updated_at"`
+	DeletedAt            *time.Time                `json:"deleted_at"`
+	Visibility           string                    `json:"visibility"`
+	Actions              Actions                   `json:"actions"`
+	CurrentInstallation  *Installation             `json:"current_installation"`
 }
 
 // DeviceContext deliberately cannot carry serial numbers, location or sibling counts.
@@ -170,6 +172,8 @@ type Target struct {
 	ID   string `json:"id,omitempty"`
 }
 type Installation struct {
+	MonitoringSectionID *string            `json:"monitoring_section_id,omitempty"`
+	BoreholeID          *string            `json:"borehole_id,omitempty"`
 	ID                  string             `json:"id"`
 	DeviceID            string             `json:"device_id"`
 	TargetKind          string             `json:"target_kind"`

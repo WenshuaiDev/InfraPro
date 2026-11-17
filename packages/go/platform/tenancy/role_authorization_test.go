@@ -70,6 +70,17 @@ func (f fixture) changeRole(t *testing.T, tid string, r access.TenantRole, op ac
 	return *v.Role
 }
 
+func tenantCatalogCodes() []access.Code {
+	codes := []access.Code{}
+	for _, p := range access.Catalog() {
+		if p.Scope == "tenant" && p.Lifecycle == "active" {
+			codes = append(codes, p.Code)
+		}
+	}
+	slices.Sort(codes)
+	return codes
+}
+
 func TestTenantRoleUnionIsolationAndInvitationLoss(t *testing.T) {
 	f := setup(t)
 	s := f.e.Service.Access()
@@ -79,14 +90,21 @@ func TestTenantRoleUnionIsolationAndInvitationLoss(t *testing.T) {
 	other := f.accept(t, f.invite(t, b.TenantID, f.a, f.b), f.b)
 	catalog, e := s.TenantPermissions(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	n := 0
+	reserved := []access.Code{access.TenantPermissionRead, access.TenantRoleRead, access.TenantRoleCreate, access.TenantRoleUpdate, access.TenantRoleSetPermissions, access.TenantRoleSetStatus, access.TenantRoleDelete, access.TenantMemberAssignRoles, access.TenantProjectRecoverAdmin}
+	codes := []access.Code{}
 	for _, p := range catalog {
-		if p.Selectable {
-			n++
+		if p.Scope != "tenant" || p.ProjectCustomRoleAssignable {
+			t.Fatalf("cross-scope tenant permission: %s", p.Code)
+		}
+		codes = append(codes, p.Code)
+		protected := slices.Contains(reserved, p.Code)
+		if p.Selectable == protected || p.TenantCustomRoleAssignable == protected || protected && p.UnavailableReason != "administrator_reserved" {
+			t.Fatalf("unexpected custom-role eligibility for %s", p.Code)
 		}
 	}
-	if len(catalog) != 85 || n != 76 {
-		t.Fatalf("tenant permission count=%d selectable=%d; want 85/76", len(catalog), n)
+	slices.Sort(codes)
+	if !slices.Equal(codes, tenantCatalogCodes()) {
+		t.Fatal("tenant permission catalog is incomplete or duplicated")
 	}
 	_, e = s.TenantRoles(ctx, f.actor(f.b), a.TenantID, access.Filter{})
 	code(t, e, "permission_denied")

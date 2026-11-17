@@ -9,7 +9,7 @@ import { cn } from '@infrapro/ui/lib/utils';
 import { useResourceAccess } from './shared';
 import { asChoice, assertAccessRevision, kinds, type Choice, type Draft } from './model';
 
-const icons = { facility: Building2, component: Layers, point: MapPin, channel: Waves };
+const icons = { facility: Building2, component: Layers, monitoring_section: Layers, borehole: MapPin, point: MapPin, channel: Waves };
 export type SelectorProps = {
   project: string;
   facility: string;
@@ -103,6 +103,7 @@ function ResourceRow({
 function CandidateList({
   kind,
   parent,
+  structureParent,
   point,
   ownerKind,
   ownerID,
@@ -113,8 +114,9 @@ function CandidateList({
 }: SelectorProps & {
   kind: ResourceKind;
   parent?: string;
+  structureParent?: { kind: Exclude<ResourceKind, "point" | "channel">; id: string };
   point?: string;
-  ownerKind?: 'facility' | 'component' | 'point';
+  ownerKind?: Exclude<ResourceKind, 'channel'>;
   ownerID?: string;
   q?: string;
   depth?: number;
@@ -123,6 +125,8 @@ function CandidateList({
   const { client, tenant, prefix } = useResourceAccess(props.project);
   const filter: ResourceAccessFilter = {
     candidate_kind: kind,
+    candidate_structure_parent_kind: structureParent?.kind,
+    candidate_structure_parent_id: structureParent?.id,
     candidate_q: q,
     candidate_status: 'all',
     candidate_limit: 100,
@@ -216,20 +220,9 @@ function ResourceBranch({ value, depth = 0, ...props }: SelectorProps & { value:
         expanded={expanded}
         onExpand={value.kind !== 'channel' ? () => setExpanded(!expanded) : undefined}
       />
-      {expanded && (value.kind === 'facility' || value.kind === 'component') && (
+      {expanded && value.kind !== 'point' && value.kind !== 'channel' && (
         <>
-          <CandidateList
-            {...props}
-            kind="component"
-            parent={value.kind === 'facility' ? 'root' : value.id}
-            depth={depth + 1}
-          />
-          <CandidateList
-            {...props}
-            kind="point"
-            parent={value.kind === 'facility' ? 'root' : value.id}
-            depth={depth + 1}
-          />
+          {(['component','monitoring_section','borehole','point'] as const).map(kind => <CandidateList key={kind} {...props} kind={kind} structureParent={{kind:value.kind as Exclude<ResourceKind,'point'|'channel'>,id:value.id}} depth={depth+1} />)}
           <CandidateList {...props} kind="channel" ownerKind={value.kind} ownerID={value.id} depth={depth + 1} />
         </>
       )}
@@ -324,7 +317,7 @@ export function ResourceSelector({
               `${root.name} ${root.code}`.toLowerCase().includes(q.toLowerCase()) && (
                 <ResourceRow {...props} value={root} />
               )}{' '}
-            {(['component', 'point', 'channel'] as const)
+            {(['component', 'monitoring_section', 'borehole', 'point', 'channel'] as const)
               .filter((k) => kind === 'all' || kind === k)
               .map((k) => (
                 <CandidateList key={k} {...props} kind={k} q={q} flat />

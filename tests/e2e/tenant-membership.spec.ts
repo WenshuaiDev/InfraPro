@@ -8,18 +8,18 @@ test.use({ trace: 'off' }); // One-time test credentials must not be retained in
 const api = new URL('/api/v1', consoleURL).href;
 async function signIn(request: APIRequestContext, username: string) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request, new URL(consoleURL).origin) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username, password } })).status()).toBe(200); return headers;
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username, password } })).status()).toBe(200); return headers;
 }
 async function prepare(request: APIRequestContext) {
   const administrator = await createAccount(request, false); const member = await createAccount(request, false); const outsider = await createAccount(request, false);
   const headers = await signIn(request, 'e2e_owner');
   const account = async (username: string) => (await (await request.get(`${api}/access/accounts?q=${username}`)).json()).items[0] as { id: string; management_version: string };
   const admin = await account(administrator.username); const target = await account(member.username); const other = await account(outsider.username);
-  const create = async (name: string) => { const r = await request.post(`${api}/platform/tenants`, { headers, data: { name, code: `tm-${randomBytes(6).toString('hex')}`, description: '成员管理验收', administrator_account_id: admin.id, client_request_id: randomUUID(), reason: '浏览器准备' } }); expect(r.status()).toBe(201); return (await r.json()).tenant_id as string; };
+  const create = async (name: string) => { const r = await request.post(`${api}/platform/tenants`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name, code: `tm-${randomBytes(6).toString('hex')}`, description: '成员管理验收', administrator_account_id: admin.id, client_request_id: randomUUID(), reason: '浏览器准备' } }); expect(r.status()).toBe(201); return (await r.json()).tenant_id as string; };
   return { administrator, member, outsider, headers, admin, target, other, a: await create('成员验收 A'), b: await create('成员验收 B') };
 }
 async function invite(request: APIRequestContext, headers: Record<string, string>, tenant: string, target: string) {
-  const r = await request.post(`${api}/tenants/${tenant}/member-invitations`, { headers, data: { target_account_id: target, client_request_id: randomUUID(), reason: '测试邀请' } }); expect(r.status()).toBe(201); return await r.json() as { link: string; invitation: { id: string; version: string } };
+  const r = await request.post(`${api}/tenants/${tenant}/member-invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { target_account_id: target, client_request_id: randomUUID(), reason: '测试邀请' } }); expect(r.status()).toBe(201); return await r.json() as { link: string; invitation: { id: string; version: string } };
 }
 function credential(link: string) { return new URLSearchParams(new URL(link).hash.slice(1)).get('token'); }
 function row(page: Page, name: string) { return page.getByRole('row').filter({ hasText: name }); }
@@ -93,25 +93,25 @@ test('membership HTTP matrix rejects forged scope and fields, protects administr
     for (const [path, data] of routes) {
       expect((await administrator.request.post(path, { headers: { Origin: h.Origin! }, data })).status()).toBe(403);
       expect((await administrator.request.post(path, { headers: { ...h, Origin: 'http://invalid.example' }, data })).status()).toBe(403);
-      expect((await administrator.request.post(path, { headers: h, data: { ...data, tenant_id: f.b, force: true } })).status()).toBe(400);
-      expect((await recipient.request.post(path, { headers: rh, data })).status()).toBe(404);
+      expect((await administrator.request.post(path, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { ...data, tenant_id: f.b, force: true } })).status()).toBe(400);
+      expect((await recipient.request.post(path, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data })).status()).toBe(404);
     }
-    for (const action of ['suspend', 'remove']) { const r = await administrator.request.post(`${base}/members/${adminContext.membership_id}/${action}`, { headers: h, data: { expected_version: '1', reason: 'protected' } }); expect((await r.json()).code).toBe('tenant_admin_transfer_required'); }
+    for (const action of ['suspend', 'remove']) { const r = await administrator.request.post(`${base}/members/${adminContext.membership_id}/${action}`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { expected_version: '1', reason: 'protected' } }); expect((await r.json()).code).toBe('tenant_admin_transfer_required'); }
     for (const action of ['inspect', 'accept']) {
       const path = `${api}/account/tenant-invitations/${action}`; const data = action === 'inspect' ? body : { ...body, expected_version: '1' };
       expect((await recipient.request.post(path, { headers: { Origin: rh.Origin! }, data })).status()).toBe(403);
-      expect((await recipient.request.post(path, { headers: rh, data: { ...data, roles: ['tenant_admin'] } })).status()).toBe(400);
-      expect((await administrator.request.post(path, { headers: h, data })).status()).toBe(404);
+      expect((await recipient.request.post(path, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data: { ...data, roles: ['tenant_admin'] } })).status()).toBe(400);
+      expect((await administrator.request.post(path, { headers: { ...h, 'X-Command-ID': randomUUID() }, data })).status()).toBe(404);
     }
     for (const path of ['/members', `/members/${adminContext.membership_id}`, '/member-invitations', `/member-invitations/${l.invitation.id}`]) expect((await request.get(base + path)).status()).toBe(404);
     expect((await administrator.request.get(`${api}/tenants/${f.b}/member-invitations/${l.invitation.id}`)).status()).toBe(404);
-    let r = await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: rh, data: { ...body, expected_version: '1' } }); expect(r.status()).toBe(200); const accepted = await r.json();
-    r = await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: rh, data: { ...body, expected_version: '1' } }); expect((await r.json()).code).toBe('invitation_already_accepted');
+    let r = await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data: { ...body, expected_version: '1' } }); expect(r.status()).toBe(200); const accepted = await r.json();
+    r = await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data: { ...body, expected_version: '1' } }); expect((await r.json()).code).toBe('invitation_already_accepted');
     for (const path of ['/members', '/member-invitations', '/audit-events']) expect((await recipient.request.get(base + path)).status()).toBe(403);
     const audit = await (await administrator.request.get(`${base}/audit-events?object_type=tenant_member&object_id=${accepted.membership_id}`)).json(); expect(audit.items).toHaveLength(1); expect(audit.items[0].event_type).toBe('tenant.member.joined');
     const safe = JSON.stringify({ audit, members: await (await administrator.request.get(`${base}/members`)).json(), invites: await (await administrator.request.get(`${base}/member-invitations`)).json() }); expect(safe.includes(credential(l.link)!)).toBe(false); expect(safe.includes('token_hash')).toBe(false);
     const candidates = await (await request.get(`${api}/platform/tenant-admin-candidates?q=${f.member.username}&tenant_id=${f.a}`)).json(); expect(candidates.items[0].transfer_mode).toBe('reuse');
-    r = await request.post(`${api}/platform/tenants/${f.a}/administrator-transfer`, { headers: f.headers, data: { expected_version: '1', new_administrator_account_id: f.target.id, reason: 'reuse member' } }); expect(r.status()).toBe(200);
+    r = await request.post(`${api}/platform/tenants/${f.a}/administrator-transfer`, { headers: { ...f.headers, 'X-Command-ID': randomUUID() }, data: { expected_version: '1', new_administrator_account_id: f.target.id, reason: 'reuse member' } }); expect(r.status()).toBe(200);
     const promoted = await (await recipient.request.get(`${base}/context`)).json(); expect(promoted.membership_id).toBe(accepted.membership_id); expect(promoted.permissions).toContain(P.TenantInvitationCreate); expect((await administrator.request.get(`${base}/profile`)).status()).toBe(404);
   } finally { await administrator.close(); await recipient.close(); }
 });
@@ -169,22 +169,22 @@ test('rejoining replaces the membership context and rejects delayed reads from t
   let release = () => {}; let fetched = () => {}; const held = new Promise<void>((resolve) => { release = resolve; }); const ready = new Promise<void>((resolve) => { fetched = resolve; });
   try {
     const ah = await signIn(admin.request, f.administrator.username); const rh = await signIn(recipient.request, f.member.username);
-    const first = await invite(admin.request, ah, f.a, f.target.id); const accepted = await (await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: rh, data: { token: credential(first.link), expected_version: '1' } })).json();
+    const first = await invite(admin.request, ah, f.a, f.target.id); const accepted = await (await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data: { token: credential(first.link), expected_version: '1' } })).json();
     let block = true;
     await memberPage.route(`**/api/v1/tenants/${f.a}/profile`, async (route) => { if (!block) return route.continue(); block = false; const response = await route.fetch(); fetched(); await held; await route.fulfill({ response }).catch(() => undefined); });
     await memberPage.goto(`${consoleURL}/t/${f.a}/profile`); await ready;
-    expect((await admin.request.post(`${api}/tenants/${f.a}/members/${accepted.membership_id}/remove`, { headers: ah, data: { expected_version: '1', reason: '重新加入隔离' } })).status()).toBe(200);
+    expect((await admin.request.post(`${api}/tenants/${f.a}/members/${accepted.membership_id}/remove`, { headers: { ...ah, 'X-Command-ID': randomUUID() }, data: { expected_version: '1', reason: '重新加入隔离' } })).status()).toBe(200);
     // Ensure this tab observes the ended relation before the new relation exists.
     // Previously a concurrent context refresh made this path nondeterministic.
     await memberPage.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(memberPage.getByRole('heading', { name: '当前租户不可访问', exact: true })).toBeVisible();
-    const next = await invite(admin.request, ah, f.a, f.target.id); const joined = await (await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: rh, data: { token: credential(next.link), expected_version: '1' } })).json(); expect(joined.membership_id).not.toBe(accepted.membership_id);
+    const next = await invite(admin.request, ah, f.a, f.target.id); const joined = await (await recipient.request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...rh, 'X-Command-ID': randomUUID() }, data: { token: credential(next.link), expected_version: '1' } })).json(); expect(joined.membership_id).not.toBe(accepted.membership_id);
     const observedContext = await recipient.request.get(`${api}/tenants/${f.a}/context`);
     expect(observedContext.status()).toBe(200);
     expect((await observedContext.json()).membership_id).toBe(joined.membership_id);
     let refreshedContext = 0;
     memberPage.on('response', (response) => { if (response.url().endsWith(`/tenants/${f.a}/context`)) refreshedContext++; });
-    expect((await admin.request.patch(`${api}/tenants/${f.a}/profile`, { headers: ah, data: { expected_version: '1', description: '仅新关系应读取的资料', reason: '隔离旧响应' } })).status()).toBe(200);
+    expect((await admin.request.patch(`${api}/tenants/${f.a}/profile`, { headers: { ...ah, 'X-Command-ID': randomUUID() }, data: { expected_version: '1', description: '仅新关系应读取的资料', reason: '隔离旧响应' } })).status()).toBe(200);
     await memberPage.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect.poll(() => refreshedContext, { message: 'New membership must trigger a fresh context check' }).toBeGreaterThan(0);
     await expect(memberPage.getByText('仅新关系应读取的资料', { exact: true })).toBeVisible(); release();

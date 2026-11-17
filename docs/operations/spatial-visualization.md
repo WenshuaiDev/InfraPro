@@ -1,8 +1,8 @@
 # 工程空间运行与操作
 
-适用版本：迁移 00034，空间转换契约 `infrapro.spatial/1`。实现与自验见 [验证记录](../verification/spatial-visualization.md)。正常运行沿用既有账号、租户、项目、工程资源和监测模块。
+适用版本：迁移 00034，空间转换契约 `infrapro.spatial/1`。实现与自验见 [本机工程环境与人工验收](local-environment.md)。正常运行沿用既有账号、租户、项目、工程资源和监测模块。
 
-## 直接试用合成场景
+## 隔离回归环境
 
 前置条件为仓库规定的 Go、Node、pnpm、Python 3.12／uv、Docker 和 Playwright Chromium；不需要用户制作图纸、购买底图或准备 IFC。
 
@@ -10,12 +10,12 @@
 pnpm install --frozen-lockfile
 pnpm spatial:setup
 pnpm spatial:samples
-pnpm spatial:demo
+pnpm test:spatial:environment
 ```
 
-演示控制台固定为 `http://127.0.0.1:15473`，专用 API 为 `127.0.0.1:18480`。脚本检测端口占用，不终止其他服务；创建隔离数据库 schema 和测试对象前缀，通过正式 API 建立业务资源、上传、处理、发布和授权。原有业务数据库不迁移、不清空。启动约需数分钟，完成后打印固定版本入口及登录资料文件路径。
+测试控制台固定为 `http://127.0.0.1:15473`，专用 API 为 `127.0.0.1:18480`。脚本检测端口占用，不终止其他服务；创建隔离数据库 schema 和测试对象前缀，通过正式 API 建立业务资源、上传、处理、发布和授权。原有业务数据库不迁移、不清空。启动约需数分钟，完成后打印固定版本入口及登录资料文件路径。
 
-会话目录为 `.artifacts/spatial-demo/<UTC时间>/`：`login.json` 为本次随机登录资料（本地权限 0600）；`spatial-acceptance.json` 记录对象、文件哈希、固定版本及两项目入口；`session.json` 的 `state: "ready"` 表示装载完成。不要分享登录文件。Ctrl+C 停止该会话后清理其隔离数据，重新运行即恢复初始场景。若装载失败，服务保留供诊断，`session.json` 标记 `seed_failed`；停止后再启动可重建。
+会话目录为 `.artifacts/spatial-tests/<UTC时间>/`：`login.json` 为本次随机登录资料（本地权限 0600）；`spatial-acceptance.json` 记录对象、文件哈希、固定版本及两项目入口；`session.json` 的 `state: "ready"` 表示装载完成。不要分享登录文件。Ctrl+C 停止该会话后清理其隔离数据，重新运行即恢复初始场景。若装载失败，服务保留供诊断，`session.json` 标记 `seed_failed`；停止后再启动可重建。
 
 原始文件位于 [samples/spatial](../../samples/spatial/README.md)，既能复现已有场景，也能从「管理资料」自行重新上传。所有图件均为合成示例。
 
@@ -32,7 +32,7 @@ pnpm spatial:demo
 
 ## 接入普通开发环境
 
-空间元数据使用 PostgreSQL，原件和浏览文件使用既有私有 S3 兼容服务中独立 `spatial/` 前缀。使用常规迁移命令应用 00034；既有自定义角色不自动扩权，按目录明确授予空间权限。先备份再对既有环境升级；本次实施未操作用户正式数据库。
+空间元数据使用 PostgreSQL，原件和浏览文件使用既有私有 S3 兼容服务中独立 `spatial/` 前缀。使用常规迁移命令应用 00034；既有自定义角色不自动扩权，按目录明确授予空间权限。对既有环境升级前先备份。
 
 API 与独立 worker 使用同一数据库、对象存储和转换器配置：
 
@@ -54,7 +54,7 @@ pnpm dev:spatial
 | 项目 | 当前边界 |
 | --- | --- |
 | 原件 | PNG、JPEG、PDF、自包含静态 GLB、IFC2X3／IFC4、WGS84 GeoJSON；单件 256 MiB。 |
-| 上传 | 8 MiB 分片、最多 32 片、24 小时窗口；每片及整件 SHA-256，封存后不可替换。 |
+| 上传 | 8 MiB 分片、总大小由 `uploads.spatial_max_file_bytes` 配置（默认 256 MiB）、24 小时窗口；每片及整件 SHA-256，封存后不可替换。 |
 | 图像／PDF | 单图最多 32 百万像素，文档累计最多 256 百万像素，保存方向／裁剪及多级分辨率。 |
 | 模型 | 10 万元素／实例、展开后 500 万三角形；支持完整节点变换、IFC 实体／映射／三角面几何与来源索引。 |
 | GLB 扩展 | 支持 `KHR_materials_unlit`、`KHR_texture_transform`、`KHR_mesh_quantization`、`EXT_mesh_gpu_instancing`；外部资源、未知扩展、动画、蒙皮、形变等明确拒绝。 |
@@ -62,7 +62,7 @@ pnpm dev:spatial
 | 查询 | 元素、挂载和地图范围分页，每页最多 100；摘要每对象最多 10 通道、每批最多 100，优先配置主通道；超出可进入正式监测工作台。 |
 | 坐标 | GIS 显示转换支持 EPSG:4326／3857；局部模型统一米／Y 向上，原变换写入清单；未知 CRS、桩号与高程不伪造地理定位。 |
 
-这些是拒绝和资源保护边界，不能当作所有设备均流畅处理最大文件的性能承诺。实际工程文件应依照其导出内容验证；本轮已提供完整可用合成样本。
+这些是拒绝和资源保护边界，不能当作所有设备均流畅处理最大文件的性能承诺。实际工程文件应依照其导出内容验证。
 
 ## 备份、恢复和文件完整性
 
@@ -75,7 +75,7 @@ pnpm infrapro spatial verify --tenant <tenant-uuid> --apply --reason '恢复后�
 
 命令读取固定清单及实际对象字节，核对大小和 SHA-256。`--apply` 在再次核对版本修订后隔离缺失／不一致版本，并记录维护审计；补回正确原字节后再次校验可恢复可用标记。普通网络故障报告服务错误，不将内容误判为损坏。不从备份自动恢复已结束的项目授权，也不重新转换冒充原固定产物。
 
-本次真实恢复自验使用 `pg_dump/pg_restore` 和独立 S3 恢复桶，比较 11 张空间表及文件哈希，并验证缺失隔离、正确字节修复和暂时网络故障。详见验证记录。生产保留策略、容量和真实环境恢复时间需按部署条件设定。
+恢复测试使用 `pg_dump/pg_restore` 和独立 S3 恢复桶，比较 11 张空间表及文件哈希，并验证缺失隔离、正确字节修复和暂时网络故障。生产保留策略、容量和真实环境恢复时间需按部署条件设定。
 
 ## 复核命令
 
@@ -88,4 +88,4 @@ node scripts/spatial-ui-check.mjs
 node scripts/spatial-scope-check.mjs
 ```
 
-后三项需已完成的独立 `spatial:demo` 会话；可用 `SPATIAL_SESSION` 指定会话目录。范围检查会在合成项目中临时修改授权并恢复，交互检查会创建并删除未发布草稿；不应指向业务环境。证据输出在 `.artifacts/spatial-*`。
+后三项需已完成的独立 `test:spatial:environment` 会话；可用 `SPATIAL_SESSION` 指定会话目录。范围检查会在合成项目中临时修改授权并恢复，交互检查会创建并删除未发布草稿；不应指向业务环境。证据输出在 `.artifacts/spatial-*`。

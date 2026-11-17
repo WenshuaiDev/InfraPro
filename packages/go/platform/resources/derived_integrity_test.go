@@ -47,8 +47,14 @@ func TestDerivedMissingBlockQuarantinesCachesAndRepairsByNewGeneration(t *testin
 	enabled, e := s.ControlChannel(ctx, f.actor, scope, ch.Resource.ID, dm.ControlInput{WriteMeta: restoreMeta(ch.ControlRevision), PreviewID: preview.ID, PreviewHash: preview.Hash}, access.Meta{})
 	must(t, e)
 	ch = enabled.Channel
+	// This receipt is deliberately short-lived; retention must not depend on
+	// how long the subsequent storage fault operations happen to take.
+	options.TrialTTL = time.Millisecond
+	s.WithOptions(options)
 	unusedTrial, e := s.ChannelTrial(ctx, f.actor, scope, ch.Resource.ID, dm.TrialInput{WriteMeta: restoreMeta(ch.ConfigRevision), ConfigID: cfg.ID, ConfigHash: cfg.ConfigHash, OutputRange: interval}, access.Meta{})
 	must(t, e)
+	options.TrialTTL = 5 * time.Second
+	s.WithOptions(options)
 	_, e = s.ScheduleTenant(ctx, f.tenant)
 	must(t, e)
 	var job, generation, object string

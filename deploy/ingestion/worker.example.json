@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "storage_budget_bytes": "1073741824000",
+  "queue_budget": 500000,
+  "relays": [{
+    "id": "00000000-0000-4000-8000-000000000001",
+    "configuration_ref": "approved-cloud-node-1",
+    "url": "https://relay.example.invalid:9443",
+    "consumer_id": "inner-platform-1",
+    "consumer": {
+      "certificate_file": "/etc/infrapro/ingestion/consumer.pem",
+      "key_file": "/etc/infrapro/ingestion/consumer.key",
+      "ca_file": "/etc/infrapro/ingestion/server-ca.pem"
+    },
+    "control": {
+      "certificate_file": "/etc/infrapro/ingestion/control.pem",
+      "key_file": "/etc/infrapro/ingestion/control.key",
+      "ca_file": "/etc/infrapro/ingestion/server-ca.pem"
+    }
+  }]
+}

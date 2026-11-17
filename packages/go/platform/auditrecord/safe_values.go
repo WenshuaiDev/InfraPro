@@ -131,7 +131,9 @@ func Label(key string) string {
 func Diff(before, after any, beforeRecorded, afterRecorded bool) []Change {
 	b, bok := before.(map[string]any)
 	a, aok := after.(map[string]any)
-	if !bok && !aok {
+	// Sanitized top-level arrays and long strings are value envelopes, not
+	// business objects. Diffing their envelope keys would emit unregistered fields.
+	if !bok && !aok || stateOf(before, beforeRecorded) == Truncated || stateOf(after, afterRecorded) == Truncated || stateOf(before, beforeRecorded) == Redacted || stateOf(after, afterRecorded) == Redacted {
 		return []Change{change("value", before, after, beforeRecorded, afterRecorded)}
 	}
 	keys := []string{}

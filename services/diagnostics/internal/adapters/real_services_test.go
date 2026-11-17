@@ -212,7 +212,9 @@ func TestRealDockerReadOnlyObservations(t *testing.T) {
 		t.Helper()
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		out, e := exec.CommandContext(ctx, "docker", args...).CombinedOutput()
+		// Docker may write image-pull progress or warnings to stderr on success.
+		// Only stdout is the container ID/inspect value consumed below.
+		out, e := exec.CommandContext(ctx, "docker", args...).Output()
 		if e != nil {
 			t.Fatalf("owned Docker fixture command failed: %s", args[0])
 		}

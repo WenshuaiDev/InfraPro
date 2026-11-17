@@ -2,6 +2,47 @@
   "schema_version": 1,
   "entries": [
     {
+      "id": "ingest-worker",
+      "display_name": "设备接入流水",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/ingest-worker/main.go",
+      "lanes": [
+        "pull",
+        "relay-status",
+        "confirmation",
+        "identify",
+        "planning",
+        "parse",
+        "source-publication",
+        "association-watermark",
+        "recovery",
+        "object-maintenance"
+      ],
+      "default_expectation": "disabled",
+      "reason": "机器执行独立于人员授权；接收、识别和测量均有持久队列"
+    },
+    {
+      "id": "ingest-relay",
+      "display_name": "云端转发",
+      "kind": "application",
+      "entry_point": "services/ingest-relay/cmd/ingest-relay/main.go",
+      "lanes": [
+        "control",
+        "receivers",
+        "spool-maintenance"
+      ],
+      "default_expectation": "disabled",
+      "reason": "独立云 PG 持久缓冲；只接受 mTLS 机器身份，无业务库凭证"
+    },
+    {
+      "id": "ingest-relay-postgres",
+      "display_name": "云端缓冲 PostgreSQL",
+      "kind": "database",
+      "lanes": [],
+      "default_expectation": "disabled",
+      "reason": "独立于业务数据库，检查 fsync、synchronous_commit 和容量"
+    },
+    {
       "id": "parser",
       "display_name": "独立解析服务",
       "kind": "application",

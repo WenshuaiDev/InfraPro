@@ -26,12 +26,15 @@ import (
 )
 
 type Environment struct {
-	Config  config.Config
-	Pool    *pgxpool.Pool
-	Redis   *redis.Client
-	Service *identity.Service
-	cleanup func()
+	Config         config.Config
+	Pool           *pgxpool.Pool
+	Redis          *redis.Client
+	Service        *identity.Service
+	cleanup        func()
+	preserveSchema func()
 }
+
+func (e *Environment) PreserveSchema() { e.preserveSchema() }
 
 func (e *Environment) Close() {
 	defer e.cleanup()
@@ -60,7 +63,13 @@ func NewAtMigration(ctx context.Context, logger *slog.Logger, version int64) (*E
 		admin.Close()
 		return nil, e
 	}
-	cleanupDB := func() { _, _ = admin.Exec(context.Background(), "DROP SCHEMA "+schema+" CASCADE"); admin.Close() }
+	preserved := false
+	cleanupDB := func() {
+		if !preserved {
+			_, _ = admin.Exec(context.Background(), "DROP SCHEMA "+schema+" CASCADE")
+		}
+		admin.Close()
+	}
 	q := u.Query()
 	q.Set("search_path", schema)
 	u.RawQuery = q.Encode()
@@ -115,7 +124,7 @@ func NewAtMigration(ctx context.Context, logger *slog.Logger, version int64) (*E
 		return nil, e
 	}
 	audit.New(service.Access())
-	return &Environment{Config: cfg, Pool: pool, Redis: cache, Service: service, cleanup: func() {
+	return &Environment{Config: cfg, Pool: pool, Redis: cache, Service: service, preserveSchema: func() { preserved = true }, cleanup: func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		var cursor uint64

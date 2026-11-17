@@ -15,6 +15,9 @@ type ReadSubject struct {
 	Authorize                     func(context.Context, pgx.Tx, Operation) (ProjectAuthorization, error)
 	// Windows is an additional ceiling for recursive raw/derived input reads.
 	Windows func(context.Context, pgx.Tx, []string) (map[string][]ReadWindow, error)
+	// HistoryWindows is deliberately separate: ordinary read windows never
+	// imply permission to inspect revoked observations.
+	HistoryWindows func(context.Context, pgx.Tx, []string) (map[string][]ReadWindow, error)
 }
 type ReadWindow struct{ From, To *int64 }
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -44,7 +45,11 @@ func (c PythonConverter) Convert(ctx context.Context, format, source, out string
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	defer diagnosticreport.TrackDeadline(parent, ctx)()
-	cmd := c.command(ctx, format, source, out)
+	info, err := os.Stat(source)
+	if err != nil {
+		return result, err
+	}
+	cmd := c.command(ctx, format, source, out, strconv.FormatInt(info.Size(), 10))
 	var stderr limitedBuffer
 	cmd.Stderr = &stderr
 	cmd.Stdout = &limitedBuffer{}

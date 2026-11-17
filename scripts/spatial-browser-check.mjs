@@ -1,7 +1,7 @@
 import { chromium, request, expect } from '@playwright/test';
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-const root=process.cwd(),sessions=join(root,'.artifacts/spatial-demo'),directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1));
+const root=process.cwd(),sessions=join(root,'.artifacts/spatial-tests'),directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1));
 const state=JSON.parse(readFileSync(join(directory,'spatial-acceptance.json'),'utf8')),login=JSON.parse(readFileSync(join(directory,'login.json'),'utf8')),origin='http://127.0.0.1:15473',output=join(root,'.artifacts/spatial-browser');mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-webgl']}),context=await browser.newContext({viewport:{width:1600,height:1000},deviceScaleFactor:1});
 const api=await request.newContext();const csrf=await(await api.get(origin+'/api/v1/auth/csrf')).json();const logged=await api.post(origin+'/api/v1/auth/login',{headers:{Origin:origin,'X-CSRF-Token':csrf.token},data:{username:login.username,password:login.password}});if(!logged.ok())throw Error('Browser sample login failed');await context.addCookies((await api.storageState()).cookies);

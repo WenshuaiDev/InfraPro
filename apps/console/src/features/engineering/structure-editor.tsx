@@ -1,0 +1,23 @@
+import type { EngineeringContent, EngineeringVersion } from '@infrapro/api-client';
+import { Button } from '@infrapro/ui/components/button';
+import { CheckControl, Section, SelectControl, TextControl } from './controls';
+import { FieldsEditor } from './fields-editor';
+
+import { structureLabels, upgradeStructureContent, type TemplateTarget } from './structure-model';
+
+export function StructureEditor({ value, onChange, known, onReferences }: { value: EngineeringContent; onChange: (value: EngineeringContent) => void; known: EngineeringVersion[]; onReferences?: (versions: EngineeringVersion[]) => void }) {
+  if (value.metamodel_version !== '2') return <Section title="监测组织能力"><p className="text-sm text-muted-foreground">此旧版本尚未声明断面和孔位能力。扩展当前草稿后，需发布新版本并由设施明确采用。</p><Button type="button" variant="outline" onClick={() => onChange(upgradeStructureContent(value))}>扩展断面与孔位建模</Button></Section>;
+  return <Section title="监测组织能力"><p className="text-sm text-muted-foreground">支持表示可以建档，不要求现场必须建立。构件、断面、孔位可按实际结构穿插；构件约束按最近构件祖先校验。</p>{(['monitoring_section', 'borehole'] as const).map((kind) => {
+    const capability = value.structure?.[kind] ?? { supported: false, fields: [] };
+    const change = (next: typeof capability) => onChange({ ...value, structure: { monitoring_section: value.structure?.monitoring_section ?? { supported: false, fields: [] }, borehole: value.structure?.borehole ?? { supported: false, fields: [] }, [kind]: next } });
+    return <Section key={kind} title={structureLabels[kind]} id={`/structure/${kind}`}><CheckControl label={`支持${structureLabels[kind]}`} value={capability.supported} onChange={(supported) => change({ ...capability, supported, fields: supported ? capability.fields : [] })} />{capability.supported && <FieldsEditor value={capability.fields} onChange={(fields) => change({ ...capability, fields })} path={`/structure/${kind}/fields`} known={known} onReferences={onReferences} />}</Section>;
+  })}</Section>;
+}
+export function TargetEditor({ value, typeVersion, definition, onChange }: { value?: TemplateTarget; typeVersion: string; definition?: EngineeringVersion; onChange: (target: TemplateTarget) => void }) {
+  const title = `${definition?.content.name ?? '适用类型'} V${definition?.number ?? ''}`;
+  const change = (patch: Partial<TemplateTarget>) => onChange({ type_version: typeVersion, component: '', ...value, ...patch });
+  const options: { value: string; label: string }[] = [{ value: 'facility', label: '基础设施' }, { value: 'point', label: '测点' }];
+  if (definition?.content.components?.length) options.push({ value: 'component', label: '构件' });
+  for (const kind of ['monitoring_section', 'borehole'] as const) if (definition?.content.structure?.[kind]?.supported) options.push({ value: kind, label: structureLabels[kind] });
+  return <Section title={title}><SelectControl label={`${title} 的适用性`} value={value?.applicability ?? ''} options={[{ value: 'applicable', label: '适用' }, { value: 'not_applicable', label: '不适用（说明原因）' }]} onChange={(applicability) => onChange(applicability === 'not_applicable' ? { type_version: typeVersion, component: '', applicability, reason: value?.reason ?? '' } : { type_version: typeVersion, component: '', applicability: 'applicable', anchor_kind: 'facility', point_scope: 'descendant_points', quantity_basis: 'per_anchor' })} />{value?.applicability === 'not_applicable' ? <TextControl label="不适用原因" value={value.reason ?? ''} onChange={(reason) => change({ reason })} /> : value?.applicability === 'applicable' && <><SelectControl label={`${title} 的监测锚点`} value={value.anchor_kind ?? ''} options={options} onChange={(kind) => { const anchor_kind = options.find((v) => v.value === kind)?.value as TemplateTarget['anchor_kind']; change({ anchor_kind, component: '', point_scope: anchor_kind === 'point' ? 'self' : 'descendant_points' }); }} />{value.anchor_kind === 'component' && <SelectControl label="构件类别" value={value.component} options={(definition?.content.components ?? []).map((c) => ({ value: c.key, label: c.name }))} onChange={(component) => change({ component })} />}<p className="text-sm text-muted-foreground">直接观测位置：{value.anchor_kind === 'point' ? '当前测点' : '锚点下全部合法后代测点'}。不自动建立节点或绑定设备。</p><SelectControl label="通道数量基准" value={value.quantity_basis ?? ''} options={[{ value: 'per_anchor', label: '每个锚点' }, { value: 'per_point', label: '每个测点' }]} onChange={(quantity_basis) => change({ quantity_basis: quantity_basis === 'per_point' ? 'per_point' : 'per_anchor' })} />{definition?.content.structure?.borehole?.supported && <CheckControl label="测点须具有孔位祖先（不限中间层序）" value={value.requires_borehole_ancestor ?? false} onChange={(requires_borehole_ancestor) => change({ requires_borehole_ancestor })} />}</>}</Section>;
+}

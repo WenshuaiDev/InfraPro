@@ -6,6 +6,8 @@
 
 本文是本功能实施时的完整规格入口。现有业务规则见[需求规格](../requirements.md#parsing-service-direction)，当前实现见[架构](../architecture.md)、[技术选型](../technology-selection.md)和[术语表](../../GLOSSARY.md)。本文标为“新增”的结构、路由和命令已在当前 checkout 落地；实际 OpenAPI、权限目录、迁移及[运行手册](../operations/parsing-service.md)为实现入口，本文不替代这些契约源。
 
+后续扩展[设备接入与原始报文规格](device-ingestion-and-raw-message-spec.md)定义云端统一接收、内网主动拉取及解析前的来源识别；新增识别接口和生产执行引用已在当前 checkout 实现，当前自验和接受状态见[接入验证报告](../verification/device-ingestion-and-raw-messages.md)。人工试解析与机器自动处理分别校验执行资格，产品方法、固定版本及设备采用规则继续复用。下文“本期”保留人工解析首期范围；长连接和生产原文现由独立接入模块负责，标准观测正式采用仍未包含在这两轮交付中。
+
 导航：[范围与职责](#scope) · [模型](#model) · [产品与设备](#binding) · [版本发布](#versions) · [服务接口](#contract) · [执行与追溯](#execution) · [DDP 首批能力](#ddp) · [系统接口与页面](#system) · [权限](#permissions) · [工程与运维](#engineering) · [开发顺序](#delivery) · [验收](#acceptance)
 
 <a id="scope"></a>
@@ -355,7 +357,7 @@ HEX 输入先在 InfraPro 按明确语法转换为字节：允许 ASCII 空白�
 
 示例方法对相同控制包返回控制结果；仅对 `0x09` 的载荷读取监测字段。内外层实现依赖固定进产物，升级 DDP 解包库也不能暗中改变旧示例方法。两层组合写在代码内，InfraPro 没有让用户编排解析步骤的功能。
 
-服务不接受随意 TCP 分片，也不维护连接状态。截断、连续两帧、尾随字节、错误首尾标志、声明长度不符均拒绝；不能扫描下一个 `0x7B` 后丢掉前面的异常数据。载荷中的 `0x7B` 是合法数据时，必须按声明长度定位帧尾。未来接入程序负责连接和完整帧组装，不能把一次 socket read 当成完整报文。
+服务不接受随意 TCP 分片，也不维护连接状态。截断、连续两帧、尾随字节、错误首尾标志、声明长度不符均拒绝；不能扫描下一个 `0x7B` 后丢掉前面的异常数据。载荷中的 `0x7B` 是合法数据时，必须按声明长度定位帧尾。独立 ingest-relay 负责连接和完整帧组装，不能把一次 socket read 当成完整报文。
 
 ### 7.3 模拟监测载荷与固定样本
 

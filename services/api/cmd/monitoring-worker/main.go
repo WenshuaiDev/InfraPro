@@ -55,6 +55,8 @@ func run() (resultErr error) {
 	defer cancel()
 	done := make(chan struct{})
 	go func() { defer close(done); _ = business.Parsing.RunWorker(work, reporter) }()
+	readDone := make(chan struct{})
+	go func() { defer close(readDone); _ = business.DisplayReads.RunWorker(work, "monitoring-display-reads") }()
 	var err error
 	if len(cfg.Monitoring.Replicas) > 0 {
 		err = business.Monitoring.RunWorker(work, logger, reporter)
@@ -63,5 +65,6 @@ func run() (resultErr error) {
 	}
 	cancel()
 	<-done
+	<-readDone
 	return err
 }

@@ -64,6 +64,15 @@ func parsingPolicies() []Policy {
 			method, execute, run, sample, product, manage, edit = TenantParsingMethodRead, TenantParsingTestExecute, TenantParsingRunRead, TenantParsingSampleRead, TenantDeviceDefinitionRead, TenantDeviceProductParsingManage, TenantDeviceProductEdit
 		}
 		add(entry, "methods", "list", "GET", base+"/parsing/methods", method)
+		for _, kind := range []string{"ingress-protocols", "identification-methods", "ingress-compatibilities"} {
+			add(entry, kind, "list", "GET", base+"/parsing/"+kind, method)
+			if entry == "platform" {
+				add(entry, kind, "state", "POST", base+"/parsing/"+kind+"/:capability_id/state", method, ParsingMethodManage)
+			}
+		}
+		if entry == "platform" {
+			add(entry, "ingestion-catalog", "sync", "POST", base+"/parsing/ingestion-catalog-syncs", method, ParsingMethodManage)
+		}
 		if entry == "platform" {
 			add(entry, "catalog", "status", "GET", base+"/parsing/catalog-status", method)
 			add(entry, "catalog", "sync", "POST", base+"/parsing/catalog-syncs", method, ParsingMethodManage)

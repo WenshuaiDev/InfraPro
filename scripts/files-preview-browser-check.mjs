@@ -38,6 +38,7 @@ try {
   mark('All five formats plus encoding and invalid-PDF fixtures pass the real upload/check/bind path');
   browser = await chromium.launch();
   const context = await browser.newContext({ storageState: await api.client.storageState(), viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+  await context.tracing.start({screenshots:true,snapshots:true,sources:true});
   page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
   page.on('request', request => { if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== lab.origin) external.push(request.url().split('?')[0]); });
   const open = async (name, revision) => { await page.goto(lab.origin + path + '?attachment=' + files[name].id + (revision ? '&revision=' + revision : '')); await expect(page.locator('[data-document-preview]')).toBeVisible(); };
@@ -134,5 +135,6 @@ try {
   mark('Real role revocation clears an open preview and denies subsequent content reads');
   if (errors.length || external.length) throw Error(JSON.stringify({ errors, external }));
   writeFileSync(join(out, 'result.json'), JSON.stringify({ passed: true, checks, errors, external, synthetic: true }, null, 2));
-} catch (error) { await page?.screenshot({ path: join(out, 'failure.png'), fullPage: true }).catch(() => {}); writeFileSync(join(out, 'result.json'), JSON.stringify({ passed: false, checks, errors, external, error: String(error) }, null, 2)); throw error; }
+} catch (error) { if(page){await page.context().tracing.stop({path:join(out,'failure-trace.zip')}).catch(()=>{});writeFileSync(join(out,'failure.html'),await page.content().catch(()=>''));}
+  await page?.screenshot({ path: join(out, 'failure.png'), fullPage: true }).catch(() => {}); writeFileSync(join(out, 'result.json'), JSON.stringify({ passed: false, checks, errors, external, error: String(error) }, null, 2)); throw error; }
 finally { await browser?.close(); await api?.client.dispose(); await lab?.close(); }

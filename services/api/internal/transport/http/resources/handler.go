@@ -6,8 +6,10 @@ import (
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+	fileshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/files"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -19,6 +21,11 @@ import (
 
 func reply(c *gin.Context, status int, v any, e error) {
 	if e != nil {
+		var fileError *files.Error
+		if errors.As(e, &fileError) {
+			c.AbortWithStatusJSON(fileError.Status, &resources.Error{Code: fileError.Code, Message: fileError.Message, Status: fileError.Status, Issues: []engineering.Issue{}})
+			return
+		}
 		var domain *resources.Error
 		if errors.As(e, &domain) {
 			if domain.Issues == nil {
@@ -99,8 +106,8 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 			if namespace == "ProjectResource" {
 				scope = resources.ProjectScope(c.Param("tenant_id"), c.Param("project_id"))
 			}
-			if namespace == "Resource" && kind == "tree" {
-				if e := query(c, []string{"q", "status", "type_definition_id", "deleted", "facility_id", "parent_kind", "parent_id", "cursor", "limit"}); e != nil {
+			if kind == "tree" {
+				if e := query(c, []string{"q", "status", "type_definition_id", "deleted", "facility_id", "parent_kind", "parent_id", "node_id", "cursor", "limit"}); e != nil {
 					reply(c, 0, nil, e)
 					return
 				}
@@ -109,7 +116,7 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 					reply(c, 0, nil, e)
 					return
 				}
-				v, e := s.Tree(ctx, a, scope.Tenant, resources.TreeFilter{Filter: resources.Filter{Query: c.Query("q"), Status: c.Query("status"), TypeDefinition: c.Query("type_definition_id"), Deleted: c.Query("deleted"), Cursor: c.Query("cursor"), Limit: limit}, FacilityID: c.Query("facility_id"), ParentKind: resources.Kind(c.Query("parent_kind")), ParentID: c.Query("parent_id")})
+				v, e := s.ScopedTree(ctx, a, scope, resources.TreeFilter{Filter: resources.Filter{Query: c.Query("q"), Status: c.Query("status"), TypeDefinition: c.Query("type_definition_id"), Deleted: c.Query("deleted"), Cursor: c.Query("cursor"), Limit: limit}, FacilityID: c.Query("facility_id"), ParentKind: resources.Kind(c.Query("parent_kind")), ParentID: c.Query("parent_id"), NodeID: c.Query("node_id")})
 				reply(c, 200, v, e)
 				return
 			}
@@ -158,6 +165,9 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 					allowed = append(allowed, "owner")
 				}
 			}
+			if action == "structure-details" {
+				allowed = []string{"kind", "cursor", "limit"}
+			}
 			if action == "changes" {
 				allowed = []string{"cursor", "limit", "kind", "id"}
 			}
@@ -171,6 +181,91 @@ func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
 				reply(c, 200, v, e)
 				return
 			}
+
+			if action == "structure-details" {
+				limit, e := number(c, "limit")
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				v, e := s.StructureRecords(ctx, a, scope, t, c.Query("kind"), c.Query("cursor"), limit)
+				reply(c, 200, v, e)
+				return
+			}
+			if action == "attachment-content" || action == "attachment-preview" {
+				variant := "source"
+				if action == "attachment-preview" {
+					variant = "preview"
+				}
+				v, e := s.OpenAttachment(ctx, a, scope, t, c.Param("attachment_ref_id"), variant)
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				defer v.Close()
+				fileshttp.ServeRead(c, v)
+				return
+			}
+			if action == "structure-records" || action == "structure-records-preview" {
+				raw, e := body(c)
+				var in resources.StructureRecordInput
+				if e == nil {
+					e = decode(raw, &in)
+				}
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				if action == "structure-records-preview" {
+					v, e := s.PreviewStructureRecord(ctx, a, scope, t, in)
+					reply(c, 200, v, e)
+				} else {
+					v, e := s.WriteStructureRecord(ctx, a, scope, t, in, requestMeta(c))
+					reply(c, 200, v, e)
+				}
+				return
+			}
+			if action == "move" || action == "move-preview" {
+				raw, e := body(c)
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				var in resources.MoveInput
+				if e = decode(raw, &in); e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				if action == "move-preview" {
+					v, e := s.PreviewMove(ctx, a, scope, t, in)
+					reply(c, 200, v, e)
+				} else {
+					v, e := s.Move(ctx, a, scope, t, in, requestMeta(c))
+					reply(c, 200, v, e)
+				}
+				return
+			}
+			if action == "adopt-type" || action == "adopt-type-preview" {
+				raw, e := body(c)
+				if e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				var in resources.TypeAdoptionInput
+				if e = decode(raw, &in); e != nil {
+					reply(c, 0, nil, e)
+					return
+				}
+				if action == "adopt-type-preview" {
+					v, e := s.PreviewTypeAdoption(ctx, a, scope.Tenant, t.Facility, in)
+					reply(c, 200, v, e)
+				} else {
+					v, e := s.AdoptType(ctx, a, scope.Tenant, t.Facility, in, requestMeta(c))
+					reply(c, 200, v, e)
+				}
+				return
+			}
+
 			limit, e := number(c, "limit")
 			if e != nil {
 				reply(c, 0, nil, e)
@@ -233,7 +328,7 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 		allowed = []string{"cursor", "limit"}
 	}
 	if action == "detail" && kind == "facility" {
-		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner", "candidate_point_id", "candidate_owner_kind", "candidate_owner_id")
+		allowed = append(allowed, "grant_cursor", "candidate_kind", "candidate_cursor", "candidate_limit", "candidate_q", "candidate_status", "candidate_parent_id", "candidate_owner", "candidate_point_id", "candidate_owner_kind", "candidate_owner_id", "candidate_structure_parent_kind", "candidate_structure_parent_id")
 	}
 	if action == "detail" && (kind == "access" || kind == "facility") {
 		allowed = append(allowed, "q")
@@ -265,6 +360,12 @@ func accessHandler(c *gin.Context, i *identity.Service, s *resources.Service, ki
 			return
 		}
 		f := resources.AccessFilter{Limit: limit, Cursor: c.Query("cursor"), Query: c.Query("q"), GrantCursor: c.Query("grant_cursor"), CandidatePoint: c.Query("candidate_point_id"), CandidateKind: resources.Kind(c.Query("candidate_kind")), Candidate: resources.Filter{Limit: candidateLimit, Cursor: c.Query("candidate_cursor"), Query: c.Query("candidate_q"), Status: c.Query("candidate_status"), Parent: c.Query("candidate_parent_id"), Owner: c.Query("candidate_owner"), OwnerKind: c.Query("candidate_owner_kind"), OwnerID: c.Query("candidate_owner_id")}}
+		if c.Query("candidate_structure_parent_kind") != "" || c.Query("candidate_structure_parent_id") != "" {
+			f.Candidate.StructureParent = &resources.StructureRef{Kind: resources.Kind(c.Query("candidate_structure_parent_kind")), ID: c.Query("candidate_structure_parent_id")}
+		}
+		if action == "structure-details" {
+			allowed = []string{"kind", "cursor", "limit"}
+		}
 		if action == "changes" {
 			v, e := s.AccessChanges(ctx, a, tenant, project, f)
 			reply(c, 200, v, e)

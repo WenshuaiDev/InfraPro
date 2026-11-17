@@ -1,6 +1,6 @@
 # 任务来源接入指南
 
-本指南对应[已确认方案](../requirements/task-center-development-plan.md)和当前 v44 数据库。运行、迁移与恢复见[任务运维](../operations/task-center.md)，功能证据见[自验记录](../verification/task-center.md)。
+本指南对应[正式需求规格](../requirements.md)和当前 v44 数据库。运行、迁移与恢复见[任务运维](../operations/task-center.md)，功能证据见[本机工程环境与人工验收](../operations/local-environment.md)。
 
 ## 职责与登记
 

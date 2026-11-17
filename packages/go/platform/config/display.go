@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"net"
-	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -49,15 +48,15 @@ func displayEnvironment(raw *displayInput) {
 }
 func resolveDisplay(raw displayInput, console string, secure bool) (Display, error) {
 	out := Display{RuntimeOrigin: raw.RuntimeOrigin, AssetOrigin: raw.AssetOrigin, RuntimeAddr: raw.RuntimeAddr, AssetAddr: raw.AssetAddr, ShellDirectory: raw.ShellDirectory}
-	c, e := url.Parse(console)
-	if e != nil {
-		return out, e
+	c, e := applicationURL(console, false)
+	if e != nil || secure != (c.Scheme == "https") {
+		return out, fmt.Errorf("display console URL and cookie_secure must agree on HTTP/HTTPS")
 	}
 	seen := map[string]bool{c.Scheme + "://" + c.Host: true}
 	for _, origin := range []string{raw.RuntimeOrigin, raw.AssetOrigin} {
-		u, e := url.Parse(origin)
-		if e != nil || u.Host == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" || u.Scheme != "http" || seen[origin] || secure {
-			return out, fmt.Errorf("display origins must be distinct exact HTTP origins; cookie_secure must be false")
+		u, e := applicationURL(origin, true)
+		if e != nil || u.Scheme != c.Scheme || seen[origin] {
+			return out, fmt.Errorf("display origins must be distinct exact HTTP/HTTPS origins with the console scheme")
 		}
 		seen[origin] = true
 	}

@@ -4,7 +4,7 @@ export type UploadProgress = { phase:UploadPhase; bytes:number; total:number };
 export type UploadSession = { id:string; revision:string; state:string; parts:{part:number;sha256:string;size:number}[] };
 export interface UploadAdapter<S extends UploadSession,R> {
  partBytes:number;
- validate(file:File):void;
+ validate(file:File,signal?:AbortSignal):void|Promise<void>;
  open(file:File,hashes:FileHashes,signal:AbortSignal):Promise<S>;
  put(session:S,part:FileHashes['parts'][number],body:Blob,signal:AbortSignal):Promise<unknown>;
  complete(session:S,hashes:FileHashes,signal:AbortSignal):Promise<R>;
@@ -23,7 +23,7 @@ export function hashFile(file:Blob,partBytes:number,signal:AbortSignal,progress:
 }
 /** Bounded sequential transfer, matching receipts before sending missing parts. */
 export async function transferFile<S extends UploadSession,R>(adapter:UploadAdapter<S,R>,file:File,signal:AbortSignal,progress:(v:UploadProgress)=>void):Promise<R> {
- adapter.validate(file);signal.throwIfAborted();
+ await adapter.validate(file,signal);signal.throwIfAborted();
  const report=(phase:UploadPhase,bytes:number)=>{signal.throwIfAborted();progress({phase,bytes,total:file.size});};
  report('hash',0);const hashes=await hashFile(file,adapter.partBytes,signal,n=>report('hash',n));
  const session=await adapter.open(file,hashes,signal);signal.throwIfAborted();

@@ -100,6 +100,17 @@ func (s *Service) Device(ctx context.Context, a access.Actor, scope Scope, id st
 	e := s.transact(ctx, a, scope, "device", "detail", false, func(tx pgx.Tx, auth k.Authorization) error {
 		var e error
 		out, e = deviceStateTx(ctx, tx, auth, id)
+		if e == nil && s.ingress != nil && scope.Entry == "tenant" {
+			var target *Snapshot
+			if out.Current != nil {
+				target = out.Current.Snapshot
+			}
+			impact, err := s.ingress.CheckAdoptionTx(ctx, tx, scope.Tenant, id, target)
+			if err != nil {
+				return err
+			}
+			out.Ingress = &impact
+		}
 		return e
 	})
 	return out, e
@@ -138,7 +149,7 @@ func (s *Service) History(ctx context.Context, a access.Actor, scope Scope, id s
 	})
 	return out, e
 }
-func previewTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id string, in Command) (Preview, string, error) {
+func (s *Service) previewTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id string, in Command) (Preview, string, error) {
 	out := Preview{Mapping: []Mapping{}, Issues: []k.Issue{}}
 	if e := auth.Require(access.TenantDeviceParsingManage, access.TenantParsingMethodRead); e != nil {
 		return out, "", e
@@ -186,6 +197,18 @@ func previewTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id string, 
 		mode = old.Mode
 	case "clear":
 		out.CanSubmit = true
+		if s.ingress != nil {
+			impact, err := s.ingress.CheckAdoptionTx(ctx, tx, auth.Tenant, id, nil)
+			if err != nil {
+				return out, "", err
+			}
+			out.Current.Ingress = &impact
+			for _, link := range impact.Entries {
+				if !link.Compatible {
+					out.CanSubmit = false
+				}
+			}
+		}
 		return out, "unconfigured", nil
 	default:
 		return out, "", k.Invalid("/action", "enum", "请选择明确的采用动作。")
@@ -214,6 +237,19 @@ func previewTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id string, 
 	out.Target = &cfg
 	out.Mapping = mapping
 	out.CanSubmit = true
+	if s.ingress != nil {
+		impact, err := s.ingress.CheckAdoptionTx(ctx, tx, auth.Tenant, id, &cfg.Snapshot)
+		if err != nil {
+			return out, "", err
+		}
+		out.Current.Ingress = &impact
+		for _, link := range impact.Entries {
+			if !link.Compatible {
+				out.CanSubmit = false
+				out.Issues = append(out.Issues, k.Issue{Path: "/config_revision_id", Code: "ingress_method_incompatible", Message: "有效入口关联与目标方法不相容：" + link.SourceID})
+			}
+		}
+	}
 	return out, mode, nil
 }
 func (s *Service) Preview(ctx context.Context, a access.Actor, scope Scope, id string, in Command) (Preview, error) {
@@ -223,13 +259,16 @@ func (s *Service) Preview(ctx context.Context, a access.Actor, scope Scope, id s
 	}
 	e := s.transact(ctx, a, scope, "device", "preview", false, func(tx pgx.Tx, auth k.Authorization) error {
 		var e error
-		out, _, e = previewTx(ctx, tx, auth, id, in)
+		out, _, e = s.previewTx(ctx, tx, auth, id, in)
 		return e
 	})
 	return out, e
 }
 func adoptTx(ctx context.Context, tx pgx.Tx, auth k.Authorization, id string, in Command, p Preview, mode string) (Result, error) {
 	out := Result{ID: id}
+	if !p.CanSubmit {
+		return out, k.Problem("ingress_method_incompatible", "请先停用冲突入口关联，或选择已验证的相容方法。", 409)
+	}
 	d, e := deviceTx(ctx, tx, auth, id)
 	if e != nil {
 		return out, e
@@ -291,7 +330,7 @@ func (s *Service) Command(ctx context.Context, a access.Actor, scope Scope, id s
 			out = v
 			return nil
 		}
-		p, mode, e := previewTx(ctx, tx, auth, id, in)
+		p, mode, e := s.previewTx(ctx, tx, auth, id, in)
 		if e != nil {
 			return e
 		}
@@ -356,7 +395,7 @@ func (s *Service) Batch(ctx context.Context, a access.Actor, scope Scope, in Bat
 		for _, item := range in.Devices {
 			command := in.Command
 			command.Revision = item.Revision
-			p, mode, e := previewTx(ctx, tx, auth, item.DeviceID, command)
+			p, mode, e := s.previewTx(ctx, tx, auth, item.DeviceID, command)
 			if e != nil {
 				return e
 			}
@@ -409,7 +448,7 @@ func (s *Service) AdoptOnCreateTx(ctx context.Context, tx pgx.Tx, a access.Actor
 		reason = "新建设备明确继承已确认的产品默认"
 	}
 	in := Command{Meta: Meta{Reason: reason}, Action: "inherit_default", Revision: "0", DefaultRevision: expected}
-	p, adoptMode, e := previewTx(ctx, tx, auth, id, in)
+	p, adoptMode, e := s.previewTx(ctx, tx, auth, id, in)
 	if e != nil {
 		return e
 	}

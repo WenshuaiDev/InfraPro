@@ -17,6 +17,7 @@ export type SpatialSection = (typeof spatialSections)[number];
 export const sectionForKind = (kind: string): SpatialSection =>
   kind === "layout" ? "layouts" : kind === "model" ? "models" : "gis";
 export type SpatialSearch = {
+  variant?: "A" | "B" | "C";
   asset?: string;
   version?: string;
   owner?: string;
@@ -24,6 +25,7 @@ export type SpatialSearch = {
   facility?: string;
   page?: string;
   view?: string;
+  map?: "resources";
   mode?: string;
   section?: SpatialSection;
   q?: string;
@@ -34,10 +36,13 @@ export function spatialSearch(s: Record<string, unknown>): SpatialSearch {
   const id = (k: string) =>
     typeof s[k] === "string" && uuid.test(s[k]) ? s[k] : undefined;
   return {
+    variant: ["A", "B", "C"].includes(String(s.variant))
+      ? (s.variant as "A" | "B" | "C")
+      : undefined,
     asset: id("asset"),
     version: id("version"),
     owner: id("owner"),
-    owner_kind: ["facility", "component", "point"].includes(
+    owner_kind: ["facility", "component", "monitoring_section", "borehole", "point"].includes(
       String(s.owner_kind),
     )
       ? String(s.owner_kind)
@@ -46,6 +51,7 @@ export function spatialSearch(s: Record<string, unknown>): SpatialSearch {
     page:
       typeof s.page === "string" && s.page.length < 160 ? s.page : undefined,
     view: id("view"),
+    map: s.map === "resources" ? "resources" : undefined,
     mode: ["manage", "edit"].includes(String(s.mode))
       ? String(s.mode)
       : undefined,
@@ -77,7 +83,7 @@ export type SceneProps = {
   onPick: (p: Pick) => void;
   onHover: (p?: SpatialObjectRef) => void;
   editing?: boolean;
-  placing?: "point" | "component";
+  placing?: PlacementKind | "component";
   onMove?: (id: string, anchor: number[], label: number[]) => void;
   onHiddenElements?: (elements: string[]) => void;
   onCamera?: (camera: NonNullable<SpatialSettings["camera"]>) => void;
@@ -88,6 +94,8 @@ export const objectKey = (o: SpatialObjectRef) => `${o.kind}:${o.id}`;
 export const kinds: Record<string, string> = {
   facility: "设施",
   component: "构件",
+  monitoring_section: "断面",
+  borehole: "孔位",
   point: "测点",
   channel: "通道",
 };
@@ -98,3 +106,7 @@ export const assetKinds: Record<string, string> = {
 };
 export const inputClass =
   "min-h-11 w-full rounded-md border bg-background px-3 py-2 text-sm disabled:opacity-50";
+
+export type PlacementKind = "point" | "monitoring_section" | "borehole";
+export const placementRef = (p: SpatialPlacement): SpatialObjectRef => p.target_ref ?? { kind: "point", id: p.point_id };
+export const canPlace = (kind?: string): kind is PlacementKind => !!kind && ["point", "monitoring_section", "borehole"].includes(kind);

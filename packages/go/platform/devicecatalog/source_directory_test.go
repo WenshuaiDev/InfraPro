@@ -8,6 +8,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	d "github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
+	r "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	src "github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
 )
@@ -110,5 +111,49 @@ func TestSourceDirectoryPagingFilteringAndVisibility(t *testing.T) {
 	must(t, e)
 	if page.Counts["all"] != 1 {
 		t.Fatal("deleted channel remained visible", page)
+	}
+}
+
+func TestSourceDirectoryCompleteComponentPathAndAncestorSearch(t *testing.T) {
+	f := setup(t)
+	b := runtime.Compose(f.env.Service.Access())
+	scope := d.TenantScope(f.tenant)
+	targets := f.sourceTargets(t, b)
+	create := func(kind r.Kind, fields map[string]any) r.Result {
+		fields["request_id"] = f.meta(t).RequestID
+		raw, err := json.Marshal(fields)
+		must(t, err)
+		result, err := b.Resources.Mutate(ctx, f.owner, r.TenantScope(f.tenant), r.Target{Kind: kind, Facility: targets[0].FacilityID}, "create", raw, access.Meta{})
+		must(t, err)
+		return result
+	}
+	facility, err := b.Resources.Detail(ctx, f.owner, r.TenantScope(f.tenant), r.Target{Kind: r.Facility, Facility: targets[0].FacilityID, ID: targets[0].FacilityID})
+	must(t, err)
+	span := create(r.Component, map[string]any{"code": "SPAN-ANCESTOR", "name": "第一主跨", "category_key": "span", "expected_structure_revision": facility.StructureRevision})
+	beam := create(r.Component, map[string]any{"code": "BEAM-CHILD", "name": "跨中主梁", "category_key": "beam", "parent_component_id": span.ID, "expected_structure_revision": span.StructureRevision})
+	_, e := f.env.Pool.Exec(ctx, `UPDATE engineering_points SET component_id=$1 WHERE id=$2`, beam.ID, targets[0].PointID)
+	must(t, e)
+	for _, query := range []string{"第一主跨", "SPAN-ANCESTOR", "跨中主梁", "BEAM-CHILD"} {
+		page, err := b.Sources.Directory(ctx, f.owner, scope, src.Filter{Query: query, Limit: 1})
+		must(t, err)
+		if page.Counts["all"] != 1 || len(page.Items) != 1 || page.Items[0].ChannelID != targets[0].ChannelID {
+			t.Fatalf("ancestor query %q: %+v", query, page)
+		}
+		path := page.Items[0].ComponentPath
+		if len(path) != 2 || path[0].ID != span.ID || path[1].ID != beam.ID || path[0].Name != "第一主跨" || path[1].Code != "BEAM-CHILD" {
+			t.Fatalf("incomplete or reversed path: %+v", path)
+		}
+	}
+	direct, e := b.Sources.Directory(ctx, f.owner, scope, src.Filter{ChannelID: targets[1].ChannelID})
+	must(t, e)
+	if len(direct.Items) != 1 || direct.Items[0].ComponentPath == nil || len(direct.Items[0].ComponentPath) != 0 {
+		t.Fatal("facility-owned point must have an empty array", direct)
+	}
+	_, e = f.env.Pool.Exec(ctx, `UPDATE engineering_components SET status='retired' WHERE id=$1`, span.ID)
+	must(t, e)
+	retired, e := b.Sources.Directory(ctx, f.owner, scope, src.Filter{State: "retired", Query: "SPAN-ANCESTOR"})
+	must(t, e)
+	if len(retired.Items) != 1 || len(retired.Items[0].ComponentPath) != 2 {
+		t.Fatal("retired ancestors must remain in the path", retired)
 	}
 }

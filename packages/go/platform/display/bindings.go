@@ -3,6 +3,7 @@ package display
 import (
 	"context"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/jackc/pgx/v5"
 	"slices"
@@ -292,7 +293,7 @@ func (s *Service) saveGrantTx(ctx context.Context, tx pgx.Tx, a access.Actor, sc
 			return invalid("/capabilities", "能力未注册。")
 		}
 	}
-	for _, p := range s.permissionsFor(g.Capabilities) {
+	for _, p := range s.grantPermissions(g) {
 		if !slices.Contains(auth.Permissions, p) {
 			return access.ErrDenied
 		}
@@ -321,7 +322,13 @@ func (s *Service) saveGrantTx(ctx context.Context, tx pgx.Tx, a access.Actor, sc
 			return e
 		}
 	}
-	_, e = tx.Exec(ctx, `INSERT INTO display_grants(tenant_id,project_id,instance_id,capabilities,scope,fields,valid_until,issued_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT(instance_id) DO UPDATE SET capabilities=EXCLUDED.capabilities,scope=EXCLUDED.scope,fields=EXCLUDED.fields,valid_until=EXCLUDED.valid_until,issued_by=EXCLUDED.issued_by,revoked=false,revision=display_grants.revision+1`, scope.Tenant, scope.Project, v.ID, g.Capabilities, jsonBytes(g.Scope), g.Fields, g.ValidUntil, a.ID)
+	if e = s.freezeReadScopesTx(ctx, tx, a, scope, v, &g, old); e != nil {
+		return e
+	}
+	if g.ReadScopes == nil {
+		g.ReadScopes = []displayread.Definition{}
+	}
+	_, e = tx.Exec(ctx, `INSERT INTO display_grants(tenant_id,project_id,instance_id,capabilities,scope,fields,valid_until,issued_by,scope_format,read_scopes) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT(instance_id) DO UPDATE SET scope_format=EXCLUDED.scope_format,read_scopes=EXCLUDED.read_scopes,capabilities=EXCLUDED.capabilities,scope=EXCLUDED.scope,fields=EXCLUDED.fields,valid_until=EXCLUDED.valid_until,issued_by=EXCLUDED.issued_by,revoked=false,revision=display_grants.revision+1`, scope.Tenant, scope.Project, v.ID, g.Capabilities, jsonBytes(g.Scope), g.Fields, g.ValidUntil, a.ID, g.Format, jsonBytes(g.ReadScopes))
 	if e != nil {
 		return e
 	}
@@ -331,7 +338,7 @@ func (s *Service) saveGrantTx(ctx context.Context, tx pgx.Tx, a access.Actor, sc
 	return nil
 }
 func scopeFingerprint(g Grant) string {
-	return hash([]any{g.Revision, g.Capabilities, g.Scope, g.Fields})
+	return hash([]any{g.Revision, g.Capabilities, g.Scope, g.Fields, g.Format, g.ReadScopes})
 }
 func bindingKind(method string) string {
 	switch strings.Split(method, ".")[0] {
@@ -347,7 +354,7 @@ func bindingKind(method string) string {
 }
 
 func grantNarrows(old, next Grant) bool {
-	if old.Revision == "" || old.Revoked || next.ValidUntil.After(old.ValidUntil) {
+	if old.Revision == "" || old.Revoked || next.ValidUntil.After(old.ValidUntil) || !readScopesNarrow(old, next) {
 		return false
 	}
 	for _, sets := range [][2][]string{{old.Capabilities, next.Capabilities}, {old.Fields, next.Fields}, {old.Scope.Channels, next.Scope.Channels}, {old.Scope.Resources, next.Scope.Resources}, {old.Scope.Spatial, next.Scope.Spatial}, {old.Scope.Artifacts, next.Scope.Artifacts}} {

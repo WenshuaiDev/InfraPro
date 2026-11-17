@@ -1,0 +1,33 @@
+name: infrapro-ingestion-lab
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: relay_test
+      POSTGRES_PASSWORD: relay-test-local-only
+      POSTGRES_DB: relay_test
+    ports: ['127.0.0.1:56532:5432']
+    command: ['postgres', '-c', 'max_connections=100', '-c', 'fsync=on', '-c', 'synchronous_commit=on']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U relay_test -d relay_test']
+      interval: 1s
+      timeout: 5s
+      retries: 30
+    volumes: ['spool:/var/lib/postgresql/data']
+  business:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ingestion_test
+      POSTGRES_PASSWORD: ingestion-business-test-only
+      POSTGRES_DB: ingestion_test
+    ports: ['127.0.0.1:56533:5432']
+    command: ['postgres', '-c', 'max_locks_per_transaction=512', '-c', 'fsync=on', '-c', 'synchronous_commit=on']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ingestion_test -d ingestion_test']
+      interval: 1s
+      timeout: 5s
+      retries: 30
+    volumes: ['business:/var/lib/postgresql/data']
+volumes:
+  business:
+  spool:

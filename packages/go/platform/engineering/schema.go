@@ -139,6 +139,11 @@ func compile(doc map[string]any) (*jsonschema.Schema, error) {
 }
 func Schemas(c Content) map[string]any {
 	out := map[string]any{"root": FieldsSchema(c.Fields)}
+	for _, kind := range []string{"monitoring_section", "borehole"} {
+		if v := StructureCapabilityFor(c, kind); v != nil && v.Supported != nil && *v.Supported {
+			out[kind] = FieldsSchema(v.Fields)
+		}
+	}
 	for _, v := range c.Components {
 		out[v.Key] = FieldsSchema(v.Fields)
 	}
@@ -197,6 +202,9 @@ func ValidateValues(fs []Field, values map[string]any, path string) []Issue {
 	return out
 }
 func ValidateSample(c Content, s Sample) []Issue {
+	if c.MetamodelVersion == "2" {
+		return ValidateStructureSample(c, s)
+	}
 	out := ValidateValues(c.Fields, s.Values, "/sample/values")
 	if len(s.Nodes) > MaxNodes {
 		add(&out, "input_limit", "样例最多 500 个构件。", "/sample/nodes", "")

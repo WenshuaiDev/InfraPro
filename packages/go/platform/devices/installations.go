@@ -62,7 +62,7 @@ func installationInput(in *InstallationCommand) error {
 		return k.Invalid("/installed_at", "required", "纠错须提供完整的实际安装时间。")
 	}
 	if in.Action != "end" {
-		if !slices.Contains([]string{"facility", "component", "point", "location"}, in.Target.Kind) {
+		if !slices.Contains([]string{"facility", "component", "monitoring_section", "borehole", "point", "location"}, in.Target.Kind) {
 			return k.Invalid("/target/kind", "target_kind", "请选择安装目标类型。")
 		}
 		if in.Target.Kind == "location" {
@@ -280,7 +280,7 @@ func (s *Service) PreviewInstallation(ctx context.Context, a access.Actor, scope
 }
 func insertInstallation(ctx context.Context, tx pgx.Tx, auth k.Authorization, i Installation) (Installation, error) {
 	var id string
-	e := tx.QueryRow(ctx, `INSERT INTO device_installations(tenant_id,device_id,target_kind,facility_id,component_id,point_id,location_description,position,installed_at,uninstalled_at,recorded_by,updated_by) VALUES($1,$2,$3,$4,$5,$6,$7,NULLIF($8::jsonb,'null'::jsonb),$9,$10,$11,$11) RETURNING id::text`, auth.Tenant, i.DeviceID, i.TargetKind, i.FacilityID, i.ComponentID, i.PointID, i.LocationDescription, k.JSON(i.Position), i.InstalledAt, i.UninstalledAt, auth.Account).Scan(&id)
+	e := tx.QueryRow(ctx, `INSERT INTO device_installations(tenant_id,device_id,target_kind,facility_id,component_id,point_id,location_description,position,installed_at,uninstalled_at,recorded_by,updated_by,monitoring_section_id,borehole_id) VALUES($1,$2,$3,$4,$5,$6,$7,NULLIF($8::jsonb,'null'::jsonb),$9,$10,$11,$11,$12,$13) RETURNING id::text`, auth.Tenant, i.DeviceID, i.TargetKind, i.FacilityID, i.ComponentID, i.PointID, i.LocationDescription, k.JSON(i.Position), i.InstalledAt, i.UninstalledAt, auth.Account, i.MonitoringSectionID, i.BoreholeID).Scan(&id)
 	if e != nil {
 		return i, e
 	}
@@ -322,7 +322,7 @@ func (s *Service) Install(ctx context.Context, a access.Actor, scope Scope, devi
 		if in.Action == "create" || in.Action == "relocate" {
 			proposed, e = insertInstallation(ctx, tx, auth, proposed)
 		} else {
-			_, e = tx.Exec(ctx, `UPDATE device_installations SET target_kind=$2,facility_id=$3,component_id=$4,point_id=$5,location_description=$6,position=NULLIF($7::jsonb,'null'::jsonb),installed_at=$8,uninstalled_at=$9,revision=revision+1,updated_at=clock_timestamp(),updated_by=$10 WHERE id=$1`, old.ID, proposed.TargetKind, proposed.FacilityID, proposed.ComponentID, proposed.PointID, proposed.LocationDescription, k.JSON(proposed.Position), proposed.InstalledAt, proposed.UninstalledAt, a.ID)
+			_, e = tx.Exec(ctx, `UPDATE device_installations SET target_kind=$2,facility_id=$3,component_id=$4,point_id=$5,location_description=$6,position=NULLIF($7::jsonb,'null'::jsonb),installed_at=$8,uninstalled_at=$9,revision=revision+1,updated_at=clock_timestamp(),updated_by=$10,monitoring_section_id=$11,borehole_id=$12 WHERE id=$1`, old.ID, proposed.TargetKind, proposed.FacilityID, proposed.ComponentID, proposed.PointID, proposed.LocationDescription, k.JSON(proposed.Position), proposed.InstalledAt, proposed.UninstalledAt, a.ID, proposed.MonitoringSectionID, proposed.BoreholeID)
 			if e == nil {
 				proposed, e = installationTx(ctx, tx, auth.Tenant, device, old.ID)
 			}

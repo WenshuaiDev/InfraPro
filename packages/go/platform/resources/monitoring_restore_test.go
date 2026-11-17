@@ -78,6 +78,8 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 		_, e = f.service.GrantData(ctx, f.actor, f.tenant, project.id, md.GrantInput{WriteMeta: f.meta(revision), ChannelID: channel, ResourceGrantID: grant, Range: &md.Range{}, Capabilities: []string{"read", "history", "export", "source"}})
 		must(t, e)
 	}
+	prepareStructureRestore(t, f, project)
+	displayProof := prepareDisplayReadRestore(t, f, project)
 	q := f.query(t)
 	q.Limit = 1000
 	before, e := f.service.Details(ctx, f.actor, f.scope, q)
@@ -89,6 +91,8 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 		t.Fatal(len(before.Items), len(history.Items))
 	}
 	proofTables := []string{"monitoring_source_files", "monitoring_import_mappings", "monitoring_batch_resolutions", "monitoring_chunks", "monitoring_write_attempts", "monitoring_publications", "monitoring_publication_chunks", "monitoring_data_grants", "monitoring_routes", "project_resource_grants"}
+	proofTables = append(proofTables, "engineering_versions", "engineering_structure_nodes", "engineering_monitoring_sections", "engineering_boreholes", "point_borehole_positions", "engineering_resource_references", "engineering_structure_record_changes", "device_category_releases", "device_category_release_nodes", "product_classification_records", "device_classification_records", "device_classification_changes", "monitoring_source_bindings")
+	proofTables = append(proofTables, "display_configs", "display_grants", "display_releases", "display_read_scope_sets", "display_read_scope_members", "display_read_config_scopes")
 	derivedProof.freeze(t, f)
 	proofTables = append(proofTables, "derived_metric_versions", "derived_channel_configs", "derived_config_assignments", "derived_execution_mandates", "derived_channel_heads", "derived_generations", "derived_fixed_baselines", "derived_input_sources", "derived_publication_receipts", "monitoring_raw_snapshots", "monitoring_change_consumers")
 	proofTables = append(proofTables, "analysis_configs", "analysis_config_versions", "analysis_artifacts", "analysis_artifact_versions", "analysis_artifact_input_ranges", "analysis_runs")
@@ -225,6 +229,7 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	_, e = service.CreateImport(ctx, tenantActor, f.scope, md.ImportInput{WriteMeta: f.meta("0"), Name: "blocked.csv", Size: "20"})
 	monitoringCode(t, e, "monitoring_restoring")
 	must(t, md.OpenRestoredWrites(ctx, pool, storage, backup.ID, "恢复对账已通过，开放本机写入", dm.NewRecovery(storage)))
+	displayProof.verify(t, pool, storage, projectActor)
 	derivedProof.verify(t, f, pool, storage, tenantActor, projectActor, project.id, service)
 	afterFixture := f
 	afterFixture.service = service
@@ -242,6 +247,8 @@ func TestMonitoringIndependentRestore(t *testing.T) {
 	report := map[string]any{"status": "passed", "backup_id": backup.ID, "backup_files": backup.Files, "backup_bytes": backup.Bytes, "backup_seconds": backup.Completed.Sub(backup.Started).Seconds(), "restore_and_verify_seconds": time.Since(start).Seconds(), "active_before": "22", "history_before": "122", "active_after_new_publication": "23", "project_visible": "10", "source_components_paused": true, "scope": "synthetic P-0, independent PG/CH/Keeper/S3/Redis containers on one local host; no production failure-domain or PITR claim"}
 	report["build"] = backup.Build
 	report["calculations"] = backup.Calculations
+	report["display_named_reads_restored"] = true
+	report["display_authorized_count"] = "10"
 	report["derived_generations_replayed"] = "4"
 	report["analysis_rows_preserved"] = "40"
 	raw, e := json.MarshalIndent(report, "", "  ")

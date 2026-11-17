@@ -162,7 +162,7 @@
         }
       ]
     },
-    "valid": true
+    "valid": false
   },
   {
     "name": "unsafe-number",
@@ -267,6 +267,13 @@
           "route_code": "G109"
         }
       ]
+    },
+    "valid": false
+  },
+  {
+    "name": "legacy-empty-sections",
+    "position": {
+      "sections": []
     },
     "valid": false
   }

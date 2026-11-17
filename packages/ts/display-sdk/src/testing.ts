@@ -1,6 +1,8 @@
+import { readFixture } from "./testing-read.js";
 import { DisplayError } from "./error.js";
 import type {
   DisplayTransport,
+  CallOptions,
   RuntimeEvent,
   SubscriptionEvent,
 } from "./types.js";
@@ -10,7 +12,10 @@ export type FixtureScenario =
   | "pending"
   | "disconnected"
   | "revoked"
-  | "unavailable";
+  | "unavailable"
+  | "partial"
+  | "overlap"
+  | "scope-changed";
 /** Explicitly simulated data; never used automatically when a real request fails. */
 export function createFixtureTransport(
   scenario: FixtureScenario = "normal",
@@ -23,6 +28,7 @@ export function createFixtureTransport(
   const emit = (e: SubscriptionEvent | RuntimeEvent) => {
     for (const f of listeners) f(e);
   };
+  const reads=readFixture(scenario,emit);
   return {
     emit,
     onEvent(f) {
@@ -35,7 +41,7 @@ export function createFixtureTransport(
       closed = true;
       listeners.clear();
     },
-    async request<T>(method: string, params: unknown): Promise<T> {
+    async request<T>(method: string, params: unknown, options?:CallOptions): Promise<T> {
       if (closed) throw new DisplayError("disposed");
       if (scenario === "revoked") {
         queueMicrotask(() => emit({ type: "revoked" }));
@@ -45,8 +51,9 @@ export function createFixtureTransport(
         queueMicrotask(() => emit({ type: "disconnected" }));
         throw new DisplayError("dependency_unavailable");
       }
-      if (method.startsWith("alerts.") || scenario === "unavailable")
+      if (method.startsWith("alerts.") || scenario === "unavailable" && !["context.get","config.get","capabilities.list","runtime.ready"].includes(method) && !method.startsWith("views."))
         throw new DisplayError("capability_unavailable");
+      if(reads.handles(method,params))return reads.request(method,params,options?.generation) as T;
       let value: unknown = {};
       if (method === "context.get")
         value = {
@@ -64,16 +71,7 @@ export function createFixtureTransport(
         };
       else if (method === "config.get") value = { title: "模拟 SDK 接入" };
       else if (method === "capabilities.list")
-        value = [
-          {
-            name: "resources.read",
-            version: 1,
-            availability: "available",
-            required_permissions: [],
-            subscribe: false,
-            max_targets: 500,
-          },
-        ];
+        value = ['resources.read','views.read','queries.read','resources.directory','resources.detail','channels.read','devices.read','devices.history','sources.directory','sources.history','map.read','spatial.catalog','spatial.links','spatial.read','resources.hierarchy','classification.categories','statistics.structure','statistics.deviceCategories','statistics.resources','statistics.devices','statistics.monitoring','monitoring.latest','monitoring.details','monitoring.trends','monitoring.statistics','monitoring.overview'].map(name=>({name,version:1,availability:scenario==='unavailable'&&!['views.read','queries.read'].includes(name)?'unavailable':'available',required_permissions:[],subscribe:name.startsWith('statistics.')||name.startsWith('monitoring.'),max_targets:500,max_view_members:50000,max_page_size:200,async_deadline_seconds:120}));
       else if (method === "bindings.list")
         value = {site: {kind: "resources", ids:["mock-resource"], revision:"1", state:"ready"}};
       else if (method === "bindings.resolve")
@@ -86,6 +84,8 @@ export function createFixtureTransport(
       else if (method === "subscription.create") {
         const id = `mock-sub-${++serial}`;
         value = { id };
+        const input=params as {kind:string;query:unknown};
+        if(reads.handles(input.kind,input.query)){setTimeout(()=>emit({subscription_id:id,generation:"1",sequence:"1",kind:scenario==="pending"?"pending":"snapshot",result:reads.request(input.kind,input.query) as SubscriptionEvent["result"]}),0);return value as T;}
         setTimeout(
           () =>
             emit({

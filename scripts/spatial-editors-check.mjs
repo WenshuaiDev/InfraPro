@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 const expect = baseExpect.configure({ timeout: 20000 }),
-  sessions = ".artifacts/spatial-demo",
+  sessions = ".artifacts/spatial-tests",
   dir =
     process.env.SPATIAL_SESSION ??
     join(sessions, readdirSync(sessions).sort().at(-1)),

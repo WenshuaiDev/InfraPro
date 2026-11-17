@@ -145,7 +145,7 @@ func (s *Service) CreateCalculationChannelTx(ctx context.Context, tx pgx.Tx, a a
 	r.UpdatedBy = a.ID
 	r.Revision = 1
 	r.Status = "normal"
-	columns := `id,tenant_id,code,name,status,revision,created_by,updated_by,facility_id,point_id,component_id,source_kind,owner_kind,derived_metric_version_id,quantity_spec,output_contract_hash,output_semantics,observation_direction,reference_basis,timestamp_meaning,aggregation_description,description,created_project_id`
+	columns := `id,tenant_id,code,name,status,revision,created_by,updated_by,facility_id,point_id,component_id,monitoring_section_id,borehole_id,source_kind,owner_kind,derived_metric_version_id,quantity_spec,output_contract_hash,output_semantics,observation_direction,reference_basis,timestamp_meaning,aggregation_description,description,created_project_id`
 	var raw []byte
 	e = tx.QueryRow(ctx, `INSERT INTO engineering_channels(`+columns+`) SELECT `+columns+` FROM jsonb_populate_record(NULL::engineering_channels,$1::jsonb) RETURNING to_jsonb(engineering_channels)`, jsonBytes(r)).Scan(&raw)
 	if e != nil {

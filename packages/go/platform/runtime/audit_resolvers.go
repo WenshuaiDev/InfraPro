@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/audit"
@@ -64,6 +65,10 @@ func (r auditDisclosure) ResolveTx(ctx context.Context, tx pgx.Tx, a access.Acto
 		case "resources":
 			name, e = r.b.Resources.AuditMetadataTx(ctx, tx, a, resources.Scope{Entry: ref.Scope.Kind, Tenant: ref.Scope.Tenant, Project: ref.Scope.Project}, ref.ObjectType, ref.ObjectID)
 		case "devicecatalog":
+			if strings.HasPrefix(ref.ObjectType, "device_classification_") {
+				name, e = r.b.Classification.AuditMetadataTx(ctx, tx, a, devicecatalog.Scope{Entry: ref.Scope.Kind, Tenant: ref.Scope.Tenant, Project: ref.Scope.Project}, ref.ObjectType, ref.ObjectID)
+				break
+			}
 			name, e = r.b.DeviceCatalog.AuditMetadataTx(ctx, tx, a, devicecatalog.Scope{Entry: ref.Scope.Kind, Tenant: ref.Scope.Tenant, Project: ref.Scope.Project}, ref.ObjectType, ref.ObjectID)
 		case "devices":
 			name, e = r.b.Devices.AuditMetadataTx(ctx, tx, a, devices.Scope{Entry: ref.Scope.Kind, Tenant: ref.Scope.Tenant, Project: ref.Scope.Project}, ref.ObjectType, ref.ObjectID)
@@ -251,7 +256,7 @@ func (r auditTrace) ResolveTx(ctx context.Context, tx pgx.Tx, a access.Actor, li
 					item.State = "available"
 					item.Available = true
 					item.Target = &audit.Target{Available: true, Kind: l.TargetKind, Scope: l.Scope, ID: l.TargetID, Revision: l.Revision}
-					if l.Module == "resources" && (l.TargetKind == "engineering_facility" || l.TargetKind == "engineering_component" || l.TargetKind == "engineering_point" || l.TargetKind == "engineering_channel") {
+					if l.Module == "resources" && (l.TargetKind == "engineering_facility" || l.TargetKind == "engineering_component" || l.TargetKind == "engineering_point" || l.TargetKind == "engineering_channel" || l.TargetKind == "engineering_monitoring_section" || l.TargetKind == "engineering_borehole") {
 						item.Target.Parameters, err = r.b.Resources.AuditLocationTx(ctx, tx, a, resources.Scope{Entry: l.Scope.Kind, Tenant: l.Scope.Tenant, Project: l.Scope.Project}, l.TargetKind, l.TargetID)
 					}
 					if l.Module == "files" {

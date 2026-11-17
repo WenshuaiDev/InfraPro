@@ -80,12 +80,9 @@ func parseXLSX(ctx context.Context, source io.Reader, m Mapping, temp *spool, da
 		return e
 	}
 	defer file.Close()
-	n, e := io.Copy(file, io.LimitReader(source, MaxXLSXBytes+1))
+	n, e := io.Copy(file, source)
 	if e != nil {
 		return e
-	}
-	if n > MaxXLSXBytes {
-		return invalid("file", "XLSX 压缩文件超过 512 MiB。")
 	}
 	archive, e := zip.NewReader(file.File, n)
 	if e != nil {

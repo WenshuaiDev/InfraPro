@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIdentity } from '@infrapro/api-client/react';
 import type { NotificationFilter } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@infrapro/ui/components/base-select';
 import { Popover, PopoverClose, PopoverContent, PopoverDescription, PopoverTitle, PopoverTrigger } from '@infrapro/ui/components/popover';
 import { cn } from '@infrapro/ui/lib/utils';
 import { useNotifications } from './provider';
@@ -35,7 +36,10 @@ function BellContent() {
       <div className="shrink-0 px-5 pt-4 pb-3">
         <div className="flex items-center justify-between gap-2"><PopoverTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold">通知 {count !== undefined && <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{count} 条未读</span>}</PopoverTitle><div className="flex gap-1"><Button asChild variant="ghost" size="icon" className="size-11"><Link to="/notifications/preferences" onClick={() => setOpen(false)} aria-label="通知接收设置"><Settings2 aria-hidden="true" /></Link></Button><PopoverClose render={<Button variant="ghost" size="icon" className="size-11" aria-label="关闭通知" />}><X aria-hidden="true" /></PopoverClose></div></div>
         <PopoverDescription className="sr-only">个人通知箱。仅打开列表不会标记已读。</PopoverDescription>
-        <label className="sr-only" htmlFor="notification-quick-scope">通知来源范围</label><select id="notification-quick-scope" value={currentScope && scope.tenantId ? 'current' : 'all'} onChange={e => { setCurrentScope(e.target.value === 'current'); setSelectedId(undefined); }} className="min-h-11 max-w-full rounded-md bg-background px-1 text-sm text-muted-foreground"><option value="all">全部工作空间</option>{scope.tenantId && <option value="current">当前工作空间</option>}</select>
+        <Select value={currentScope && scope.tenantId ? 'current' : 'all'} onValueChange={value => { setCurrentScope(value === 'current'); setSelectedId(undefined); }}>
+          <SelectTrigger id="notification-quick-scope" aria-label="通知来源范围" className="min-h-11 max-w-full"><SelectValue>{value => value === 'current' ? '当前工作空间' : '全部工作空间'}</SelectValue></SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}><SelectItem value="all">全部工作空间</SelectItem>{scope.tenantId && <SelectItem value="current">当前工作空间</SelectItem>}</SelectContent>
+        </Select>
       </div>
       {selectedId ? <NotificationDetail id={selectedId} compact onNavigate={() => setOpen(false)} back={<Button variant="ghost" className="min-h-11" onClick={() => setSelectedId(undefined)}><ArrowLeft aria-hidden="true" />返回列表</Button>} /> : <>
         <div className="flex shrink-0 flex-wrap items-center gap-4 border-b px-5"><div className="flex gap-4" role="group" aria-label="快捷通知阅读状态">{[['全部', false], ['未读', true]].map(([name, value]) => <button key={String(name)} type="button" aria-pressed={unreadOnly === value} className={cn('min-h-11 border-b-2 border-transparent px-1 text-sm text-muted-foreground', unreadOnly === value && 'border-foreground font-medium text-foreground')} onClick={() => setUnreadOnly(Boolean(value))}>{name}</button>)}</div><Button variant="ghost" size="sm" className="ms-auto min-h-11 px-1 text-xs" aria-label="当前筛选全部已读" disabled={!list.data || list.isFetching || read.isPending || !!list.error} onClick={() => read.mutate()}><CheckCheck aria-hidden="true" />全部已读</Button></div>

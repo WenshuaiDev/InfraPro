@@ -73,6 +73,7 @@ const (
 	OpInspectReset          Operation = "InspectReset"
 	OpCompleteReset         Operation = "CompleteReset"
 	OpMe                    Operation = "Me"
+	OpUploadLimits          Operation = "UploadLimits"
 	OpReauthenticate        Operation = "Reauthenticate"
 	OpActivity              Operation = "Activity"
 	OpProfileRead           Operation = "ProfileRead"
@@ -170,6 +171,7 @@ func basePolicies() []Policy {
 		{OpInspectReset, "POST", "/api/v1/public/password-resets/inspect", "credential", nil, false, false},
 		{OpCompleteReset, "POST", "/api/v1/public/password-resets/complete", "credential", nil, false, false},
 		{OpMe, "GET", "/api/v1/auth/me", "authenticated", nil, false, false},
+		{OpUploadLimits, "GET", "/api/v1/auth/upload-limits", "authenticated", nil, false, false},
 		{OpReauthenticate, "POST", "/api/v1/auth/reauthenticate", "authenticated", nil, false, false},
 		{OpActivity, "POST", "/api/v1/auth/activity", "authenticated", nil, false, false},
 		{OpProfileRead, "GET", "/api/v1/account/profile", "permission", []Code{ProfileRead}, false, false},
@@ -202,22 +204,14 @@ func basePolicies() []Policy {
 	}
 }
 func PolicyFor(op Operation) (Policy, bool) {
-	for _, p := range Policies() {
-		if p.Operation == op {
-			return p, true
-		}
-	}
-	return Policy{}, false
+	p, ok := releasePolicyIndexes().operations[op]
+	return copyPolicy(p), ok
 }
 func RoutePolicy(method, path string) (Policy, bool) {
-	for _, p := range Policies() {
-		if p.Method == method && p.Path == path {
-			return p, true
-		}
-	}
-	return Policy{}, false
+	p, ok := releasePolicyIndexes().routes[policyRoute{method, path}]
+	return copyPolicy(p), ok
 }
 
 func Policies() []Policy {
-	return append(parsingPolicies(), append(append(append(append(append(append(append(append(append(append(basePolicies(), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)...)
+	return append(append(ingestionPolicies(), parsingPolicies()...), append(append(append(append(append(append(append(append(append(append(basePolicies(), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)...)
 }

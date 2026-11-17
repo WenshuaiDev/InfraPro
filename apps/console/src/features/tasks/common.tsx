@@ -33,6 +33,7 @@ export function TaskLink({ source, label = '查看任务' }: { source: TaskSourc
 }
 // eslint-disable-next-line react-refresh/only-export-components
 export function taskDestination(target: TaskTarget): { to: string; search: Record<string, string> } | undefined {
+ if(target.available&&target.kind==='ingestion_recovery'&&target.generation&&/^[1-9][0-9]*$/.test(target.generation)&&target.id&&/^[0-9a-f-]{36}$/i.test(target.id)&&target.scope.kind!=='project'){return {to:target.scope.kind==='platform'?'/platform/ingestion':`/t/${target.scope.tenant_id}/ingestion`,search:{recovery:target.id,generation:target.generation}};}
  if(target.available&&target.kind==='parsing_run'&&target.id&&/^[0-9a-f-]{36}$/i.test(target.id)&&target.generation&&/^[1-9][0-9]*$/.test(target.generation)&&target.scope.kind!=='project'){return {to:target.scope.kind==='platform'?'/platform/parsing':`/t/${target.scope.tenant_id}/parsing`,search:{run:target.id,generation:target.generation}};}
  if(target.available&&target.kind==='audit_export'&&target.id&&/^[0-9a-f-]{36}$/i.test(target.id)&&target.generation&&/^[1-9][0-9]*$/.test(target.generation)){const s=target.scope;const to=s.kind==='platform'?'/access/audit':`/t/${s.tenant_id}${s.project_id?`/p/${s.project_id}`:''}/audit`;return {to,search:{tab:'exports',export_id:target.id,execution:target.generation}};}
  if (!target.available || !target.id || !/^[0-9a-f-]{36}$/i.test(target.id) || !/^[0-9a-f-]{36}$/i.test(target.scope.tenant_id) || target.scope.project_id && !/^[0-9a-f-]{36}$/i.test(target.scope.project_id)) return;

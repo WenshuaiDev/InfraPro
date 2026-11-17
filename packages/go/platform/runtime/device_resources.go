@@ -51,6 +51,12 @@ func (r installationResources) ResolveInstallationTx(ctx context.Context, tx pgx
 	if v.Kind == resources.Component {
 		out.ComponentID = &v.ID
 	}
+	if v.Kind == resources.MonitoringSection {
+		out.MonitoringSectionID = &v.ID
+	}
+	if v.Kind == resources.Borehole {
+		out.BoreholeID = &v.ID
+	}
 	if v.Kind == resources.Point {
 		out.PointID = &v.ID
 	}
@@ -67,7 +73,7 @@ func (r installationResources) ProjectInstallationsTx(ctx context.Context, tx pg
 	}
 	var e error
 	if scope.Entry == "project" {
-		_, e = access.RequireProjectTx(ctx, tx, a.ID, op, scope.Tenant, scope.Project)
+		_, e = access.RequireActorProjectTx(ctx, tx, a, op, scope.Tenant, scope.Project)
 	} else {
 		e = access.RequireScopedTx(ctx, tx, a.ID, op, scope.Tenant)
 	}
@@ -90,6 +96,14 @@ func (r installationResources) ProjectInstallationsTx(ctx context.Context, tx pg
 			if i.ComponentID != nil {
 				return *i.ComponentID
 			}
+		case "monitoring_section":
+			if i.MonitoringSectionID != nil {
+				return *i.MonitoringSectionID
+			}
+		case "borehole":
+			if i.BoreholeID != nil {
+				return *i.BoreholeID
+			}
 		case "point":
 			if i.PointID != nil {
 				return *i.PointID
@@ -104,17 +118,17 @@ func (r installationResources) ProjectInstallationsTx(ctx context.Context, tx pg
 	}
 	targets := map[string]struct{ Name, Status string }{}
 	if allowed && len(ids) > 0 {
-		rows, e := tx.Query(ctx, `SELECT n.id::text,n.name,n.status FROM engineering_resource_nodes n WHERE n.tenant_id=$1 AND n.id=ANY($2::uuid[]) AND n.deleted_at IS NULL AND ($3::uuid IS NULL OR EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=n.tenant_id AND g.project_id=$3 AND g.resource_kind=n.kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)=n.id AND g.ended_at IS NULL))`, scope.Tenant, ids, k.Nullable(scope.Project))
+		rows, e := tx.Query(ctx, `SELECT n.kind,n.id::text,n.name,n.status FROM engineering_resource_nodes n WHERE n.tenant_id=$1 AND n.id=ANY($2::uuid[]) AND n.deleted_at IS NULL AND ($3::uuid IS NULL OR EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=n.tenant_id AND g.project_id=$3 AND g.resource_kind=n.kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.monitoring_section_id,g.borehole_id,g.facility_id)=n.id AND g.ended_at IS NULL))`, scope.Tenant, ids, k.Nullable(scope.Project))
 		if e != nil {
 			return nil, e
 		}
 		for rows.Next() {
-			var id, name, status string
-			if e = rows.Scan(&id, &name, &status); e != nil {
+			var kind, id, name, status string
+			if e = rows.Scan(&kind, &id, &name, &status); e != nil {
 				rows.Close()
 				return nil, e
 			}
-			targets[id] = struct{ Name, Status string }{name, status}
+			targets[kind+":"+id] = struct{ Name, Status string }{name, status}
 		}
 		e = rows.Err()
 		rows.Close()
@@ -126,7 +140,7 @@ func (r installationResources) ProjectInstallationsTx(ctx context.Context, tx pg
 	for _, i := range items {
 		i.Visibility = "full"
 		if i.TargetKind != "location" {
-			if v, ok := targets[targetID(i)]; ok {
+			if v, ok := targets[i.TargetKind+":"+targetID(i)]; ok {
 				i.TargetName = v.Name
 				i.TargetStatus = v.Status
 			} else {
@@ -148,8 +162,8 @@ func (r installationResources) InstallationTargetsTx(ctx context.Context, tx pgx
 	if e := f.Validate(); e != nil {
 		return out, e
 	}
-	if f.Kind != "facility" && f.Kind != "component" && f.Kind != "point" {
-		return out, k.Problem("invalid_request", "请选择设施、构件或测点。", 400)
+	if f.Kind != "facility" && f.Kind != "component" && f.Kind != "point" && f.Kind != "monitoring_section" && f.Kind != "borehole" {
+		return out, k.Problem("invalid_request", "请选择设施、构件、断面、孔位或测点。", 400)
 	}
 	auth, e := k.AuthorizeTx(ctx, tx, a, scope, scope.Operation("installation", "targets"))
 	if e != nil {
@@ -159,7 +173,7 @@ func (r installationResources) InstallationTargetsTx(ctx context.Context, tx pgx
 	if e != nil {
 		return out, e
 	}
-	rows, e := tx.Query(ctx, `SELECT n.kind,n.id::text,n.facility_id::text,n.name,n.code,n.status,n.created_at FROM engineering_resource_nodes n WHERE n.tenant_id=$1 AND n.kind=$2 AND n.deleted_at IS NULL AND ($3 OR NOT EXISTS(WITH RECURSIVE ancestors AS (SELECT * FROM engineering_resource_nodes root WHERE root.tenant_id=n.tenant_id AND root.kind=n.kind AND root.id=n.id UNION ALL SELECT p.* FROM engineering_resource_nodes p JOIN ancestors a ON p.tenant_id=a.tenant_id AND p.kind=a.parent_kind AND p.id=a.parent_id) SELECT 1 FROM ancestors WHERE status<>'normal' OR deleted_at IS NOT NULL)) AND ($4='' OR n.name ILIKE '%'||$4||'%' OR n.code ILIKE '%'||$4||'%') AND ($5::timestamptz IS NULL OR (n.created_at,n.id)>($5,$6::uuid)) ORDER BY n.created_at,n.id LIMIT $7`, scope.Tenant, f.Kind, history, f.Query, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1)
+	rows, e := tx.Query(ctx, `SELECT n.kind,n.id::text,n.facility_id::text,n.name,n.code,n.status,n.created_at FROM engineering_resource_nodes n WHERE n.tenant_id=$1 AND n.kind=$2 AND n.deleted_at IS NULL AND ($3 OR NOT EXISTS(WITH RECURSIVE ancestors AS (SELECT * FROM engineering_resource_nodes root WHERE root.tenant_id=n.tenant_id AND root.kind=n.kind AND root.id=n.id UNION ALL SELECT p.* FROM engineering_resource_nodes p JOIN ancestors a ON p.tenant_id=a.tenant_id AND p.kind=a.parent_kind AND p.id=a.parent_id) SELECT 1 FROM ancestors WHERE status<>'normal' OR deleted_at IS NOT NULL)) AND ($4='' OR n.name ILIKE '%'||$4||'%' OR n.code ILIKE '%'||$4||'%') AND ($5::timestamptz IS NULL OR (n.created_at,n.id)>($5,$6::uuid)) AND ($8::uuid IS NULL OR n.facility_id=$8) ORDER BY n.created_at,n.id LIMIT $7`, scope.Tenant, f.Kind, history, f.Query, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1, k.Nullable(f.FacilityID))
 	if e != nil {
 		return out, e
 	}

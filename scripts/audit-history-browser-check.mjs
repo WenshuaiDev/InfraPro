@@ -1,13 +1,17 @@
 import {chromium,expect as baseExpect} from '@playwright/test';
 import {readFileSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {resolve,join} from 'node:path';
-import {auditClient} from './fixtures/audit-acceptance.mjs';
+import {auditClient,seedAuditAcceptance} from './fixtures/audit-acceptance.mjs';
+import {startAuditLab} from './fixtures/audit-lab.mjs';
+import {seedAuditBusiness} from './fixtures/audit-business.mjs';
 
-// Uses the same public-API business samples kept alive for manual acceptance.
+// Creates an isolated public-API fixture and removes its running services on exit.
 const directory=resolve('.artifacts/audit/lab'),out=resolve('.artifacts/audit/history-browser');
 const read=name=>JSON.parse(readFileSync(join(directory,name+'.json'),'utf8'));
-const state=read('audit-acceptance'),business=read('business-acceptance'),session=read('session');
-if(!business.complete||session.state!=='running'||!session.business)throw Error('Start pnpm audit:demo and wait for the complete business fixture.');
+const lab=await startAuditLab({build:process.env.INFRAPRO_AUDIT_SKIP_BUILD!=='1',business:true});
+let state,business;
+try{state=await seedAuditAcceptance(lab);business=await seedAuditBusiness(lab,state);}catch(error){await lab.close();throw error;}
+const session=read('session');
 const origin=session.origin,expect=baseExpect.configure({timeout:20000}),checks=[],errors=[],focused=new Set(process.argv.slice(2));
 mkdirSync(out,{recursive:true});if(!focused.size)rmSync(join(out,'result.json'),{force:true});
 const source=(kind,path,id,reference=false,label='操作历史',extra={})=>({kind,path,id,reference,label,...extra});
@@ -23,19 +27,19 @@ try{
  const ownerCases=[
   source('account','/access/accounts?account='+state.accounts.tenant.id,state.accounts.tenant.id),
   source('role','/access/roles?role='+state.roles[4].id,state.roles[4].id),
-  source('platform_tenant','/platform/tenants/'+t,t),source('tenant',base+'/profile',t),
+  source('platform_tenant','/platform/tenants/'+t,t),source('tenant',base+'/profile',t,false,'变更记录'),
   source('tenant_member',base+'/members/'+state.members.tenant,state.members.tenant),
   source('tenant_role',base+'/roles/'+role.id,role.id,false,'操作历史',{tab:'操作记录'}),source('tenant_invitation',base+'/invitations/'+invitation.id,invitation.id),
-  source('project',pbase+'/profile',p),source('project_member',pbase+'/members/'+state.projectMember,state.projectMember),
-  source('project_role',pbase+'/roles/'+state.projectRole,state.projectRole),
+  source('project',pbase+'/profile',p,false,'变更记录'),source('project_member',pbase+'/members/'+state.projectMember,state.projectMember),
+  source('project_role',pbase+'/roles/'+state.projectRole,state.projectRole,false,'查看角色操作记录',{tab:'操作记录'}),
   source('engineering_definition','/platform/engineering/units?definition='+definition.id,definition.id),
-  source('monitoring_batch',nt+'/monitoring/imports/'+n.success.batch,n.success.batch),source('monitoring_job',nt+'/monitoring/jobs?job='+n.success.job,n.success.job,true),
+  source('monitoring_batch',nt+'/monitoring/imports/'+n.success.batch,n.success.batch,false,'查看完整审计',{tab:'处理记录'}),source('monitoring_job',nt+'/monitoring/jobs?job='+n.success.job,n.success.job,true),
   source('display_instance',np+'/displays?instance='+n.instance,n.instance),
   source('display_package',np+'/displays?instance='+n.instance+'&package='+display.packages[0].id,n.instance,false,'包管理历史',{ref:display.packages[0].id}),
  ];
  for(const file of business.files){const project=file.base.includes('/projects/'),path=(project?pbase:base)+'/files?attachment='+file.attachment+'&revision='+file.revision;
-  if(!ownerCases.some(c=>c.kind==='file_attachment_'+project))ownerCases.push(source('file_attachment_'+project,path,file.attachment));
-  ownerCases.push(source('file_revision_'+project+'_'+file.generation,path,file.attachment,false,'此修订操作历史',{ref:file.revision}));
+  if(!ownerCases.some(c=>c.kind==='file_attachment_'+project))ownerCases.push(source('file_attachment_'+project,path,file.attachment,false,'操作历史',{fileTechnical:true}));
+  ownerCases.push(source('file_revision_'+project+'_'+file.generation,path,file.attachment,false,'此修订操作历史',{ref:file.revision,fileTechnical:true}));
  }
  const s=business.spatial,d=business.derived,db='/t/'+d.tenant,dp='/tenants/'+d.tenant,facility=db+'/resources/facilities/'+d.facility;
  const products=await derived.call(dp+'/device-definitions/products'),manufacturers=await derived.call(dp+'/device-definitions/manufacturers'),runs=await derived.call(dp+'/monitoring/derived/runs');
@@ -56,7 +60,9 @@ try{
   source('spatial_version',db+'/spatial?mode=manage&asset='+asset.id+'&version='+version.id,version.id,true,'此版本操作历史'),
  ];
  browser=await chromium.launch({headless:true});
+ const revealHistory=async entry=>{if(entry.tab)await page.getByRole('tab',{name:entry.tab,exact:true}).click();if(entry.fileTechnical){await page.getByRole('button',{name:'附件更多操作',exact:true}).click();await page.getByRole('menuitem',{name:'技术信息与处理记录',exact:true}).click();}};
  for(const [login,cases]of [[state.accounts.owner,ownerCases],[business.derivedLogin,derivedCases]]){
+  if(focused.size&&!cases.some(entry=>focused.has(entry.kind)))continue;
   const context=await browser.newContext({viewport:{width:1440,height:1000}});page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   if(focused.size)page.on('framenavigated',frame=>{if(frame===page.mainFrame())console.log('Navigation: '+frame.url());});
   await page.goto(origin+'/login');await page.getByLabel('用户名',{exact:true}).fill(login.username);await page.getByLabel('密码',{exact:true}).fill(login.password);await page.getByRole('button',{name:'登录',exact:true}).click();await page.waitForURL(u=>!u.pathname.includes('/login'));
@@ -64,7 +70,7 @@ try{
    if(focused.size&&!focused.has(entry.kind))continue;
    try{
    console.log('History entry: '+entry.kind);await page.goto(origin+entry.path);
-   if(entry.tab)await page.getByRole('tab',{name:entry.tab,exact:true}).click();
+   await revealHistory(entry);
    const links=page.getByRole('link',{name:entry.label,exact:true});await expect(links.first()).toBeVisible();
    const expectedKey=entry.reference?'reference_id':'object_id',hrefs=await links.evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href'))),index=hrefs.findIndex(href=>param(href,expectedKey)===entry.id&&(!entry.ref||param(href,'reference_id')===entry.ref));
    if(index<0)throw Error(entry.kind+': no history link has its exact immutable object filter');
@@ -82,7 +88,7 @@ try{
    await records.nth(rowIndex).click();await expect(page.getByRole('dialog').getByText('名称来源',{exact:true})).toBeVisible();
    const sourceSection=page.getByRole('dialog').locator('section').filter({has:page.getByRole('heading',{name:'关联来源',exact:true})});
    await sourceSection.getByRole('button',{name:'打开关联来源',exact:true}).nth(targetIndex).click();await page.waitForURL(u=>!u.pathname.endsWith('/audit'));
-   if(entry.tab)await page.getByRole('tab',{name:entry.tab,exact:true}).click();
+   await revealHistory(entry);
    const returned=page.getByRole('link',{name:entry.label,exact:true});await expect(returned.first()).toBeVisible();
    const returnedHrefs=await returned.evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href')));
    const opened=available[targetIndex].target,returnKey=opened.kind==='task'?'task_id':expectedKey;
@@ -98,4 +104,4 @@ try{
  if(errors.length)throw Error(errors.join('\n'));
  writeFileSync(join(out,focused.size?'focused-result.json':'result.json'),JSON.stringify({passed:true,synthetic:true,focused:!!focused.size,checks,completedAt:new Date().toISOString()},null,2));console.log('All selected source-history journeys passed: '+checks.length);
 }catch(e){if(page){await page.screenshot({path:join(out,'failure.png'),fullPage:true}).catch(()=>{});writeFileSync(join(out,'failure.html'),await page.content().catch(()=>''));}writeFileSync(join(out,'failure.txt'),String(e));console.error(e);process.exitCode=1;}
-finally{await owner?.client.dispose();await derived?.client.dispose();await browser?.close();}
+finally{await owner?.client.dispose();await derived?.client.dispose();await browser?.close();await lab.close();}

@@ -103,6 +103,9 @@ func RuntimeHandler(s *display.Service) http.Handler {
 				writeError(w, runtimeError("query_invalid", "分片无效。", 422))
 				return
 			}
+			controller := http.NewResponseController(w)
+			_ = controller.SetReadDeadline(time.Now().Add(2 * time.Minute))
+			_ = controller.SetWriteDeadline(time.Now().Add(3 * time.Minute))
 			data, e := io.ReadAll(http.MaxBytesReader(w, r.Body, display.PartSize))
 			if e == nil {
 				e = s.ToolUploadPart(r.Context(), r.PathValue("session"), token, r.URL.Query().Get("upload"), part, r.Header.Get("X-Content-SHA256"), data)

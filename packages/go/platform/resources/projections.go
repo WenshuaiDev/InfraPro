@@ -7,11 +7,11 @@ import (
 )
 
 func contextResource(r Resource) Resource {
-	return Resource{ID: r.ID, Kind: r.Kind, Code: r.Code, Name: r.Name, CategoryKey: r.CategoryKey, ParentComponentID: r.ParentComponentID, ComponentID: r.ComponentID, PointID: r.PointID, FacilityID: r.FacilityID, Status: r.Status, Visibility: "context"}
+	return Resource{ID: r.ID, Kind: r.Kind, ParentRef: r.ParentRef, Code: r.Code, Name: r.Name, CategoryKey: r.CategoryKey, ParentComponentID: r.ParentComponentID, ComponentID: r.ComponentID, PointID: r.PointID, FacilityID: r.FacilityID, Status: r.Status, Visibility: "context"}
 }
 func (r Resource) MarshalJSON() ([]byte, error) {
 	if r.Visibility == "context" {
-		return json.Marshal(ContextNode{ID: r.ID, Kind: r.Kind, Code: r.Code, Name: r.Name, CategoryKey: r.CategoryKey, ParentComponentID: r.ParentComponentID, ComponentID: r.ComponentID, PointID: r.PointID, FacilityID: r.FacilityID, Status: r.Status, Visibility: "context"})
+		return json.Marshal(ContextNode{ID: r.ID, Kind: r.Kind, ParentRef: r.ParentRef, Code: r.Code, Name: r.Name, CategoryKey: r.CategoryKey, ParentComponentID: r.ParentComponentID, ComponentID: r.ComponentID, PointID: r.PointID, FacilityID: r.FacilityID, Status: r.Status, Visibility: "context"})
 	}
 	type plain Resource
 	if r.Kind == Channel {
@@ -100,7 +100,7 @@ func projectAncestors(ctx context.Context, tx pgx.Tx, auth authorization, facili
 	for _, r := range rs {
 		ids = append(ids, r.ID)
 	}
-	rows, e := tx.Query(ctx, `SELECT id::text,full_access FROM project_resource_visibility($1,$2,$3) WHERE id=ANY($4::uuid[])`, auth.Tenant, auth.Project, facility, ids)
+	rows, e := tx.Query(ctx, `SELECT kind,id::text,full_access FROM project_resource_visibility($1,$2,$3) WHERE id=ANY($4::uuid[])`, auth.Tenant, auth.Project, facility, ids)
 	if e != nil {
 		return nil, e
 	}
@@ -108,11 +108,12 @@ func projectAncestors(ctx context.Context, tx pgx.Tx, auth authorization, facili
 	for rows.Next() {
 		var id string
 		var full bool
-		if e = rows.Scan(&id, &full); e != nil {
+		var kind Kind
+		if e = rows.Scan(&kind, &id, &full); e != nil {
 			rows.Close()
 			return nil, e
 		}
-		visible[id] = full
+		visible[refKey(kind, id)] = full
 	}
 	e = rows.Err()
 	rows.Close()
@@ -121,7 +122,7 @@ func projectAncestors(ctx context.Context, tx pgx.Tx, auth authorization, facili
 	}
 	out := []Resource{}
 	for _, r := range rs {
-		if full, ok := visible[r.ID]; ok {
+		if full, ok := visible[refKey(r.Kind, r.ID)]; ok {
 			if !full {
 				r = contextResource(r)
 			}
@@ -135,6 +136,9 @@ func projectHistory(ctx context.Context, tx pgx.Tx, auth authorization, facility
 	for _, c := range changes {
 		for _, r := range []*Resource{c.Before, &c.After} {
 			if r != nil {
+				if r.ParentRef != nil {
+					ids = append(ids, r.ParentRef.ID)
+				}
 				for _, id := range []string{ptrValue(r.ComponentID), ptrValue(r.ParentComponentID), r.PointID} {
 					if id != "" {
 						ids = append(ids, id)
@@ -143,18 +147,19 @@ func projectHistory(ctx context.Context, tx pgx.Tx, auth authorization, facility
 			}
 		}
 	}
-	rows, e := tx.Query(ctx, `SELECT id::text FROM project_resource_visibility($1,$2,$3) WHERE id=ANY($4::uuid[])`, auth.Tenant, auth.Project, facility, ids)
+	rows, e := tx.Query(ctx, `SELECT kind,id::text FROM project_resource_visibility($1,$2,$3) WHERE id=ANY($4::uuid[])`, auth.Tenant, auth.Project, facility, ids)
 	if e != nil {
 		return e
 	}
 	visible := map[string]bool{}
 	for rows.Next() {
 		var id string
-		if e = rows.Scan(&id); e != nil {
+		var kind Kind
+		if e = rows.Scan(&kind, &id); e != nil {
 			rows.Close()
 			return e
 		}
-		visible[id] = true
+		visible[refKey(kind, id)] = true
 	}
 	e = rows.Err()
 	rows.Close()
@@ -179,15 +184,19 @@ func projectHistory(ctx context.Context, tx pgx.Tx, auth authorization, facility
 				continue
 			}
 			*r = projectResource(*r, auth)
-			if r.ComponentID != nil && !visible[*r.ComponentID] {
+			if r.ParentRef != nil && !visible[refKey(r.ParentRef.Kind, r.ParentRef.ID)] {
+				r.ParentRef = nil
+				r.HistoricalContextHidden = true
+			}
+			if r.ComponentID != nil && !visible[refKey(Component, *r.ComponentID)] {
 				r.ComponentID = nil
 				r.HistoricalContextHidden = true
 			}
-			if r.ParentComponentID != nil && !visible[*r.ParentComponentID] {
+			if r.ParentComponentID != nil && !visible[refKey(Component, *r.ParentComponentID)] {
 				r.ParentComponentID = nil
 				r.HistoricalContextHidden = true
 			}
-			if r.PointID != "" && !visible[r.PointID] {
+			if r.PointID != "" && !visible[refKey(Point, r.PointID)] {
 				r.PointID = ""
 				r.HistoricalContextHidden = true
 			}

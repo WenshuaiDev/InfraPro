@@ -1,5 +1,6 @@
 import type { EngineeringContent, EngineeringVersion } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
+import { StructureEditor } from './structure-editor';
 import { FieldsEditor } from './fields-editor';
 import { NumberControl, Section, SelectControl, TextControl } from './controls';
 export function TypeEditor({
@@ -36,6 +37,7 @@ export function TypeEditor({
       )}
       {section !== 'fields' && (
         <>
+          <StructureEditor value={value} onChange={onChange} known={known} onReferences={onReferences} />
           <Section
             title="构件类别"
             id="/components"

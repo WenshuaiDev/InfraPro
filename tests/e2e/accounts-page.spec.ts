@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import type { APIRequestContext, Page } from '@playwright/test';
 import type { ManagedAccount, PermissionCode, Role } from '../../packages/ts/api-client/src';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
@@ -7,26 +7,26 @@ import { test, expect, login, consoleURL, password, csrf } from './fixtures';
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   return headers;
 }
 async function createManaged(request: APIRequestContext, name = '账号界面验收') {
   const headers = await owner(request);
-  const invitation = await request.post(`${api}/invitations`, { headers, data: { note: '账号界面隔离自验' } });
+  const invitation = await request.post(`${api}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: '账号界面隔离自验' } });
   expect(invitation.status()).toBe(200);
   const token = new URLSearchParams(new URL((await invitation.json()).url).hash.slice(1)).get('token');
-  expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+  expect((await request.post(`${api}/auth/logout`, { headers: { ...headers, 'X-Command-ID': randomUUID() } })).status()).toBe(204);
   const username = `account_${randomBytes(6).toString('hex')}`;
-  expect((await request.post(`${api}/public/invitations/accept`, { headers, data: { token, username, display_name: name, password } })).status()).toBe(204);
+  expect((await request.post(`${api}/public/invitations/accept`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { token, username, display_name: name, password } })).status()).toBe(204);
   await owner(request);
   return (await (await request.get(`${api}/access/accounts?q=${username}`)).json()).items[0] as ManagedAccount;
 }
 async function makeRole(request: APIRequestContext, name: string, permissions: PermissionCode[] = [P.PlatformAuditRead]) {
   const headers = await owner(request);
-  const response = await request.post(`${api}/access/roles`, { headers, data: { name, description: '账号界面自验角色', reason: '账号界面自验' } });
+  const response = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name, description: '账号界面自验角色', reason: '账号界面自验' } });
   expect(response.status()).toBe(200);
   const role = await response.json() as Role;
-  const configured = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: permissions, reason: '账号界面自验' } });
+  const configured = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: permissions, reason: '账号界面自验' } });
   expect(configured.status()).toBe(200);
   return await configured.json() as Role;
 }
@@ -51,7 +51,7 @@ test('accounts paginate real rows, recover reads, filter and preserve drawer foc
   for (let i = 0; i < 12; i++) accounts.push(await createManaged(request, `${prefix} · ${i === 11 ? '一个需要完整查看的长显示名称和多项角色' : '资料维护员'} ${i}`));
   const disabled = accounts[0]!;
   const headers = await owner(request);
-  expect((await request.post(`${api}/access/accounts/${disabled.id}/disable`, { headers, data: { expected_version: disabled.management_version, reason: '状态筛选自验' } })).status()).toBe(200);
+  expect((await request.post(`${api}/access/accounts/${disabled.id}/disable`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: disabled.management_version, reason: '状态筛选自验' } })).status()).toBe(200);
   await login(page, { username: 'e2e_owner', password });
   let unavailable = true, failNext = true;
   await page.route('**/api/v1/access/accounts?*', async (route) => {
@@ -168,7 +168,7 @@ test('account editing rejects stale versions and reloads the real binding', asyn
   const panel = page.getByRole('dialog'); await panel.getByRole('button', { name: '配置角色', exact: true }).click();
   await panel.getByRole('checkbox', { name: new RegExp(role.name) }).check();
   const headers = await owner(request);
-  expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [], reason: '模拟另一位管理员修改' } })).status()).toBe(200);
+  expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], reason: '模拟另一位管理员修改' } })).status()).toBe(200);
   await panel.getByLabel('变更原因', { exact: true }).fill('过期草稿不能覆盖'); await panel.getByRole('button', { name: '保存角色绑定', exact: true }).click();
   await expect(panel.getByRole('button', { name: '重新加载并比较', exact: true })).toBeVisible(); await expect(panel.getByRole('button', { name: '保存角色绑定', exact: true })).toBeDisabled();
   await panel.getByRole('button', { name: '重新加载并比较', exact: true }).click(); await expect(panel.getByText('尚未绑定平台角色', { exact: true })).toBeVisible();
@@ -186,7 +186,7 @@ test('account editing rejects stale versions and reloads the real binding', asyn
 test('account readers see allowed authorization without fetching protected directories', async ({ page, request }) => {
   const reader = await createManaged(request, '账号只读验收'), role = await makeRole(request, `只读账号_${randomBytes(4).toString('hex')}`, [P.PlatformAccountRead]);
   const headers = await owner(request);
-  expect((await request.put(`${api}/access/accounts/${reader.id}/roles`, { headers, data: { expected_version: reader.management_version, role_ids: [...reader.roles.map((item) => item.id), role.id], reason: '只读账号自验' } })).status()).toBe(200);
+  expect((await request.put(`${api}/access/accounts/${reader.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: reader.management_version, role_ids: [...reader.roles.map((item) => item.id), role.id], reason: '只读账号自验' } })).status()).toBe(200);
   const protectedReads: string[] = [];
   page.on('request', (request) => { const path = new URL(request.url()).pathname; if (path === '/api/v1/access/roles' || path === '/api/v1/access/permissions' || /^\/api\/v1\/access\/accounts\/[^/]+\/tenant-memberships$/.test(path)) protectedReads.push(path); });
   await login(page, { username: reader.username, password }); await page.goto(`${consoleURL}/access/accounts`); await page.getByLabel('搜索用户名或显示名称').fill(reader.username);
@@ -206,10 +206,10 @@ test('partial role options retain existing disabled bindings and recover later p
   let unbound = await makeRole(request, `未绑定停用_${suffix}`);
   const available = await makeRole(request, `后续页角色_${suffix}`);
   const headers = await owner(request);
-  const assigned = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [...target.roles.map((role) => role.id), bound.id], reason: '部分角色页自验' } });
+  const assigned = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [...target.roles.map((role) => role.id), bound.id], reason: '部分角色页自验' } });
   expect(assigned.status()).toBe(200);
   for (const role of [bound, unbound]) {
-    const response = await request.put(`${api}/access/roles/${role.id}/status`, { headers, data: { expected_version: role.version, status: 'disabled', reason: '停用角色候选自验' } });
+    const response = await request.put(`${api}/access/roles/${role.id}/status`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, status: 'disabled', reason: '停用角色候选自验' } });
     expect(response.status()).toBe(200);
     if (role.id === bound.id) bound = await response.json(); else unbound = await response.json();
   }

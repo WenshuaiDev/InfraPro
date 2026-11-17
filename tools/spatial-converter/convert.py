@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic, bounded conversion. No database, credentials, or network inputs.
 
-The only interface is: convert.py FORMAT SOURCE OUTPUT_DIRECTORY.
+The interface is: convert.py FORMAT SOURCE OUTPUT_DIRECTORY [EXPECTED_SIZE].
 The parent owns cancellation, wall-clock time, hashes and immutable publication.
 """
 import hashlib
@@ -404,6 +404,7 @@ def convert_ifc(source_path, out, result):
     doc = dict(asset=dict(version='2.0', generator=CONVERTER), scene=0, scenes=[dict(nodes=[])], nodes=[], meshes=[],
                buffers=[dict(byteLength=0)], bufferViews=[], accessors=[], materials=[dict(name='Synthetic structural material', pbrMetallicRoughness=dict(baseColorFactor=[.62,.69,.75,1], metallicFactor=0, roughnessFactor=.85))])
     binary = bytearray()
+    material_indexes = {}
     def accessor(array, component, kind, bounds=False):
         while len(binary) % 4:
             binary.append(0)
@@ -458,9 +459,26 @@ def convert_ifc(source_path, out, result):
             triangles += len(faces) // 3
             require(triangles <= MAX_TRIANGLES, 'geometry_budget', 'IFC exceeds 5 million triangles')
             position = accessor(vertices, 5126, 'VEC3', True)
-            indices = accessor(faces, 5125, 'SCALAR')
+            # Retain IFC surface styles per triangle, including multi-material products.
+            # A fallback material remains for files without explicit surface styling.
+            material_ids = np.asarray(shape.geometry.material_ids, dtype=int)
+            require(len(material_ids) == len(faces) // 3, 'ifc_geometry_failed', 'Incomplete IFC material mapping')
+            primitives = []
+            for material_id in sorted(set(material_ids.tolist())):
+                material_index = 0
+                if 0 <= material_id < len(shape.geometry.materials):
+                    style = shape.geometry.materials[material_id]
+                    color = [style.diffuse.r(), style.diffuse.g(), style.diffuse.b()]
+                    transparency = style.transparency if math.isfinite(style.transparency) else 0
+                    rgba = tuple(max(0., min(1., float(c))) for c in color + [1 - transparency])
+                    if rgba not in material_indexes:
+                        material_indexes[rgba] = len(doc['materials'])
+                        doc['materials'].append(dict(name=f'IFC surface {len(material_indexes)}', pbrMetallicRoughness=dict(baseColorFactor=list(rgba), metallicFactor=0, roughnessFactor=.8), **({'alphaMode': 'BLEND'} if rgba[3] < 1 else {})))
+                    material_index = material_indexes[rgba]
+                indices = accessor(faces.reshape(-1, 3)[material_ids == material_id].reshape(-1), 5125, 'SCALAR')
+                primitives.append(dict(attributes=dict(POSITION=position), indices=indices, material=material_index))
             mesh = len(doc['meshes'])
-            doc['meshes'].append(dict(primitives=[dict(attributes=dict(POSITION=position), indices=indices, material=0)]))
+            doc['meshes'].append(dict(primitives=primitives))
             node = len(doc['nodes'])
             doc['nodes'].append(dict(name=entry['name'], mesh=mesh, extras=dict(spatial_key=product.GlobalId)))
             doc['scenes'][0]['nodes'].append(node)
@@ -481,9 +499,10 @@ def convert_ifc(source_path, out, result):
     add_file(out, result, 'model.glb', glb_pack(doc, bytes(binary)), 'model/gltf-binary')
 
 
-def run(fmt, source_path, out):
+def run(fmt, source_path, out, expected_size=None):
     require(source_path.is_file() and not source_path.is_symlink(), 'invalid_input', 'Input must be a regular file')
-    require(0 < source_path.stat().st_size <= 256 * 1024 * 1024, 'input_limit', 'Input exceeds 256 MiB')
+    size = source_path.stat().st_size
+    require(size > 0 and (expected_size is None or size == expected_size), 'input_limit', 'Input length does not match accepted source')
     source = source_path.read_bytes()
     result = manifest(source, fmt)
     out.mkdir(parents=True, exist_ok=True)
@@ -515,8 +534,8 @@ def main():
     if sys.platform.startswith('linux'):
         resource.setrlimit(resource.RLIMIT_AS, (3 * 1024**3, 3 * 1024**3))
     try:
-        require(len(sys.argv) == 4, 'arguments', 'Expected format, source and output directory')
-        run(sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3]))
+        require(len(sys.argv) in (4, 5), 'arguments', 'Expected format, source, output directory and optional accepted length')
+        run(sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3]), int(sys.argv[4]) if len(sys.argv) == 5 else None)
     except Exception as error:
         code = error.code if isinstance(error, ConversionError) else 'parse_failed'
         print(json.dumps(dict(code=code, message=str(error)[:2000])), file=sys.stderr)

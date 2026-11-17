@@ -99,7 +99,7 @@ func TestCatalogImmutableAndUnavailable(t *testing.T) {
 	}
 	status, e = f.ps.CatalogStatus(ctx, f.actor())
 	must(t, e)
-	if status.ID != first.ID || status.State != "succeeded" || status.Added != 3 || status.CreatedAt == nil {
+	if status.ID != first.ID || status.State != "succeeded" || status.Added != 4 || status.CreatedAt == nil {
 		t.Fatalf("catalog success not exposed: %+v", status)
 	}
 	ms, e := f.ps.Methods(ctx, f.actor(), platform, c.Filter{})
@@ -113,7 +113,7 @@ func TestCatalogImmutableAndUnavailable(t *testing.T) {
 	must(t, e)
 	var count int
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM parsing_method_versions`).Scan(&count))
-	if count != 3 {
+	if count != 4 {
 		t.Fatal(count)
 	}
 	token, e := os.ReadFile(os.Getenv("INFRAPRO_PARSING_TOKEN_FILE"))
@@ -166,7 +166,7 @@ func TestCatalogImmutableAndUnavailable(t *testing.T) {
 			}
 			var n int
 			must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM parsing_method_versions`).Scan(&n))
-			if n != 3 {
+			if n != 4 {
 				t.Fatal("old catalog cleared")
 			}
 		})

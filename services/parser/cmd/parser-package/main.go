@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	i "github.com/WenshuaiDev/InfraPro/packages/go/foundation/ingestioncontract"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
+	"github.com/WenshuaiDev/InfraPro/services/parser/internal/identification"
 	"github.com/WenshuaiDev/InfraPro/services/parser/internal/methods"
 	"os"
 	"path/filepath"
@@ -99,6 +101,48 @@ func run() error {
 				return e
 			}
 		}
+	}
+	ingestionSuite, e := os.ReadFile(filepath.Join(os.Args[2], "../ingestion/expected.json"))
+	if e != nil {
+		return e
+	}
+	capabilities := identification.Catalog(identification.Methods(digest, c.Digest(ingestionSuite)), catalog)
+	if raw, err := os.ReadFile(filepath.Join(dir, "ingestion-capabilities.json")); err == nil {
+		var old i.Catalog
+		if err = c.StrictJSON(raw, &old); err != nil {
+			return err
+		}
+		if err = i.ValidateCatalog(old, catalog); err != nil {
+			return err
+		}
+		// Previously published identification artifacts and their manifests retain
+		// their exact identity even when this packaging executable is updated.
+		for n, method := range capabilities.IdentificationMethods {
+			for _, retained := range old.IdentificationMethods {
+				if method.Method.ID == retained.Method.ID && method.Method.Version == retained.Method.Version {
+					capabilities.IdentificationMethods[n] = retained
+				}
+			}
+		}
+		capabilities = identification.Catalog(capabilities.IdentificationMethods, catalog)
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+	if e = i.ValidateCatalog(capabilities, catalog); e != nil {
+		return e
+	}
+	for _, method := range capabilities.IdentificationMethods {
+		raw, err := os.ReadFile(filepath.Join(dir, "artifacts", method.Method.ArtifactDigest))
+		if err != nil || c.Digest(raw) != method.Method.ArtifactDigest {
+			return c.Fail("missing_retained_identification_artifact")
+		}
+	}
+	capraw, _ := json.MarshalIndent(capabilities, "", "  ")
+	if e = os.WriteFile(filepath.Join(dir, "ingestion-capabilities.json.new"), capraw, 0444); e != nil {
+		return e
+	}
+	if e = os.Rename(filepath.Join(dir, "ingestion-capabilities.json.new"), filepath.Join(dir, "ingestion-capabilities.json")); e != nil {
+		return e
 	}
 	raw, _ := json.MarshalIndent(catalog, "", "  ")
 	if e = os.WriteFile(filepath.Join(dir, "catalog.json.new"), raw, 0444); e != nil {

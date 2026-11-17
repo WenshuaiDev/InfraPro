@@ -9,21 +9,21 @@ test.use({ trace: 'off', actionTimeout: 15_000 });
 
 async function prepare(request: APIRequestContext, browser: Browser) {
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(request) };
-  const owner = async () => expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  const owner = async () => expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const accounts = [];
   for (let i = 0; i < 10; i++) accounts.push(await createAccount(request, false));
   await owner();
   const ownerId = (await (await request.get(`${api}/access/accounts?q=e2e_owner`)).json()).items[0].id;
-  const tenant = await request.post(`${api}/platform/tenants`, { headers, data: { name: '项目成员界面验收', code: `members-${randomBytes(5).toString('hex')}`, administrator_account_id: ownerId, client_request_id: randomUUID(), reason: '隔离界面验收' } });
+  const tenant = await request.post(`${api}/platform/tenants`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: '项目成员界面验收', code: `members-${randomBytes(5).toString('hex')}`, administrator_account_id: ownerId, client_request_id: randomUUID(), reason: '隔离界面验收' } });
   expect(tenant.status()).toBe(201);
   const tid = (await tenant.json()).tenant_id;
   const tenantAdmin = (await (await request.get(`${api}/tenants/${tid}/members`)).json()).items[0].id;
-  const project = await request.post(`${api}/tenants/${tid}/projects`, { headers, data: { name: '成员工作台验收项目', code: 'members-ui', purpose: '项目成员界面与授权回归', owner_tenant_membership_id: tenantAdmin, administrator_tenant_membership_id: tenantAdmin, client_request_id: randomUUID(), reason: '隔离项目' } });
+  const project = await request.post(`${api}/tenants/${tid}/projects`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: '成员工作台验收项目', code: 'members-ui', purpose: '项目成员界面与授权回归', owner_tenant_membership_id: tenantAdmin, administrator_tenant_membership_id: tenantAdmin, client_request_id: randomUUID(), reason: '隔离项目' } });
   expect(project.status()).toBe(200);
   const pid = (await project.json()).project_id, base = `${api}/tenants/${tid}/projects/${pid}`;
   for (const account of accounts) {
     const target = (await (await request.get(`${api}/access/accounts?q=${account.username}`)).json()).items[0];
-    const invitation = await request.post(`${api}/tenants/${tid}/member-invitations`, { headers, data: { target_account_id: target.id, client_request_id: randomUUID(), reason: '隔离成员' } });
+    const invitation = await request.post(`${api}/tenants/${tid}/member-invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { target_account_id: target.id, client_request_id: randomUUID(), reason: '隔离成员' } });
     expect(invitation.status()).toBe(201);
     const value = await invitation.json();
     const token = new URLSearchParams(new URL(value.link).hash.slice(1)).get('token');
@@ -31,13 +31,13 @@ async function prepare(request: APIRequestContext, browser: Browser) {
     let membership: string;
     try {
       const h = { Origin: origin, 'X-CSRF-Token': await csrf(viewer.request) };
-      expect((await viewer.request.post(`${api}/auth/login`, { headers: h, data: account })).status()).toBe(200);
-      const accepted = await viewer.request.post(`${api}/account/tenant-invitations/accept`, { headers: h, data: { token, expected_version: value.invitation.version } });
+      expect((await viewer.request.post(`${api}/auth/login`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: account })).status()).toBe(200);
+      const accepted = await viewer.request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { token, expected_version: value.invitation.version } });
       expect(accepted.status()).toBe(200);
       membership = (await accepted.json()).membership_id;
     } finally { await viewer.close(); }
     const context = await (await request.get(base + '/context')).json();
-    expect((await request.post(base + '/members', { headers, data: { tenant_membership_id: membership, expected_project_version: context.project.version, client_request_id: randomUUID(), reason: '分页数据' } })).status()).toBe(200);
+    expect((await request.post(base + '/members', { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { tenant_membership_id: membership, expected_project_version: context.project.version, client_request_id: randomUUID(), reason: '分页数据' } })).status()).toBe(200);
   }
   const members = (await (await request.get(base + '/members?limit=100')).json()).items as ProjectMember[];
   return { tid, pid, base, headers, accounts, members, path: `${consoleURL}/t/${tid}/p/${pid}/members` };
@@ -146,11 +146,11 @@ test('project members use the account table and drawer with real pagination, aut
 
   // A real reader role can see members but must not fetch protected authorization.
   const currentProject = await (await request.get(`${f.base}/context`)).json();
-  const readerRole = await request.post(`${f.base}/roles`, { headers: f.headers, data: { name: '成员只读', description: '', permission_codes: [P.ProjectMemberRead, P.ProjectProfileRead], expected_project_version: currentProject.project.version, reason: '权限边界', client_request_id: randomUUID() } });
+  const readerRole = await request.post(`${f.base}/roles`, { headers: { ...f.headers, 'X-Command-ID': randomUUID() }, data: { name: '成员只读', description: '', permission_codes: [P.ProjectMemberRead, P.ProjectProfileRead], expected_project_version: currentProject.project.version, reason: '权限边界', client_request_id: randomUUID() } });
   expect(readerRole.status()).toBe(200);
   const roleId = (await readerRole.json()).object_id;
   const change = async (path: string, data: object, method = 'POST') => {
-    const preview = await request.post(path + '/preview', { headers: f.headers, data }); expect(preview.status()).toBe(200);
+    const preview = await request.post(path + '/preview', { headers: { ...f.headers, 'X-Command-ID': randomUUID() }, data }); expect(preview.status()).toBe(200);
     const value = await preview.json();
     const response = await request.fetch(path, { method, headers: f.headers, data: { ...data, expected_version: value.expected_version, expected_project_version: value.expected_project_version, preview_hash: value.preview_hash, ...(method === 'PUT' ? { role_versions: value.role_versions } : {}), reason: '权限边界验收', client_request_id: randomUUID() } }); expect(response.status()).toBe(200);
   };

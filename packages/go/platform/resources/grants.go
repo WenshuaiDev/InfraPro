@@ -16,10 +16,12 @@ import (
 )
 
 var kindCapabilities = map[Kind][]string{
-	Facility:  {"read", "update", "create_component", "create_point", "create_derived_channel"},
-	Component: {"read", "update", "create_component", "create_point", "lifecycle", "create_derived_channel"},
-	Point:     {"read", "update", "create_channel", "lifecycle", "create_derived_channel"},
-	Channel:   {"read", "update", "lifecycle", "source_manage", "manage_calculation"},
+	Facility:          {"read", "update", "create_component", "create_point", "create_monitoring_section", "create_borehole", "create_derived_channel"},
+	Component:         {"read", "update", "create_component", "create_point", "create_monitoring_section", "create_borehole", "lifecycle", "create_derived_channel"},
+	MonitoringSection: {"read", "update", "create_component", "create_point", "create_monitoring_section", "create_borehole", "lifecycle", "create_derived_channel"},
+	Borehole:          {"read", "update", "create_component", "create_point", "create_monitoring_section", "create_borehole", "lifecycle", "create_derived_channel"},
+	Point:             {"read", "update", "create_channel", "lifecycle", "create_derived_channel"},
+	Channel:           {"read", "update", "lifecycle", "source_manage", "manage_calculation"},
 }
 
 func capabilities(kind Kind, cs []string) ([]string, error) {
@@ -39,9 +41,9 @@ func capabilities(kind Kind, cs []string) ([]string, error) {
 	return out, nil
 }
 func grantInput(in GrantInput, fid string) (Grant, error) {
-	g := Grant{Kind: in.Kind, ComponentID: in.ComponentID, PointID: in.PointID, ChannelID: in.ChannelID}
-	ids := []*string{in.ComponentID, in.PointID, in.ChannelID}
-	expected := map[Kind]int{Facility: -1, Component: 0, Point: 1, Channel: 2}[in.Kind]
+	g := Grant{Kind: in.Kind, ComponentID: in.ComponentID, PointID: in.PointID, ChannelID: in.ChannelID, MonitoringSectionID: in.MonitoringSectionID, BoreholeID: in.BoreholeID}
+	ids := []*string{in.ComponentID, in.PointID, in.ChannelID, in.MonitoringSectionID, in.BoreholeID}
+	expected := map[Kind]int{Facility: -1, Component: 0, Point: 1, Channel: 2, MonitoringSection: 3, Borehole: 4}[in.Kind]
 	for i, id := range ids {
 		if (i == expected) != (id != nil) || id != nil && !access.ValidID(*id) {
 			return g, invalid("/add", "reference", "对象类型与唯一引用不匹配。")
@@ -81,16 +83,16 @@ func linkTx(ctx context.Context, tx pgx.Tx, tenant, project, facility string) (*
 	return &v, e
 }
 
-const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle,g.can_source_manage,g.can_create_derived_channel,g.can_manage_calculation,COALESCE((SELECT source_kind FROM engineering_channels c WHERE c.tenant_id=g.tenant_id AND c.id=g.channel_id),'') FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)`
+const grantSelect = `SELECT g.id::text,g.link_id::text,g.resource_kind,COALESCE(g.component_id,g.point_id,g.channel_id,g.monitoring_section_id,g.borehole_id,g.facility_id)::text,g.component_id::text,g.point_id::text,g.channel_id::text,g.monitoring_section_id::text,g.borehole_id::text,n.name,n.code,g.source,g.revision::text,g.can_update,g.can_create_component,g.can_create_point,g.can_create_channel,g.can_lifecycle,g.can_source_manage,g.can_create_derived_channel,g.can_manage_calculation,g.can_create_monitoring_section,g.can_create_borehole,COALESCE((SELECT source_kind FROM engineering_channels c WHERE c.tenant_id=g.tenant_id AND c.id=g.channel_id),'') FROM project_resource_grants g JOIN engineering_resource_nodes n ON n.tenant_id=g.tenant_id AND n.kind=g.resource_kind AND n.id=COALESCE(g.component_id,g.point_id,g.channel_id,g.monitoring_section_id,g.borehole_id,g.facility_id)`
 
 func scanGrant(row pgx.Row) (Grant, error) {
 	g := Grant{Capabilities: []string{"read"}}
-	var update, component, point, channel, lifecycle, sourceManage, createDerived, manageCalculation bool
-	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle, &sourceManage, &createDerived, &manageCalculation, &g.SourceKind)
+	var update, component, point, channel, lifecycle, sourceManage, createDerived, manageCalculation, section, borehole bool
+	e := row.Scan(&g.ID, &g.LinkID, &g.Kind, &g.ResourceID, &g.ComponentID, &g.PointID, &g.ChannelID, &g.MonitoringSectionID, &g.BoreholeID, &g.Name, &g.Code, &g.Source, &g.Revision, &update, &component, &point, &channel, &lifecycle, &sourceManage, &createDerived, &manageCalculation, &section, &borehole, &g.SourceKind)
 	for _, c := range []struct {
 		yes  bool
 		name string
-	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}, {sourceManage, "source_manage"}, {createDerived, "create_derived_channel"}, {manageCalculation, "manage_calculation"}} {
+	}{{update, "update"}, {component, "create_component"}, {point, "create_point"}, {channel, "create_channel"}, {lifecycle, "lifecycle"}, {sourceManage, "source_manage"}, {createDerived, "create_derived_channel"}, {manageCalculation, "manage_calculation"}, {section, "create_monitoring_section"}, {borehole, "create_borehole"}} {
 		if c.yes {
 			g.Capabilities = append(g.Capabilities, c.name)
 		}
@@ -473,7 +475,7 @@ func expandCurrent(ctx context.Context, tx pgx.Tx, tenant, facility string, sel 
 	rows, e := tx.Query(ctx, `WITH RECURSIVE descendants AS (
  SELECT kind,id FROM engineering_resource_nodes WHERE tenant_id=$1 AND facility_id=$2 AND kind=$3 AND id=$4 AND deleted_at IS NULL
  UNION SELECT n.kind,n.id FROM engineering_resource_nodes n JOIN descendants d ON n.parent_kind=d.kind AND n.parent_id=d.id WHERE n.tenant_id=$1 AND n.facility_id=$2 AND n.deleted_at IS NULL)
- SELECT kind,id::text FROM descendants WHERE kind=ANY($5::text[]) AND id<>$4::uuid ORDER BY kind,id LIMIT 1001`, tenant, facility, sel.RootKind, sel.RootID, func() []string {
+ SELECT kind,id::text FROM descendants WHERE kind=ANY($5::text[]) AND (kind,id)<>($3::text,$4::uuid) ORDER BY kind,id LIMIT 1001`, tenant, facility, sel.RootKind, sel.RootID, func() []string {
 		v := []string{}
 		for k := range sel.Kinds {
 			v = append(v, string(k))
@@ -493,6 +495,10 @@ func expandCurrent(ctx context.Context, tx pgx.Tx, tenant, facility string, sel 
 		}
 		g := GrantInput{Kind: kind, Capabilities: sel.Kinds[kind]}
 		switch kind {
+		case MonitoringSection:
+			g.MonitoringSectionID = &id
+		case Borehole:
+			g.BoreholeID = &id
 		case Component:
 			g.ComponentID = &id
 		case Point:
@@ -510,7 +516,7 @@ func expandCurrent(ctx context.Context, tx pgx.Tx, tenant, facility string, sel 
 func saveGrant(ctx context.Context, tx pgx.Tx, tenant, project, facility, link, actor, source string, g Grant) (Grant, error) {
 	cs := g.Capabilities
 	var e error
-	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,can_source_manage,source,granted_by,can_create_derived_channel,can_manage_calculation) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), source, actor, slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation")).Scan(&g.ID, &g.Revision)
+	e = tx.QueryRow(ctx, `INSERT INTO project_resource_grants(tenant_id,project_id,facility_id,link_id,resource_kind,component_id,point_id,channel_id,can_update,can_create_component,can_create_point,can_create_channel,can_lifecycle,can_source_manage,source,granted_by,can_create_derived_channel,can_manage_calculation,monitoring_section_id,borehole_id,can_create_monitoring_section,can_create_borehole) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) RETURNING id::text,revision::text`, tenant, project, facility, link, g.Kind, g.ComponentID, g.PointID, g.ChannelID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), source, actor, slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation"), g.MonitoringSectionID, g.BoreholeID, slices.Contains(cs, "create_monitoring_section"), slices.Contains(cs, "create_borehole")).Scan(&g.ID, &g.Revision)
 	g.LinkID = link
 	g.Source = source
 	return g, e
@@ -609,7 +615,7 @@ func (s *Service) ChangeAccess(ctx context.Context, a access.Actor, tenant, proj
 				}
 				for i, g := range plan.Update {
 					cs := g.Capabilities
-					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,can_source_manage=$7,can_create_derived_channel=$8,can_manage_calculation=$9,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation")).Scan(&plan.Update[i].Revision); e != nil {
+					if e = tx.QueryRow(ctx, `UPDATE project_resource_grants SET can_update=$2,can_create_component=$3,can_create_point=$4,can_create_channel=$5,can_lifecycle=$6,can_source_manage=$7,can_create_derived_channel=$8,can_manage_calculation=$9,can_create_monitoring_section=$10,can_create_borehole=$11,revision=revision+1 WHERE id=$1 RETURNING revision::text`, g.ID, slices.Contains(cs, "update"), slices.Contains(cs, "create_component"), slices.Contains(cs, "create_point"), slices.Contains(cs, "create_channel"), slices.Contains(cs, "lifecycle"), slices.Contains(cs, "source_manage"), slices.Contains(cs, "create_derived_channel"), slices.Contains(cs, "manage_calculation"), slices.Contains(cs, "create_monitoring_section"), slices.Contains(cs, "create_borehole")).Scan(&plan.Update[i].Revision); e != nil {
 						return e
 					}
 				}
@@ -816,7 +822,7 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		if e = normalizeFilter(&f.Candidate); e != nil {
 			return e
 		}
-		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner, f.CandidatePoint, f.Candidate.OwnerKind, f.Candidate.OwnerID})
+		category := "candidates:" + string(f.CandidateKind) + ":" + fingerprint([]string{f.Candidate.Query, f.Candidate.Status, f.Candidate.Parent, f.Candidate.Owner, f.CandidatePoint, f.Candidate.OwnerKind, f.Candidate.OwnerID, fingerprint(f.Candidate.StructureParent)})
 		cid, e := accessPageCursor(auth, out.Policy, facility, category, f.Candidate.Cursor)
 		if e != nil {
 			return e
@@ -827,7 +833,7 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 		}
 		args := []any{tenant, facility, cid, f.Candidate.Limit + 1, f.Candidate.Query, f.Candidate.Status}
 		where := ""
-		if f.CandidateKind == Component || f.CandidateKind == Point {
+		if f.Candidate.StructureParent == nil && (f.CandidateKind == Component || f.CandidateKind == Point) {
 			owner := f.Candidate.Owner
 			column := "component_id"
 			if f.CandidateKind == Component {
@@ -868,6 +874,13 @@ func (s *Service) AccessDetail(ctx context.Context, a access.Actor, tenant, proj
 				return problem("invalid_request", "通道所属对象筛选仅适用于通道。", 400)
 			}
 			where, args = channelOwnerFilter(where, args, f.Candidate)
+		}
+		if p := f.Candidate.StructureParent; p != nil {
+			if f.CandidateKind == Facility || f.CandidateKind == Channel {
+				return invalid("/structure_parent", "invalid", "Select a structure child kind.")
+			}
+			args = append(args, string(f.CandidateKind), p.Kind, p.ID)
+			where += fmt.Sprintf(" AND EXISTS(SELECT 1 FROM engineering_structure_nodes n WHERE n.tenant_id=r.tenant_id AND n.facility_id=r.facility_id AND n.kind=$%d AND n.id=r.id AND n.parent_kind=$%d AND n.parent_id=$%d)", len(args)-2, len(args)-1, len(args))
 		}
 		rows, e := tx.Query(ctx, `SELECT to_jsonb(r) FROM `+tables[f.CandidateKind]+` r WHERE r.tenant_id=$1 AND `+facilityCol+`=$2 AND r.deleted_at IS NULL AND ($3='' OR r.id>NULLIF($3,'')::uuid) AND ($5='' OR r.name ILIKE '%'||$5||'%' OR r.code ILIKE '%'||$5||'%') AND ($6='all' OR r.status=$6)`+where+` ORDER BY r.id LIMIT $4`, args...)
 		if e != nil {

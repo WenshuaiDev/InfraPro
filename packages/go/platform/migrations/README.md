@@ -25,7 +25,7 @@
 
 `00011_device_product_resources.sql` 在 v10 项目资源授权基线上增加公共／私有厂家和产品、不可变版本／槽位／依赖、设备／输出代次、安装及纠错引用、即时来源期间、独立项目设备授权、历史与收据。`btree_gist` 安装在 public；安装、输出和来源期间采用数据库排斥约束。旧租户／项目只初始化协调行，can_source_manage 默认 false，不创建业务样例或设备授权。Down 只提示从完整备份恢复；升级顺序见[设备操作手册](../../../../docs/architecture.md#migrations)。
 
-`00012_monitoring_metadata.sql` 增加监测控制元数据、纳秒 `int8range` 数据授权、持久任务、不可变源文件／映射／发布依据及永久通道引用保护。原始逐条观测不进入 PostgreSQL。升级不创建样本、数据授权或批次；系统角色按权限目录同步新增能力，自定义角色不扩权。有数据后禁止 destructive down，使用验证过的恢复或前向修复。阶段证据见[监测自验记录](../../../../docs/verification/monitoring-data.md)。
+`00012_monitoring_metadata.sql` 增加监测控制元数据、纳秒 `int8range` 数据授权、持久任务、不可变源文件／映射／发布依据及永久通道引用保护。原始逐条观测不进入 PostgreSQL。升级不创建样本、数据授权或批次；系统角色按权限目录同步新增能力，自定义角色不扩权。有数据后禁止 destructive down，使用验证过的恢复或前向修复。运行与恢复要求见[监测数据运维](../../../../docs/operations/monitoring-data.md)。
 
 `00034_spatial.sql` 增加空间资料／固定版本、分片上传与任务、挂载、构件和图形关联、项目固定版本授权、视图配置及审计。正式版本和内容引用受约束；结束项目设施关联会结束对应空间授权。迁移不注入样本，不复制资源或观测。运行与恢复见[空间手册](../../../../docs/operations/spatial-visualization.md)。
 

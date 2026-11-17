@@ -169,6 +169,9 @@ func (s *Service) Preview(ctx context.Context, a access.Actor, scope Scope, id s
 				return e
 			}
 			out.Issues = append(out.Issues, ValidateSample(v.Content, *in.Sample)...)
+			if len(out.Issues) == 0 {
+				out.Matches = MatchTemplateSample(c, in.TypeVersion, *in.Sample)
+			}
 		}
 		if scope.Kind == MetricDefinition && len(in.Value) > 0 && c.Metric != nil {
 			m := c.Metric

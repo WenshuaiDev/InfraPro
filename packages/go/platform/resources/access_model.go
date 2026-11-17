@@ -24,26 +24,30 @@ type Link struct {
 	Summary      *AccessSummary `json:"summary,omitempty"`
 }
 type AccessSummary struct {
-	Facilities   int `json:"facilities"`
-	Components   int `json:"components"`
-	Points       int `json:"points"`
-	Channels     int `json:"channels"`
-	Maintainable int `json:"maintainable"`
+	MonitoringSections int `json:"monitoring_sections"`
+	Boreholes          int `json:"boreholes"`
+	Facilities         int `json:"facilities"`
+	Components         int `json:"components"`
+	Points             int `json:"points"`
+	Channels           int `json:"channels"`
+	Maintainable       int `json:"maintainable"`
 }
 type Grant struct {
-	SourceKind   string   `json:"source_kind,omitempty"`
-	ID           string   `json:"id"`
-	LinkID       string   `json:"link_id"`
-	Kind         Kind     `json:"kind"`
-	ResourceID   string   `json:"resource_id"`
-	ComponentID  *string  `json:"component_id,omitempty"`
-	PointID      *string  `json:"point_id,omitempty"`
-	ChannelID    *string  `json:"channel_id,omitempty"`
-	Name         string   `json:"name"`
-	Code         string   `json:"code"`
-	Capabilities []string `json:"capabilities"`
-	Source       string   `json:"source"`
-	Revision     string   `json:"revision"`
+	MonitoringSectionID *string  `json:"monitoring_section_id,omitempty"`
+	BoreholeID          *string  `json:"borehole_id,omitempty"`
+	SourceKind          string   `json:"source_kind,omitempty"`
+	ID                  string   `json:"id"`
+	LinkID              string   `json:"link_id"`
+	Kind                Kind     `json:"kind"`
+	ResourceID          string   `json:"resource_id"`
+	ComponentID         *string  `json:"component_id,omitempty"`
+	PointID             *string  `json:"point_id,omitempty"`
+	ChannelID           *string  `json:"channel_id,omitempty"`
+	Name                string   `json:"name"`
+	Code                string   `json:"code"`
+	Capabilities        []string `json:"capabilities"`
+	Source              string   `json:"source"`
+	Revision            string   `json:"revision"`
 }
 type AccessDetail struct {
 	Summary         AccessSummary `json:"summary"`
@@ -57,11 +61,13 @@ type AccessDetail struct {
 	CandidateGrants []Grant       `json:"candidate_grants"`
 }
 type GrantInput struct {
-	Kind         Kind     `json:"kind"`
-	ComponentID  *string  `json:"component_id,omitempty"`
-	PointID      *string  `json:"point_id,omitempty"`
-	ChannelID    *string  `json:"channel_id,omitempty"`
-	Capabilities []string `json:"capabilities"`
+	MonitoringSectionID *string  `json:"monitoring_section_id,omitempty"`
+	BoreholeID          *string  `json:"borehole_id,omitempty"`
+	Kind                Kind     `json:"kind"`
+	ComponentID         *string  `json:"component_id,omitempty"`
+	PointID             *string  `json:"point_id,omitempty"`
+	ChannelID           *string  `json:"channel_id,omitempty"`
+	Capabilities        []string `json:"capabilities"`
 }
 type GrantUpdate struct {
 	ID           string   `json:"grant_id"`
@@ -136,15 +142,16 @@ type AccessChanges struct {
 
 // ContextNode deliberately has no private fields, revisions, counts or actions.
 type ContextNode struct {
-	ID                string  `json:"id"`
-	Kind              Kind    `json:"kind"`
-	Code              string  `json:"code"`
-	Name              string  `json:"name"`
-	CategoryKey       string  `json:"category_key,omitempty"`
-	ParentComponentID *string `json:"parent_component_id,omitempty"`
-	ComponentID       *string `json:"component_id,omitempty"`
-	PointID           string  `json:"point_id,omitempty"`
-	FacilityID        string  `json:"facility_id,omitempty"`
-	Status            string  `json:"status"`
-	Visibility        string  `json:"visibility"`
+	ParentRef         *StructureRef `json:"parent_ref,omitempty"`
+	ID                string        `json:"id"`
+	Kind              Kind          `json:"kind"`
+	Code              string        `json:"code"`
+	Name              string        `json:"name"`
+	CategoryKey       string        `json:"category_key,omitempty"`
+	ParentComponentID *string       `json:"parent_component_id,omitempty"`
+	ComponentID       *string       `json:"component_id,omitempty"`
+	PointID           string        `json:"point_id,omitempty"`
+	FacilityID        string        `json:"facility_id,omitempty"`
+	Status            string        `json:"status"`
+	Visibility        string        `json:"visibility"`
 }

@@ -1,10 +1,11 @@
+import { BoreholeFacts } from './borehole-fields';
 import { useRef } from 'react';
 import type { EngineeringField, ResourceDetail } from '@infrapro/api-client';
 import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@infrapro/ui/components/dropdown-menu';
 import { PositionView } from '../location-fields/position-editor';
-const labels = { facility: '设施', component: '构件', point: '测点', channel: '通道' };
+const labels = { facility: '设施', component: '构件', monitoring_section: '监测断面', borehole: '孔位', point: '测点', channel: '通道' };
 const modes = { edit: '编辑', retire: '退役', restore: '恢复', delete: '删除' };
 function fieldValue(field: EngineeringField, value: unknown) {
   if (value === undefined || value === null) return '未填写';
@@ -74,7 +75,7 @@ export function ResourceInfo({ resource: r, showIdentity = true }: { resource: R
   const fields =
     r.kind === 'facility'
       ? type?.content.fields
-      : type?.content.components?.find((c) => c.key === r.category_key)?.fields;
+      : r.kind==='monitoring_section'||r.kind==='borehole'?type?.content.structure?.[r.kind]?.fields:type?.content.components?.find((c) => c.key === r.category_key)?.fields;
   const metric = r.definitions.find((v) => v.id === r.metric_version_id);
   const unit = r.definitions.find((v) => v.id === r.unit_version_id);
   return (
@@ -85,6 +86,7 @@ export function ResourceInfo({ resource: r, showIdentity = true }: { resource: R
       <p className="break-all">
         编号：{r.code} · {r.status === 'normal' ? '正常' : '已退役'}
       </p></>}
+      {r.kind==='borehole'&&r.borehole&&<BoreholeFacts value={r.borehole}/>}
       {r.actions.reason && <p className="text-muted-foreground">{r.actions.reason}</p>}
       {!!fields?.length && (
         <dl className="grid gap-3 sm:grid-cols-2">

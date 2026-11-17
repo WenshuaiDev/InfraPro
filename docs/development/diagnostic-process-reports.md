@@ -1,6 +1,6 @@
 # 自有进程报告接入
 
-所有 11 个常驻入口的目录源是 `services/diagnostics/settings/catalog.go`，生成到 `contracts/diagnostics/runtime-catalog.json`。新增 `services/api/cmd/*/main.go` 必须登记目录、期望、lane 和接入 `diagnosticreport.FromEnv`；`pnpm diagnostics:coverage` 会拒绝未知入口。
+所有 13 个常驻入口的目录源是 `services/diagnostics/settings/catalog.go`，生成到 `contracts/diagnostics/runtime-catalog.json`；当前运行目录共 28 项，包含常驻程序和外部依赖。新增 `services/api/cmd/*/main.go` 及其他独立常驻入口必须登记目录、期望、lane 和接入 `diagnosticreport.FromEnv`；`pnpm diagnostics:coverage` 会拒绝未知入口。
 
 `packages/go/foundation/diagnosticreport` 不依赖 platform 或诊断 server。入口在解析业务配置、连接数据库前建立 reporter，报告 starting；真实初始化完成后 Ready，错误退出前 Failed，原有 defer/errgroup/context/退出码保持不变。没有诊断环境变量时返回 noop。
 
@@ -15,5 +15,7 @@ monitoring 有 scheduler、foreground、historical、parsing、parsing-maintenan
 ProcessReport schema 是严格输入契约。进程身份用 PID、OS start time、UID、可执行文件共同核对；复制旧 report 不能继承 fresh。sample age 基于原始 emitted_at 和 report_seq，同一来源报告反复读取不产生新 attempt。deadline 超期、错过 next_attempt 加宽限、持续依赖错误分别形成明确原因；只启动 writer 不能掩盖 stalled lane。
 
 parser 是独立常驻服务，报告 catalog 清单验证与 parse 有界子进程执行；解析子进程按需启动，不计入常驻分母，也不继承机器令牌或诊断配置。
+
+ingest-relay 报告 control、receivers、spool-maintenance，依赖单独的云端 PostgreSQL；ingest-worker 报告 pull、relay-status、confirmation、identify、planning、parse、source-publication、association-watermark、recovery、object-maintenance。PG、S3、parser 状态来自实际调用；识别或测量调用失败后即使成功保存退避记录，lane 仍报告失败。解析服务故障不阻断健康的原文接管和确认。空闲对象维护每分钟验证存储与业务 schema，未启用接入时报告 opt-in idle。
 
 接入自验包括 reporter 阻塞／退出边界、真实 owning process 的空闲／工作／失败、业务任务生命周期与原沙箱测试。调用 `node scripts/diagnostics-business-check.mjs` 使用隔离 lab 的真实数据库和独立测试 schema，最终保留脱敏的 ProcessReport 快照。

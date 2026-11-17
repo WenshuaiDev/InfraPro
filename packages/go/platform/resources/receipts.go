@@ -104,6 +104,11 @@ func mutationReceipt(ctx context.Context, tx pgx.Tx, auth authorization, t scope
 		if link != nil && !(action == "create" && t.Kind == Facility) {
 			currentMeta.LinkRevision = link.Revision
 		}
+		if action == "move" {
+			if e = authorizeMoveReplay(ctx, tx, auth, check, currentMeta, r); e != nil {
+				return Result{}, false, e
+			}
+		}
 		if _, e = validateProjectWrite(ctx, tx, auth, t, action, currentMeta, r, nil); e != nil {
 			return Result{}, false, e
 		}

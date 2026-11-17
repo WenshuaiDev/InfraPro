@@ -1,3 +1,4 @@
+import {runtimeMethods} from "./protocol.generated";
 import { validParams } from "./params";
 import { nonce, sha256 } from "./crypto";
 import "./style.css";
@@ -31,6 +32,7 @@ type RuntimeConfig = {
   protocol: number;
   switch_grace_ms: number;
   local?: boolean;
+  simulated?: boolean;
 };
 const status = document.querySelector<HTMLElement>("#status")!,
   stage = document.querySelector<HTMLElement>("#stage")!,
@@ -39,38 +41,15 @@ let configuration: RuntimeConfig,
   active: Frame | undefined,
   preparing: Frame | undefined,
   stopped = false;
-const methods = new Set([
-  "resources.list",
-  "resources.get",
-  "resources.summary",
-  "channels.list",
-  "channels.get",
-  "monitoring.latest",
-  "monitoring.details",
-  "monitoring.trends",
-  "monitoring.statistics",
-  "monitoring.overview",
-  "sources.get",
-  "sources.history",
-  "artifacts.list",
-  "artifacts.get",
-  "artifacts.read",
-  "spatial.list",
-  "spatial.manifest",
-  "spatial.objects",
-  "spatial.placements",
-  "spatial.readFile",
-  "alerts.query",
-  "alerts.summary",
-  "alerts.subscribe",
-]);
+const methods = new Set<string>(runtimeMethods);
+
 class Failure extends Error {
   constructor(public code: string, message = code, public issues: {path:string;code:string;message:string}[] = []) {
     super(message);
   }
 }
 function message(value: string) {
-  status.textContent = value;
+  status.textContent = configuration?.simulated && !value.startsWith("模拟数据") ? `模拟数据 · ${value}` : value;
 }
 async function post<T>(
   path: string,

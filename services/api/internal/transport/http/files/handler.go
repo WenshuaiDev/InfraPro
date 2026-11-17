@@ -260,6 +260,9 @@ func Register(r *gin.Engine, i *identity.Service, s *files.Service) {
 					reply(c, 0, nil, problem("invalid_request", 400))
 					return
 				}
+				controller := http.NewResponseController(c.Writer)
+				_ = controller.SetReadDeadline(time.Now().Add(2 * time.Minute))
+				_ = controller.SetWriteDeadline(time.Now().Add(3 * time.Minute))
 				body := http.MaxBytesReader(c.Writer, c.Request.Body, 8<<20)
 				v, e := s.PutPart(ctx, actor, scope, id, files.PartInput{Part: part, Size: c.Request.ContentLength, SHA256: c.GetHeader("X-Content-SHA256"), Epoch: c.GetHeader("X-Files-Epoch")}, body)
 				reply(c, 200, v, e)
@@ -359,6 +362,7 @@ func matchesETag(raw, etag string, weak bool) bool {
 	}
 	return false
 }
+func ServeRead(c *gin.Context, g *files.GuardedRead) { serveRead(c, g) }
 func serveRead(c *gin.Context, g *files.GuardedRead) {
 	ctx := c.Request.Context()
 	controller, ok := ctx.Value(transportKey{}).(*http.ResponseController)

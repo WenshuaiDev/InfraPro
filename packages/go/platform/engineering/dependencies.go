@@ -27,6 +27,11 @@ func references(c Content) []reference {
 		}
 	}
 	fields(c.Fields, "/fields")
+	for _, kind := range []string{"monitoring_section", "borehole"} {
+		if v := StructureCapabilityFor(c, kind); v != nil {
+			fields(v.Fields, "/structure/"+kind+"/fields")
+		}
+	}
 	for i, v := range c.Components {
 		fields(v.Fields, fmt.Sprintf("/components/%d/fields", i))
 	}
@@ -95,7 +100,10 @@ func (r *resolver) version(id string) (Version, error) {
 	if e != nil {
 		return v, e
 	}
-	v.Usable = v.Enabled
+	v.Usable = v.Enabled && SupportedMetamodel(v.SchemaVersion) && v.Content.MetamodelVersion == v.SchemaVersion
+	if !SupportedMetamodel(v.SchemaVersion) || v.Content.MetamodelVersion != v.SchemaVersion {
+		add(&v.Issues, "unsupported_metamodel", "不支持该定义格式。", "/schema_version", id)
+	}
 	if !v.Enabled {
 		add(&v.Issues, "version_disabled", "版本已停用，不能新采用。", "/versions/"+id, id)
 	}
@@ -214,6 +222,18 @@ func (r *resolver) checkReferences(c Content, newUse bool, previous *Content) ([
 	}
 	if t := c.Template; t != nil {
 		for i, item := range t.Items {
+			if suggestion := item.SuggestedCategory; suggestion != nil {
+				valid := false
+				if access.ValidID(suggestion.DictionaryReleaseID) && access.ValidID(suggestion.CategoryID) {
+					e := r.tx.QueryRow(r.ctx, `SELECT EXISTS(SELECT 1 FROM device_category_release_nodes n WHERE n.release_id=$1 AND n.category_id=$2 AND n.selectable AND n.status='active')`, suggestion.DictionaryReleaseID, suggestion.CategoryID).Scan(&valid)
+					if e != nil {
+						return nil, e
+					}
+				}
+				if !valid {
+					add(&issues, "suggested_category_unavailable", "建议设备分类须引用明确且可选的固定字典版本；建议不改变输出兼容规则。", fmt.Sprintf("/template/items/%d/suggested_category", i), item.Key)
+				}
+			}
 			for j, target := range item.Targets {
 				if target.TypeVersion == "" {
 					continue
@@ -222,13 +242,7 @@ func (r *resolver) checkReferences(c Content, newUse bool, previous *Content) ([
 				if e != nil {
 					return nil, e
 				}
-				found := target.Component == "root"
-				for _, c := range v.Content.Components {
-					found = found || c.Key == target.Component
-				}
-				if !found {
-					add(&issues, "target_component_missing", "映射的构件类别在该类型版本中不存在。", fmt.Sprintf("/template/items/%d/targets/%d", i, j), item.Key)
-				}
+				issues = append(issues, ValidateTargetType(c.MetamodelVersion, target, v.Content, fmt.Sprintf("/template/items/%d/targets/%d", i, j))...)
 			}
 			for j, b := range item.Bindings {
 				if b.MetricVersion == "" {
@@ -283,6 +297,12 @@ func (r *resolver) stable(previous, current Content) []Issue {
 		}
 	}
 	check(previous.Fields, current.Fields, "/fields")
+	for _, kind := range []string{"monitoring_section", "borehole"} {
+		a, b := StructureCapabilityFor(previous, kind), StructureCapabilityFor(current, kind)
+		if a != nil && b != nil {
+			check(a.Fields, b.Fields, "/structure/"+kind+"/fields")
+		}
+	}
 	for _, a := range previous.Components {
 		for _, b := range current.Components {
 			if a.Key == b.Key {
@@ -302,6 +322,21 @@ func (r *resolver) stable(previous, current Content) []Issue {
 // Historical dependency resolution is limited to an already authorized definition.
 // New adoption separately requires read permission on each public source catalog.
 func requireReferenceReads(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, c Content, previous *Content) error {
+	if c.Template != nil {
+		for _, item := range c.Template.Items {
+			if item.SuggestedCategory != nil {
+				entry := "platform"
+				if scope.Tenant != "" {
+					entry = "tenant"
+				}
+				if e := access.RequireScopedTx(ctx, tx, a.ID, access.DeviceOperation(entry, "classification", "categories"), scope.Tenant); e != nil {
+					return e
+				}
+				break
+			}
+		}
+	}
+
 	old := map[string]bool{}
 	if previous != nil {
 		for _, ref := range references(*previous) {

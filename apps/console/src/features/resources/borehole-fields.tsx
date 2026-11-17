@@ -1,0 +1,6 @@
+import type { ResourceBorehole } from '@infrapro/api-client';
+import { NumberControl, TextControl } from '../engineering-fields/controls';
+const numbers=[['collar_elevation','孔口高程（m）'],['design_depth_m','设计孔深（m）'],['measured_depth_m','实测孔深（m）'],['diameter_mm','孔径（mm）'],['azimuth','方位角（°）'],['inclination','倾角（°）']] as const;
+const texts=[['elevation_datum','高程基准'],['direction_reference','方向参照'],['source','资料来源'],['measured_at','测量日期 YYYY-MM-DD']] as const;
+export function BoreholeFields({value,onChange}:{value:ResourceBorehole;onChange:(v:ResourceBorehole)=>void}){return <section className="space-y-4 rounded-lg border p-4"><h3 className="font-medium">成孔资料</h3>{numbers.map(([key,label])=><NumberControl key={key} label={label} value={value[key]} onChange={n=>onChange({...value,[key]:n})}/>)}{texts.map(([key,label])=><TextControl key={key} label={label} value={value[key]??''} onChange={text=>onChange({...value,[key]:text})}/>)}<p className="text-sm text-muted-foreground">未知数值留空，0 为有效实测值。孔位资料与测点的沿孔距离、垂直埋深分别维护。</p></section>;}
+export function BoreholeFacts({value}:{value:ResourceBorehole}){return <dl className="grid gap-3 sm:grid-cols-2">{[...numbers,...texts].map(([key,label])=><div key={key}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="break-words text-sm">{value[key]??'未填写'}</dd></div>)}</dl>;}

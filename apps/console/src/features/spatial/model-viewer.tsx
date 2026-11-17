@@ -5,7 +5,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { SpatialElement } from "@infrapro/api-client";
 import { Button } from "@infrapro/ui/components/button";
 import { Failure, useSpatialFile } from "./common";
-import { sameObject, type SceneProps } from "./state";
+import { sameObject, placementRef, canPlace, type SceneProps } from "./state";
 type Controller = {
   camera: (value: NonNullable<SceneProps["settings"]["camera"]>) => void;
   fit: (direction?: string) => void;
@@ -31,14 +31,15 @@ export default function ModelViewer({
   }, [props, elements]);
   const [error, setError] = useState<unknown>(),
     [isolate, setIsolate] = useState(false),
+    [showLabels, setShowLabels] = useState(false),
     [hidden, setHidden] = useState<string[]>([]),
     [opacity, setOpacity] = useState(1),
     [clip, setClip] = useState(0),
     [loaded, setLoaded] = useState(false);
-  const controlsState = useRef({ isolate, hidden, opacity, clip });
+  const controlsState = useRef({ isolate, hidden, opacity, clip, showLabels });
   useEffect(() => {
-    controlsState.current = { isolate, hidden, opacity, clip };
-  }, [isolate, hidden, opacity, clip]);
+    controlsState.current = { isolate, hidden, opacity, clip, showLabels };
+  }, [isolate, hidden, opacity, clip, showLabels]);
   useEffect(() => {
     const container = host.current;
     if (!container || !file.data) return;
@@ -61,6 +62,8 @@ export default function ModelViewer({
         renderer.localClippingEnabled = true;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.append(renderer.domElement);
         const r = renderer;
         scene = new THREE.Scene();
@@ -70,11 +73,13 @@ export default function ModelViewer({
         const orbit = controls;
         orbit.enableDamping = false;
         orbit.screenSpacePanning = true;
-        s.add(new THREE.HemisphereLight(0xddeeff, 0x635c4d, 2.5));
-        const key = new THREE.DirectionalLight(0xfff1dd, 3);
+        s.add(new THREE.HemisphereLight(0xddeeff, 0x635c4d, 1.8));
+        const key = new THREE.DirectionalLight(0xfff1dd, 2.6);
+        key.castShadow = true;
+        key.shadow.mapSize.set(2048, 2048);
         key.position.set(-40, 70, 50);
         s.add(key);
-        const fill = new THREE.DirectionalLight(0xb1ceff, 1);
+        const fill = new THREE.DirectionalLight(0xb1ceff, 0.7);
         fill.position.set(50, 20, -30);
         s.add(fill);
         const gltf = await new GLTFLoader().parseAsync(
@@ -92,6 +97,20 @@ export default function ModelViewer({
           size = box.getSize(new THREE.Vector3()).length() || 1;
         camera.near = Math.max(size / 10000, 0.0001);
         camera.far = size * 1000;
+        camera.aspect =
+          container.clientWidth / Math.max(1, container.clientHeight);
+        key.position
+          .copy(center)
+          .add(new THREE.Vector3(-0.5, 0.8, 0.6).multiplyScalar(size));
+        key.target.position.copy(center);
+        s.add(key.target);
+        key.shadow.camera.left = key.shadow.camera.bottom = -size * 0.6;
+        key.shadow.camera.right = key.shadow.camera.top = size * 0.6;
+        key.shadow.camera.near = size * 0.1;
+        key.shadow.camera.far = size * 3;
+        key.shadow.normalBias = size * 0.0002;
+        key.shadow.bias = -0.0001;
+        key.shadow.camera.updateProjectionMatrix();
         camera.updateProjectionMatrix();
         const materialDefaults = new Map<
           THREE.Material,
@@ -99,6 +118,8 @@ export default function ModelViewer({
         >();
         model.traverse((o) => {
           if (o instanceof THREE.Mesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
             o.material = Array.isArray(o.material)
               ? o.material.map((m) => m.clone())
               : o.material.clone();
@@ -184,6 +205,51 @@ export default function ModelViewer({
           });
         };
         const fit = (direction = "perspective") => {
+          const p = latest.current.props;
+          const point = p.placements.find((v) =>
+            sameObject(p.selected, placementRef(v)),
+          );
+          const boxes: THREE.Box3[] = [];
+          if (direction === "selection" && point?.anchor.length === 3) {
+            const target = new THREE.Vector3(...point.anchor);
+            boxes.push(
+              new THREE.Box3().setFromCenterAndSize(
+                target,
+                new THREE.Vector3(12, 12, 12),
+              ),
+            );
+          } else if (direction === "selection" && selectedBox.visible) {
+            boxes.push(selectedBox.box.clone());
+          } else {
+            model.traverseVisible((o) => {
+              if (!(o instanceof THREE.Mesh)) return;
+              if (o instanceof THREE.InstancedMesh) {
+                o.computeBoundingBox();
+                if (o.boundingBox)
+                  boxes.push(o.boundingBox.clone().applyMatrix4(o.matrixWorld));
+              } else {
+                o.geometry.computeBoundingBox();
+                if (o.geometry.boundingBox)
+                  boxes.push(
+                    o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld),
+                  );
+              }
+            });
+          }
+          const clipping = controlsState.current.clip;
+          if (clipping > 0) {
+            const cutX =
+              box.min.x + (box.getSize(new THREE.Vector3()).x * clipping) / 100;
+            for (const b of boxes) b.max.x = Math.min(b.max.x, cutX);
+            for (let i = boxes.length - 1; i >= 0; i--)
+              if (boxes[i]!.isEmpty()) boxes.splice(i, 1);
+          }
+          if (!boxes.length) return;
+          const bounds = boxes.reduce(
+            (all, b) => all.union(b),
+            new THREE.Box3(),
+          );
+          const target = bounds.getCenter(new THREE.Vector3());
           const offset =
             direction === "top"
               ? new THREE.Vector3(0, 1, 0.001)
@@ -191,11 +257,32 @@ export default function ModelViewer({
                 ? new THREE.Vector3(0, 0.001, 1)
                 : direction === "side"
                   ? new THREE.Vector3(1, 0.001, 0)
-                  : new THREE.Vector3(-1, 0.7, 1);
-          camera.position
-            .copy(center)
-            .addScaledVector(offset.normalize(), size * 1.6);
-          orbit.target.copy(center);
+                  : direction === "selection"
+                    ? camera.position.clone().sub(orbit.target)
+                    : new THREE.Vector3(-1, 0.7, 1);
+          offset.normalize();
+          const right = new THREE.Vector3()
+            .crossVectors(camera.up, offset)
+            .normalize();
+          const up = new THREE.Vector3()
+            .crossVectors(offset, right)
+            .normalize();
+          const tanV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+          const tanH = tanV * camera.aspect;
+          let distance = camera.near * 10;
+          for (const b of boxes)
+            for (const x of [b.min.x, b.max.x])
+              for (const y of [b.min.y, b.max.y])
+                for (const z of [b.min.z, b.max.z]) {
+                  const corner = new THREE.Vector3(x, y, z).sub(target);
+                  distance = Math.max(
+                    distance,
+                    Math.abs(corner.dot(right)) / tanH + corner.dot(offset),
+                    Math.abs(corner.dot(up)) / tanV + corner.dot(offset),
+                  );
+                }
+          camera.position.copy(target).addScaledVector(offset, distance * 1.12);
+          orbit.target.copy(target);
           orbit.update();
           render();
         };
@@ -214,7 +301,7 @@ export default function ModelViewer({
                 )
                 .map((l) => l.element_key);
           const selectedPlacement = p.placements.find((v) =>
-            sameObject(p.selected, { kind: "point", id: v.point_id }),
+            sameObject(p.selected, placementRef(v)),
           );
           if (selectedPlacement?.element_key)
             selectedKeys.push(selectedPlacement.element_key);
@@ -302,6 +389,12 @@ export default function ModelViewer({
           });
           labelHost.replaceChildren();
           labels.length = 0;
+          if (state.clip > 0)
+            selectedBounds.max.x = Math.min(
+              selectedBounds.max.x,
+              box.min.x +
+                (box.getSize(new THREE.Vector3()).x * state.clip) / 100,
+            );
           selectedBox.visible = !selectedBounds.isEmpty();
           if (selectedBox.visible) selectedBox.box.copy(selectedBounds);
           for (const child of [...markerGroup.children]) {
@@ -310,13 +403,26 @@ export default function ModelViewer({
           }
           for (const pnt of p.placements) {
             if (pnt.anchor.length !== 3) continue;
-            const selected = sameObject(p.selected, {
-              kind: "point",
-              id: pnt.point_id,
-            });
+            if (
+              state.isolate &&
+              selectedKeys.length &&
+              !selectedKeys.includes(pnt.element_key)
+            )
+              continue;
+            if (
+              state.clip > 0 &&
+              pnt.anchor[0]! >
+                box.min.x +
+                  (box.getSize(new THREE.Vector3()).x * state.clip) / 100
+            )
+              continue;
+            const selected = sameObject(p.selected, placementRef(pnt));
             const marker = new THREE.Mesh(
               new THREE.SphereGeometry(
-                size * (selected ? 0.009 : 0.006),
+                Math.min(
+                  size * (selected ? 0.006 : 0.004),
+                  selected ? 0.55 : 0.38,
+                ),
                 12,
                 8,
               ),
@@ -331,13 +437,27 @@ export default function ModelViewer({
             );
             marker.position.fromArray(pnt.anchor);
             marker.renderOrder = 10;
-            marker.userData.owner = { kind: "point", id: pnt.point_id };
+            marker.userData.owner = placementRef(pnt);
             markerGroup.add(marker);
+            const geometry=pnt.geometry;
+            if(geometry) {
+              let associated:THREE.Object3D|undefined;
+              const color=selected?0xc2410c:0x0369a1;
+              if(geometry.kind==='plane'&&geometry.normal&&geometry.size) {
+                const plane=new THREE.Mesh(new THREE.PlaneGeometry(geometry.size[0]!,geometry.size[1]!),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.25,side:THREE.DoubleSide,depthWrite:false}));
+                plane.position.fromArray(pnt.anchor);plane.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3().fromArray(geometry.normal).normalize());associated=plane;
+              } else if(geometry.vertices?.length) {
+                const line=new THREE.BufferGeometry().setFromPoints(geometry.vertices.map(v=>new THREE.Vector3().fromArray(v)));const material=new THREE.LineBasicMaterial({color,depthTest:false});associated=geometry.kind==='region'?new THREE.LineLoop(line,material):new THREE.Line(line,material);
+              }
+              if(associated){associated.userData.owner=placementRef(pnt);associated.renderOrder=8;markerGroup.add(associated);}
+            }
             const label = document.createElement("div");
             label.textContent = `${pnt.object?.retired ? "已退役 · " : ""}${pnt.object?.name ?? "测点"}${pnt.basis_changed ? " · 依据变化" : ""}`;
             label.style.cssText = `position:absolute;padding:3px 6px;background:rgba(255,255,255,.92);border-radius:3px;color:#0f172a;font:12px system-ui;transform:translate(${pnt.label_offset[0] ?? 12}px,${pnt.label_offset[1] ?? -12}px);white-space:nowrap`;
-            labelHost.append(label);
-            labels.push({ node: label, position: marker.position.clone() });
+            if (state.showLabels || selected) {
+              labelHost.append(label);
+              labels.push({ node: label, position: marker.position.clone() });
+            }
           }
           const focusKey = p.selected
             ? `${p.selected.kind}:${p.selected.id}`
@@ -497,6 +617,7 @@ export default function ModelViewer({
       props.element,
       props.settings,
       isolate,
+      showLabels,
       hidden,
       opacity,
       clip,
@@ -517,12 +638,19 @@ export default function ModelViewer({
           ["top", "俯视"],
           ["front", "正视"],
           ["side", "侧视"],
+          ["selection", "聚焦所选"],
         ].map(([key, label]) => (
           <Button
             key={key}
             size="sm"
             variant="secondary"
-            disabled={!loaded}
+            disabled={
+              !loaded ||
+              (key === "selection" &&
+                !props.element &&
+                !canPlace(props.selected?.kind) &&
+                props.selected?.kind !== "component")
+            }
             onClick={() => api.current?.fit(key)}
           >
             {label}
@@ -569,6 +697,14 @@ export default function ModelViewer({
           }}
         >
           重置可见性
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          aria-pressed={showLabels}
+          onClick={() => setShowLabels(!showLabels)}
+        >
+          测点标签
         </Button>
         {props.onCamera && (
           <Button

@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const Reading = "example.monitoring-json.reading"
+
 const Frame = "hongdian.ddp.tcp.frame"
 const Example = "example.hongdian.ddp.tcp.monitoring-json"
 
@@ -26,7 +28,12 @@ func Manifests(artifact, samples string) []c.Manifest {
 	two := one
 	two.MethodVersion = "1.1.0"
 	two.ReleaseNotes = "联调示例；增加可选 source_status normal/suspect；旧版仍拒绝该字段。"
-	return []c.Manifest{base, one, two}
+	reading := one
+	reading.MethodID = Reading
+	reading.Name = "模拟网关独立 reading（联调示例）"
+	reading.InputUnit = "json_reading"
+	reading.ReleaseNotes = "只接收经过固定解复用验证的独立 reading JSON，不接收完整帧。"
+	return []c.Manifest{base, one, two, reading}
 }
 func Entry(m c.Manifest) c.Entry {
 	outputs, _ := json.Marshal(m.Outputs)
@@ -50,9 +57,16 @@ func Parse(req c.Request) (c.Response, error) {
 		return c.Response{}, e
 	}
 	r := c.Response{ContractVersion: c.Version, ExecutionID: req.ExecutionID, Method: req.Method, InputSHA256: req.Input.SHA256, Identities: []c.Identity{}, Records: []c.Record{}, Fields: []c.Field{}, Steps: []c.Step{}, Diagnostics: []c.Diagnostic{}, Checks: []c.Check{}}
-	typ, payload := protocols.DDP(b, &r)
-	if r.Status != "parsed" || typ != 9 || req.Method.ID == Frame {
-		return r, nil
+	payload, offset, parent := b, 0, "reading"
+	if req.Method.ID == Reading {
+		r.Status = "parsed"
+		protocols.Step(&r, b, parent, "example.reading.input", 0, len(b), nil, []string{}, c.Digest(b))
+	} else {
+		typ, body := protocols.DDP(b, &r)
+		if r.Status != "parsed" || typ != 9 || req.Method.ID == Frame {
+			return r, nil
+		}
+		payload, offset, parent = body, 15, "payload"
 	}
 	r.MessageKind = "measurement"
 	reject := func(code string, loc *c.Location) {
@@ -62,7 +76,7 @@ func Parse(req c.Request) (c.Response, error) {
 	}
 	var fields map[string]json.RawMessage
 	if e = c.StrictJSON(payload, &fields); e != nil {
-		reject(e.Error(), &c.Location{Range: c.Range{Start: 15, End: len(b) - 1}})
+		reject(e.Error(), &c.Location{Range: c.Range{Start: offset, End: offset + len(payload)}})
 		return r, nil
 	}
 	if fields == nil {
@@ -87,7 +101,7 @@ func Parse(req c.Request) (c.Response, error) {
 		}
 		var raw json.RawMessage
 		_ = d.Decode(&raw)
-		locations[key.(string)] = c.Location{Range: c.Range{Start: 15 + start, End: 15 + int(d.InputOffset())}, Pointer: "/" + key.(string)}
+		locations[key.(string)] = c.Location{Range: c.Range{Start: offset + start, End: offset + int(d.InputOffset())}, Pointer: "/" + key.(string)}
 	}
 	for _, key := range []string{"observed_at", "displacement_mm"} {
 		if _, ok := fields[key]; !ok {
@@ -145,10 +159,10 @@ func Parse(req c.Request) (c.Response, error) {
 			rule = "example.decimal38_12.canonical"
 			v = value
 		}
-		protocols.Step(&r, b, key, rule, loc.Range.Start, loc.Range.End, []string{"payload"}, []string{key}, v)
+		protocols.Step(&r, b, key, rule, loc.Range.Start, loc.Range.End, []string{parent}, []string{key}, v)
 		r.Fields = append(r.Fields, c.Field{Key: key, Value: v, RawText: string(fields[key]), Location: loc, StepIDs: []string{key}})
 	}
-	r.Checks = append(r.Checks, c.Check{RuleID: "example.strict_json", Status: "passed", Range: &c.Range{Start: 15, End: len(b) - 1}})
-	r.Records = append(r.Records, c.Record{Index: 0, ObservedAt: &observed, TimeSource: "protocol", SourceStatus: status, Measurements: []c.Measurement{{OutputKey: "displacement", ValueType: "decimal", Value: &value, Unit: "mm", RawText: string(fields["displacement_mm"]), Location: locations["displacement_mm"], StepIDs: []string{"payload", "displacement_mm"}}}})
+	r.Checks = append(r.Checks, c.Check{RuleID: "example.strict_json", Status: "passed", Range: &c.Range{Start: offset, End: offset + len(payload)}})
+	r.Records = append(r.Records, c.Record{Index: 0, ObservedAt: &observed, TimeSource: "protocol", SourceStatus: status, Measurements: []c.Measurement{{OutputKey: "displacement", ValueType: "decimal", Value: &value, Unit: "mm", RawText: string(fields["displacement_mm"]), Location: locations["displacement_mm"], StepIDs: []string{parent, "displacement_mm"}}}})
 	return r, nil
 }

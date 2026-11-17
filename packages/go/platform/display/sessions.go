@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/jackc/pgx/v5"
@@ -191,6 +192,22 @@ func (s *Service) Exchange(ctx context.Context, code, verifier, audience string)
 	return token, asset, out, e
 }
 func (s *Service) checkSessionTx(ctx context.Context, tx pgx.Tx, v Session, allowExpired bool) (Grant, Config, error) {
+	type key struct {
+		service      *Service
+		session      string
+		allowExpired bool
+	}
+	type state struct {
+		grant  Grant
+		config Config
+	}
+	value, err := access.MemoTx(tx, key{s, v.ID, allowExpired}, func() (state, error) {
+		g, c, e := s.loadSessionTx(ctx, tx, v, allowExpired)
+		return state{g, c}, e
+	})
+	return value.grant, value.config, err
+}
+func (s *Service) loadSessionTx(ctx context.Context, tx pgx.Tx, v Session, allowExpired bool) (Grant, Config, error) {
 	current, loadErr := scanSession(tx.QueryRow(ctx, sessionSelect+` WHERE s.id=$1`, v.ID))
 	if loadErr != nil {
 		return Grant{}, Config{}, loadErr
@@ -219,7 +236,7 @@ func (s *Service) checkSessionTx(ctx context.Context, tx pgx.Tx, v Session, allo
 	if !slices.Contains(issuer.Permissions, access.ProjectDisplayGrant) {
 		return g, Config{}, problem("revoked", "委托资格已失效。", 403)
 	}
-	for _, c := range s.permissionsFor(g.Capabilities) {
+	for _, c := range s.grantPermissions(g) {
 		if !slices.Contains(issuer.Permissions, c) {
 			return g, Config{}, problem("revoked", "业务委托资格已失效。", 403)
 		}
@@ -229,7 +246,11 @@ func (s *Service) checkSessionTx(ctx context.Context, tx pgx.Tx, v Session, allo
 			return g, Config{}, access.ErrDenied
 		}
 		if e = s.resolvePerson(ctx, tx, v.AccountID, v.PersonSession); e != nil {
-			return g, Config{}, problem("session_expired", "人员登录已经失效。", 401)
+			var status interface{ StatusCode() int }
+			if errors.As(e, &status) && status.StatusCode() == 401 {
+				return g, Config{}, problem("session_expired", "人员登录已经失效。", 401)
+			}
+			return g, Config{}, e
 		}
 		op := access.DisplayOperation("launch")
 		if v.Preview {
@@ -293,13 +314,20 @@ func (s *Service) Session(ctx context.Context, token string) (Session, error) {
 }
 func (s *Service) ReadSubject(ctx context.Context, id string) (*access.ReadSubject, error) {
 	var v Session
+	var format int
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
 		var e error
 		v, e = scanSession(tx.QueryRow(ctx, sessionSelect+` WHERE s.subject_id=$1 ORDER BY s.created_at DESC LIMIT 1`, id))
-		return e
+		if e != nil {
+			return e
+		}
+		return tx.QueryRow(ctx, `SELECT config_format FROM display_configs WHERE id=$1`, v.ConfigID).Scan(&format)
 	})
 	if e != nil {
 		return nil, e
+	}
+	if format == 2 {
+		return s.ReadAuthority(v).Subject, nil
 	}
 	return s.subject(v), nil
 }
@@ -326,7 +354,7 @@ func (s *Service) subject(v Session) *access.ReadSubject {
 		if e != nil {
 			return auth, e
 		}
-		allowed := s.permissionsFor(g.Capabilities)
+		allowed := s.grantPermissions(g)
 		auth.Permissions = slices.DeleteFunc(slices.Clone(auth.Permissions), func(c access.Code) bool { return !slices.Contains(allowed, c) })
 		auth.AllowedOperations = nil
 		return auth, nil

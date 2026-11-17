@@ -7,21 +7,21 @@ test.use({ trace: 'off' });
 const origin = new URL(consoleURL).origin; const api = `${origin}/api/v1`;
 async function signIn(request: APIRequestContext, username = 'e2e_owner') {
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(request, origin) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username, password } })).status()).toBe(200); return headers;
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username, password } })).status()).toBe(200); return headers;
 }
 async function prepare(request: APIRequestContext) {
   const admin = await createAccount(request, false); const recipient = await createAccount(request, false); const h = await signIn(request);
   const find = async (username: string) => (await (await request.get(`${api}/access/accounts?q=${username}`)).json()).items[0].id as string;
   const adminId = await find(admin.username); const recipientId = await find(recipient.username);
-  const create = async () => { const r = await request.post(`${api}/platform/tenants`, { headers: h, data: { name: '租户启停验收', code: `tl-${randomBytes(5).toString('hex')}`, administrator_account_id: adminId, client_request_id: randomUUID(), reason: '启停测试准备' } }); expect(r.status()).toBe(201); return (await r.json()).tenant_id as string; };
+  const create = async () => { const r = await request.post(`${api}/platform/tenants`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { name: '租户启停验收', code: `tl-${randomBytes(5).toString('hex')}`, administrator_account_id: adminId, client_request_id: randomUUID(), reason: '启停测试准备' } }); expect(r.status()).toBe(201); return (await r.json()).tenant_id as string; };
   return { admin, recipient, recipientId, tenant: await create(), other: await create(), h };
 }
 // Concurrent tests share the global authorization revision. Exercise the prescribed
 // explicit re-preview flow on that conflict; never silently replay an old write.
 async function change(request: APIRequestContext, h: Record<string, string>, tenant: string, action: 'disable' | 'enable') {
   for (let review = 0; review < 5; review++) {
-    const pre = await request.post(`${api}/platform/tenants/${tenant}/${action}/preview`, { headers: h, data: {} }); expect(pre.status()).toBe(200); const p = await pre.json();
-    const r = await request.post(`${api}/platform/tenants/${tenant}/${action}`, { headers: h, data: { expected_version: p.expected_version, preview_hash: p.preview_hash, reason: '内部原因-lifecycle-secret', ...(action === 'disable' ? { tenant_notice: '维护中，请联系维护人员。' } : {}) } });
+    const pre = await request.post(`${api}/platform/tenants/${tenant}/${action}/preview`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: {} }); expect(pre.status()).toBe(200); const p = await pre.json();
+    const r = await request.post(`${api}/platform/tenants/${tenant}/${action}`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { expected_version: p.expected_version, preview_hash: p.preview_hash, reason: '内部原因-lifecycle-secret', ...(action === 'disable' ? { tenant_notice: '维护中，请联系维护人员。' } : {}) } });
     if (r.status() === 200) return r.json();
     expect(r.status()).toBe(409); expect((await r.json()).code).toBe('preview_changed');
   }
@@ -45,7 +45,7 @@ test('lifecycle UI: preview, cancel, stop old tabs, preserve invite, restore and
   const f = await prepare(request); await login(page, f.admin); await page.goto(`${consoleURL}/t/${f.tenant}/profile`);
   const oldMembership = (await (await page.request.get(`${api}/tenants/${f.tenant}/context`)).json()).membership_id;
   const adminHeaders = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
-  const issued = await page.request.post(`${api}/tenants/${f.tenant}/member-invitations`, { headers: adminHeaders, data: { target_account_id: f.recipientId, reason: '保留待领取邀请', client_request_id: randomUUID() } }); expect(issued.status()).toBe(201); const invitation = await issued.json();
+  const issued = await page.request.post(`${api}/tenants/${f.tenant}/member-invitations`, { headers: { ...adminHeaders, 'X-Command-ID': randomUUID() }, data: { target_account_id: f.recipientId, reason: '保留待领取邀请', client_request_id: randomUUID() } }); expect(issued.status()).toBe(201); const invitation = await issued.json();
   const operator = await browser.newContext({ viewport: page.viewportSize()! }); const recipient = await browser.newContext({ viewport: page.viewportSize()! });
   try {
     const op = await operator.newPage(); await login(op, { username: 'e2e_owner', password }); await op.goto(`${consoleURL}/platform/tenants/${f.tenant}`);
@@ -64,7 +64,14 @@ test('lifecycle UI: preview, cancel, stop old tabs, preserve invite, restore and
     await op.getByRole('button', { name: '恢复租户', exact: true }).click(); await op.getByLabel('平台内部操作原因').fill('恢复核验完成'); await confirmLifecycle(op, f.tenant, 'enable');
     await target.getByRole('button', { name: '重新检查', exact: true }).click(); await expect(target.getByRole('heading', { name: '确认加入租户', exact: true })).toBeVisible(); await target.getByRole('button', { name: '确认加入', exact: true }).click(); await expect(target.getByRole('heading', { name: '已加入租户', exact: true })).toBeVisible();
     await page.goto(`${consoleURL}/t/${f.tenant}/profile`); await expect(page.getByRole('heading', { name: '租户资料', exact: true })).toBeVisible(); expect((await (await page.request.get(`${api}/tenants/${f.tenant}/context`)).json()).membership_id).toBe(oldMembership);
-    await page.goto(`${consoleURL}/t/${f.tenant}/audit`); await expect(page.getByRole('heading', { name: '停用租户', exact: true })).toBeVisible(); await page.getByLabel('搜索操作或原因').fill('内部原因-lifecycle-secret'); await expect(page.getByText('没有符合条件的操作记录。')).toBeVisible();
+    await page.goto(`${consoleURL}/t/${f.tenant}/audit`);
+    await page.locator('[data-audit-record]').filter({ hasText: '平台停用租户' }).click();
+    await expect(page.getByRole('dialog')).toContainText('维护中，请联系维护人员。');
+    await expect(page.getByRole('dialog')).not.toContainText('内部原因-lifecycle-secret');
+    await page.keyboard.press('Escape');
+    await page.getByLabel('搜索当前获准内容').fill('内部原因-lifecycle-secret');
+    await page.getByRole('button', { name: '搜索', exact: true }).click();
+    await expect(page.getByText('当前筛选下没有可见记录。')).toBeVisible();
   } finally { await operator.close(); await recipient.close(); }
 });
 
@@ -78,11 +85,11 @@ test('all tenant HTTP operations deny disabled access; strict status API and pri
     expect((await ctx.request.get(`${api}/account/tenants/${f.tenant}/availability`)).status()).toBe(200); expect((await ctx.request.get(`${api}/tenants/${f.other}/profile`)).status()).toBe(200);
     expect((await request.get(`${api}/tenants/${f.tenant}/profile`)).status()).toBe(404);
     const base = `${api}/platform/tenants/${f.tenant}/enable`;
-    for (const data of [null, [], { extra: true }]) expect((await request.post(`${base}/preview`, { headers: f.h, data })).status()).toBe(400);
+    for (const data of [null, [], { extra: true }]) expect((await request.post(`${base}/preview`, { headers: { ...f.h, 'X-Command-ID': randomUUID() }, data })).status()).toBe(400);
     expect((await request.post(`${base}/preview`, { headers: { Origin: origin }, data: {} })).status()).toBe(403);
-    const p = await (await request.post(`${base}/preview`, { headers: f.h, data: {} })).json(); const input = { expected_version: p.expected_version, preview_hash: p.preview_hash, reason: '恢复' };
-    for (const extra of [{ tenant_notice: null }, { status: 'active' }, { reason: '　 ' }, { reason: '桥'.repeat(501) }, { expected_version: '0' }]) expect((await request.post(base, { headers: f.h, data: { ...input, ...extra } })).status()).toBe(400);
-    expect((await ctx.request.post(base, { headers: h, data: input })).status()).toBe(403);
+    const p = await (await request.post(`${base}/preview`, { headers: { ...f.h, 'X-Command-ID': randomUUID() }, data: {} })).json(); const input = { expected_version: p.expected_version, preview_hash: p.preview_hash, reason: '恢复' };
+    for (const extra of [{ tenant_notice: null }, { status: 'active' }, { reason: '　 ' }, { reason: '桥'.repeat(501) }, { expected_version: '0' }]) expect((await request.post(base, { headers: { ...f.h, 'X-Command-ID': randomUUID() }, data: { ...input, ...extra } })).status()).toBe(400);
+    expect((await ctx.request.post(base, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: input })).status()).toBe(403);
     const filtered = await request.get(`${api}/platform/tenants?status=disabled&q=${(await (await request.get(`${api}/platform/tenants/${f.tenant}`)).json()).code}&administrator_unavailable=false&limit=1`); expect((await filtered.json()).items).toHaveLength(1);
     expect((await request.get(`${api}/platform/tenants?status=bogus`)).status()).toBe(400);
     await change(request, f.h, f.tenant, 'enable');

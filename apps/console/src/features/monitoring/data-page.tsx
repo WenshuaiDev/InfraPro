@@ -6,15 +6,17 @@ import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { EmptyState, ErrorState, LoadingState } from '@infrapro/ui/patterns/feedback';
 import { useMonitoring } from './context';
 import { MonitoringError } from './common';
-import { ChannelPicker, type SelectedChannel } from './channel-picker';
+import { type SelectedChannel } from './channel-picker';
 import { MonitoringNavigator, useCurrentChannel } from './workspace-navigation';
 import { MonitoringReader } from './workspace-reader';
 import { WorkspaceOverview } from './workspace-overview';
+import { ComparisonChannelPicker } from './comparison-channel-picker';
+import './comparison-workspace.css';
 
 export function MonitoringDataPage({ initialPoint, initialChannel, onSelect }: { initialPoint?: string; initialChannel?: string; onSelect: (point: string | undefined, channel: string) => void }) {
   const m = useMonitoring();
   const [directory, setDirectory] = useState(false), [comparison, setComparison] = useState(false), [compared, setCompared] = useState<SelectedChannel[]>([]);
-  const [comparePicker, setComparePicker] = useState(true);
+  const [comparePicker, setComparePicker] = useState(false);
   const [workspaceOverview, setWorkspaceOverview] = useState(false);
   const pickerToggle = useRef<HTMLButtonElement>(null);
   const current = useCurrentChannel(initialPoint, initialChannel);
@@ -34,14 +36,18 @@ export function MonitoringDataPage({ initialPoint, initialChannel, onSelect }: {
       </div>
     </div>
     <ResponsivePanel open={directory} onOpenChange={setDirectory} title="设施构件树" description="展开工程层级，点击通道查看数据。" fallbackFocusSelector="#monitoring-directory">{directory && <div className="flex min-h-[24rem] flex-col rounded-lg border">{navigator}</div>}</ResponsivePanel>
-    <ResponsivePanel open={comparison} onOpenChange={setComparison} title="多通道比较" description="选择要比较的通道；兼容通道叠加在同一趋势图中，关闭后保留主页面的查阅位置。" size="workspace" fallbackFocusSelector="#monitoring-compare">
-      {comparison && <div className="space-y-4"><Button ref={pickerToggle} className="xl:hidden" variant="outline" aria-expanded={comparePicker} onClick={() => setComparePicker(value => !value)}>{comparePicker ? '收起通道选择' : '选择比较通道'} · {compared.length} 个已选</Button><div className="grid min-w-0 items-start gap-6 xl:grid-cols-[19rem_minmax(0,1fr)]">
-        <aside aria-label="选择比较通道" className={`${comparePicker ? 'block' : 'hidden'} min-w-0 space-y-4 rounded-lg border p-4 xl:block`}>
-          {current.data && !compared.some(c => c.id === current.data!.id) && <Button variant="outline" className="w-full" onClick={() => setCompared(channels => [...channels, current.data!])} disabled={compared.length >= 50}><Plus aria-hidden />加入主页面当前通道</Button>}
-          <ChannelPicker selected={compared} onChange={setCompared} initialPoint={current.data?.point_id ?? initialPoint} /><Button className="w-full xl:hidden" disabled={!compared.length} onClick={() => { setComparePicker(false); pickerToggle.current?.focus(); }}>查看 {compared.length} 个通道的比较</Button>
-        </aside>
-        <div className="min-w-0">{compared.length ? <MonitoringReader key={compared.map(c => c.id).sort().join(':')} channels={compared} comparing /> : <EmptyState title="添加通道，开始比较" description="从左侧选择测点与通道。相同指标、单位、方向和基准的通道会显示在同一张图里。" />}</div>
-      </div></div>}
+    <ResponsivePanel open={comparison} onOpenChange={setComparison} title="多通道比较" description="选择通道，在同一张趋势图中比较变化。关闭后保留主页面的查阅位置。" size="workspace" fallbackFocusSelector="#monitoring-compare">
+      {comparison && <div className="monitoring-comparison" data-monitoring-comparison>
+        <div className="comparison-context"><span>同图比较 <span className="mx-2 text-border">/</span><span role="status" aria-live="polite">已选 <b>{compared.length}</b> 个通道</span></span><Button ref={pickerToggle} className="comparison-picker-toggle" size="sm" variant="outline" aria-expanded={comparePicker} onClick={() => setComparePicker(value => !value)}><FolderTree aria-hidden />{comparePicker ? '收起通道选择' : '选择比较通道'}</Button><span className="comparison-context-hint">直接观测与派生通道可一起比较</span></div>
+        <div className="comparison-layout">
+          <aside aria-label="选择比较通道" className={`comparison-picker ${comparePicker ? 'is-open' : ''}`}>
+            {current.data && !compared.some(channel => channel.id === current.data!.id) && <Button variant="ghost" className="m-2 shrink-0" onClick={() => setCompared(channels => [...channels, current.data!])} disabled={compared.length >= 50}><Plus aria-hidden />加入主页面当前通道</Button>}
+            <ComparisonChannelPicker selected={compared} current={current.data} onChange={setCompared} />
+            <Button className="comparison-picker-toggle m-3 shrink-0" onClick={() => { setComparePicker(false); pickerToggle.current?.focus(); }}>查看 {compared.length} 个通道的比较</Button>
+          </aside>
+          <div className="comparison-workspace"><MonitoringReader channels={compared} comparing onRemove={id => setCompared(channels => channels.filter(channel => channel.id !== id))} /></div>
+        </div>
+      </div>}
     </ResponsivePanel>
     <ResponsivePanel open={workspaceOverview} onOpenChange={setWorkspaceOverview} title="工作空间统计" description="当前工作空间内全部获准通道的历史总览，与主页面的通道和时间范围无关。" size="wide" fallbackFocusSelector="#monitoring-workspace-overview">{workspaceOverview && <WorkspaceOverview />}</ResponsivePanel>
   </section>;

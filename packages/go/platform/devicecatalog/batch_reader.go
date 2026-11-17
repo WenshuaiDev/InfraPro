@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/classification"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/jackc/pgx/v5"
@@ -92,6 +93,11 @@ func ResolveVersionsTx(ctx context.Context, tx pgx.Tx, tenant string, ids []stri
 		if newUse && !v.Usable {
 			return nil, nil, k.Problem("definition_unavailable", "该产品版本或固定依赖已不可新采用。", 409)
 		}
+		cls, e := classification.ReadProductTx(ctx, tx, id, "")
+		if e != nil {
+			return nil, nil, e
+		}
+		v.Classification = &cls
 		versions[id] = v
 	}
 	return versions, products, nil

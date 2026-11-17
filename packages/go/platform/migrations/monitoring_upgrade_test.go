@@ -53,7 +53,7 @@ func TestMonitoringUpgradePreservesExistingRowsAndCustomRoles(t *testing.T) {
 	must(e)
 	defer pool.Close()
 	svc := access.New(pool, slog.Default())
-	must(svc.Sync(ctx))
+	seedLegacyCatalog(t, ctx, pool)
 	var account, role string
 	must(pool.QueryRow(ctx, `INSERT INTO accounts(username,username_normalized,display_name) VALUES('MonitoringLegacy','monitoringlegacy','迁移保留样本') RETURNING id::text`).Scan(&account))
 	must(pool.QueryRow(ctx, `INSERT INTO roles(name,name_normalized,description,binding_scope) VALUES('Legacy profile','legacy profile','migration fixture','platform') RETURNING id::text`).Scan(&role))
@@ -79,9 +79,15 @@ func TestMonitoringUpgradePreservesExistingRowsAndCustomRoles(t *testing.T) {
 	}
 	must(rows.Err())
 	rows.Close()
+	columns := map[string][]string{}
+	for _, table := range tables {
+		var names []string
+		must(pool.QueryRow(ctx, `SELECT array_agg(column_name::text ORDER BY ordinal_position) FROM information_schema.columns WHERE table_schema=$1 AND table_name=$2`, schemaName, table).Scan(&names))
+		columns[table] = names
+	}
 	snapshot := func(table string) string {
 		var v string
-		must(pool.QueryRow(ctx, `SELECT COALESCE(jsonb_agg(to_jsonb(r) ORDER BY to_jsonb(r)::text),'[]'::jsonb)::text FROM `+pgx.Identifier{table}.Sanitize()+` r`).Scan(&v))
+		must(pool.QueryRow(ctx, `SELECT COALESCE(jsonb_agg(p.value ORDER BY p.value::text),'[]'::jsonb)::text FROM `+pgx.Identifier{table}.Sanitize()+` r CROSS JOIN LATERAL (SELECT jsonb_object_agg(key,value) AS value FROM jsonb_each(to_jsonb(r)) WHERE key=ANY($1::text[])) p`, columns[table]).Scan(&v))
 		return v
 	}
 	before := map[string]string{}

@@ -61,7 +61,7 @@ func ResolvePublicBatchTx(ctx context.Context, tx pgx.Tx, ids []string, newUse b
 			return problem("definition_unavailable", "固定依赖包含循环。", 409)
 		}
 		visiting[id] = true
-		if v.SchemaVersion != MetamodelVersion {
+		if !SupportedMetamodel(v.SchemaVersion) || v.Content.MetamodelVersion != v.SchemaVersion {
 			return problem("definition_unavailable", "不支持该定义格式。", 409)
 		}
 		if !v.Enabled {

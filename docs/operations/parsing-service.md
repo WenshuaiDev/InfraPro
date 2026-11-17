@@ -2,6 +2,8 @@
 
 适用范围：完整单帧样例试解析；不接入 TCP 长连接，不写正式观测。业务 API／monitoring-worker 持有 PG、私有 S3 和机器调用凭证；parser 仅持有固定发行包与机器令牌。独立服务不依赖 platform、PG、Redis、ClickHouse 或 S3。
 
+连续设备接入、长连接、厂家 HTTPS 批次和生产原文由独立 ingest-relay／ingest-worker 负责，启动与恢复见[设备接入运行手册](device-ingestion-and-raw-messages.md)。parser 增加独立接入能力目录和识别接口；原契约 1 的测量目录、人工试解析、固定版本和旧产物继续保留。生产结果也不会自动写入正式观测。
+
 ## 本地隔离验收
 
 在本 checkout 的根目录执行 `pnpm install --frozen-lockfile`，然后 `pnpm parsing:lab`。需要本机 Go、Node／pnpm、Docker 和 Playwright Chromium。脚本建立独立测试 schema、私有桶、真实 API、解析服务和 monitoring-worker；页面为 `http://127.0.0.1:15578`。所有厂家、产品、设备和样本均明确标注合成。

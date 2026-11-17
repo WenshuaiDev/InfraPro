@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/jackc/pgx/v5"
 	"time"
@@ -86,8 +87,29 @@ func (s *Service) CheckDisplaySession(ctx context.Context, tx pgx.Tx, account, s
 }
 func CheckDisplaySessionTx(ctx context.Context, tx pgx.Tx, account, session string, idle time.Duration) error {
 	var active bool
-	if e := tx.QueryRow(ctx, `SELECT status='active' FROM accounts WHERE id=$1 FOR UPDATE`, account).Scan(&active); e != nil || !active {
+	if e := tx.QueryRow(ctx, `SELECT status='active' FROM accounts WHERE id=$1 FOR SHARE`, account).Scan(&active); e != nil {
+		if errors.Is(e, pgx.ErrNoRows) {
+			return ErrUnauthorized
+		}
+		return e
+	}
+	if !active {
 		return ErrUnauthorized
+	}
+	// Snapshot materialization must not write the personnel session: concurrent
+	// readers would otherwise fail with a serialization conflict. Delivery and
+	// heartbeat transactions use READ COMMITTED and refresh the idle lease below.
+	var isolation string
+	if e := tx.QueryRow(ctx, `SHOW transaction_isolation`).Scan(&isolation); e != nil {
+		return e
+	}
+	if isolation != "read committed" {
+		var valid bool
+		e := tx.QueryRow(ctx, `SELECT ss.auth_version=a.auth_version AND ss.revoked_at IS NULL AND ss.expires_at>clock_timestamp() AND ss.last_activity_at>clock_timestamp()-$3::interval FROM account_sessions ss JOIN accounts a ON a.id=ss.account_id WHERE ss.id=$1 AND ss.account_id=$2`, session, account, interval(idle)).Scan(&valid)
+		if errors.Is(e, pgx.ErrNoRows) || e == nil && !valid {
+			return ErrUnauthorized
+		}
+		return e
 	}
 	tag, e := tx.Exec(ctx, `UPDATE account_sessions ss SET last_activity_at=clock_timestamp() FROM accounts a WHERE ss.id=$1 AND ss.account_id=$2 AND a.id=ss.account_id AND ss.auth_version=a.auth_version AND ss.revoked_at IS NULL AND ss.expires_at>clock_timestamp() AND ss.last_activity_at>clock_timestamp()-$3::interval`, session, account, interval(idle))
 	if e != nil {

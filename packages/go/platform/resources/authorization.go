@@ -50,11 +50,13 @@ func projectActions(ctx context.Context, tx pgx.Tx, auth authorization, t scoped
 	has := func(cap string) bool { return slices.Contains(g.Capabilities, cap) }
 	out.Edit = out.Edit && has("update") && auth.can(r.Kind, "update")
 	out.CreateComponent = out.Add && has("create_component") && auth.can(Component, "create")
+	out.CreateMonitoringSection = out.Add && has("create_monitoring_section") && auth.can(MonitoringSection, "create")
+	out.CreateBorehole = out.Add && has("create_borehole") && auth.can(Borehole, "create")
 	out.CreatePoint = out.Add && has("create_point") && auth.can(Point, "create")
 	out.CreateChannel = out.Add && has("create_channel") && auth.can(Channel, "create")
 	out.CreateDerivedChannel = out.Add && r.Kind != Channel && has("create_derived_channel") && auth.can(Channel, "create") && slices.Contains(auth.ProjectAuth.AllowedOperations, access.DerivedOperation("project", "channels.create"))
 	out.ManageCalculation = actionAllowed(r, ancestors, true).Edit && r.SourceKind == "derived" && has("manage_calculation") && slices.Contains(auth.ProjectAuth.AllowedOperations, access.DerivedOperation("project", "channels.configs.create"))
-	out.Add = out.CreateComponent || out.CreatePoint || out.CreateChannel || out.CreateDerivedChannel
+	out.Add = out.CreateMonitoringSection || out.CreateBorehole || out.CreateComponent || out.CreatePoint || out.CreateChannel || out.CreateDerivedChannel
 	out.Retire = out.Retire && r.Kind != Facility && has("lifecycle") && auth.can(r.Kind, "retire")
 	out.Restore = out.Restore && r.Kind != Facility && has("lifecycle") && auth.can(r.Kind, "restore")
 	if out.Retire || out.Restore {
@@ -97,6 +99,10 @@ func validateProjectWrite(ctx context.Context, tx pgx.Tx, auth authorization, t 
 	switch action {
 	case "create":
 		switch t.Kind {
+		case MonitoringSection:
+			capability = "create_monitoring_section"
+		case Borehole:
+			capability = "create_borehole"
 		case Component:
 			capability = "create_component"
 			target.Kind = Component
@@ -109,6 +115,10 @@ func validateProjectWrite(ctx context.Context, tx pgx.Tx, auth authorization, t 
 			capability = "create_channel"
 			target.Kind = Point
 			target.ID = t.Point
+		}
+		if r.Kind != Channel && r.ParentRef != nil {
+			target.Kind = r.ParentRef.Kind
+			target.ID = r.ParentRef.ID
 		}
 		if target.ID == "" {
 			target.Kind = Facility
@@ -165,7 +175,7 @@ const descendantsSQL = `WITH RECURSIVE affected(kind,id) AS (
 
 func projectLifecycleAllowed(ctx context.Context, tx pgx.Tx, auth authorization, t scopedTarget) (bool, error) {
 	var allowed bool
-	e := tx.QueryRow(ctx, descendantsSQL+` SELECT NOT EXISTS(SELECT 1 FROM affected a WHERE NOT EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=$1 AND g.project_id=$5 AND g.facility_id=$2 AND g.resource_kind=a.kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)=a.id AND g.ended_at IS NULL AND g.can_lifecycle)) AND NOT EXISTS(SELECT 1 FROM project_resource_visibility($1,NULL,$2) v JOIN affected a ON a.kind=v.kind AND a.id=v.id WHERE v.project_id<>$5::uuid)`, auth.Tenant, t.Facility, t.Kind, t.ID, auth.Project).Scan(&allowed)
+	e := tx.QueryRow(ctx, descendantsSQL+` SELECT NOT EXISTS(SELECT 1 FROM affected a WHERE NOT EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=$1 AND g.project_id=$5 AND g.facility_id=$2 AND g.resource_kind=a.kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.monitoring_section_id,g.borehole_id,g.facility_id)=a.id AND g.ended_at IS NULL AND g.can_lifecycle)) AND NOT EXISTS(SELECT 1 FROM project_resource_visibility($1,NULL,$2) v JOIN affected a ON a.kind=v.kind AND a.id=v.id WHERE v.project_id<>$5::uuid)`, auth.Tenant, t.Facility, t.Kind, t.ID, auth.Project).Scan(&allowed)
 	return allowed, e
 }
 func sharedTx(ctx context.Context, tx pgx.Tx, auth authorization, t scopedTarget) (bool, error) {
@@ -191,12 +201,16 @@ func projectCreateGrant(ctx context.Context, tx pgx.Tx, auth authorization, r Re
 	g := Grant{Kind: r.Kind, ResourceID: r.ID, Capabilities: kindCapabilities[r.Kind], Name: r.Name, Code: r.Code}
 	// Creating a channel never grants authority over its shared source relation.
 	g.Capabilities = slices.DeleteFunc(slices.Clone(g.Capabilities), func(c string) bool {
-		return c == "source_manage" || c == "create_derived_channel" || c == "manage_calculation"
+		return c == "create_monitoring_section" || c == "create_borehole" || c == "source_manage" || c == "create_derived_channel" || c == "manage_calculation"
 	})
 	if r.SourceKind == "derived" {
 		g.Capabilities = append(g.Capabilities, "manage_calculation")
 	}
 	switch r.Kind {
+	case MonitoringSection:
+		g.MonitoringSectionID = &r.ID
+	case Borehole:
+		g.BoreholeID = &r.ID
 	case Component:
 		g.ComponentID = &r.ID
 	case Point:

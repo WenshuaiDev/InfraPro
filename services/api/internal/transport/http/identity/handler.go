@@ -179,6 +179,7 @@ func (h *Handler) Register(r *gin.Engine) {
 		reply(c, nil, e)
 	})
 	auth := r.Group("/api/v1")
+	auth.GET("/auth/upload-limits", func(c *gin.Context) { c.JSON(200, h.config.EffectiveUploads()) })
 	auth.GET("/auth/me", func(c *gin.Context) { a, e := h.service.AuthContext(c.Request.Context(), Principal(c)); reply(c, a, e) })
 	auth.POST("/auth/reauthenticate", func(c *gin.Context) {
 		v, ok := decode[struct {

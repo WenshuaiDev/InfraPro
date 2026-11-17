@@ -22,23 +22,24 @@ function sourceFiles(dir) {
   });
 }
 
-for (const module of modules) {
-  console.log(`[go:${action}] ${module.slice(root.length)}`);
-  if (action === 'fmt' || action === 'check') {
-    const files = sourceFiles(module);
-    if (files.length) {
-      const output = execFileSync('gofmt', [action === 'fmt' ? '-w' : '-l', ...files], { encoding: 'utf8' });
-      if (output.trim()) throw new Error(`Run make fmt:\n${output}`);
+if (action === 'test') {
+  const { runGoTests } = await import('./go-tests.mjs');
+  await runGoTests(modules, root);
+} else {
+  for (const module of modules) {
+    console.log(`[go:${action}] ${module.slice(root.length)}`);
+    if (action === 'fmt' || action === 'check') {
+      const files = sourceFiles(module);
+      if (files.length) {
+        const output = execFileSync('gofmt', [action === 'fmt' ? '-w' : '-l', ...files], { encoding: 'utf8' });
+        if (output.trim()) throw new Error(`Run make fmt:\n${output}`);
+      }
+      if (action === 'check') go(['vet', './...'], module);
+    } else if (action === 'download' || action === 'tidy') {
+      go(['mod', action], module);
+    } else {
+      go(['build', './...'], module);
     }
-    if (action === 'check') go(['vet', './...'], module);
-  } else if (action === 'test') {
-    // Tenant lifecycle tests exercise real password hashing and database fixtures.
-    // The complete race suite exceeds Go's default ten-minute package limit.
-    go(['test', '-race', '-count=1', '-timeout=20m', './...'], module);
-  } else if (action === 'download' || action === 'tidy') {
-    go(['mod', action], module);
-  } else {
-    go(['build', './...'], module);
   }
 }
 

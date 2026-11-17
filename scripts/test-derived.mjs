@@ -1,6 +1,6 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { createWriteStream, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { ensureTestDependencies, testEnv } from './test-environment.mjs';
@@ -15,7 +15,7 @@ const runId = new Date().toISOString().replaceAll(':', '-');
 const output = join(root, '.artifacts', 'derived-monitoring', runId);
 mkdirSync(output, { recursive: true });
 const command = (name, argv) => execFileSync(name, argv, { cwd: root, encoding: 'utf8' }).trim();
-const paths = command('git', ['ls-files', '-co', '--exclude-standard', '-z']).split('\0').filter(Boolean).sort();
+const paths = command('git', ['ls-files', '-co', '--exclude-standard', '-z']).split('\0').filter(path => path && existsSync(join(root, path))).sort();
 const source = createHash('sha256'), files = [];
 for (const path of new Set(paths)) {
   const bytes = readFileSync(join(root, path));

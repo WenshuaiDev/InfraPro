@@ -2,7 +2,7 @@
 export { PROTOCOL_MAJOR } from "./protocol.generated.js";
 export type { EventKind, ProtocolMethod } from "./protocol.generated.js";
 import type { EventKind } from "./protocol.generated.js";
-export const SDK_VERSION = "1.0.0";
+export const SDK_VERSION = "1.1.0";
 export type ExactNumber = string;
 export type Timestamp = string;
 export type JSONValue =
@@ -76,6 +76,9 @@ export interface Capability {
   required_permissions: string[];
   subscribe: boolean;
   max_targets: number;
+  max_view_members?: number;
+  max_page_size?: number;
+  async_deadline_seconds?: number;
 }
 export interface Binding {
   kind: "channels" | "resources" | "spatial" | "artifacts";
@@ -339,7 +342,7 @@ export interface SubscriptionInput {
   query: Query;
   generation?: string;
 }
-export type Consumer = (event: SubscriptionEvent) => void | Promise<void>;
+export type Consumer<T=AnalyticResult> = (event: SubscriptionEvent<T>) => void | Promise<void>;
 export type AlertConsumer = (event: SubscriptionEvent<Page<Alert>>) => void | Promise<void>;
 export interface Subscription {
   unsubscribe(): void;

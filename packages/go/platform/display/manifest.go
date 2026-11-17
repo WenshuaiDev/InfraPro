@@ -2,10 +2,10 @@ package display
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"io"
 	"io/fs"
 	"path"
@@ -16,11 +16,12 @@ import (
 )
 
 type Manifest struct {
-	Version    int    `json:"manifest_version"`
-	AppKey     string `json:"app_key"`
-	Name       string `json:"name,omitempty"`
-	AppVersion string `json:"version"`
-	Entry      string `json:"entry"`
+	ReadViews  map[string]displayread.ViewSchema `json:"read_view_schema,omitempty"`
+	Version    int                               `json:"manifest_version"`
+	AppKey     string                            `json:"app_key"`
+	Name       string                            `json:"name,omitempty"`
+	AppVersion string                            `json:"version"`
+	Entry      string                            `json:"entry"`
 	Routing    struct {
 		Mode     string   `json:"mode"`
 		Fallback []string `json:"fallback,omitempty"`
@@ -79,68 +80,16 @@ func SafePath(p string) bool {
 
 // Decode rejects duplicate properties as well as unknown fields. JSON with
 // duplicate keys must never have different meanings in Go and JavaScript.
-func Decode(b []byte, out any) error {
-	if len(b) > 1<<20 {
-		return invalid("/", "JSON 超过限制。")
-	}
-	d := json.NewDecoder(bytes.NewReader(b))
-	d.UseNumber()
-	var check func() error
-	check = func() error {
-		t, e := d.Token()
-		if e != nil {
-			return e
-		}
-		v, ok := t.(json.Delim)
-		if !ok {
-			return nil
-		}
-		switch v {
-		case '{':
-			seen := map[string]bool{}
-			for d.More() {
-				k, e := d.Token()
-				if e != nil {
-					return e
-				}
-				key, ok := k.(string)
-				if !ok || seen[key] {
-					return fmt.Errorf("duplicate key")
-				}
-				seen[key] = true
-				if e = check(); e != nil {
-					return e
-				}
-			}
-		case '[':
-			for d.More() {
-				if e = check(); e != nil {
-					return e
-				}
-			}
-		default:
-			return fmt.Errorf("unexpected delimiter")
-		}
-		_, e = d.Token()
-		return e
-	}
-	if e := check(); e != nil {
-		return invalid("/", "JSON 无效或含重复字段。")
-	}
-	if _, e := d.Token(); e != io.EOF {
-		return invalid("/", "JSON 含多余内容。")
-	}
-	d = json.NewDecoder(bytes.NewReader(b))
-	d.DisallowUnknownFields()
-	d.UseNumber()
-	if e := d.Decode(out); e != nil {
-		return invalid("/", "JSON 字段或类型无效。")
-	}
-	return nil
-}
+func Decode(b []byte, out any) error { return displayread.Decode(b, out) }
 func ValidateManifest(m Manifest) error {
-	if m.Version != 1 || m.Protocol.Major != 1 {
+	if (m.Version != 1 && m.Version != 2) || m.Protocol.Major != 1 {
 		return problem("version_incompatible", "不支持此包或运行协议主版本。", 422)
+	}
+	if m.Version == 1 && m.ReadViews != nil {
+		return invalid("/read_view_schema", "命名读取视图需要 Manifest 2。")
+	}
+	if e := displayread.ValidateSchemas(m.Version, m.ReadViews); e != nil {
+		return e
 	}
 	if !keyPattern.MatchString(m.AppKey) || len(m.AppVersion) == 0 || len(m.AppVersion) > 64 || !SafePath(m.Entry) || path.Ext(m.Entry) != ".html" {
 		return invalid("/manifest", "应用标识、版本或入口无效。")
@@ -294,7 +243,7 @@ type ValidatedPackage struct {
 
 func ValidateZIP(ctx context.Context, r io.ReaderAt, size int64) (ValidatedPackage, error) {
 	out := ValidatedPackage{Files: map[string][]byte{}}
-	if size < 1 || size > 128<<20 {
+	if size < 1 {
 		return out, invalid("/zip", "压缩包大小超出限制。")
 	}
 	z, e := zip.NewReader(r, size)

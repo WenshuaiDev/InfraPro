@@ -31,6 +31,14 @@ func sourceOwner(r resources.Resource) Owner {
 		if r.ComponentID != nil {
 			owner.ID = *r.ComponentID
 		}
+	case "monitoring_section":
+		if r.MonitoringSectionID != nil {
+			owner.ID = *r.MonitoringSectionID
+		}
+	case "borehole":
+		if r.BoreholeID != nil {
+			owner.ID = *r.BoreholeID
+		}
 	default:
 		owner.Kind = resources.Point
 		owner.ID = r.PointID
@@ -200,7 +208,7 @@ func (s *Service) CreateChannel(ctx context.Context, a access.Actor, scope Scope
 	if e := checkName(in.Name, in.Description); e != nil {
 		return out, e
 	}
-	if !access.ValidID(in.Owner.ID) || !access.ValidID(in.Owner.FacilityID) || !slices.Contains([]resources.Kind{resources.Facility, resources.Component, resources.Point}, in.Owner.Kind) {
+	if !access.ValidID(in.Owner.ID) || !access.ValidID(in.Owner.FacilityID) || !slices.Contains([]resources.Kind{resources.Facility, resources.Component, resources.MonitoringSection, resources.Borehole, resources.Point}, in.Owner.Kind) {
 		return out, invalid("/owner", "需要有效且完整的工程所属对象。")
 	}
 	if in.Owner.Kind == resources.Facility && in.Owner.ID != in.Owner.FacilityID {
@@ -300,6 +308,10 @@ func (s *Service) CreateChannel(ctx context.Context, a access.Actor, scope Scope
 		switch in.Owner.Kind {
 		case resources.Component:
 			r.ComponentID = &in.Owner.ID
+		case resources.MonitoringSection:
+			r.MonitoringSectionID = &in.Owner.ID
+		case resources.Borehole:
+			r.BoreholeID = &in.Owner.ID
 		case resources.Point:
 			r.PointID = in.Owner.ID
 		}
@@ -365,7 +377,7 @@ func (s *Service) Channels(ctx context.Context, a access.Actor, scope Scope, f C
 	if f.Limit == 0 {
 		f.Limit = 30
 	}
-	if f.Limit < 1 || f.Limit > 100 || len(f.Query) > 400 || !slices.Contains([]string{"", "draft", "enabled", "paused", "retired"}, f.ControlState) || f.FacilityID != "" && !access.ValidID(f.FacilityID) || !slices.Contains([]string{"", "facility", "component", "point"}, f.OwnerKind) || f.OwnerID != "" && (!access.ValidID(f.OwnerID) || f.OwnerKind == "") {
+	if f.Limit < 1 || f.Limit > 100 || len(f.Query) > 400 || !slices.Contains([]string{"", "draft", "enabled", "paused", "retired"}, f.ControlState) || f.FacilityID != "" && !access.ValidID(f.FacilityID) || !slices.Contains([]string{"", "facility", "component", "monitoring_section", "borehole", "point"}, f.OwnerKind) || f.OwnerID != "" && (!access.ValidID(f.OwnerID) || f.OwnerKind == "") {
 		return out, invalid("/filter", "通道筛选无效。")
 	}
 	keyFilter := f
@@ -387,7 +399,7 @@ func (s *Service) Channels(ctx context.Context, a access.Actor, scope Scope, f C
 		if scope.Entry == "project" {
 			args = append(args, scope.Project)
 		}
-		rows, e := tx.Query(ctx, `SELECT c.id::text,c.created_at FROM engineering_channels c JOIN derived_channels d ON d.tenant_id=c.tenant_id AND d.channel_id=c.id WHERE c.tenant_id=$1 AND c.deleted_at IS NULL AND ($2='' OR c.name ILIKE '%'||$2||'%' OR c.code ILIKE '%'||$2||'%') AND ($3::timestamptz IS NULL OR (c.created_at,c.id)<($3,$4::uuid)) AND ($6='' OR d.control_state=$6) AND ($7::uuid IS NULL OR c.facility_id=$7) AND ($8='' OR c.owner_kind=$8) AND ($9::uuid IS NULL OR CASE c.owner_kind WHEN 'facility' THEN c.facility_id WHEN 'component' THEN c.component_id ELSE c.point_id END=$9)`+where+` ORDER BY c.created_at DESC,c.id DESC LIMIT $5`, args...)
+		rows, e := tx.Query(ctx, `SELECT c.id::text,c.created_at FROM engineering_channels c JOIN derived_channels d ON d.tenant_id=c.tenant_id AND d.channel_id=c.id WHERE c.tenant_id=$1 AND c.deleted_at IS NULL AND ($2='' OR c.name ILIKE '%'||$2||'%' OR c.code ILIKE '%'||$2||'%') AND ($3::timestamptz IS NULL OR (c.created_at,c.id)<($3,$4::uuid)) AND ($6='' OR d.control_state=$6) AND ($7::uuid IS NULL OR c.facility_id=$7) AND ($8='' OR c.owner_kind=$8) AND ($9::uuid IS NULL OR CASE c.owner_kind WHEN 'facility' THEN c.facility_id WHEN 'component' THEN c.component_id WHEN 'monitoring_section' THEN c.monitoring_section_id WHEN 'borehole' THEN c.borehole_id ELSE c.point_id END=$9)`+where+` ORDER BY c.created_at DESC,c.id DESC LIMIT $5`, args...)
 		if e != nil {
 			return e
 		}

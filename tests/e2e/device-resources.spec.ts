@@ -12,7 +12,7 @@ async function seed(request:APIRequestContext){
  const type=await publish('type-definitions',{name:`设备验收设施_${suffix}`,fields:[],components:[],relations:[]});
  const manufacturer=await post('/platform/device-definitions/manufacturers',{...meta(),code:`factory_${suffix}`,name:`设备厂家_${suffix}`});
  const draft=await post('/platform/device-definitions/products',{...meta(),manufacturer_id:manufacturer.id,code:`product_${suffix}`,name:`状态采集仪_${suffix}`,model:'D-01',output_slots:[{key:'state',name:'固定状态',mode:'fixed',metric_version_id:metric.version_id,unit_version_id:null,timestamp_meaning:'observation_time'},{key:'extension',name:'扩展槽位',mode:'configurable',allowed_shapes:['enum']}]});
- const product=await post(`/platform/device-definitions/products/${draft.id}/publish`,{...meta(),expected_draft_revision:draft.revision});
+ const product=await post(`/platform/device-definitions/products/${draft.id}/publish`,{...meta(),expected_draft_revision:draft.revision,classification:{mode:'unclassified'}});
  const accounts=await(await request.get(`${api}/access/accounts?q=${user.username}`)).json();const tenant=await post('/platform/tenants',{name:`设备租户_${suffix}`,code:`device-${suffix}`,administrator_account_id:accounts.items[0].id,client_request_id:randomUUID(),reason:'设备验收'},201);
  await post('/auth/logout',undefined,204);await post('/auth/login',user);
  const tid=tenant.tenant_id as string;const tenantContext=await(await request.get(`${api}/tenants/${tid}/context`)).json();
@@ -145,7 +145,7 @@ test('lost write response preserves input, receipt resolves once, keyboard devic
 test('device edit conflict reloads the latest record while retaining the draft',async({page,request})=>{
  const markupErrors:string[]=[];page.on('console',m=>{if(m.type()==='error'&&/cannot contain|cannot be a descendant|hydration/i.test(m.text()))markupErrors.push(m.text());});
  test.setTimeout(90_000);const f=await seed(request);const device=await f.post(`/tenants/${f.tenant}/devices`,{...meta(),code:'CONFLICT',name:'最初设备',product_version_id:f.product.version_id});await login(page,f.user);await page.goto(`${consoleURL}/t/${f.tenant}/devices/${device.id}`);await page.getByRole('button',{name:'编辑档案',exact:true}).click();await page.getByLabel('设备名称 *',{exact:true}).fill('我的保留输入');
- const r=await request.patch(`${api}/tenants/${f.tenant}/devices/${device.id}`,{headers:f.headers,data:{...meta(),expected_revision:device.revision,name:'另一窗口已保存'}});expect(r.status(),await r.text()).toBe(200);await page.getByRole('button',{name:'保存资料',exact:true}).click();await expect(page.getByRole('button',{name:'读取最新记录并保留输入',exact:true})).toBeVisible();await expect(page.getByLabel('设备名称 *',{exact:true})).toHaveValue('我的保留输入');await page.getByRole('button',{name:'读取最新记录并保留输入',exact:true}).click();await expect(page.getByText('最新已保存资料：另一窗口已保存 · 无序列号',{exact:true})).toBeVisible();await expect(page.getByLabel('设备名称 *',{exact:true})).toHaveValue('我的保留输入');await page.getByRole('button',{name:'保存资料',exact:true}).click();await expect(page.getByRole('heading',{name:'我的保留输入',exact:true})).toBeVisible();expect(markupErrors).toEqual([]);
+ const r=await request.patch(`${api}/tenants/${f.tenant}/devices/${device.id}`,{headers: { ...f.headers, 'X-Command-ID': randomUUID() },data:{...meta(),expected_revision:device.revision,name:'另一窗口已保存'}});expect(r.status(),await r.text()).toBe(200);await page.getByRole('button',{name:'保存资料',exact:true}).click();await expect(page.getByRole('button',{name:'读取最新记录并保留输入',exact:true})).toBeVisible();await expect(page.getByLabel('设备名称 *',{exact:true})).toHaveValue('我的保留输入');await page.getByRole('button',{name:'读取最新记录并保留输入',exact:true}).click();await expect(page.getByText('最新已保存资料：另一窗口已保存 · 无序列号',{exact:true})).toBeVisible();await expect(page.getByLabel('设备名称 *',{exact:true})).toHaveValue('我的保留输入');await page.getByRole('button',{name:'保存资料',exact:true}).click();await expect(page.getByRole('heading',{name:'我的保留输入',exact:true})).toBeVisible();expect(markupErrors).toEqual([]);
 });
 
 test('late device write cannot reopen details after changing tenant workspace',async({page,request})=>{
@@ -162,9 +162,9 @@ test('manufacturer catalog Drawer and product version workspace keep real writes
   const root = `/platform/device-definitions/products/${f.product.id}`;
   const identity = await (await request.get(`${api}${root}`)).json();
   const draft = await f.post(`${root}/drafts`, { ...meta(), expected_revision: identity.revision, version_id: f.product.version_id });
-  const save = await request.put(`${api}${root}/draft`, { headers: f.headers, data: { ...meta(), expected_draft_revision: draft.revision, content: { ...identity.versions[0].content, description: '已发布 v2 的固定产品说明' } } });
+  const save = await request.put(`${api}${root}/draft`, { headers: { ...f.headers, 'X-Command-ID': randomUUID() }, data: { ...meta(), expected_draft_revision: draft.revision, content: { ...identity.versions[0].content, description: '已发布 v2 的固定产品说明' } } });
   expect(save.status(), await save.text()).toBe(200);
-  await f.post(`${root}/publish`, { ...meta(), expected_draft_revision: (await save.json()).revision });
+  await f.post(`${root}/publish`, { ...meta(), expected_draft_revision: (await save.json()).revision, classification: { mode: 'unclassified' } });
   await login(page, { username: 'e2e_owner', password });
   await page.goto(`${consoleURL}/platform/device-products?manufacturer=${f.manufacturer.id}`);
   const errors: string[] = [];

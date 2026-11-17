@@ -254,7 +254,7 @@ func (s *Service) CreateVersion(ctx context.Context, a access.Actor, scope Scope
 			if !in.NewSource {
 				for _, q := range []string{
 					`INSERT INTO spatial_version_files SELECT tenant_id,$2,file_id,blob_id FROM spatial_version_files WHERE version_id=$1`,
-					`INSERT INTO spatial_point_placements(tenant_id,asset_id,facility_id,version_id,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash,copied_from) SELECT tenant_id,asset_id,facility_id,$2,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash,id FROM spatial_point_placements WHERE version_id=$1`,
+					`INSERT INTO spatial_point_placements(tenant_id,asset_id,facility_id,version_id,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash,copied_from,target_kind,target_id,geometry) SELECT tenant_id,asset_id,facility_id,$2,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash,id,target_kind,target_id,geometry FROM spatial_point_placements WHERE version_id=$1`,
 					`INSERT INTO spatial_component_links(tenant_id,asset_id,facility_id,version_id,component_id,element_key,page_id,region,basis_hash,main_channel_id) SELECT tenant_id,asset_id,facility_id,$2,component_id,element_key,page_id,region,basis_hash,main_channel_id FROM spatial_component_links WHERE version_id=$1`,
 					`INSERT INTO spatial_feature_links SELECT tenant_id,$2,feature_key,facility_id FROM spatial_feature_links WHERE version_id=$1`,
 				} {
@@ -263,7 +263,7 @@ func (s *Service) CreateVersion(ctx context.Context, a access.Actor, scope Scope
 					}
 				}
 			} else {
-				_, e = tx.Exec(ctx, `UPDATE spatial_asset_versions SET candidates=COALESCE((SELECT jsonb_agg(jsonb_build_object('kind','point','state','needs_review','reason','来源已更换，处理完成后核对图页、元素身份和几何。','placement',to_jsonb(p))) FROM spatial_point_placements p WHERE version_id=$1),'[]')||COALESCE((SELECT jsonb_agg(jsonb_build_object('kind','component','state','needs_review','reason','来源已更换，关联须重新核对。','component_link',to_jsonb(c))) FROM spatial_component_links c WHERE version_id=$1),'[]') WHERE id=$2`, base.ID, out.ID)
+				_, e = tx.Exec(ctx, `UPDATE spatial_asset_versions SET candidates=COALESCE((SELECT jsonb_agg(jsonb_build_object('kind','point','state','needs_review','reason','来源已更换，处理完成后核对图页、元素身份和几何。','placement',to_jsonb(p)||CASE WHEN p.target_kind='point' THEN '{}'::jsonb ELSE jsonb_build_object('target_ref',jsonb_build_object('kind',p.target_kind,'id',p.target_id)) END)) FROM spatial_point_placements p WHERE version_id=$1),'[]')||COALESCE((SELECT jsonb_agg(jsonb_build_object('kind','component','state','needs_review','reason','来源已更换，关联须重新核对。','component_link',to_jsonb(c))) FROM spatial_component_links c WHERE version_id=$1),'[]') WHERE id=$2`, base.ID, out.ID)
 				if e != nil {
 					return e
 				}

@@ -79,6 +79,29 @@ func TestContentFormatsAndDeceptiveBodies(t *testing.T) {
 		})
 	}
 }
+func TestOfficeDefaultContentTypeAndOverridePrecedence(t *testing.T) {
+	for _, format := range []string{"docx", "xlsx", "pptx"} {
+		main := map[string]string{"docx": "word/document.xml", "xlsx": "xl/workbook.xml", "pptx": "ppt/presentation.xml"}[format]
+		typ := map[string]string{"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"}[format]
+		validDefault := `<Default Extension="xml" ContentType="` + typ + `"/>`
+		for _, tc := range []struct{ name, entries, want string }{
+			{"default", validDefault, "ok"},
+			{"override wins", `<Default Extension="xml" ContentType="application/xml"/><Override PartName="/` + main + `" ContentType="` + typ + `"/>`, "ok"},
+			{"wrong override", validDefault + `<Override PartName="/` + main + `" ContentType="application/xml"/>`, "failed"},
+			{"duplicate default", validDefault + validDefault, "failed"},
+			{"macro default", `<Default Extension="xml" ContentType="application/vnd.ms-excel.sheet.macroEnabled.main+xml"/>`, "failed"},
+		} {
+			t.Run(format+"/"+tc.name, func(t *testing.T) {
+				types := []byte(`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` + tc.entries + `</Types>`)
+				got := run(t, officeFile(t, format, map[string][]byte{"[Content_Types].xml": types}), format, "validate")
+				if got.Status != tc.want {
+					t.Fatal(got)
+				}
+			})
+		}
+	}
+}
+
 func TestImagePreviewIsNewContentAndSourceValidationIndependent(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 1800, 900))
 	for y := 0; y < 900; y++ {

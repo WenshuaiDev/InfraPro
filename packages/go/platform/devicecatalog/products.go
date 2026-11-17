@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/classification"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/jackc/pgx/v5"
 )
@@ -289,13 +290,27 @@ func (s *Service) Validate(ctx context.Context, a access.Actor, scope Scope, id 
 	return out, e
 }
 func (s *Service) Publish(ctx context.Context, a access.Actor, scope Scope, id string, in DraftRevision, meta access.Meta) (Result, error) {
+	return s.PublishClassified(ctx, a, scope, id, in, classification.Selection{Mode: "unclassified"}, meta)
+}
+
+func (s *Service) PublishClassified(ctx context.Context, a access.Actor, scope Scope, id string, in DraftRevision, choice classification.Selection, meta access.Meta) (Result, error) {
 	var out Result
 	if e := in.Meta.Normalize(); e != nil {
 		return out, e
 	}
 	e := s.transact(ctx, a, scope, "product", "publish", true, func(tx pgx.Tx, auth k.Authorization) error {
+		if choice.Mode == "classify" {
+			permission := access.DeviceCategoryRead
+			if scope.Entry == "tenant" {
+				permission = access.TenantDeviceCatalogRead
+			}
+			if e := auth.Require(permission); e != nil {
+				return e
+			}
+		}
+
 		op := scope.Operation("product", "publish")
-		input := []any{id, in}
+		input := []any{id, in, choice}
 		v, ok, e := k.Replay(ctx, tx, auth, in.RequestID, op, input)
 		if e != nil {
 			return e
@@ -343,6 +358,9 @@ func (s *Service) Publish(ctx context.Context, a access.Actor, scope Scope, id s
 		out = Result{ID: id, Changed: true}
 		e = tx.QueryRow(ctx, `INSERT INTO device_product_versions(product_id,number,schema_version,content,content_hash,source_version_id,published_by) SELECT $1,COALESCE(MAX(number),0)+1,1,$2,$3,$4,$5 FROM device_product_versions WHERE product_id=$1 RETURNING id::text,number`, id, k.JSON(d.Content), k.Hash(d.Content), d.CopiedFromVersionID, a.ID).Scan(&out.VersionID, &out.Number)
 		if e != nil {
+			return e
+		}
+		if e = classification.InitializeProductTx(ctx, tx, out.VersionID, a.ID, in.RequestID, "发布确认："+in.Reason, choice); e != nil {
 			return e
 		}
 		if _, e = tx.Exec(ctx, `INSERT INTO device_product_version_states(version_id,updated_by) VALUES($1,$2)`, out.VersionID, a.ID); e != nil {

@@ -80,6 +80,8 @@ export function ObjectPanel({
               component:
                 object.data.kind === "component" ? object.data.id : undefined,
               point: object.data.kind === "point" ? object.data.id : undefined,
+              monitoring_section: object.data.kind === "monitoring_section" ? object.data.id : undefined,
+              borehole: object.data.kind === "borehole" ? object.data.id : undefined,
             }}
           >
             打开资源详情
@@ -535,7 +537,7 @@ function OwnerSources({ object }: { object: SpatialObject }) {
       m.client.monitoringDirectory(
         m.scope,
         {
-          owner_kind: object.kind as "facility" | "component" | "point",
+          owner_kind: object.kind as "facility" | "component" | "monitoring_section" | "borehole" | "point",
           owner_id: object.id,
           source_kind: "direct",
         },

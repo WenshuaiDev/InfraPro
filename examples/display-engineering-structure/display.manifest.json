@@ -1,0 +1,12 @@
+{
+  "manifest_version":2,"app_key":"engineering-structure-example","name":"工程结构与设备分类验收","version":"1.1.0","entry":"index.html","routing":{"mode":"hash"},"sdk_protocol":{"major":1},
+  "required_capabilities":{"views.read":1,"queries.read":1},
+  "optional_capabilities":{"resources.directory":1,"resources.hierarchy":1,"resources.detail":1,"classification.categories":1,"statistics.structure":1,"statistics.deviceCategories":1,"statistics.devices":1,"statistics.monitoring":1,"devices.read":1,"monitoring.details":1,"spatial.catalog":1,"spatial.links":1},
+  "config_schema":{"type":"object","properties":{"title":{"type":"string","title":"标题","maxLength":80,"default":"工程结构与设备分类"}},"required":["title"]},"binding_schema":{},
+  "read_view_schema":{
+    "project_resources":{"domain":"resources","structure_model":2,"required":false,"purpose":"完整混合层级、孔位资料、适用性与结构统计","allow_dynamic":true},
+    "project_devices":{"domain":"devices","structure_model":2,"required":false,"purpose":"完整授权设备分类汇总；名单与分类明细须另授字段","allow_dynamic":true},
+    "project_raw":{"domain":"channels","structure_model":2,"required":false,"purpose":"原始通道正式观测、当前来源和结构分组","allow_dynamic":true},
+    "project_spatial":{"domain":"spatial","structure_model":2,"required":false,"purpose":"固定空间版本及断面、孔位定位","allow_dynamic":false}
+  },"files":[]
+}

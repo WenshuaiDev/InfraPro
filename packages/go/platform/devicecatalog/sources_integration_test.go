@@ -16,7 +16,7 @@ import (
 
 func (f fixture) sourceTargets(t *testing.T, b runtime.Business) []src.Target {
 	wm := func() eng.WriteMeta { m := f.meta(t); return eng.WriteMeta{RequestID: m.RequestID, Reason: m.Reason} }
-	typ, e := f.e.Create(ctx, f.actor(), eng.Scope{Kind: eng.TypeDefinition}, eng.CreateInput{WriteMeta: wm(), Code: "facility", Content: eng.Content{MetamodelVersion: "1", Name: "设施类型"}}, access.Meta{})
+	typ, e := f.e.Create(ctx, f.actor(), eng.Scope{Kind: eng.TypeDefinition}, eng.CreateInput{WriteMeta: wm(), Code: "facility", Content: eng.Content{MetamodelVersion: "1", Name: "设施类型", Components: []eng.Component{{Key: "span", Name: "跨"}, {Key: "beam", Name: "梁"}}, Relations: []eng.Relation{{Parent: "root", Child: "span"}, {Parent: "span", Child: "beam"}}}}, access.Meta{})
 	must(t, e)
 	typ, e = f.e.Publish(ctx, f.actor(), eng.Scope{Kind: eng.TypeDefinition}, typ.DefinitionID, eng.RevisionInput{WriteMeta: wm(), Revision: typ.Revision}, access.Meta{})
 	must(t, e)
@@ -96,6 +96,24 @@ func TestSourceAtomicSwitchOccupancyAndRollback(t *testing.T) {
 	}
 	must(t, errs[winner])
 	wantCode(t, errs[1-winner], "source_output_occupied")
+	// A bound channel never offers its current output as an occupied candidate.
+	candidates, e = b.Sources.Candidates(ctx, f.owner, scope, targets[winner], src.Filter{Limit: 1})
+	must(t, e)
+	if len(candidates.Items) != 1 || candidates.Items[0].Output.ID != outputs[1].ID || !candidates.Items[0].Available || candidates.NextCursor != "" {
+		t.Fatal("current output remained in replacement candidates", candidates)
+	}
+	// The later-created free output precedes the older occupied output, including
+	// across a cursor boundary; the occupied one stays visible for other targets.
+	candidates, e = b.Sources.Candidates(ctx, f.owner, scope, targets[1-winner], src.Filter{Limit: 1})
+	must(t, e)
+	if len(candidates.Items) != 1 || candidates.Items[0].Output.ID != outputs[1].ID || !candidates.Items[0].Available || candidates.NextCursor == "" {
+		t.Fatal("available output was not first", candidates)
+	}
+	occupied, e := b.Sources.Candidates(ctx, f.owner, scope, targets[1-winner], src.Filter{Limit: 1, Cursor: candidates.NextCursor})
+	must(t, e)
+	if len(occupied.Items) != 1 || occupied.Items[0].Output.ID != outputs[0].ID || occupied.Items[0].Available || occupied.NextCursor != "" {
+		t.Fatal("candidate pagination skipped or repeated a priority group", occupied)
+	}
 	current, e := b.Sources.Current(ctx, f.owner, scope, targets[winner])
 	must(t, e)
 	if !current.Source.Configured || current.Source.Output == nil {

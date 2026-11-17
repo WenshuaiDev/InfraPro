@@ -9,16 +9,16 @@ const origin = new URL(consoleURL).origin;
 const api = `${origin}/api/v1`;
 async function signIn(request: APIRequestContext, username: string) {
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(request, origin) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username, password } })).status()).toBe(200); return headers;
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username, password } })).status()).toBe(200); return headers;
 }
 async function prepare(request: APIRequestContext) {
   const administrator = await createAccount(request, false); const member = await createAccount(request, false); const headers = await signIn(request, 'e2e_owner');
   const find = async (username: string) => (await (await request.get(`${api}/access/accounts?q=${username}`)).json()).items[0].id as string;
   const admin = await find(administrator.username); const target = await find(member.username);
-  const response = await request.post(`${api}/platform/tenants`, { headers, data: { name: '角色授权验收', code: `tra-${randomBytes(5).toString('hex')}`, administrator_account_id: admin, client_request_id: randomUUID(), reason: '角色授权测试准备' } }); expect(response.status()).toBe(201); const tenant = (await response.json()).tenant_id as string;
+  const response = await request.post(`${api}/platform/tenants`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: '角色授权验收', code: `tra-${randomBytes(5).toString('hex')}`, administrator_account_id: admin, client_request_id: randomUUID(), reason: '角色授权测试准备' } }); expect(response.status()).toBe(201); const tenant = (await response.json()).tenant_id as string;
   const h = await signIn(request, administrator.username);
-  const link = await (await request.post(`${api}/tenants/${tenant}/member-invitations`, { headers: h, data: { target_account_id: target, client_request_id: randomUUID(), reason: '加入测试' } })).json();
-  const recipient = await signIn(request, member.username); const token = new URLSearchParams(new URL(link.link).hash.slice(1)).get('token'); const accepted = await request.post(`${api}/account/tenant-invitations/accept`, { headers: recipient, data: { token, expected_version: link.invitation.version } }); expect(accepted.status()).toBe(200); const membership = (await accepted.json()).membership_id as string;
+  const link = await (await request.post(`${api}/tenants/${tenant}/member-invitations`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { target_account_id: target, client_request_id: randomUUID(), reason: '加入测试' } })).json();
+  const recipient = await signIn(request, member.username); const token = new URLSearchParams(new URL(link.link).hash.slice(1)).get('token'); const accepted = await request.post(`${api}/account/tenant-invitations/accept`, { headers: { ...recipient, 'X-Command-ID': randomUUID() }, data: { token, expected_version: link.invitation.version } }); expect(accepted.status()).toBe(200); const membership = (await accepted.json()).membership_id as string;
   return { administrator, member, tenant, membership };
 }
 
@@ -69,33 +69,33 @@ test('role UI: create, copy, multi-role union, impact, disable, empty authorizat
 test('role HTTP: strict bodies, presets scope, stale preview and immediate cookie authorization', async ({ request }) => {
   const f = await prepare(request); const h = await signIn(request, f.administrator.username); const base = `${api}/tenants/${f.tenant}`;
   const input = { name: '严格校验职责', permission_codes: [], client_request_id: randomUUID(), reason: '严格校验' };
-  for (const field of ['builtin_key', 'owner_tenant_id', 'binding_scope']) expect((await request.post(`${base}/roles`, { headers: h, data: { ...input, [field]: 'forged' } })).status()).toBe(400);
-  for (const permission_codes of [[P.AccountProfileRead], [P.TenantRoleRead], [P.TenantProfileRead, P.TenantProfileRead], ['unknown.*'], null]) expect((await request.post(`${base}/roles`, { headers: h, data: { ...input, permission_codes } })).status()).toBe(400);
+  for (const field of ['builtin_key', 'owner_tenant_id', 'binding_scope']) expect((await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { ...input, [field]: 'forged' } })).status()).toBe(400);
+  for (const permission_codes of [[P.AccountProfileRead], [P.TenantRoleRead], [P.TenantProfileRead, P.TenantProfileRead], ['unknown.*'], null]) expect((await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { ...input, permission_codes } })).status()).toBe(400);
   expect((await request.post(`${base}/roles`, { headers: { Origin: origin }, data: input })).status()).toBe(403);
-  const created = await request.post(`${base}/roles`, { headers: h, data: input }); expect(created.status()).toBe(201); const r = (await created.json()).role;
-  expect((await request.post(`${base}/roles`, { headers: h, data: input })).status()).toBe(200);
-  expect((await request.post(`${base}/roles`, { headers: h, data: { ...input, name: '不同内容' } })).status()).toBe(409);
-  expect((await request.put(`${base}/roles/${r.id}/permissions`, { headers: h, data: { expected_version: r.version, permission_codes: [], preview_hash: 'forged', reason: '没有预览' } })).status()).toBe(409);
-  const platform = await signIn(request, 'e2e_owner'); expect((await request.patch(`${api}/access/roles/${r.id}`, { headers: platform, data: { name: '越权', description: '', reason: '越权', expected_version: r.version } })).status()).toBe(404);
+  const created = await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: input }); expect(created.status()).toBe(201); const r = (await created.json()).role;
+  expect((await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: input })).status()).toBe(200);
+  expect((await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { ...input, name: '不同内容' } })).status()).toBe(409);
+  expect((await request.put(`${base}/roles/${r.id}/permissions`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { expected_version: r.version, permission_codes: [], preview_hash: 'forged', reason: '没有预览' } })).status()).toBe(409);
+  const platform = await signIn(request, 'e2e_owner'); expect((await request.patch(`${api}/access/roles/${r.id}`, { headers: { ...platform, 'X-Command-ID': randomUUID() }, data: { name: '越权', description: '', reason: '越权', expected_version: r.version } })).status()).toBe(404);
   const presets = await (await request.get(`${api}/access/tenant-role-presets`)).json(); expect(presets.items).toHaveLength(6); expect(presets.items.every((p: { owner_tenant_id: string }) => !p.owner_tenant_id)).toBe(true);
 });
 
 test('tenant role drafts and late previews disappear after administrator handover', async ({ page, request }) => {
   const f = await prepare(request); const h = await signIn(request, f.administrator.username); const base = `${api}/tenants/${f.tenant}`;
-  const r = await (await request.post(`${base}/roles`, { headers: h, data: { name: '旧上下文职责', permission_codes: [P.TenantProfileRead], client_request_id: randomUUID(), reason: '迟到预览测试' } })).json();
+  const r = await (await request.post(`${base}/roles`, { headers: { ...h, 'X-Command-ID': randomUUID() }, data: { name: '旧上下文职责', permission_codes: [P.TenantProfileRead], client_request_id: randomUUID(), reason: '迟到预览测试' } })).json();
   await login(page, f.administrator); await page.goto(`${consoleURL}/t/${f.tenant}/roles/${r.role.id}`); await page.getByRole('button', { name: '配置角色权限', exact: true }).click(); await page.getByRole('checkbox', { name: '修改租户资料', exact: false }).check(); await page.getByLabel('操作原因').fill('旧租户草稿不可恢复');
   let release!: () => void; const held = new Promise<void>((resolve) => { release = resolve; }); let fetched!: () => void; const ready = new Promise<void>((resolve) => { fetched = resolve; });
   await page.route(`**/tenants/${f.tenant}/roles/${r.role.id}/permissions/preview?*`, async (route) => { const response = await route.fetch(); fetched(); await held; try { await route.fulfill({ response }); } catch { /* Navigation may cancel this completed response. */ } });
   await page.getByRole('button', { name: '预览变更影响' }).click(); await ready;
   const owner = await signIn(request, 'e2e_owner'); const target = (await (await request.get(`${api}/access/accounts?q=${f.member.username}`)).json()).items[0].id as string; const tenant = await (await request.get(`${api}/platform/tenants/${f.tenant}`)).json();
-  expect((await request.post(`${api}/platform/tenants/${f.tenant}/administrator-transfer`, { headers: owner, data: { new_administrator_account_id: target, expected_version: tenant.version, reason: '验证交接后清理草稿' } })).status()).toBe(200);
+  expect((await request.post(`${api}/platform/tenants/${f.tenant}/administrator-transfer`, { headers: { ...owner, 'X-Command-ID': randomUUID() }, data: { new_administrator_account_id: target, expected_version: tenant.version, reason: '验证交接后清理草稿' } })).status()).toBe(200);
   await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await expect(page.getByRole('heading', { name: '当前租户不可访问', exact: true })).toBeVisible(); release();
   await expect(page.getByRole('dialog')).toHaveCount(0); await expect(page.getByText('旧租户草稿不可恢复', { exact: true })).toHaveCount(0); await expect(page.getByRole('region', { name: '变更影响预览' })).toHaveCount(0);
 });
 
 test('tenant role table keeps filters and pagination when its detail panel closes', async ({ page, request }, info) => {
   const f = await prepare(request); const headers = await signIn(request, f.administrator.username); const prefix = `分页职责_${randomBytes(3).toString('hex')}`;
-  for (let i = 0; i < 12; i++) expect((await request.post(`${api}/tenants/${f.tenant}/roles`, { headers, data: { name: `${prefix}_${i + 1}`, description: '租户职责列表验收', permission_codes: [], client_request_id: randomUUID(), reason: '准备分页验证' } })).status()).toBe(201);
+  for (let i = 0; i < 12; i++) expect((await request.post(`${api}/tenants/${f.tenant}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `${prefix}_${i + 1}`, description: '租户职责列表验收', permission_codes: [], client_request_id: randomUUID(), reason: '准备分页验证' } })).status()).toBe(201);
   await login(page, f.administrator); await page.goto(`${consoleURL}/t/${f.tenant}/roles`); await page.getByLabel('搜索角色名称', { exact: true }).fill(prefix);
   const table = page.getByRole('table', { name: '租户角色列表', exact: true }); const pager = page.getByRole('navigation', { name: '租户角色列表分页', exact: true });
   await expect(table.getByRole('row')).toHaveCount(11); await pager.getByRole('button', { name: '下一页', exact: true }).click(); await expect(table.getByRole('row')).toHaveCount(3);

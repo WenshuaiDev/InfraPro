@@ -134,14 +134,12 @@ func activeCodes() []Code {
 	return v
 }
 func known(code Code) bool {
-	for _, p := range Catalog() {
-		if p.Code == code && p.Lifecycle == "active" {
-			return true
-		}
-	}
-	return false
+	return activePermissionIndex()[code]
 }
 func Checksum() string {
+	return releaseChecksum()
+}
+func calculateChecksum() string {
 	b, _ := json.Marshal(struct {
 		Permissions []Permission
 		Roles       []Builtin

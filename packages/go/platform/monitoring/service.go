@@ -13,20 +13,30 @@ import (
 )
 
 type Service struct {
-	readSubjects           func(context.Context, string) (*access.ReadSubject, error)
-	workers                WorkerOptions
-	resultExportTTL        time.Duration
-	access                 *access.Service
-	storage                *Storage
-	rawSystem              RawSystemAuthorizer
-	executors              map[string]TaskExecutor
-	calculationReader      CalculationReader
-	calculationMaintenance CalculationMaintenance
-	scheduler              TaskScheduler
+	maxCSVBytes, maxXLSXBytes int64
+	displayQualification      func(context.Context, pgx.Tx, access.Actor, Scope, map[string][]Window) error
+	readSubjects              func(context.Context, string) (*access.ReadSubject, error)
+	workers                   WorkerOptions
+	resultExportTTL           time.Duration
+	access                    *access.Service
+	storage                   *Storage
+	rawSystem                 RawSystemAuthorizer
+	executors                 map[string]TaskExecutor
+	calculationReader         CalculationReader
+	calculationMaintenance    CalculationMaintenance
+	scheduler                 TaskScheduler
+}
+
+func (s *Service) WithDisplayQualification(fn func(context.Context, pgx.Tx, access.Actor, Scope, map[string][]Window) error) {
+	s.displayQualification = fn
 }
 
 func New(a *access.Service) *Service {
-	return &Service{access: a, workers: DefaultWorkerOptions(), resultExportTTL: 7 * 24 * time.Hour}
+	return &Service{access: a, maxCSVBytes: MaxCSVBytes, maxXLSXBytes: MaxXLSXBytes, workers: DefaultWorkerOptions(), resultExportTTL: 7 * 24 * time.Hour}
+}
+func (s *Service) WithUploadLimits(csv, xlsx int64) *Service {
+	s.maxCSVBytes, s.maxXLSXBytes = csv, xlsx
+	return s
 }
 func (s *Service) WithStorage(storage *Storage) *Service { s.storage = storage; return s }
 func (s *Service) requireStorage() error {

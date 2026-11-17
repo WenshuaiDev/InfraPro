@@ -11,13 +11,15 @@ const (
 	ProjectEngineeringResourceLifecycle          Code = "project.engineering.resource.lifecycle"
 	ProjectEngineeringFacilityCreate             Code = "project.engineering.facility.create"
 	ProjectEngineeringComponentCreate            Code = "project.engineering.component.create"
+	ProjectEngineeringSectionCreate              Code = "project.engineering.monitoring_section.create"
+	ProjectEngineeringBoreholeCreate             Code = "project.engineering.borehole.create"
 	ProjectEngineeringPointCreate                Code = "project.engineering.point.create"
 	ProjectEngineeringChannelCreate              Code = "project.engineering.channel.create"
 	ProjectEngineeringCatalogRead                Code = "project.engineering.catalog.read"
 )
 
 func projectResourceCodes() []Code {
-	return []Code{ProjectEngineeringResourceRead, ProjectEngineeringResourceUpdate, ProjectEngineeringResourceHistoryRead, ProjectEngineeringResourceLifecycle, ProjectEngineeringFacilityCreate, ProjectEngineeringComponentCreate, ProjectEngineeringPointCreate, ProjectEngineeringChannelCreate, ProjectEngineeringCatalogRead}
+	return []Code{ProjectEngineeringResourceRead, ProjectEngineeringResourceUpdate, ProjectEngineeringResourceHistoryRead, ProjectEngineeringResourceLifecycle, ProjectEngineeringFacilityCreate, ProjectEngineeringComponentCreate, ProjectEngineeringSectionCreate, ProjectEngineeringBoreholeCreate, ProjectEngineeringPointCreate, ProjectEngineeringChannelCreate, ProjectEngineeringCatalogRead}
 }
 func projectResourceCatalog() []Permission {
 	out := []Permission{}
@@ -33,6 +35,8 @@ func projectResourceCatalog() []Permission {
 		{ProjectEngineeringResourceLifecycle, "退役和恢复项目资源", "同时需要资源查看与对象生命周期能力；共享或不完整范围交由租户处理。"},
 		{ProjectEngineeringFacilityCreate, "新建设施", "同时需要资源查看、公共目录读取及租户开启项目新建政策。"},
 		{ProjectEngineeringComponentCreate, "新增构件", "同时需要资源查看与父对象新增构件能力。"},
+		{ProjectEngineeringSectionCreate, "新增监测断面", "同时需要资源查看、类型支持和父对象新增断面能力。"},
+		{ProjectEngineeringBoreholeCreate, "新增孔位", "同时需要资源查看、类型支持和父对象新增孔位能力。"},
 		{ProjectEngineeringPointCreate, "新增测点", "同时需要资源查看与所属设施或构件新增测点能力。"},
 		{ProjectEngineeringChannelCreate, "新增通道", "同时需要资源查看、公共目录读取及测点新增通道能力。"},
 		{ProjectEngineeringCatalogRead, "读取公共建档目录", "仅可采用的公共类型、指标和单位；不含草稿及私有模板。"},
@@ -58,10 +62,11 @@ func ResourceAccessOperation(kind, action string) Operation {
 func projectResourcePolicies() []Policy {
 	out := []Policy{}
 	base := "/api/v1/tenants/:tenant_id/projects/:project_id"
+	out = append(out, Policy{ProjectResourceOperation("tree", "list"), "GET", base + "/engineering/resources/tree", "project", []Code{ProjectEngineeringResourceRead}, false, false})
 	for _, v := range []struct{ kind, path string }{
-		{"facility", "/facilities"}, {"component", "/facilities/:facility_id/components"}, {"point", "/facilities/:facility_id/points"}, {"channel", "/facilities/:facility_id/points/:point_id/channels"},
+		{"facility", "/facilities"}, {"component", "/facilities/:facility_id/components"}, {"monitoring_section", "/facilities/:facility_id/monitoring-sections"}, {"borehole", "/facilities/:facility_id/boreholes"}, {"point", "/facilities/:facility_id/points"}, {"channel", "/facilities/:facility_id/points/:point_id/channels"},
 	} {
-		param := map[string]string{"facility": "facility_id", "component": "component_id", "point": "point_id", "channel": "channel_id"}[v.kind]
+		param := map[string]string{"facility": "facility_id", "component": "component_id", "monitoring_section": "monitoring_section_id", "borehole": "borehole_id", "point": "point_id", "channel": "channel_id"}[v.kind]
 		for _, r := range []struct{ action, method, suffix string }{
 			{"list", "GET", ""}, {"create", "POST", ""}, {"detail", "GET", "/:" + param}, {"update", "PATCH", "/:" + param}, {"retire", "POST", "/:" + param + "/retire"}, {"restore", "POST", "/:" + param + "/restore"}, {"preview", "POST", "/:" + param + "/mutation-preview"},
 		} {
@@ -71,7 +76,7 @@ func projectResourcePolicies() []Policy {
 			codes := []Code{ProjectEngineeringResourceRead}
 			switch r.action {
 			case "create":
-				codes = append(codes, map[string]Code{"facility": ProjectEngineeringFacilityCreate, "component": ProjectEngineeringComponentCreate, "point": ProjectEngineeringPointCreate, "channel": ProjectEngineeringChannelCreate}[v.kind])
+				codes = append(codes, map[string]Code{"facility": ProjectEngineeringFacilityCreate, "component": ProjectEngineeringComponentCreate, "monitoring_section": ProjectEngineeringSectionCreate, "borehole": ProjectEngineeringBoreholeCreate, "point": ProjectEngineeringPointCreate, "channel": ProjectEngineeringChannelCreate}[v.kind])
 				if v.kind == "facility" || v.kind == "channel" {
 					codes = append(codes, ProjectEngineeringCatalogRead)
 				}
@@ -83,6 +88,29 @@ func projectResourcePolicies() []Policy {
 			out = append(out, Policy{ProjectResourceOperation(v.kind, r.action), r.method, base + "/engineering/resources" + v.path + r.suffix, "project", codes, false, false})
 		}
 	}
+
+	for _, kind := range []string{"facility", "component", "monitoring_section", "borehole", "point"} {
+		path := map[string]string{"facility": "/facilities/:facility_id", "component": "/facilities/:facility_id/components/:component_id", "monitoring_section": "/facilities/:facility_id/monitoring-sections/:monitoring_section_id", "borehole": "/facilities/:facility_id/boreholes/:borehole_id", "point": "/facilities/:facility_id/points/:point_id"}[kind]
+		for _, action := range []string{"attachment-content", "attachment-preview"} {
+			out = append(out, Policy{ProjectResourceOperation(kind, action), "GET", base + "/engineering/resources" + path + "/attachments/:attachment_ref_id/" + action, "project", []Code{ProjectEngineeringResourceRead}, false, false})
+		}
+		for _, action := range []string{"structure-details", "structure-records-preview", "structure-records"} {
+			codes := []Code{ProjectEngineeringResourceRead}
+			method := "GET"
+			if action != "structure-details" {
+				method = "POST"
+				codes = append(codes, ProjectEngineeringResourceUpdate)
+			}
+			out = append(out, Policy{ProjectResourceOperation(kind, action), method, base + "/engineering/resources" + path + "/" + action, "project", codes, false, false})
+		}
+	}
+	for _, kind := range []string{"component", "monitoring_section", "borehole", "point"} {
+		path := map[string]string{"component": "components", "monitoring_section": "monitoring-sections", "borehole": "boreholes", "point": "points"}[kind]
+		for _, action := range []string{"move-preview", "move"} {
+			out = append(out, Policy{ProjectResourceOperation(kind, action), "POST", base + "/engineering/resources/facilities/:facility_id/" + path + "/:" + kind + "_id/" + action, "project", []Code{ProjectEngineeringResourceRead, ProjectEngineeringResourceUpdate}, false, false})
+		}
+	}
+
 	out = append(out, Policy{ProjectResourceOperation("facility", "changes"), "GET", base + "/engineering/resources/facilities/:facility_id/changes", "project", []Code{ProjectEngineeringResourceRead, ProjectEngineeringResourceHistoryRead}, false, false}, Policy{ProjectResourceOperation("request", "detail"), "GET", base + "/engineering/resources/requests/:request_id", "project", []Code{ProjectEngineeringResourceRead}, false, false})
 	for _, kind := range []string{"type-definitions", "metrics", "units"} {
 		for _, r := range []struct{ action, path string }{{"list", ""}, {"version", "/versions/:version_id"}} {

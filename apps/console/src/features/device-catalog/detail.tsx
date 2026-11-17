@@ -1,3 +1,4 @@
+import { ClassificationCard } from '../classification/assignment';
 import { ProductParsing } from '../parsing/configs';
 import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
@@ -80,6 +81,7 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
         </aside>
         <div className="min-w-0 space-y-6 p-4 sm:p-6">
           {content ? <>
+{!viewingDraft&&version&&<ClassificationCard scopeKey={c.prefix} key={version.id} scope={c.writeScope} kind="product_version" id={version.id} value={version.classification} canManage={c.owned&&c.edit&&c.available} canHistory/>}
             <div className="flex flex-wrap items-start justify-between gap-4 border-b pb-5">
               <div className="space-y-2"><div className="flex flex-wrap items-center gap-2">{viewingDraft ? <FilePenLine className="size-4 text-muted-foreground" aria-hidden="true" /> : <Package className="size-4 text-muted-foreground" aria-hidden="true" />}<h2 className="font-semibold">{viewingDraft ? '当前草稿' : `发布版本 v${version!.number}`}</h2><Badge variant={viewingDraft || !version?.enabled ? 'outline' : 'secondary'}>{viewingDraft ? '未发布' : version!.enabled ? '启用' : '停用'}</Badge></div><p className="text-sm text-muted-foreground">{viewingDraft ? '草稿发布后才会成为新的可采用版本。' : `发布于 ${formatDate(version!.published_at)}（北京时间）`}</p></div>
               <div className="flex flex-wrap items-center gap-2">

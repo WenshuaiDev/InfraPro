@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/location"
 	"github.com/jackc/pgx/v5"
 	"strconv"
 	"strings"
@@ -142,7 +143,7 @@ func (s *Service) Placements(ctx context.Context, a access.Actor, scope Scope, i
 		}
 		items := []Placement{}
 		for _, p := range d.Placements {
-			if (f.OwnerID == "" || p.PointID == f.OwnerID) && (f.PageID == "" || p.PageID == f.PageID) && (f.State != "normal" || !p.Object.Retired) && matched(p.Object.Name+" "+p.Object.Code, f.Query) {
+			if (f.OwnerID == "" || placementRef(p).ID == f.OwnerID) && (f.Kind == "" || placementRef(p).Kind == f.Kind) && (f.PageID == "" || p.PageID == f.PageID) && (f.State != "normal" || !p.Object.Retired) && matched(p.Object.Name+" "+p.Object.Code, f.Query) {
 				items = append(items, p)
 			}
 		}
@@ -295,7 +296,7 @@ func (s *Service) checkObjects(ctx context.Context, a access.Actor, scope Scope,
 	e := s.transact(ctx, a, scope, action, false, func(tx pgx.Tx, auth k.Authorization) error {
 		revision = auth.Revision + ":" + auth.ResourceAccessRevision
 		for _, ref := range objects {
-			if ref.Kind != "facility" && ref.Kind != "component" && ref.Kind != "point" {
+			if ref.Kind != "facility" && ref.Kind != "component" && ref.Kind != "point" && ref.Kind != "monitoring_section" && ref.Kind != "borehole" {
 				return invalid("/objects", "请选择设施、构件或测点。")
 			}
 			if _, e := s.objectTx(ctx, tx, a, scope, ref); e != nil {
@@ -365,13 +366,14 @@ func (s *Service) RelatedArtifacts(ctx context.Context, a access.Actor, scope Sc
 }
 
 type Location struct {
-	Asset      Asset     `json:"asset"`
-	VersionID  string    `json:"version_id"`
-	Number     int       `json:"number"`
-	Owner      ObjectRef `json:"owner"`
-	PageID     string    `json:"page_id"`
-	Anchor     []float64 `json:"anchor,omitempty"`
-	ElementKey string    `json:"element_key,omitempty"`
+	Geometry   *location.AssociationGeometry `json:"geometry,omitempty"`
+	Asset      Asset                         `json:"asset"`
+	VersionID  string                        `json:"version_id"`
+	Number     int                           `json:"number"`
+	Owner      ObjectRef                     `json:"owner"`
+	PageID     string                        `json:"page_id"`
+	Anchor     []float64                     `json:"anchor,omitempty"`
+	ElementKey string                        `json:"element_key,omitempty"`
 }
 
 func (s *Service) Locate(ctx context.Context, a access.Actor, scope Scope, in ObjectQuery) (List[Location], error) {
@@ -388,8 +390,8 @@ func (s *Service) Locate(ctx context.Context, a access.Actor, scope Scope, in Ob
 			switch ref.Kind {
 			case "facility":
 				query += `a.facility_id=$3`
-			case "point":
-				query += `EXISTS(SELECT 1 FROM spatial_point_placements WHERE version_id=v.id AND point_id=$3)`
+			case "point", "monitoring_section", "borehole":
+				query += `EXISTS(SELECT 1 FROM spatial_point_placements WHERE version_id=v.id AND target_id=$3 AND target_kind='` + ref.Kind + `')`
 			case "component":
 				query += `EXISTS(SELECT 1 FROM spatial_component_links WHERE version_id=v.id AND component_id=$3)`
 			}
@@ -432,10 +434,11 @@ func (s *Service) Locate(ctx context.Context, a access.Actor, scope Scope, in Ob
 					out.Items = append(out.Items, base)
 				}
 				for _, p := range d.Placements {
-					if ref.Kind == "point" && p.PointID == ref.ID {
+					if placementRef(p) == ref {
 						item := base
 						item.PageID = p.PageID
 						item.Anchor = p.Anchor
+						item.Geometry = p.Geometry
 						item.ElementKey = p.ElementKey
 						out.Items = append(out.Items, item)
 					}

@@ -3,6 +3,7 @@ package devicecatalog
 
 import (
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/classification"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"time"
@@ -154,19 +155,20 @@ type Draft struct {
 	UpdatedAt           time.Time `json:"updated_at"`
 }
 type Version struct {
-	ManufacturerID   string                `json:"manufacturer_id"`
-	ManufacturerName string                `json:"manufacturer_name"`
-	ID               string                `json:"id"`
-	ProductID        string                `json:"product_id"`
-	Number           int                   `json:"number"`
-	Content          Content               `json:"content"`
-	ContentHash      string                `json:"content_hash"`
-	PublishedAt      time.Time             `json:"published_at"`
-	Enabled          bool                  `json:"enabled"`
-	Revision         string                `json:"revision"`
-	Usable           bool                  `json:"usable"`
-	Issues           []Issue               `json:"issues"`
-	Definitions      []engineering.Version `json:"definitions"`
+	Classification   *classification.Effective `json:"classification,omitempty"`
+	ManufacturerID   string                    `json:"manufacturer_id"`
+	ManufacturerName string                    `json:"manufacturer_name"`
+	ID               string                    `json:"id"`
+	ProductID        string                    `json:"product_id"`
+	Number           int                       `json:"number"`
+	Content          Content                   `json:"content"`
+	ContentHash      string                    `json:"content_hash"`
+	PublishedAt      time.Time                 `json:"published_at"`
+	Enabled          bool                      `json:"enabled"`
+	Revision         string                    `json:"revision"`
+	Usable           bool                      `json:"usable"`
+	Issues           []Issue                   `json:"issues"`
+	Definitions      []engineering.Version     `json:"definitions"`
 }
 type ManufacturerCreate struct {
 	Meta
@@ -248,3 +250,9 @@ type Change struct {
 
 // DecodeRequest applies the shared device contract without exposing transaction helpers.
 func DecodeRequest(raw []byte, value any) error { return k.Strict(raw, value) }
+
+// PublishInput keeps the classification choice outside the immutable product content.
+type PublishInput struct {
+	DraftRevision
+	Classification classification.Selection `json:"classification"`
+}

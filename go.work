@@ -6,5 +6,6 @@ use (
 	./services/api
 	./services/diagnostics
 	./services/parser
+	./services/ingest-relay
 	./tools/infrapro
 )

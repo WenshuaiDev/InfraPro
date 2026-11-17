@@ -40,6 +40,8 @@ var displayRoutes = []displayRoute{
 	{"settings", "PUT", "/settings", ProjectDisplaySettings, true},
 	{"create", "POST", "/instances", ProjectDisplayManage, false},
 	{"detail", "GET", "/instances/:id", ProjectDisplayView, true},
+	{"read-scope-preview", "POST", "/instances/:id/read-scope-preview", ProjectDisplayView, true},
+	{"read-scope-options", "GET", "/instances/:id/read-scope-options", ProjectDisplayView, true},
 	{"instance", "PATCH", "/instances/:id", ProjectDisplayManage, true},
 	{"tool.authorize", "POST", "/instances/:id/tool-authorize", ProjectDisplayUpload, false},
 	{"upload", "POST", "/instances/:id/uploads", ProjectDisplayUpload, false},
@@ -64,7 +66,12 @@ var displayRoutes = []displayRoute{
 func displayPolicies() []Policy {
 	out := []Policy{{DisplayOperation("locate"), "GET", "/api/v1/displays/:id/location", "authenticated", nil, false, false}}
 	for _, r := range displayRoutes {
-		out = append(out, Policy{DisplayOperation(r.action), r.method, "/api/v1/tenants/:tenant_id/projects/:project_id/displays" + r.path, "project", []Code{r.permission}, false, false})
+		permissions := []Code{r.permission}
+		// These two read-only routes check configure/grant by purpose in the service.
+		if r.action == "read-scope-preview" || r.action == "read-scope-options" {
+			permissions = nil
+		}
+		out = append(out, Policy{DisplayOperation(r.action), r.method, "/api/v1/tenants/:tenant_id/projects/:project_id/displays" + r.path, "project", permissions, false, false})
 	}
 	return out
 }

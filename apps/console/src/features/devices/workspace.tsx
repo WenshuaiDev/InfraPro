@@ -1,3 +1,4 @@
+import { ClassificationBulk } from '../classification/bulk';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -40,11 +41,11 @@ function Workspace({ id, search, onSelect, onFilter, onDetail }: Props) {
   const detailRef = useRef<HTMLDivElement>(null);
   const previousId = useRef(id);
   const listScroll = useRef(0);
-  const filter: DeviceFilter = { q: search.q, manufacturer_id: search.manufacturer, product_id: search.product, source: search.source, status: search.status, installation: search.installation, facility_id: search.facility };
+  const filter: DeviceFilter = {category_id:search.category,category_scope:search.category_scope,category_group:search.category_group, q: search.q, manufacturer_id: search.manufacturer, product_id: search.product, source: search.source, status: search.status, installation: search.installation, facility_id: search.facility };
   const list = useCursorList({ queryKey: [...prefix, 'workspace-list', filter, pageSize], load: (cursor, signal) => client.devices(scope, { ...filter, cursor, limit: pageSize }, signal) });
   const activeId = id ?? list.items[0]?.id;
   const detail = useQuery({ queryKey: [...prefix, 'detail', activeId], enabled: !!activeId, queryFn: ({ signal }) => client.device(scope, activeId!, signal) });
-  const filtered = !!(search.q || search.manufacturer || search.product || search.status || search.installation || search.facility || search.source && search.source !== 'all');
+  const filtered = !!(search.category || search.category_group || search.q || search.manufacturer || search.product || search.status || search.installation || search.facility || search.source && search.source !== 'all');
   const reset = () => onFilter({ tab: search.tab });
 
   useEffect(() => {
@@ -61,7 +62,7 @@ function Workspace({ id, search, onSelect, onFilter, onDetail }: Props) {
   }, [id]);
 
   return <section className="min-w-0 space-y-5">
-    <PageHeader title="设备台账" description="查找设备，维护档案、输出与安装记录。" actions={canManage && <Button id="create-device" disabled={!available} onClick={() => setCreating(true)}><Plus aria-hidden="true" />登记设备</Button>} />
+    <PageHeader title="设备台账" description="查找设备，维护档案、输出与安装记录。" actions={canManage && <><ClassificationBulk scope={scope} kind="device" disabled={!available}/><Button id="create-device" disabled={!available} onClick={() => setCreating(true)}><Plus aria-hidden="true" />登记设备</Button></>} />
     <div className={cn(id && 'hidden xl:block')}><WorkspaceFilters search={search} onChange={(next) => onFilter({ ...next, output: undefined })} /></div>
     <div className="grid min-w-0 gap-5 xl:h-[calc(100dvh-18rem)] xl:min-h-[32rem] xl:grid-cols-[18rem_minmax(0,1fr)]">
       <aside aria-label="设备列表" className={cn('flex min-h-0 min-w-0 flex-col rounded-lg border', id && 'hidden xl:flex')}>

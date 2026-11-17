@@ -57,6 +57,9 @@ func (s *Service) call(ctx context.Context, path string, in any) ([]byte, error)
 	}
 	req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(string(token)))
 	req.Header.Set("Content-Type", "application/json")
+	if ctx.Value(productionKey{}) == true {
+		req.Header.Set("X-Infrapro-Workload", "ingestion")
+	}
 	client := &http.Client{Timeout: timeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	resp, e := client.Do(req)
 	if e != nil {

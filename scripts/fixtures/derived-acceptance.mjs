@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { request } from '@playwright/test';
 
-export async function seedDerivedAcceptance(directory, origin) {
+export async function seedDerivedAcceptance(directory, origin, options = {}) {
   if (!['http://127.0.0.1:15373','http://127.0.0.1:15473','http://127.0.0.1:15573','http://127.0.0.1:15773','http://127.0.0.1:15576'].includes(origin)) throw new Error('Synthetic derived fixture requires its dedicated loopback session.');
   const client = await request.newContext(), api = `${origin}/api/v1`;
   const state = { synthetic: true, fixture: 'development-plan-25.1', channels: {}, expected: {}, batches: {} };
@@ -104,14 +104,18 @@ export async function seedDerivedAcceptance(directory, origin) {
       console.log(`合成样本已核对：${code} ${JSON.stringify(expected)}`);
       return rule;
     };
+    if (!options.minimal) {
     await add('BASELINE', '相对A首个观测的变化', [{ id: 'result', op: 'baseline_delta', inputs: ['input:A'], params: { baseline: { kind: 'observation', reference: 'origin' } } }], ['0', '4', '10'], { baseline: true });
     await add('DIFFERENCE', 'A相邻变化', [delta('difference')], [null, '4', '6']);
     await add('RATE', 'A变化速率 mm/min', [delta('rate')], [null, '0.4', '0.3']);
+    }
     await add('A_MINUS_B', '设施直属 A−B', [{ id: 'result', op: 'subtract', inputs: ['input:A', 'input:B'], params: { alignment: 'exact' } }], ['4', '5', '9'], { inputs: ['A', 'B'], owner: { kind: 'facility', id: facility.id, facility_id: facility.id }, autoStart: '1704065400000000000' });
+    if (!options.minimal) {
     for (const [op, name, second, third] of [['count', '样本数量', '2', '2'], ['sum', '和', '24', '34'], ['min', '最小值', '10', '14'], ['max', '最大值', '14', '20'], ['range', '极差', '4', '6'], ['mean', '均值', '12', '17'], ['variance', '总体方差', '4', '9'], ['stddev', '总体标准差', '2', '3'], ['median', '中位数', '12', '17'], ['quantile', 'R7 P95', '13.8', '19.7']]) await add(op.toUpperCase(), `A 30分钟${name}`, [rolling(op)], [op === 'count' ? '1' : null, second, third]);
     await add('MEAN_RATE', '30分钟均值的每分钟速率', [rolling('mean', 'mean'), delta('rate', 'result', 'node:mean')], [null, null, '0.25']);
     await add('RATE_MEAN', '每分钟速率的30分钟均值', [delta('rate', 'rate'), rolling('mean', 'result', 'node:rate')], [null, null, '0.35']);
     await add('C_MEAN', '派生A−B的30分钟均值', [rolling('mean', 'result', 'input:C')], [null, '4.5', '7'], { inputs: ['C'], sourceKind: 'derived', channel: state.channels.A_MINUS_B.id, quantity: state.channels.A_MINUS_B.quantity });
+    }
     state.range = range; state.url = `${origin}/t/${state.tenant}/monitoring/derived`; state.raw_url = `${origin}/t/${state.tenant}/monitoring`; state.complete = true; save();
     return { url: state.url, tenant: state.tenant, channels: Object.keys(state.channels).length, directory };
   } finally { await client.dispose(); }

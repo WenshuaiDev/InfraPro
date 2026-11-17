@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/location"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/jackc/pgx/v5"
 	"io"
@@ -140,17 +141,19 @@ type Settings struct {
 	MainChannels     map[string]string `json:"main_channels,omitempty"`
 }
 type Placement struct {
-	ID            string    `json:"id"`
-	PointID       string    `json:"point_id"`
-	PageID        string    `json:"page_id"`
-	Anchor        []float64 `json:"anchor"`
-	ElementKey    string    `json:"element_key"`
-	LabelOffset   []float64 `json:"label_offset"`
-	MainChannelID string    `json:"main_channel_id,omitempty"`
-	BasisHash     string    `json:"basis_hash"`
-	CopiedFrom    string    `json:"copied_from,omitempty"`
-	Object        *Object   `json:"object,omitempty"`
-	BasisChanged  bool      `json:"basis_changed"`
+	Geometry      *location.AssociationGeometry `json:"geometry,omitempty"`
+	TargetRef     *ObjectRef                    `json:"target_ref,omitempty"`
+	ID            string                        `json:"id"`
+	PointID       string                        `json:"point_id"`
+	PageID        string                        `json:"page_id"`
+	Anchor        []float64                     `json:"anchor"`
+	ElementKey    string                        `json:"element_key"`
+	LabelOffset   []float64                     `json:"label_offset"`
+	MainChannelID string                        `json:"main_channel_id,omitempty"`
+	BasisHash     string                        `json:"basis_hash"`
+	CopiedFrom    string                        `json:"copied_from,omitempty"`
+	Object        *Object                       `json:"object,omitempty"`
+	BasisChanged  bool                          `json:"basis_changed"`
 }
 type ComponentLink struct {
 	ID            string      `json:"id"`

@@ -9,12 +9,13 @@ import (
 )
 
 type Preparation struct {
-	Hash                  string              `json:"hash"`
-	Package               Package             `json:"package"`
-	Config                Config              `json:"config"`
-	GrantRevision         string              `json:"grant_revision"`
-	BindingSets           map[string][]string `json:"binding_sets"`
-	AuthorizationRevision string              `json:"authorization_revision"`
+	ReadViews             []ReadViewDescription `json:"read_views,omitempty"`
+	Hash                  string                `json:"hash"`
+	Package               Package               `json:"package"`
+	Config                Config                `json:"config"`
+	GrantRevision         string                `json:"grant_revision"`
+	BindingSets           map[string][]string   `json:"binding_sets"`
+	AuthorizationRevision string                `json:"authorization_revision"`
 }
 
 func (s *Service) prepareTx(ctx context.Context, tx pgx.Tx, scope Scope, v Instance, configID string) (Preparation, error) {
@@ -66,10 +67,14 @@ func (s *Service) prepareTx(ctx context.Context, tx pgx.Tx, scope Scope, v Insta
 	if !slices.Contains(issuer.Permissions, access.ProjectDisplayGrant) {
 		return out, hidden()
 	}
-	for _, p := range s.permissionsFor(g.Capabilities) {
+	for _, p := range s.grantPermissions(g) {
 		if !slices.Contains(issuer.Permissions, p) {
 			return out, hidden()
 		}
+	}
+	out.ReadViews, e = s.validateReadViewsTx(ctx, tx, scope, v, out.Package, out.Config, g, access.Actor{ID: g.IssuedBy}, true)
+	if e != nil {
+		return out, e
 	}
 	for name, b := range out.Config.Bindings {
 		ids, e := effectiveBindingIDsTx(ctx, tx, scope, b, &g)
@@ -85,7 +90,7 @@ func (s *Service) prepareTx(ctx context.Context, tx pgx.Tx, scope Scope, v Insta
 		sub.Check = func(context.Context, pgx.Tx) error { return nil }
 		sub.Authorize = func(c context.Context, t pgx.Tx, op access.Operation) (access.ProjectAuthorization, error) {
 			auth, e := access.RequireProjectTx(c, t, g.IssuedBy, op, scope.Tenant, scope.Project)
-			allowed := s.permissionsFor(g.Capabilities)
+			allowed := s.grantPermissions(g)
 			auth.Permissions = slices.DeleteFunc(slices.Clone(auth.Permissions), func(p access.Code) bool { return !slices.Contains(allowed, p) })
 			return auth, e
 		}
@@ -127,7 +132,11 @@ func (s *Service) prepareTx(ctx context.Context, tx pgx.Tx, scope Scope, v Insta
 		return out, e
 	}
 	out.AuthorizationRevision = rev + ":" + resource + ":" + data
-	out.Hash = hash([]any{v.Revision, st.Revision, out.Package.Hash, out.Config, g, out.BindingSets, out.AuthorizationRevision})
+	var readRevision string
+	if e = tx.QueryRow(ctx, `SELECT md5(COALESCE((SELECT string_agg(domain||':'||revision::text,',' ORDER BY domain) FROM display_read_revisions WHERE tenant_id=$1),'')||':'||COALESCE((SELECT revision::text FROM project_device_access_states WHERE tenant_id=$1 AND project_id=$2),'0')||':'||COALESCE((SELECT revision::text FROM project_spatial_states WHERE tenant_id=$1 AND project_id=$2),'0'))`, scope.Tenant, scope.Project).Scan(&readRevision); e != nil {
+		return out, e
+	}
+	out.Hash = hash([]any{v.Revision, st.Revision, out.Package.Hash, out.Config, g, out.BindingSets, out.ReadViews, out.AuthorizationRevision, readRevision})
 	return out, nil
 }
 func (s *Service) Prepare(ctx context.Context, a access.Actor, scope Scope, id string, in Command) (Preparation, error) {
@@ -151,6 +160,16 @@ func (s *Service) Prepare(ctx context.Context, a access.Actor, scope Scope, id s
 			}
 		}
 		out, e = s.prepareTx(ctx, tx, scope, v, config)
+		if e != nil {
+			return e
+		}
+		g, e := grantTx(ctx, tx, id)
+		if e != nil {
+			return e
+		}
+		// Publish proof covers the delegated release. Preview counts additionally
+		// intersect the current reviewing person's business authority.
+		out.ReadViews, e = s.validateReadViewsTx(ctx, tx, scope, v, out.Package, out.Config, g, a, false)
 		return e
 	})
 	return out, e
@@ -173,7 +192,7 @@ func (s *Service) publishTx(ctx context.Context, tx pgx.Tx, a access.Actor, scop
 		return conflict()
 	}
 	var id string
-	e = tx.QueryRow(ctx, `INSERT INTO display_releases(tenant_id,project_id,instance_id,package_id,config_id,requirements,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`, scope.Tenant, scope.Project, v.ID, prep.Package.ID, prep.Config.ID, jsonBytes(map[string]any{"capabilities": prep.Package.Manifest.Required, "bindings": prep.BindingSets, "preparation": prep.Hash}), a.ID).Scan(&id)
+	e = tx.QueryRow(ctx, `INSERT INTO display_releases(tenant_id,project_id,instance_id,package_id,config_id,requirements,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`, scope.Tenant, scope.Project, v.ID, prep.Package.ID, prep.Config.ID, jsonBytes(map[string]any{"capabilities": prep.Package.Manifest.Required, "bindings": prep.BindingSets, "read_views": prep.Config.ReadViews, "config_format": prep.Config.Format, "preparation": prep.Hash}), a.ID).Scan(&id)
 	if e != nil {
 		return e
 	}

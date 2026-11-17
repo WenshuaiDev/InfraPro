@@ -28,6 +28,8 @@ import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks/$taskId'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t/$tenantId'
 import { Route as AuthenticatedPlatformParsingRouteImport } from './routes/_authenticated/platform/parsing'
+import { Route as AuthenticatedPlatformIngestionRouteImport } from './routes/_authenticated/platform/ingestion'
+import { Route as AuthenticatedPlatformDeviceCategoriesRouteImport } from './routes/_authenticated/platform/device-categories'
 import { Route as AuthenticatedNotificationsPreferencesRouteImport } from './routes/_authenticated/notifications/preferences'
 import { Route as AuthenticatedNotificationsNotificationIdRouteImport } from './routes/_authenticated/notifications/$notificationId'
 import { Route as AuthenticatedAccessRolesRouteImport } from './routes/_authenticated/access/roles'
@@ -42,6 +44,7 @@ import { Route as AuthenticatedTTenantIdRolesRouteImport } from './routes/_authe
 import { Route as AuthenticatedTTenantIdProfileRouteImport } from './routes/_authenticated/t/$tenantId/profile'
 import { Route as AuthenticatedTTenantIdPermissionsRouteImport } from './routes/_authenticated/t/$tenantId/permissions'
 import { Route as AuthenticatedTTenantIdParsingRouteImport } from './routes/_authenticated/t/$tenantId/parsing'
+import { Route as AuthenticatedTTenantIdIngestionRouteImport } from './routes/_authenticated/t/$tenantId/ingestion'
 import { Route as AuthenticatedTTenantIdFilesRouteImport } from './routes/_authenticated/t/$tenantId/files'
 import { Route as AuthenticatedTTenantIdDevicesRouteImport } from './routes/_authenticated/t/$tenantId/devices'
 import { Route as AuthenticatedTTenantIdBindingsRouteImport } from './routes/_authenticated/t/$tenantId/bindings'
@@ -99,6 +102,7 @@ import { Route as AuthenticatedTTenantIdPProjectIdMembersIndexRouteImport } from
 import { Route as AuthenticatedTTenantIdPProjectIdDevicesIndexRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/devices/index'
 import { Route as AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRouteImport } from './routes/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
 import { Route as AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
+import { Route as AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/resources/facilities'
 import { Route as AuthenticatedTTenantIdPProjectIdMonitoringJobsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
 import { Route as AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/imports'
 import { Route as AuthenticatedTTenantIdPProjectIdMonitoringDerivedRunsRouteImport } from './routes/_authenticated/t/$tenantId/p/$projectId/monitoring/derived-runs'
@@ -212,6 +216,18 @@ const AuthenticatedPlatformParsingRoute =
     path: '/platform/parsing',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlatformIngestionRoute =
+  AuthenticatedPlatformIngestionRouteImport.update({
+    id: '/platform/ingestion',
+    path: '/platform/ingestion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlatformDeviceCategoriesRoute =
+  AuthenticatedPlatformDeviceCategoriesRouteImport.update({
+    id: '/platform/device-categories',
+    path: '/platform/device-categories',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedNotificationsPreferencesRoute =
   AuthenticatedNotificationsPreferencesRouteImport.update({
     id: '/notifications/preferences',
@@ -294,6 +310,12 @@ const AuthenticatedTTenantIdParsingRoute =
   AuthenticatedTTenantIdParsingRouteImport.update({
     id: '/parsing',
     path: '/parsing',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdIngestionRoute =
+  AuthenticatedTTenantIdIngestionRouteImport.update({
+    id: '/ingestion',
+    path: '/ingestion',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
 const AuthenticatedTTenantIdFilesRoute =
@@ -640,6 +662,12 @@ const AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute =
     path: '/$roleId',
     getParentRoute: () => AuthenticatedTTenantIdPProjectIdRolesRoute,
   } as any)
+const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute =
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteImport.update({
+    id: '/resources/facilities',
+    path: '/resources/facilities',
+    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+  } as any)
 const AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute =
   AuthenticatedTTenantIdPProjectIdMonitoringJobsRouteImport.update({
     id: '/monitoring/jobs',
@@ -678,9 +706,10 @@ const AuthenticatedTTenantIdPProjectIdDeviceOutputsOutputIdRoute =
   } as any)
 const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute =
   AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport.update({
-    id: '/resources/facilities/',
-    path: '/resources/facilities/',
-    getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute,
   } as any)
 const AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRoute =
   AuthenticatedTTenantIdPProjectIdMonitoringImportsIndexRouteImport.update({
@@ -704,9 +733,10 @@ const AuthenticatedTTenantIdPProjectIdMonitoringAnalysisIndexRoute =
 const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute =
   AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport.update(
     {
-      id: '/resources/facilities/$facilityId',
-      path: '/resources/facilities/$facilityId',
-      getParentRoute: () => AuthenticatedTTenantIdPProjectIdRoute,
+      id: '/$facilityId',
+      path: '/$facilityId',
+      getParentRoute: () =>
+        AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute,
     } as any,
   )
 const AuthenticatedTTenantIdPProjectIdMonitoringImportsBatchIdRoute =
@@ -757,6 +787,8 @@ export interface FileRoutesByFullPath {
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
+  '/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
@@ -769,6 +801,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/t/$tenantId/devices': typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   '/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/t/$tenantId/ingestion': typeof AuthenticatedTTenantIdIngestionRoute
   '/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
@@ -827,6 +860,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/p/$projectId/monitoring/derived-runs': typeof AuthenticatedTTenantIdPProjectIdMonitoringDerivedRunsRoute
   '/t/$tenantId/p/$projectId/monitoring/imports': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteWithChildren
   '/t/$tenantId/p/$projectId/monitoring/jobs': typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
+  '/t/$tenantId/p/$projectId/resources/facilities': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteWithChildren
   '/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   '/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/t/$tenantId/p/$projectId/devices/': typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
@@ -862,6 +896,8 @@ export interface FileRoutesByTo {
   '/access/roles': typeof AuthenticatedAccessRolesRoute
   '/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
+  '/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
@@ -873,6 +909,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/audit': typeof AuthenticatedTTenantIdAuditRoute
   '/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/t/$tenantId/ingestion': typeof AuthenticatedTTenantIdIngestionRoute
   '/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
@@ -964,6 +1001,8 @@ export interface FileRoutesById {
   '/_authenticated/access/roles': typeof AuthenticatedAccessRolesRoute
   '/_authenticated/notifications/$notificationId': typeof AuthenticatedNotificationsNotificationIdRoute
   '/_authenticated/notifications/preferences': typeof AuthenticatedNotificationsPreferencesRoute
+  '/_authenticated/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
+  '/_authenticated/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/_authenticated/platform/parsing': typeof AuthenticatedPlatformParsingRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/_authenticated/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
@@ -976,6 +1015,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/bindings': typeof AuthenticatedTTenantIdBindingsRoute
   '/_authenticated/t/$tenantId/devices': typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   '/_authenticated/t/$tenantId/files': typeof AuthenticatedTTenantIdFilesRoute
+  '/_authenticated/t/$tenantId/ingestion': typeof AuthenticatedTTenantIdIngestionRoute
   '/_authenticated/t/$tenantId/parsing': typeof AuthenticatedTTenantIdParsingRoute
   '/_authenticated/t/$tenantId/permissions': typeof AuthenticatedTTenantIdPermissionsRoute
   '/_authenticated/t/$tenantId/profile': typeof AuthenticatedTTenantIdProfileRoute
@@ -1034,6 +1074,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/p/$projectId/monitoring/derived-runs': typeof AuthenticatedTTenantIdPProjectIdMonitoringDerivedRunsRoute
   '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports': typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteWithChildren
   '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs': typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
+  '/_authenticated/t/$tenantId/p/$projectId/resources/facilities': typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteWithChildren
   '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId': typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRoute
   '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId': typeof AuthenticatedTTenantIdResourceAccessProjectIdFacilitiesFacilityIdRoute
   '/_authenticated/t/$tenantId/p/$projectId/devices/': typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
@@ -1071,6 +1112,8 @@ export interface FileRouteTypes {
     | '/access/roles'
     | '/notifications/$notificationId'
     | '/notifications/preferences'
+    | '/platform/device-categories'
+    | '/platform/ingestion'
     | '/platform/parsing'
     | '/t/$tenantId'
     | '/tasks/$taskId'
@@ -1083,6 +1126,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/bindings'
     | '/t/$tenantId/devices'
     | '/t/$tenantId/files'
+    | '/t/$tenantId/ingestion'
     | '/t/$tenantId/parsing'
     | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
@@ -1141,6 +1185,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/p/$projectId/monitoring/derived-runs'
     | '/t/$tenantId/p/$projectId/monitoring/imports'
     | '/t/$tenantId/p/$projectId/monitoring/jobs'
+    | '/t/$tenantId/p/$projectId/resources/facilities'
     | '/t/$tenantId/p/$projectId/roles/$roleId'
     | '/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/t/$tenantId/p/$projectId/devices/'
@@ -1176,6 +1221,8 @@ export interface FileRouteTypes {
     | '/access/roles'
     | '/notifications/$notificationId'
     | '/notifications/preferences'
+    | '/platform/device-categories'
+    | '/platform/ingestion'
     | '/platform/parsing'
     | '/t/$tenantId'
     | '/tasks/$taskId'
@@ -1187,6 +1234,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/audit'
     | '/t/$tenantId/bindings'
     | '/t/$tenantId/files'
+    | '/t/$tenantId/ingestion'
     | '/t/$tenantId/parsing'
     | '/t/$tenantId/permissions'
     | '/t/$tenantId/profile'
@@ -1277,6 +1325,8 @@ export interface FileRouteTypes {
     | '/_authenticated/access/roles'
     | '/_authenticated/notifications/$notificationId'
     | '/_authenticated/notifications/preferences'
+    | '/_authenticated/platform/device-categories'
+    | '/_authenticated/platform/ingestion'
     | '/_authenticated/platform/parsing'
     | '/_authenticated/t/$tenantId'
     | '/_authenticated/tasks/$taskId'
@@ -1289,6 +1339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/bindings'
     | '/_authenticated/t/$tenantId/devices'
     | '/_authenticated/t/$tenantId/files'
+    | '/_authenticated/t/$tenantId/ingestion'
     | '/_authenticated/t/$tenantId/parsing'
     | '/_authenticated/t/$tenantId/permissions'
     | '/_authenticated/t/$tenantId/profile'
@@ -1347,6 +1398,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/p/$projectId/monitoring/derived-runs'
     | '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports'
     | '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
+    | '/_authenticated/t/$tenantId/p/$projectId/resources/facilities'
     | '/_authenticated/t/$tenantId/p/$projectId/roles/$roleId'
     | '/_authenticated/t/$tenantId/resource-access/$projectId/facilities/$facilityId'
     | '/_authenticated/t/$tenantId/p/$projectId/devices/'
@@ -1504,6 +1556,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlatformParsingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/platform/ingestion': {
+      id: '/_authenticated/platform/ingestion'
+      path: '/platform/ingestion'
+      fullPath: '/platform/ingestion'
+      preLoaderRoute: typeof AuthenticatedPlatformIngestionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/platform/device-categories': {
+      id: '/_authenticated/platform/device-categories'
+      path: '/platform/device-categories'
+      fullPath: '/platform/device-categories'
+      preLoaderRoute: typeof AuthenticatedPlatformDeviceCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/notifications/preferences': {
       id: '/_authenticated/notifications/preferences'
       path: '/notifications/preferences'
@@ -1600,6 +1666,13 @@ declare module '@tanstack/react-router' {
       path: '/parsing'
       fullPath: '/t/$tenantId/parsing'
       preLoaderRoute: typeof AuthenticatedTTenantIdParsingRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/ingestion': {
+      id: '/_authenticated/t/$tenantId/ingestion'
+      path: '/ingestion'
+      fullPath: '/t/$tenantId/ingestion'
+      preLoaderRoute: typeof AuthenticatedTTenantIdIngestionRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
     '/_authenticated/t/$tenantId/files': {
@@ -2001,6 +2074,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoleIdRouteImport
       parentRoute: typeof AuthenticatedTTenantIdPProjectIdRolesRoute
     }
+    '/_authenticated/t/$tenantId/p/$projectId/resources/facilities': {
+      id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities'
+      path: '/resources/facilities'
+      fullPath: '/t/$tenantId/p/$projectId/resources/facilities'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+    }
     '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs': {
       id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/jobs'
       path: '/monitoring/jobs'
@@ -2045,10 +2125,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/': {
       id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/'
-      path: '/resources/facilities'
+      path: '/'
       fullPath: '/t/$tenantId/p/$projectId/resources/facilities/'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRouteImport
-      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute
     }
     '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/': {
       id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/'
@@ -2073,10 +2153,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId': {
       id: '/_authenticated/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
-      path: '/resources/facilities/$facilityId'
+      path: '/$facilityId'
       fullPath: '/t/$tenantId/p/$projectId/resources/facilities/$facilityId'
       preLoaderRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRouteImport
-      parentRoute: typeof AuthenticatedTTenantIdPProjectIdRoute
+      parentRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute
     }
     '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId': {
       id: '/_authenticated/t/$tenantId/p/$projectId/monitoring/imports/$batchId'
@@ -2227,6 +2307,24 @@ const AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteWithChildren =
     AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteChildren,
   )
 
+interface AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteChildren {
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
+}
+
+const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteChildren: AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteChildren =
+  {
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute:
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute,
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute:
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute,
+  }
+
+const AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteWithChildren =
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute._addFileChildren(
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteChildren,
+  )
+
 interface AuthenticatedTTenantIdPProjectIdRouteChildren {
   AuthenticatedTTenantIdPProjectIdAuditRoute: typeof AuthenticatedTTenantIdPProjectIdAuditRoute
   AuthenticatedTTenantIdPProjectIdDisplaysRoute: typeof AuthenticatedTTenantIdPProjectIdDisplaysRoute
@@ -2242,16 +2340,15 @@ interface AuthenticatedTTenantIdPProjectIdRouteChildren {
   AuthenticatedTTenantIdPProjectIdMonitoringDerivedRunsRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringDerivedRunsRoute
   AuthenticatedTTenantIdPProjectIdMonitoringImportsRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteWithChildren
   AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute
+  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteWithChildren
   AuthenticatedTTenantIdPProjectIdDevicesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdDevicesIndexRoute
   AuthenticatedTTenantIdPProjectIdMembersIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMembersIndexRoute
   AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringIndexRoute
   AuthenticatedTTenantIdPProjectIdMonitoringAnalysisArtifactIdRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringAnalysisArtifactIdRoute
   AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute
   AuthenticatedTTenantIdPProjectIdMonitoringDerivedChannelIdRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringDerivedChannelIdRoute
-  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute
   AuthenticatedTTenantIdPProjectIdMonitoringAnalysisIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringAnalysisIndexRoute
   AuthenticatedTTenantIdPProjectIdMonitoringDerivedIndexRoute: typeof AuthenticatedTTenantIdPProjectIdMonitoringDerivedIndexRoute
-  AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute: typeof AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute
 }
 
 const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProjectIdRouteChildren =
@@ -2284,6 +2381,8 @@ const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProj
       AuthenticatedTTenantIdPProjectIdMonitoringImportsRouteWithChildren,
     AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute:
       AuthenticatedTTenantIdPProjectIdMonitoringJobsRoute,
+    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRoute:
+      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesRouteWithChildren,
     AuthenticatedTTenantIdPProjectIdDevicesIndexRoute:
       AuthenticatedTTenantIdPProjectIdDevicesIndexRoute,
     AuthenticatedTTenantIdPProjectIdMembersIndexRoute:
@@ -2296,14 +2395,10 @@ const AuthenticatedTTenantIdPProjectIdRouteChildren: AuthenticatedTTenantIdPProj
       AuthenticatedTTenantIdPProjectIdMonitoringBatchesBatchIdRoute,
     AuthenticatedTTenantIdPProjectIdMonitoringDerivedChannelIdRoute:
       AuthenticatedTTenantIdPProjectIdMonitoringDerivedChannelIdRoute,
-    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute:
-      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesFacilityIdRoute,
     AuthenticatedTTenantIdPProjectIdMonitoringAnalysisIndexRoute:
       AuthenticatedTTenantIdPProjectIdMonitoringAnalysisIndexRoute,
     AuthenticatedTTenantIdPProjectIdMonitoringDerivedIndexRoute:
       AuthenticatedTTenantIdPProjectIdMonitoringDerivedIndexRoute,
-    AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute:
-      AuthenticatedTTenantIdPProjectIdResourcesFacilitiesIndexRoute,
   }
 
 const AuthenticatedTTenantIdPProjectIdRouteWithChildren =
@@ -2334,6 +2429,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdBindingsRoute: typeof AuthenticatedTTenantIdBindingsRoute
   AuthenticatedTTenantIdDevicesRoute: typeof AuthenticatedTTenantIdDevicesRouteWithChildren
   AuthenticatedTTenantIdFilesRoute: typeof AuthenticatedTTenantIdFilesRoute
+  AuthenticatedTTenantIdIngestionRoute: typeof AuthenticatedTTenantIdIngestionRoute
   AuthenticatedTTenantIdParsingRoute: typeof AuthenticatedTTenantIdParsingRoute
   AuthenticatedTTenantIdPermissionsRoute: typeof AuthenticatedTTenantIdPermissionsRoute
   AuthenticatedTTenantIdProfileRoute: typeof AuthenticatedTTenantIdProfileRoute
@@ -2377,6 +2473,7 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
     AuthenticatedTTenantIdDevicesRoute:
       AuthenticatedTTenantIdDevicesRouteWithChildren,
     AuthenticatedTTenantIdFilesRoute: AuthenticatedTTenantIdFilesRoute,
+    AuthenticatedTTenantIdIngestionRoute: AuthenticatedTTenantIdIngestionRoute,
     AuthenticatedTTenantIdParsingRoute: AuthenticatedTTenantIdParsingRoute,
     AuthenticatedTTenantIdPermissionsRoute:
       AuthenticatedTTenantIdPermissionsRoute,
@@ -2463,6 +2560,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccessRolesRoute: typeof AuthenticatedAccessRolesRoute
   AuthenticatedNotificationsNotificationIdRoute: typeof AuthenticatedNotificationsNotificationIdRoute
   AuthenticatedNotificationsPreferencesRoute: typeof AuthenticatedNotificationsPreferencesRoute
+  AuthenticatedPlatformDeviceCategoriesRoute: typeof AuthenticatedPlatformDeviceCategoriesRoute
+  AuthenticatedPlatformIngestionRoute: typeof AuthenticatedPlatformIngestionRoute
   AuthenticatedPlatformParsingRoute: typeof AuthenticatedPlatformParsingRoute
   AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
@@ -2491,6 +2590,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedNotificationsNotificationIdRoute,
   AuthenticatedNotificationsPreferencesRoute:
     AuthenticatedNotificationsPreferencesRoute,
+  AuthenticatedPlatformDeviceCategoriesRoute:
+    AuthenticatedPlatformDeviceCategoriesRoute,
+  AuthenticatedPlatformIngestionRoute: AuthenticatedPlatformIngestionRoute,
   AuthenticatedPlatformParsingRoute: AuthenticatedPlatformParsingRoute,
   AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,

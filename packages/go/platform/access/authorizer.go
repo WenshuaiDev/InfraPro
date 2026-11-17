@@ -36,6 +36,7 @@ func (s *Service) Transact(ctx context.Context, fn func(pgx.Tx) error) (result e
 		ReportOperationFailure(ctx, e)
 		return e
 	}
+	tx = &memoTransaction{Tx: tx, values: map[any]any{}}
 	defer func() {
 		cleanup, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

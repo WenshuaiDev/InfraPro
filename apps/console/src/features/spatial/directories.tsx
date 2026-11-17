@@ -18,9 +18,11 @@ export function SpatialDirectory({
   selected,
   facility,
   select,
+  compact = false,
 }: {
   selected?: SpatialObjectRef;
   facility?: string;
+  compact?: boolean;
   select: (o: SpatialObjectRef, facility?: string) => void;
 }) {
   const m = useSpatial();
@@ -36,7 +38,7 @@ export function SpatialDirectory({
     m.scope.kind === "tenant" ? TenantResources : ProjectResources;
   return (
     <Boundary>
-      <Directory selected={selected} facility={facility} select={select} />
+      <Directory selected={selected} facility={facility} select={select} compact={compact} />
     </Boundary>
   );
 }
@@ -44,9 +46,11 @@ function Directory({
   selected,
   facility,
   select,
+  compact = false,
 }: {
   selected?: SpatialObjectRef;
   facility?: string;
+  compact?: boolean;
   select: (o: SpatialObjectRef, facility?: string) => void;
 }) {
   const m = useSpatial(),
@@ -61,7 +65,7 @@ function Directory({
       m.client.resourceDetail(
         m.scope,
         {
-          kind: selected!.kind as "facility" | "component" | "point",
+          kind: selected!.kind as "facility" | "component" | "monitoring_section" | "borehole" | "point",
           facility: facility!,
           id: selected!.id,
         },
@@ -77,7 +81,7 @@ function Directory({
   return (
     <>
       <div className="p-3">
-        <TextField label="搜索资源目录" value={q} onChange={setQ} />
+        <>{compact ? <input className="spatial-search" aria-label="搜索资源目录" placeholder="搜索设施、构件、测点" value={q} onChange={event => setQ(event.target.value)} /> : <TextField label="搜索资源目录" value={q} onChange={setQ} />}</>
       </div>
       <ResourceTree
         query={roots}
@@ -86,12 +90,13 @@ function Directory({
         selected={selected?.id}
         path={detail.data ? navigationPath(detail.data) : []}
         select={choose}
-        expandOnSelect
+        expandOnSelect={!compact}
+        leafKind={compact ? "point" : undefined}
         title="设施、构件与测点"
       />
-      <p className="p-3 text-xs text-muted-foreground">
+      {!compact && <p className="p-3 text-xs text-muted-foreground">
         上下文祖先仅用于导航；选择后会重新核验完整对象权限。
-      </p>
+      </p>}
     </>
   );
 }

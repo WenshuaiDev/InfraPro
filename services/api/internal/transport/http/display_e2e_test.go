@@ -51,11 +51,22 @@ func browserDisplay(t *testing.T, ctx context.Context, env *testsupport.Environm
 		env.Config.Display.RuntimeAddr = "127.0.0.1:15860"
 		env.Config.Display.AssetAddr = "127.0.0.1:15861"
 	}
+	for key, dest := range map[string]*string{
+		"INFRAPRO_E2E_RUNTIME_ORIGIN": &env.Config.Display.RuntimeOrigin,
+		"INFRAPRO_E2E_ASSET_ORIGIN":   &env.Config.Display.AssetOrigin,
+		"INFRAPRO_E2E_RUNTIME_ADDR":   &env.Config.Display.RuntimeAddr,
+		"INFRAPRO_E2E_ASSET_ADDR":     &env.Config.Display.AssetAddr,
+	} {
+		if value := os.Getenv(key); value != "" {
+			*dest = value
+		}
+	}
 	env.Config.Monitoring.ObjectEndpoint = "http://127.0.0.1:58333"
 	env.Config.Monitoring.ObjectAccessKey = "contract-admin"
 	env.Config.Monitoring.ObjectSecretKey = "contract-admin-test-only"
 	env.Config.Monitoring.Bucket = "contract-source"
-	service := runtime.Compose(env.Service.Access(), storage).Configure(env.Config).Displays
+	business := runtime.Compose(env.Service.Access(), storage).Configure(env.Config)
+	service := business.Displays
 	servers := []*http.Server{{Addr: env.Config.Display.RuntimeAddr, Handler: displayhttp.RuntimeHandler(service), ReadHeaderTimeout: 5 * time.Second}, {Addr: env.Config.Display.AssetAddr, Handler: displayhttp.AssetHandler(service), ReadHeaderTimeout: 5 * time.Second}}
 	for _, s := range servers {
 		go func() {
@@ -66,6 +77,7 @@ func browserDisplay(t *testing.T, ctx context.Context, env *testsupport.Environm
 	}
 	worker, cancel := context.WithCancel(ctx)
 	go service.RunWorker(worker, func(e error) { t.Log("display worker", e) })
+	go func() { _ = business.DisplayReads.RunWorker(worker, "display-browser") }()
 	return func() {
 		cancel()
 		stop, done := context.WithTimeout(context.Background(), 5*time.Second)

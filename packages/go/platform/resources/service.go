@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicecoord"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -14,6 +15,7 @@ import (
 )
 
 type Service struct {
+	files    *files.Service
 	access   *access.Service
 	external ExternalReferences
 }
@@ -142,6 +144,9 @@ func load(ctx context.Context, tx pgx.Tx, t scopedTarget, deleted bool) (Resourc
 		return r, e
 	}
 	e = unmarshalResource(raw, &r)
+	if e == nil && r.Kind != Facility {
+		e = loadParentRef(ctx, tx, &r)
+	}
 	return r, e
 }
 func (s *Service) Receipt(ctx context.Context, a access.Actor, scope Scope, id string) (Result, error) {

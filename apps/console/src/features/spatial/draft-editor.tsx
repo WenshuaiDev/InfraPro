@@ -1,5 +1,5 @@
 import { DomainFiles } from "../files/domain-files";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -11,23 +11,28 @@ import type {
   SpatialPlacement,
   SpatialComponentLink,
   SpatialSettings,
+  SpatialObjectRef,
 } from "@infrapro/api-client";
 import { Button } from "@infrapro/ui/components/button";
 import { Badge } from "@infrapro/ui/components/badge";
 import { UnsavedChanges } from "../derived-monitoring/common";
 import { useSpatial } from "./context";
 import { Field, TextField, Failure, Info } from "./common";
-import { inputClass, type Pick, type SceneProps } from "./state";
+import { inputClass, placementRef, sameObject, canPlace, type PlacementKind, type Pick, type SceneProps } from "./state";
 const Layout = lazy(() => import("./layout-viewer")),
   Model = lazy(() => import("./model-viewer"));
 export function DraftEditor({
   version,
   onClose,
   onReview,
+  initialOwner,
+  onDirtyChange,
 }: {
   version: string;
   onClose: () => void;
   onReview: () => void;
+  initialOwner?: SpatialObjectRef;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const m = useSpatial();
   const q = useQuery({
@@ -48,6 +53,8 @@ export function DraftEditor({
             initial={q.data}
             onClose={onClose}
             onReview={onReview}
+            initialOwner={initialOwner}
+            onDirtyChange={onDirtyChange}
           />
         )
       )}
@@ -58,10 +65,14 @@ function Editor({
   initial,
   onClose,
   onReview,
+  initialOwner,
+  onDirtyChange,
 }: {
   initial: SpatialDraft;
   onClose: () => void;
   onReview: () => void;
+  initialOwner?: SpatialObjectRef;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const m = useSpatial(),
     cache = useQueryClient(),
@@ -76,13 +87,28 @@ function Editor({
         "",
     ),
     [pick, setPick] = useState<Pick>(),
-    [mode, setMode] = useState<"point" | "component">("point"),
-    [selected, setSelected] = useState(""),
+    [mode, setMode] = useState<PlacementKind | "component">(
+      initialOwner?.kind === "component" || canPlace(initialOwner?.kind) ? initialOwner.kind : "point",
+    ),
+    [selected, setSelected] = useState(
+      initialOwner?.kind !== "facility" || initial.asset.kind === "geolayer"
+        ? (initialOwner?.id ?? "")
+        : "",
+    ),
     [query, setQuery] = useState(""),
-    [coordinates, setCoordinates] = useState(""),
+    [showAllBindings, setShowAllBindings] = useState(!initialOwner),
+    [coordinates, setCoordinates] = useState(
+      initial.placements
+        .find((p) => sameObject(placementRef(p), initialOwner))
+        ?.anchor.join(",") ?? "",
+    ),
     [label, setLabel] = useState("12,-12"),
     [main, setMain] = useState(""),
     [featureKey, setFeatureKey] = useState(""),
+    [geometryKind,setGeometryKind]=useState<"none"|"region"|"path"|"plane">(()=>initial.placements.find(p=>sameObject(placementRef(p),initialOwner))?.geometry?.kind??"none"),
+    [vertices,setVertices]=useState(()=>initial.placements.find(p=>sameObject(placementRef(p),initialOwner))?.geometry?.vertices?.map(v=>v.join(",")).join("\n")??""),
+    [normal,setNormal]=useState(()=>initial.placements.find(p=>sameObject(placementRef(p),initialOwner))?.geometry?.normal?.join(",")??"0,0,1"),
+    [planeSize,setPlaneSize]=useState(()=>initial.placements.find(p=>sameObject(placementRef(p),initialOwner))?.geometry?.size?.join(",")??""),
     [localError, setLocalError] = useState<unknown>();
   const kind = initial.asset.kind,
     geolayer = kind === "geolayer";
@@ -141,6 +167,9 @@ function Editor({
         settings: initial.version.settings,
         clearCandidates: false,
       });
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+  }, [dirty, onDirtyChange]);
   const changeSettings = (patch: Partial<SpatialSettings>) =>
     setSettings((s) => ({ ...s, ...patch }));
   const save = useMutation({
@@ -189,16 +218,22 @@ function Editor({
       }),
     onSuccess: () => cache.invalidateQueries({ queryKey: m.prefix }),
   });
-  const onPick = (v: Pick) => {
+  const onPick = (value: Pick, changeOwner = false) => {
+    // A geometry hit must not silently replace the object chosen in the resource tree.
+    const v =
+      initialOwner && !changeOwner && value.owner && value.owner.id !== selected
+        ? { ...value, owner: undefined }
+        : value;
     setPick(v);
     if (v.page) setPageID(v.page);
+    if(v.region&&mode==='monitoring_section'&&geometryKind==='region') {setVertices(v.region.slice(0,-1).map(v=>v.join(',')).join('\n'));if(v.region[0])setCoordinates(v.region[0].join(','));}
     if (v.anchor)
       setCoordinates(v.anchor.map((n) => Number(n.toFixed(6))).join(","));
     if (v.owner) {
-      setMode(v.owner.kind === "component" ? "component" : "point");
+      setMode(v.owner.kind === "component" || canPlace(v.owner.kind) ? v.owner.kind : "point");
       setSelected(v.owner.id);
       const p = placements.find(
-        (p) => p.point_id === v.owner?.id && (!v.page || p.page_id === v.page),
+        (p) => sameObject(placementRef(p), v.owner) && (!v.page || p.page_id === v.page),
       );
       setMain("");
       const linked = links.find(
@@ -215,6 +250,7 @@ function Editor({
         setCoordinates(p.anchor.join(","));
         setLabel(p.label_offset.join(","));
         setMain(p.main_channel_id ?? "");
+        setGeometryKind(p.geometry?.kind??'none');setVertices(p.geometry?.vertices?.map(v=>v.join(',')).join('\n')??'');setNormal(p.geometry?.normal?.join(',')??'0,0,1');setPlaneSize(p.geometry?.size?.join(',')??'');
       }
     }
   };
@@ -230,7 +266,7 @@ function Editor({
         ]);
         return;
       }
-      if (mode === "point") {
+      if (canPlace(mode)) {
         if (
           coordinates.split(",").some((n) => !n.trim()) ||
           label.split(",").some((n) => !n.trim())
@@ -248,12 +284,13 @@ function Editor({
           throw Error("图纸坐标须在 0–1 范围。");
         const old = placements.find(
           (p) =>
-            p.point_id === selected &&
+            sameObject(placementRef(p), {kind: mode, id: selected}) &&
             (kind !== "layout" || p.page_id === pageID),
         );
         const p: SpatialPlacement = {
           id: old?.id ?? crypto.randomUUID(),
-          point_id: selected,
+          point_id: mode === "point" ? selected : "",
+          target_ref: {kind: mode, id: selected},
           page_id: kind === "layout" ? pageID : "",
           anchor,
           element_key:
@@ -264,6 +301,11 @@ function Editor({
           basis_changed: false,
           object: target,
         };
+        if(mode!=='point'&&geometryKind!=='none') {
+          const numbers=(v:string,dimension:number)=>{const parts=v.split(',');const values=parts.map(Number);if(parts.some(n=>!n.trim())||values.length!==dimension||values.some(n=>!Number.isFinite(n)))throw Error('请填写完整的有限坐标，每行维数应与资料一致。');return values;};
+          if(geometryKind==='plane')p.geometry={kind:'plane',normal:numbers(normal,3),size:numbers(planeSize,2)};
+          else p.geometry={kind:geometryKind,vertices:vertices.trim().split(/\n|;/).map(v=>numbers(v,kind==='layout'?2:3))};
+        }
         setPlacements([...placements.filter((v) => v !== old), p]);
       } else {
         if (kind === "layout" && !pick?.region)
@@ -301,7 +343,7 @@ function Editor({
     onPick,
     onHover: () => {},
     editing: true,
-    placing: mode,
+    placing: mode==='monitoring_section'&&geometryKind==='region'&&kind==='layout'?'component':mode,
     onMove: (id, anchor, label) =>
       setPlacements((v) =>
         v.map((p) => (p.id === id ? { ...p, anchor, label_offset: label } : p)),
@@ -389,12 +431,15 @@ function Editor({
                 className={inputClass}
                 value={mode}
                 onChange={(e) => {
-                  setMode(e.target.value as "point" | "component");
+                  setMode(e.target.value as PlacementKind | "component");
                   setSelected("");
                   setPick(undefined);
+                  setGeometryKind('none');setVertices('');setPlaneSize('');
                 }}
               >
                 <option value="point">测点挂载</option>
+                <option value="monitoring_section">断面挂载</option>
+                <option value="borehole">孔位挂载</option>
                 <option value="component">构件关联</option>
               </select>
             </Field>
@@ -411,19 +456,23 @@ function Editor({
                 setLabel("12,-12");
                 const placed = placements.find(
                   (p) =>
-                    p.point_id === id &&
+                    sameObject(placementRef(p), {kind: mode, id}) &&
                     (kind !== "layout" || p.page_id === pageID),
                 );
                 if (placed)
-                  onPick({
-                    owner: { kind: "point", id },
-                    anchor: placed.anchor,
-                    page: placed.page_id,
-                    element: placed.element_key,
-                  });
+                  onPick(
+                    {
+                      owner: placementRef(placed),
+                      anchor: placed.anchor,
+                      page: placed.page_id,
+                      element: placed.element_key,
+                    },
+                    true,
+                  );
                 else {
                   setCoordinates("");
                   setPick(undefined);
+                  setGeometryKind('none');setVertices('');setPlaneSize('');
                 }
               }}
             >
@@ -453,81 +502,117 @@ function Editor({
           )}
           <Failure error={targets.error ?? selectedTarget.error} />
           <div className="max-h-72 space-y-2 overflow-auto border-t pt-3">
-            <h3 className="font-medium">已挂载与关联</h3>
-            {placements.map((p, i) => (
-              <div
-                key={p.id || `new-${i}`}
-                className="flex items-center justify-between gap-2 text-sm"
-              >
-                <button
-                  className="min-h-11 text-left underline"
-                  onClick={() =>
-                    onPick({
-                      owner: { kind: "point", id: p.point_id },
-                      page: p.page_id,
-                      anchor: p.anchor,
-                      element: p.element_key,
-                    })
-                  }
-                >
-                  {p.object?.name ?? "测点"}
-                  {p.page_id ? ` · ${p.page_id}` : ""}
-                  {p.basis_changed ? " · 依据变化" : ""}
-                </button>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-medium">
+                {showAllBindings ? "全部关联" : "当前对象关联"}
+              </h3>
+              {initialOwner && (
                 <Button
-                  size="sm"
                   variant="ghost"
-                  onClick={() =>
-                    setPlacements(placements.filter((v) => v !== p))
-                  }
-                >
-                  移除
-                </Button>
-              </div>
-            ))}
-            {links.map((l, i) => (
-              <div
-                key={l.id || `new-link-${i}`}
-                className="flex items-center justify-between gap-2 text-sm"
-              >
-                <button
-                  type="button"
-                  className="min-h-11 text-left underline"
-                  onClick={() =>
-                    onPick({
-                      owner: { kind: "component", id: l.component_id },
-                      page: l.page_id,
-                      element: l.element_key,
-                      region: l.region,
-                    })
-                  }
-                >
-                  {l.object?.name ?? "构件"} · {l.element_key || "图纸区域"}
-                </button>
-                <Button
                   size="sm"
-                  variant="ghost"
-                  onClick={() => setLinks(links.filter((v) => v !== l))}
+                  onClick={() => setShowAllBindings(!showAllBindings)}
                 >
-                  解除
+                  {showAllBindings ? "只看当前" : "查看全部"}
                 </Button>
-              </div>
-            ))}
-            {features.map((f) => (
-              <div
-                key={f.feature_key}
-                className="flex items-center justify-between text-sm"
-              >
-                <span>{f.feature_key}</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setFeatures(features.filter((v) => v !== f))}
+              )}
+            </div>
+            {!showAllBindings &&
+              !placements.some((p) => sameObject(placementRef(p), {kind: mode, id: selected})) &&
+              !links.some((l) => l.component_id === selected) &&
+              !features.some((f) => f.facility_id === selected) && (
+                <p className="text-xs text-muted-foreground">
+                  此对象尚无关联，请在画布中定位。
+                </p>
+              )}
+            {placements
+              .filter((p) => showAllBindings || sameObject(placementRef(p), {kind: mode, id: selected}))
+              .map((p, i) => (
+                <div
+                  key={p.id || `new-${i}`}
+                  className="flex items-center justify-between gap-2 text-sm"
                 >
-                  解除
-                </Button>
-              </div>
-            ))}
+                  <button
+                    className="min-h-11 text-left underline"
+                    onClick={() =>
+                      onPick(
+                        {
+                          owner: placementRef(p),
+                          page: p.page_id,
+                          anchor: p.anchor,
+                          element: p.element_key,
+                        },
+                        true,
+                      )
+                    }
+                  >
+                    {p.object?.name ?? "测点"}
+                    {p.page_id ? ` · ${p.page_id}` : ""}
+                    {p.basis_changed ? " · 依据变化" : ""}
+                  </button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      setPlacements(placements.filter((v) => v !== p))
+                    }
+                  >
+                    移除
+                  </Button>
+                </div>
+              ))}
+            {links
+              .filter((l) => showAllBindings || l.component_id === selected)
+              .map((l, i) => (
+                <div
+                  key={l.id || `new-link-${i}`}
+                  className="flex items-center justify-between gap-2 text-sm"
+                >
+                  <button
+                    type="button"
+                    className="min-h-11 text-left underline"
+                    onClick={() =>
+                      onPick(
+                        {
+                          owner: { kind: "component", id: l.component_id },
+                          page: l.page_id,
+                          element: l.element_key,
+                          region: l.region,
+                        },
+                        true,
+                      )
+                    }
+                  >
+                    {l.object?.name ?? "构件"} ·{" "}
+                    {initial.version.manifest.elements?.find(
+                      (e) => e.key === l.element_key,
+                    )?.name || "图纸区域"}
+                  </button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setLinks(links.filter((v) => v !== l))}
+                  >
+                    解除
+                  </Button>
+                </div>
+              ))}
+            {features
+              .filter((f) => showAllBindings || f.facility_id === selected)
+              .map((f) => (
+                <div
+                  key={f.feature_key}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span>{f.feature_key}</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setFeatures(features.filter((v) => v !== f))}
+                  >
+                    解除
+                  </Button>
+                </div>
+              ))}
           </div>
         </aside>
         <div className="min-w-0 space-y-3">
@@ -633,7 +718,7 @@ function Editor({
           aria-label="标注属性"
         >
           <h3 className="text-sm font-semibold">标注属性</h3>
-          {!geolayer && mode === "point" && (
+          {!geolayer && canPlace(mode) && (
             <>
               <TextField
                 label={
@@ -652,6 +737,12 @@ function Editor({
               <Info>
                 点击画面设置锚点。布设图中可拖动圆点或文字；移动文字只改变标签偏移。
               </Info>
+              {mode!=='point'&&<>
+                <Field label="关联几何"><select className={inputClass} value={geometryKind} onChange={e=>setGeometryKind(e.target.value as typeof geometryKind)}><option value="none">锚点或已有模型元素</option>{mode==='monitoring_section'?<><option value="region">断面区域</option>{kind==='model'&&<option value="plane">模型平面</option>}</>:<option value="path">已有孔位路径</option>}</select></Field>
+                {(geometryKind==='region'||geometryKind==='path')&&<Field label={geometryKind==='region'?'区域顶点（每行一个，最多 64 个）':'资料路径顶点（每行一个，最多 512 个）'}><textarea className={inputClass+' min-h-32'} value={vertices} onChange={e=>setVertices(e.target.value)} placeholder={kind==='layout'?'0.2,0.3\n0.4,0.5':'0,0,0\n1,2,3'}/></Field>}
+                {geometryKind==='plane'&&<><TextField label="平面法向 nx,ny,nz" value={normal} onChange={setNormal}/><TextField label="平面宽、高（米）" value={planeSize} onChange={setPlaneSize}/></>}
+                <Info>{kind==='layout'&&geometryKind==='region'?'在图纸逐点绘制区域，双击完成；也可逐行录入归一化顶点。':'几何采用资料中已知的视图坐标。'}孔深、沿孔距离和地图位置不用于推算这份几何。</Info>
+              </>}
             </>
           )}
           {!geolayer && mode === "component" && (
@@ -721,8 +812,8 @@ function Editor({
                   if (c.placement) {
                     if (c.placement.page_id) setPageID(c.placement.page_id);
                     setMain(c.placement.main_channel_id ?? "");
-                    setMode("point");
-                    setSelected(c.placement.point_id);
+                    setMode(placementRef(c.placement).kind as PlacementKind);
+                    setSelected(placementRef(c.placement).id);
                     setCoordinates(c.placement.anchor.join(","));
                     setLabel(c.placement.label_offset.join(","));
                     setPick({ element: c.placement.element_key });

@@ -17,7 +17,7 @@ export function ProjectMonitoring({ children }: { children: ReactNode }) {
   return <MonitoringBoundary value={{ scope: { kind: 'project', tenantId: p.project.tenant_id, projectId: p.project.id }, prefix: [...p.key, 'monitoring', p.resource_access_revision], available: p.available, archived: p.project.status === 'archived', can: p.can }}>{children}</MonitoringBoundary>;
 }
 function MonitoringBoundary({ value, children }: { value: Range; children: ReactNode }) {
-  const { client, account } = useIdentity(); const cache = useQueryClient();
+  const { client, account, authorization_revision } = useIdentity(); const cache = useQueryClient();
   const [notice, setNotice] = useState(false);
   const seenRevision = useRef(false);
   const tenant = value.scope.tenantId, project = value.scope.kind === 'project' ? value.scope.projectId : undefined;
@@ -44,7 +44,10 @@ function MonitoringBoundary({ value, children }: { value: Range; children: React
   const tenantScope=value.scope.kind==='tenant';
   const permission=(suffix:string)=>value.can(`${value.scope.kind}.derived.${suffix}` as PermissionCode);
   const poll:((signal:AbortSignal)=>Promise<unknown>)|undefined=value.can(tenantScope?P.TenantMonitoringDataRead:P.ProjectMonitoringDataRead)||value.can(tenantScope?P.TenantMonitoringImportsRead:P.ProjectMonitoringImportsRead)?signal=>client.monitoringJobs(value.scope,undefined,signal):permission('runs.read')?signal=>client.derivedRuns(value.scope,{limit:1},signal):permission('channels.read')?signal=>client.derivedChannels(value.scope,{limit:1},signal):permission('analysis.read')?signal=>client.analysisConfigs(value.scope,{limit:1},signal):permission('metrics.read')?signal=>client.derivedMetrics(value.scope,{limit:1},signal):permission('analysis.results.read')?signal=>client.analysisArtifacts(value.scope,{limit:1},signal):undefined;
-  useQuery({ queryKey: [...prefix, 'qualification'], queryFn: ({signal})=>poll?.(signal)??Promise.resolve(null), enabled: value.available&&!!poll, refetchInterval: 30_000, refetchOnWindowFocus: 'always', retry: false });
+  // A project context can report a new authorization revision before the
+  // monitoring poll. Recheck immediately instead of retaining a selection
+  // until the next interval after its data grant has been revoked.
+  useQuery({ queryKey: [...prefix, 'qualification', authorization_revision], queryFn: ({signal})=>poll?.(signal)??Promise.resolve(null), enabled: value.available&&!!poll, refetchInterval: 30_000, refetchOnWindowFocus: 'always', retry: false });
   return <Context value={{ ...value, prefix }}>{notice && <p role="status" className="mb-4 rounded-lg border bg-muted/50 p-3 text-sm">数据或授权已变化，已清空此前选择与缓存。请重新选择当前获准的范围。</p>}<div key={`${JSON.stringify(value.prefix)}:${authorityEpoch}`}>{children}</div></Context>;
 }
 // eslint-disable-next-line react-refresh/only-export-components

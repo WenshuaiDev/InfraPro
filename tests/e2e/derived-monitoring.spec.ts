@@ -39,13 +39,18 @@ async function prepare(page:Page,request:APIRequestContext) {
 }
 function section(page:Page,title:string) {return page.locator('section').filter({has:page.getByRole('heading',{name:title,exact:true})});}
 async function range(area:Locator) {await area.getByLabel('起点（含）',{exact:true}).fill(start);await area.getByLabel('终点（不含）',{exact:true}).fill(end);}
+async function definitionStep(page:Page,name:string) {await page.getByRole('navigation',{name:'指标定义编辑步骤'}).getByRole('button',{name:new RegExp(name)}).click();}
+async function channelStep(page:Page,name:string) {await page.getByRole('navigation',{name:'通道配置步骤'}).getByRole('button',{name:new RegExp(name)}).click();}
 async function configureRule(page:Page,f:Awaited<ReturnType<typeof prepare>>) {
+ const staged=!new URL(page.url()).pathname.includes('/analysis');
+ if(staged){await expect(page.getByRole('navigation',{name:'指标定义编辑步骤'})).toBeVisible();await definitionStep(page,'输入要求');await page.getByRole('button',{name:'设置要求',exact:true}).first().click();}
  await page.getByLabel('物理量',{exact:true}).selectOption('unit');
  await page.getByLabel('固定单位版本搜索',{exact:true}).fill(`mm_${f.suffix}`);
  await page.getByLabel('固定单位版本定义',{exact:true}).selectOption(f.unit.definition_id);
  await page.getByLabel('固定单位版本版本',{exact:true}).selectOption(f.unit.version_id);
  await page.getByLabel('量值尺度',{exact:true}).selectOption('ratio');
  await page.getByLabel('允许来源',{exact:true}).selectOption('direct');
+ if(staged){await page.getByRole('button',{name:'完成设置',exact:true}).click();await definitionStep(page,'计算规则');}
  await page.getByLabel('常用规则模板',{exact:true}).selectOption('difference');
  await page.getByRole('button',{name:'套用模板并替换步骤',exact:true}).click();
  await expect(page.getByLabel('计算方法',{exact:true})).toHaveValue('difference');
@@ -73,6 +78,22 @@ async function verifyDerivedDelegation(page:Page,f:Awaited<ReturnType<typeof pre
  expect(granted.candidates.items.map((item:{id:string})=>item.id)).toEqual([channel]);
  const entry=granted.grants.find((grant:{resource_id:string})=>grant.resource_id===channel);
  expect(entry.source_kind).toBe('derived');expect([...entry.capabilities].sort()).toEqual(['manage_calculation','read']);
+ const projectRoot=`${consoleURL}/t/${f.tenant}/p/${project.project_id}/monitoring/derived`;
+ await page.goto(`${projectRoot}/${channel}`);
+ await page.getByRole('button',{name:'规则与输入',exact:true}).click();
+ await expect(page.getByText('当前身份不能读取完整输入配置。输入名称、样本和计算结果已隐藏。',{exact:true})).toBeVisible();
+ await page.getByRole('dialog').getByRole('button',{name:'关闭面板',exact:true}).click();
+ await page.getByRole('navigation',{name:'派生监测视图'}).getByRole('link',{name:'指标定义',exact:true}).click();
+ await expect(page.getByRole('table',{name:'指标定义目录'})).toContainText(longName);
+ await expect(page.getByRole('button',{name:'新建指标定义',exact:true})).toHaveCount(0);
+ const archivePath=f.base+'/projects/'+project.project_id+'/archive';
+ const preview=await f.post(archivePath+'/preview',{},200);
+ await f.post(archivePath,{expected_version:preview.expected_version,expected_project_version:preview.expected_project_version,preview_hash:preview.preview_hash,reason:'派生监测项目归档只读回归',client_request_id:randomUUID()},200);
+ await page.goto(`${projectRoot}?id=new`);
+ await expect(page.getByText('当前空间仅可查看监测通道。',{exact:true})).toBeVisible();
+ await page.getByRole('navigation',{name:'派生监测视图'}).getByRole('link',{name:'指标定义',exact:true}).click();
+ await expect(page.getByRole('table',{name:'指标定义目录'})).toContainText(longName);
+ await expect(page.getByRole('button',{name:'新建指标定义',exact:true})).toHaveCount(0);
  await noOverflow(page);
 }
 
@@ -81,9 +102,11 @@ test('definition, facility-owned binding, trial, automatic publication and retur
  test.setTimeout(240000);const f=await prepare(page,request);const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(`${f.root}/derived-definitions?id=new`);
  await page.getByLabel('指标编码',{exact:true}).fill('DIFFERENCE');await page.getByLabel('指标名称',{exact:true}).fill(longName);
- await navigateTo(page,'派生通道');await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('button',{name:'继续编辑',exact:true}).click();await expect(page.getByLabel('指标名称',{exact:true})).toHaveValue(longName);
+ await navigateTo(page,'派生监测');await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('button',{name:'继续编辑',exact:true}).click();await expect(page.getByLabel('指标名称',{exact:true})).toHaveValue(longName);
  await configureRule(page,f);
+ await definitionStep(page,'输出与发布');
  await page.getByLabel('操作原因',{exact:true}).fill('模板生成相邻差分指标');
+ await definitionStep(page,'基本信息');
  await page.getByLabel('指标编码',{exact:true}).fill('bad code');await page.getByRole('button',{name:'创建草稿',exact:true}).click();await expect(page.getByRole('alert')).toBeFocused();await page.getByRole('alert').getByRole('button').first().click();await expect(page.getByLabel('指标编码',{exact:true})).toBeFocused();await page.getByLabel('指标编码',{exact:true}).fill('DIFFERENCE');
  await page.getByRole('button',{name:'创建草稿',exact:true}).click();
  await expect(page.getByRole('button',{name:'校验已保存草稿',exact:true})).toBeEnabled();
@@ -99,18 +122,21 @@ test('definition, facility-owned binding, trial, automatic publication and retur
  await page.getByLabel('通道编码',{exact:true}).fill('CALC');await page.getByLabel('通道名称',{exact:true}).fill(longName);
  await page.getByLabel('指标定义',{exact:true}).selectOption(definition);
  await page.getByRole('button',{name:new RegExp(`^V1 · ${longName}`)}).click();
+ await channelStep(page,'绑定输入');
  await page.getByRole('button',{name:/跨中测点 · 原始位移 · DISP/}).click();
+ await channelStep(page,'参数与范围');
  await page.getByLabel('操作原因',{exact:true}).fill('设施直属差分持续监测');
  await page.getByRole('button',{name:'创建通道并进入试算',exact:true}).click();
  const trial=section(page,'试算固定配置');await expect(trial).toBeVisible();await range(trial);await trial.getByLabel('操作原因',{exact:true}).fill('检查首个空值及相邻差值');
  await trial.getByRole('button',{name:'对完整范围试算',exact:true}).click();
- await expect(trial.getByText('已完成',{exact:true})).toBeVisible({timeout:30000});await noOverflow(page);
+ await expect(trial.getByRole('heading',{name:'试算 · 已完成',exact:true})).toBeVisible({timeout:30000});await noOverflow(page);
+ await page.getByRole('button',{name:'下一步：启用预览',exact:true}).click();
  const control=section(page,'启用持续计算');await control.getByLabel('持续生效，不设终点',{exact:true}).uncheck();await range(control);
  await control.getByRole('button',{name:'预览启用影响',exact:true}).click();
  await expect(control.getByRole('button',{name:'确认执行此预览',exact:true})).toBeVisible();
  await control.getByRole('button',{name:'确认执行此预览',exact:true}).click();
  await expect(page.getByRole('heading',{name:'暂停持续计算',exact:true})).toBeVisible();
- const channelID=new URL(page.url()).pathname.split('/').at(-1)!;
+ const channelID=new URL(page.url()).searchParams.get('id')??new URL(page.url()).pathname.split('/').at(-1)!;
  await expect.poll(async()=>{const response=await page.request.get(`${api}${f.monitoring}/derived/channels/${channelID}/generations?from_ns=1577836800000000001&to_ns=1577836980000000000`);if(!response.ok())return 0;return(await response.json()).items.length;},{timeout:30000}).toBeGreaterThan(0);
  // The merged resource workspace must preserve an owner-neutral channel deep link.
  await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${f.facility.id}?channel=${channelID}`);
@@ -135,16 +161,52 @@ test('definition, facility-owned binding, trial, automatic publication and retur
  await navigation.getByRole('treeitem',{name:`${longName}，业务通道`,exact:true}).locator('[data-select-resource]').first().click();
  await noOverflow(page);await page.screenshot({path:info.outputPath('merged-derived-workspace.png'),fullPage:true});
  await page.goto(`${f.root}/derived/${channelID}`);
+ await page.getByRole('dialog').getByRole('button',{name:'关闭面板',exact:true}).click();
  await navigateTo(page,'计算运行');
  await expect(page.getByRole('table',{name:'计算运行记录'})).toBeVisible();
  await page.getByRole('button',{name:/试算/}).first().click();
  await expect(page.getByText('已完成',{exact:true}).last()).toBeVisible();await noOverflow(page);
  await page.screenshot({path:info.outputPath('calculation-return.png'),fullPage:true});
  // A fresh document has no monitoring revision yet. Opening history immediately must survive its first authority response.
- await page.goto(`${f.root}/derived/${channelID}`);await page.getByRole('button',{name:'历史与来源',exact:true}).click();const publishedHistory=section(page,'发布历史与原依据');await range(publishedHistory);await publishedHistory.getByRole('button',{name:'查询此范围的发布历史',exact:true}).click();await expect(publishedHistory.getByRole('table',{name:'派生发布代次'}).getByRole('row')).toHaveCount(2);await publishedHistory.getByRole('table',{name:'派生发布代次'}).getByRole('button').first().click();
+ await page.goto(`${f.root}/derived/${channelID}`);await page.getByRole('button',{name:'历史与依据',exact:true}).click();const publishedHistory=section(page,'发布历史与原依据');await range(publishedHistory);await publishedHistory.getByRole('button',{name:'查询此范围的发布历史',exact:true}).click();await expect(publishedHistory.getByRole('table',{name:'派生发布代次'}).getByRole('row')).toHaveCount(2);await publishedHistory.getByRole('table',{name:'派生发布代次'}).getByRole('button').first().click();
  const fullEvidence=section(page,'导出此范围的完整输入依据');await fullEvidence.getByLabel('输入依据导出原因',{exact:true}).fill('核对原始候选身份与质量');await fullEvidence.getByRole('button',{name:'后台生成完整输入依据',exact:true}).click();await expect(fullEvidence.getByRole('link',{name:/\.csv$/}).first()).toBeVisible({timeout:30000});const evidenceDownloadPromise=page.waitForEvent('download');await fullEvidence.getByRole('link',{name:/\.csv$/}).first().click();const evidenceDownload=await evidenceDownloadPromise;expect(await evidenceDownload.failure()).toBeNull();const evidenceText=readFileSync((await evidenceDownload.path())!,'utf8');expect(evidenceText).toContain('input_snapshot_id');expect(evidenceText).toContain('adoption_id');expect(evidenceText).toContain('10.000000000000');await fullEvidence.getByRole('link',{name:'在运行记录中保存此导出入口',exact:true}).click();await expect(page.getByRole('heading',{name:'派生历史输入依据导出',exact:true})).toBeVisible();await expect(page.getByRole('link',{name:/\.csv$/}).first()).toBeVisible();await page.goto(`${f.root}/derived/${channelID}`);
- await page.getByRole('button',{name:'退役通道',exact:true}).click();await page.getByRole('dialog').getByLabel('原因 *',{exact:true}).fill('保留历史，停止后续自动计算');await page.getByRole('dialog').getByRole('button',{name:'预览退役影响',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'确认保存',exact:true}).click();await expect(page.getByRole('button',{name:'恢复通道',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'恢复通道',exact:true}).click();await page.getByRole('dialog').getByLabel('原因 *',{exact:true}).fill('恢复资源后仍保持计算暂停');await page.getByRole('dialog').getByRole('button',{name:'预览恢复影响',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'确认保存',exact:true}).click();await expect(page.getByRole('heading',{name:'恢复持续计算',exact:true})).toBeVisible();await verifyDerivedDelegation(page,f,channelID);expect(errors).toEqual([]);
+ await page.getByRole('button',{name:'退役通道',exact:true}).click();await page.getByRole('dialog').last().getByLabel('原因 *',{exact:true}).fill('保留历史，停止后续自动计算');await page.getByRole('dialog').last().getByRole('button',{name:'预览退役影响',exact:true}).click();await page.getByRole('dialog').last().getByRole('button',{name:'确认保存',exact:true}).click();await expect(page.getByRole('button',{name:'恢复通道',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'恢复通道',exact:true}).click();await page.getByRole('dialog').last().getByLabel('原因 *',{exact:true}).fill('恢复资源后仍保持计算暂停');await page.getByRole('dialog').last().getByRole('button',{name:'预览恢复影响',exact:true}).click();await page.getByRole('dialog').last().getByRole('button',{name:'确认保存',exact:true}).click();await page.getByRole('button',{name:'运行管理',exact:true}).click();await page.getByRole('button',{name:'控制与配置生效',exact:true}).click();await expect(page.getByRole('heading',{name:'恢复持续计算',exact:true})).toBeVisible();await verifyDerivedDelegation(page,f,channelID);expect(errors).toEqual([]);
+});
+
+test('unified authoring preserves channel context, reveals hidden errors and keeps fixed versions independent',async({page,request},info)=>{
+ test.setTimeout(300000);const f=await prepare(page,request);const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(`${f.root}/derived?id=new&owner_kind=facility&owner=${f.facility.id}&facility=${f.facility.id}`);
+ await page.getByLabel('通道编码',{exact:true}).fill('CONTEXT');await page.getByLabel('通道名称',{exact:true}).fill('保留工程对象的派生通道');
+ await page.getByRole('button',{name:'新建规则并返回',exact:true}).click();
+ await page.getByLabel('指标编码',{exact:true}).fill('REUSABLE');await page.getByLabel('指标名称',{exact:true}).fill('可复用位移差分');
+ await configureRule(page,f);
+ await definitionStep(page,'输入要求');await page.getByRole('button',{name:'设置要求',exact:true}).click();
+ await page.getByLabel('槽位键（公式引用）',{exact:true}).fill('');await page.getByRole('button',{name:'完成设置',exact:true}).click();
+ await definitionStep(page,'输出与发布');await page.getByLabel('操作原因',{exact:true}).fill('新建复用规则，保留通道上下文');
+ await page.getByRole('button',{name:'创建草稿',exact:true}).click();
+ const issue=page.getByRole('alert').getByRole('button').filter({hasText:'/inputs/0/key'});await expect(issue).toBeVisible();await issue.click();
+ await expect(page.getByLabel('槽位键（公式引用）',{exact:true})).toBeFocused();await page.getByLabel('槽位键（公式引用）',{exact:true}).fill('x');
+ await noOverflow(page);await page.screenshot({path:info.outputPath('input-error-revealed.png'),fullPage:true});
+ await page.getByRole('button',{name:'完成设置',exact:true}).click();await page.getByRole('button',{name:'创建草稿',exact:true}).click();
+ await expect(page.getByRole('button',{name:'校验已保存草稿',exact:true})).toBeEnabled();await page.getByRole('button',{name:'校验已保存草稿',exact:true}).click();await expect(page.getByText('校验通过，可发布当前已保存草稿',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'发布固定版本',exact:true}).click();await page.getByRole('button',{name:'使用 V1 创建通道',exact:true}).click();
+ await expect(page.getByLabel('通道名称',{exact:true})).toHaveValue('保留工程对象的派生通道');await expect(page.getByLabel('归属类型',{exact:true})).toHaveValue('facility');await expect(page.getByLabel('所属设施',{exact:true})).toHaveValue(f.facility.id);
+ await page.getByRole('navigation',{name:'派生监测视图'}).getByRole('link',{name:'指标定义',exact:true}).click();await expect(page.getByRole('alertdialog')).toBeVisible();await page.getByRole('button',{name:'继续编辑',exact:true}).click();
+ await expect(page.getByRole('alertdialog')).toBeHidden();await channelStep(page,'绑定输入');await page.getByRole('button',{name:/跨中测点 · 原始位移 · DISP/}).click();await channelStep(page,'参数与范围');await page.getByLabel('操作原因',{exact:true}).fill('保存待启用通道');await page.getByRole('button',{name:'创建通道并进入试算',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'试算固定配置',exact:true})).toBeVisible();const channelID=new URL(page.url()).searchParams.get('id')!;
+ const configs=await(await page.request.get(`${api}${f.monitoring}/derived/channels/${channelID}/configs`)).json();const pinnedVersion=configs.items[0].definition_version_id;
+ await page.getByRole('dialog').getByRole('button',{name:'关闭面板',exact:true}).click();await page.getByLabel('搜索通道名称或编码',{exact:true}).fill('CONTEXT');
+ await page.getByRole('button',{name:'保留工程对象的派生通道',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'关闭面板',exact:true}).click();await expect(page.getByLabel('搜索通道名称或编码',{exact:true})).toHaveValue('CONTEXT');
+ await page.getByRole('button',{name:'保留工程对象的派生通道',exact:true}).click();await page.getByRole('button',{name:'规则与输入',exact:true}).click();await page.getByRole('button',{name:'复制为新通道',exact:true}).click();await page.getByLabel('通道编码',{exact:true}).fill('COPIED');await page.getByLabel('通道名称',{exact:true}).fill('复制派生通道');await channelStep(page,'参数与范围');await page.getByLabel('操作原因',{exact:true}).fill('验证通道复制保留输入和固定版本');await page.getByRole('button',{name:'创建通道并进入试算',exact:true}).click();await expect(page.getByRole('heading',{name:'试算固定配置',exact:true})).toBeVisible();const copiedID=new URL(page.url()).searchParams.get('id')!;expect(copiedID).not.toBe(channelID);const copied=await(await page.request.get(`${api}${f.monitoring}/derived/channels/${copiedID}/configs`)).json();expect(copied.items[0].definition_version_id).toBe(pinnedVersion);expect(copied.items[0].input_bindings.x.channel_id).toBe(f.channel.id);await page.getByRole('dialog').getByRole('button',{name:'关闭面板',exact:true}).click();
+ await page.getByRole('navigation',{name:'派生监测视图'}).getByRole('link',{name:'指标定义',exact:true}).click();await page.getByRole('button',{name:'可复用位移差分',exact:true}).click();
+ await page.getByLabel('操作原因',{exact:true}).fill('检查固定版本启停');await page.getByRole('button',{name:'停用',exact:true}).click();await expect(page.getByRole('table',{name:'指标发布版本'})).toContainText('已停用');await expect(page.getByRole('button',{name:'创建通道',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'启用',exact:true}).click();await expect(page.getByRole('button',{name:'创建通道',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'基于此版本编辑',exact:true}).click();await page.getByLabel('业务说明',{exact:true}).fill('第二版说明；既有通道仍固定第一版');await page.getByRole('button',{name:'保存草稿',exact:true}).click();await page.getByRole('button',{name:'校验已保存草稿',exact:true}).click();await expect(page.getByText('校验通过，可发布当前已保存草稿',{exact:true})).toBeVisible();await page.getByLabel('操作原因',{exact:true}).fill('发布第二版，保持已有通道版本');await page.getByRole('button',{name:'发布固定版本',exact:true}).click();await expect(page.getByText('已发布固定版本 V2。',{exact:true})).toBeVisible();
+ const unchanged=await(await page.request.get(`${api}${f.monitoring}/derived/channels/${channelID}/configs`)).json();expect(unchanged.items[0].definition_version_id).toBe(pinnedVersion);
+ await page.getByText('复制为新指标定义',{exact:true}).click();await page.getByLabel('来源版本',{exact:true}).selectOption(pinnedVersion);await page.getByLabel('新指标编码',{exact:true}).fill('COPY');await page.getByLabel('新指标名称',{exact:true}).fill('独立复制的草稿');await page.getByRole('button',{name:'复制为独立草稿',exact:true}).click();
+ await expect(page.getByLabel('指标编码',{exact:true})).toHaveValue('COPY');await definitionStep(page,'输出与发布');await page.getByLabel('操作原因',{exact:true}).fill('删除独立复制的测试草稿');await page.getByRole('button',{name:'删除此草稿',exact:true}).click();
+ await expect(page.getByRole('table',{name:'指标定义目录'})).not.toContainText('独立复制的草稿');await noOverflow(page);await page.screenshot({path:info.outputPath('unified-definitions.png'),fullPage:true});expect(errors).toEqual([]);
 });
 
 test('analysis multi-output version, result evidence, comparison and exact export survive navigation',async({page,request},info)=>{

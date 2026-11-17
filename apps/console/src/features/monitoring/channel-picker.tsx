@@ -11,7 +11,7 @@ import { PositionView } from '../location-fields/position-editor';
 
 export type SelectedChannel = MonitoringChannel;
 type PickerProps = { selected: SelectedChannel[]; onChange: (channels: SelectedChannel[]) => void; maximum?: number; autoSelect?: boolean; initialPoint?: string; initialChannel?: string; sourceKind?: 'direct' | 'derived' };
-const ownerNames = { facility: '设施', component: '构件', point: '测点' };
+const ownerNames = { facility: '设施', component: '构件', monitoring_section: '监测断面', borehole: '孔位', point: '测点' };
 const selectClass = 'min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 export function ChannelPicker({ selected, onChange, maximum = 50, autoSelect = false, initialPoint, initialChannel, sourceKind }: PickerProps) {
   const { available, canNavigate, canRead } = useMonitoring();

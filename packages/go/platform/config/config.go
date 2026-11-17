@@ -17,6 +17,8 @@ import (
 )
 
 type Config struct {
+	Uploads                                                     Uploads
+	IngestionFile                                               string
 	Parsing                                                     Parsing
 	Audit                                                       Audit
 	Files                                                       Files
@@ -39,6 +41,8 @@ type Config struct {
 }
 
 type input struct {
+	Uploads                    uploadsInput `yaml:"uploads"`
+	IngestionFile              string       `yaml:"ingestion_file"`
 	Parsing                    parsingInput `yaml:"parsing"`
 	Audit                      auditInput   `yaml:"audit"`
 	Files                      filesInput   `yaml:"files"`
@@ -103,7 +107,7 @@ type input struct {
 }
 
 func loadInput(path string) (input, error) {
-	raw := input{Parsing: defaultParsingInput(), Audit: defaultAuditInput(), Files: defaultFilesInput(), Tasks: defaultTasksInput(), Display: defaultDisplayInput(), Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
+	raw := input{Uploads: defaultUploadsInput(), Parsing: defaultParsingInput(), Audit: defaultAuditInput(), Files: defaultFilesInput(), Tasks: defaultTasksInput(), Display: defaultDisplayInput(), Input: foundation.Defaults(), Derived: defaultDerivedInput(), MonitoringTaskLease: "30s", MonitoringTaskHeartbeat: "5s", MonitoringTaskAttempts: "5", RedisKeyPrefix: "infrapro:dev:identity:v1:",
 		MonitoringHotDays: "90", MonitoringOnlineVolume: "online", MonitoringDatabase: "infrapro_monitoring", MonitoringUser: "default", MonitoringPolicy: "monitoring_tiered", MonitoringTLS: "false", MonitoringExportRows: "1000000", MonitoringExportBytes: "268435456",
 		PublicConsoleURL: "http://127.0.0.1:5173/",
 		TrustedOrigins:   "http://127.0.0.1:5173", CookieSecure: "false",
@@ -138,8 +142,12 @@ func loadInput(path string) (input, error) {
 	displayEnvironment(&raw.Display)
 	tasksEnvironment(&raw.Tasks)
 	parsingEnvironment(&raw.Parsing)
+	if value, ok := os.LookupEnv("INFRAPRO_INGESTION_FILE"); ok {
+		raw.IngestionFile = value
+	}
 	auditEnvironment(&raw.Audit)
 	filesEnvironment(&raw.Files)
+	uploadsEnvironment(&raw.Uploads)
 	return raw, nil
 }
 
@@ -178,6 +186,10 @@ func Load(path string) (Config, error) {
 		return Config{}, err
 	}
 	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	c.Uploads, err = parseUploads(raw.Uploads)
+	if err != nil {
+		return c, err
+	}
 	c.Files, err = parseFiles(raw.Files)
 	if err != nil {
 		return c, err
@@ -186,6 +198,7 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return c, err
 	}
+	c.IngestionFile = raw.IngestionFile
 	c.Parsing, err = parseParsing(raw.Parsing)
 	if err != nil {
 		return c, err
@@ -220,21 +233,18 @@ func Load(path string) (Config, error) {
 			return c, e
 		}
 	}
-	for name, value := range map[string]string{"public_console_url": c.PublicConsoleURL} {
-		u, e := url.Parse(value)
-		if e != nil || u.Scheme != "http" || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" {
-			return c, fmt.Errorf("%s must be a full HTTP application base URL", name)
-		}
+	consoleURL, err := applicationURL(c.PublicConsoleURL, false)
+	if err != nil {
+		return c, fmt.Errorf("public_console_url: %w", err)
 	}
 	for _, origin := range strings.Split(raw.TrustedOrigins, ",") {
 		origin = strings.TrimSpace(origin)
-		u, e := url.Parse(origin)
-		if e != nil || u.Scheme != "http" || u.Host == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
-			return c, fmt.Errorf("trusted_origins must contain exact HTTP origins without paths")
+		u, e := applicationURL(origin, true)
+		if e != nil || u.Scheme != consoleURL.Scheme {
+			return c, fmt.Errorf("trusted_origins must contain exact HTTP/HTTPS origins with the console scheme and without paths")
 		}
 		c.TrustedOrigins = append(c.TrustedOrigins, origin)
 	}
-	consoleURL, _ := url.Parse(c.PublicConsoleURL)
 	for _, site := range []*url.URL{consoleURL} {
 		matched := false
 		for _, origin := range c.TrustedOrigins {
@@ -248,7 +258,9 @@ func Load(path string) (Config, error) {
 	}
 	if raw.TrustedProxies != "" {
 		c.TrustedProxies = strings.Split(raw.TrustedProxies, ",")
-		for _, proxy := range c.TrustedProxies {
+		for i, proxy := range c.TrustedProxies {
+			proxy = strings.TrimSpace(proxy)
+			c.TrustedProxies[i] = proxy
 			if _, e := netip.ParsePrefix(proxy); e != nil {
 				if _, e = netip.ParseAddr(proxy); e != nil {
 					return c, fmt.Errorf("trusted_proxies must contain IP addresses or CIDRs")
@@ -261,12 +273,17 @@ func Load(path string) (Config, error) {
 		return c, fmt.Errorf("csrf_auth_key must be 64 hexadecimal characters (32 random bytes)")
 	}
 	c.CookieSecure, err = strconv.ParseBool(raw.CookieSecure)
-	if err != nil || c.CookieSecure {
-		return c, fmt.Errorf("cookie_secure must be false for this HTTP deployment")
+	if err != nil || c.CookieSecure != (consoleURL.Scheme == "https") {
+		return c, fmt.Errorf("cookie_secure must be true for HTTPS and false for HTTP")
 	}
 	c.Display, err = resolveDisplay(raw.Display, c.PublicConsoleURL, c.CookieSecure)
 	if err != nil {
 		return c, err
+	}
+	for _, origin := range c.TrustedOrigins {
+		if origin == c.Display.RuntimeOrigin || origin == c.Display.AssetOrigin {
+			return c, fmt.Errorf("trusted_origins must not include display runtime or asset origins")
+		}
 	}
 	for name, pair := range map[string]struct {
 		raw string

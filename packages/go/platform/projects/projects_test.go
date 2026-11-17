@@ -502,15 +502,23 @@ func TestProjectAuditIsolationAndTenantRoleIndependence(t *testing.T) {
 	code(t, e, "project_not_found")
 	list, e := f.s.Permissions(ctx, f.actor(f.b), f.tid, p.ProjectID)
 	must(t, e)
-	ordinary := 0
+	protected := []access.Code{access.ProjectRoleCreate, access.ProjectRoleUpdate, access.ProjectRoleSetPermissions, access.ProjectRoleSetStatus, access.ProjectRoleDelete, access.ProjectMemberAssignRoles, access.ProjectAdministratorTransfer, access.ProjectOwnerChange, access.ProjectArchive, access.ProjectRestore}
+	seen := map[access.Code]bool{}
 	for _, pc := range list {
-		if pc.ProjectCustomRoleAssignable {
-			ordinary++
+		if seen[pc.Code] || pc.Scope != "project" || pc.TenantCustomRoleAssignable {
+			t.Fatalf("duplicate or cross-scope project permission: %s", pc.Code)
+		}
+		seen[pc.Code] = true
+		if pc.ProjectCustomRoleAssignable == slices.Contains(protected, pc.Code) {
+			t.Fatalf("unexpected custom-role eligibility for %s", pc.Code)
 		}
 	}
-	// Monitoring adds seven plus two task-summary/control permissions; derived monitoring thirteen, spatial three, display nine, attachments three, and audit three.
-	if len(list) != 74 || ordinary != 64 {
-		t.Fatal(list)
+	// New business permissions must be present without hard-coding a release's
+	// catalog size. Governance permissions remain unavailable to custom roles.
+	for _, pc := range access.Catalog() {
+		if pc.Scope == "project" && !seen[pc.Code] {
+			t.Fatalf("missing project permission: %s", pc.Code)
+		}
 	}
 	auth, e := f.s.Authorization(ctx, f.actor(f.b), f.tid, p.ProjectID, member.ObjectID)
 	must(t, e)

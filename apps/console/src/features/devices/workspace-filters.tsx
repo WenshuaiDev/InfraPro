@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ClassificationFilter } from './classification-filter';
 import { useQuery } from '@tanstack/react-query';
 import { Check, PlusCircle } from 'lucide-react';
 import { Permissions } from '@infrapro/api-client';
@@ -24,7 +25,7 @@ export function WorkspaceFilters({ search, onChange }: Props) {
   const product = useQuery({ queryKey: [...prefix, 'filter-product', search.manufacturer, search.product], enabled: !!search.manufacturer && !!search.product, queryFn: ({ signal }) => client.deviceTree(scope, { level: 'product', parent_id: search.manufacturer, product_id: search.product }, signal) });
   const facility = useQuery({ queryKey: [...prefix, 'filter-facility', search.facility], enabled: canReadResources && !!search.facility, queryFn: ({ signal }) => client.resourceDetail(scope, { kind: 'facility', id: search.facility }, signal) });
   const names = { manufacturer: manufacturer.data?.items[0]?.name, product: product.data?.items[0]?.name, facility: facility.data?.name };
-  const filtered = !!(search.q || search.manufacturer || search.product || search.facility || search.status || search.installation || search.source && search.source !== 'all');
+  const filtered = !!(search.category || search.category_group || search.q || search.manufacturer || search.product || search.facility || search.status || search.installation || search.source && search.source !== 'all');
   const choose = (kind: Picker, value?: string) => {
     onChange({ ...search, [kind]: value,
       ...(kind === 'manufacturer' ? { product: undefined } : {}),
@@ -34,14 +35,15 @@ export function WorkspaceFilters({ search, onChange }: Props) {
   };
   return <div className="space-y-3" aria-label="设备筛选">
     <div className="flex flex-wrap items-center gap-2">
+      <ClassificationFilter search={search} onChange={onChange}/>
       <DirectorySearch label="搜索设备名称、编号或序列号" value={search.q ?? ''} onChange={(q) => onChange({ ...search, q: q || undefined })} />
       <ListFilter label="设备状态" value={search.status ?? ''} onChange={(status) => onChange({ ...search, status: (status || undefined) as TenantDeviceSearch['status'] })} options={[{ value: '', label: '全部状态' }, { value: 'enabled', label: '启用' }, { value: 'disabled', label: '停用' }]} />
-      <ListFilter label="安装位置" value={search.installation ?? ''} onChange={(value) => onChange({ ...search, installation: (value || undefined) as TenantDeviceSearch['installation'], facility: undefined })} options={[{ value: '', label: '全部位置' }, { value: 'recorded', label: '有当前安装记录' }, { value: 'resource', label: '设施 / 构件 / 测点' }, { value: 'location', label: '独立位置' }, { value: 'unrecorded', label: '无当前安装记录' }]} />
+      <ListFilter label="安装位置" value={search.installation ?? ''} onChange={(value) => onChange({ ...search, installation: (value || undefined) as TenantDeviceSearch['installation'], facility: undefined })} options={[{ value: '', label: '全部位置' }, { value: 'recorded', label: '有当前安装记录' }, { value: 'resource', label: '设施 / 构件 / 断面 / 孔位 / 测点' }, { value: 'location', label: '独立位置' }, { value: 'unrecorded', label: '无当前安装记录' }]} />
       {(['facility', 'manufacturer', 'product'] as const).filter((kind) => kind !== 'facility' || canReadResources || search.facility).map((kind) => <Button key={kind} id={`device-filter-${kind}`} variant="outline" className="h-9 max-w-full border-dashed max-sm:h-11" disabled={kind === 'product' && !search.manufacturer || kind === 'facility' && !canReadResources} aria-label={labels[kind]} title={kind === 'product' && !search.manufacturer ? '先选择厂家，再筛选产品' : names[kind]} onClick={() => setPicker(kind)}><PlusCircle aria-hidden="true" />{labels[kind]}{search[kind] && <><span className="mx-1 h-4 border-l" /><Badge variant="secondary" className="max-w-36 truncate">{names[kind] || '已选择'}</Badge></>}</Button>)}
       <ListFilter label="产品来源" value={search.source ?? ''} onChange={(value) => onChange({ ...search, source: (value || undefined) as TenantDeviceSearch['source'], manufacturer: undefined, product: undefined })} options={[{ value: '', label: '全部来源' }, { value: 'public', label: '平台公共' }, { value: 'private', label: '本租户私有' }]} />
       {filtered && <DirectoryReset onClick={() => onChange({ tab: search.tab })} />}
     </div>
-    {picker && <ResponsivePanel open onOpenChange={(open) => { if (!open) setPicker(undefined); }} title={`筛选${labels[picker]}`} description={picker === 'facility' ? '包含当前安装在该设施及其构件、测点的设备。' : picker === 'manufacturer' ? '选择厂家后，可以继续按产品缩小范围。' : '选择当前厂家下的产品，涵盖该产品的所有版本。'} fallbackFocusSelector={`#device-filter-${picker}`}>
+    {picker && <ResponsivePanel open onOpenChange={(open) => { if (!open) setPicker(undefined); }} title={`筛选${labels[picker]}`} description={picker === 'facility' ? '包含当前安装在该设施及其构件、断面、孔位、测点的设备。' : picker === 'manufacturer' ? '选择厂家后，可以继续按产品缩小范围。' : '选择当前厂家下的产品，涵盖该产品的所有版本。'} fallbackFocusSelector={`#device-filter-${picker}`}>
       <FilterChoices kind={picker} search={search} choose={(id) => choose(picker, id)} />
     </ResponsivePanel>}
   </div>;

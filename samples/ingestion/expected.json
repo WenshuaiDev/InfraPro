@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "vendor-batch.json": {
+    "length": 288,
+    "sha256": "7e9632a8c63659897b9e85d1a1d13a5653917439e7e00ee90f9fbafe8ba8df16",
+    "terminals": [
+      "00000000001",
+      "00000000002"
+    ],
+    "decoded_length": 81,
+    "values_mm": [
+      "12.34",
+      "12.34"
+    ]
+  },
+  "channels.bin": {
+    "length": 205,
+    "sha256": "94f95b17b4a91fad143ccea7939a03d3018fb0a0e057581cbc2d24c10a34e469",
+    "terminal": "00000000003",
+    "children": [
+      "A",
+      "B"
+    ],
+    "values_mm": [
+      "12.34",
+      "8.5"
+    ]
+  }
+}

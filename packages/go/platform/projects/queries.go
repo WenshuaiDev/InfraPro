@@ -73,9 +73,16 @@ func (s *Service) Profile(ctx context.Context, a access.Actor, tenant, project s
 }
 func (s *Service) Governance(ctx context.Context, a access.Actor, tenant, project string) (Summary, error) {
 	var out Summary
-	e := s.transact(ctx, a, access.OpProjectGovernanceDetail, tenant, project, func(tx pgx.Tx, _ string, _ access.ProjectAuthorization) error {
+	e := s.transact(ctx, a, access.OpProjectGovernanceDetail, tenant, project, func(tx pgx.Tx, revision string, _ access.ProjectAuthorization) error {
 		p, e := projectTx(ctx, tx, tenant, project)
+		if e != nil {
+			return e
+		}
 		out = p.Summary
+		statistics, e := governanceStatisticsTx(ctx, tx, a.ID, tenant, revision, []string{project})
+		if e == nil {
+			out.Statistics = statistics[project]
+		}
 		return e
 	})
 	return out, e
@@ -110,8 +117,8 @@ func (f *Filter) validate() (cursor, error) {
 	}
 	return c, nil
 }
-func (s *Service) List(ctx context.Context, a access.Actor, tenant string, f Filter, mine bool) (access.Page[Context], error) {
-	out := access.Page[Context]{Items: []Context{}}
+func (s *Service) List(ctx context.Context, a access.Actor, tenant string, f Filter, mine bool) (ProjectPage, error) {
+	out := ProjectPage{Page: access.Page[Context]{Items: []Context{}}}
 	op := access.OpProjectGovernanceList
 	if mine {
 		op = access.OpMyProjects
@@ -159,6 +166,21 @@ func (s *Service) List(ctx context.Context, a access.Actor, tenant string, f Fil
 			last := list[len(list)-1]
 			out.NextCursor = pageCursor(last.CreatedAt, last.ID)
 		}
+		statistics := map[string]*GovernanceStatistics{}
+		if !mine {
+			out.Overview, e = governanceOverviewTx(ctx, tx, tenant, f)
+			if e != nil {
+				return e
+			}
+			ids := make([]string, 0, len(list))
+			for _, p := range list {
+				ids = append(ids, p.ID)
+			}
+			statistics, e = governanceStatisticsTx(ctx, tx, a.ID, tenant, rev, ids)
+			if e != nil {
+				return e
+			}
+		}
 		for _, p := range list {
 			v := Context{Project: p.Summary, Authorization: access.ProjectAuthorization{
 				Snapshot:              access.Snapshot{Revision: rev, Permissions: []access.Code{}, Roles: []access.Role{}, Sources: map[access.Code][]string{}},
@@ -171,6 +193,8 @@ func (s *Service) List(ctx context.Context, a access.Actor, tenant string, f Fil
 				}
 				v.CanEnter = access.WorkspacePath("project", p.TenantID, p.ID, p.Status, v.Authorization.Permissions) != ""
 				v.Project = minimal(p.Summary)
+			} else {
+				v.Project.Statistics = statistics[p.ID]
 			}
 			out.Items = append(out.Items, v)
 		}

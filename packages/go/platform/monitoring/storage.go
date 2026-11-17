@@ -26,6 +26,8 @@ import (
 
 // StorageConfig describes the default physical shard and explicitly named additions.
 // Logical shards stay stable when physical routes are changed.
+// Each physical shard may have one or more real replica endpoints. One endpoint
+// uses the same layout and integrity checks without providing a redundant copy.
 type PhysicalShardConfig struct {
 	Name     string   `json:"name"`
 	Database string   `json:"database"`
@@ -86,8 +88,8 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 	if cfg.ExportRows < 1 || cfg.ExportRows > 1000000 || cfg.ExportBytes < 1<<20 || cfg.ExportBytes > 1<<30 {
 		return nil, fmt.Errorf("invalid export volume limits")
 	}
-	if len(cfg.Replicas) < 2 || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(cfg.Database) || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(cfg.Policy) {
-		return nil, fmt.Errorf("monitoring storage requires a database, policy and at least two replicas")
+	if len(cfg.Replicas) == 0 || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(cfg.Database) || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(cfg.Policy) {
+		return nil, fmt.Errorf("monitoring storage requires a database, policy and at least one replica endpoint")
 	}
 	endpoint, e := url.Parse(cfg.ObjectEndpoint)
 	if e != nil || endpoint.Host == "" || (endpoint.Scheme != "https" && endpoint.Scheme != "http") || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" || (endpoint.Path != "" && endpoint.Path != "/") || cfg.Bucket == "" {

@@ -1,0 +1,4192 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "InfraPro cloud ingress relay",
+    "version": "1"
+  },
+  "components": {
+    "schemas": {
+      "IngestionAck": {
+        "additionalProperties": false,
+        "properties": {
+          "lease_token": {
+            "type": "string"
+          },
+          "local_receipt_id": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "spool_epoch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "relay_id",
+          "spool_epoch",
+          "receipt_id",
+          "lease_token",
+          "sha256",
+          "local_receipt_id"
+        ],
+        "type": "object"
+      },
+      "IngestionAckResults": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "receipt_id": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "receipt_id",
+                    "state"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "IngestionAcks": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionAck"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "IngestionAssociation": {
+        "additionalProperties": false,
+        "properties": {
+          "child_key": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "demultiplexer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "device_id": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "end_sequence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "epoch": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "input_view": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "start_sequence": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "terminal_id": {
+            "type": "string"
+          },
+          "terminal_revision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "source_id",
+          "terminal_id",
+          "terminal_revision",
+          "child_key",
+          "device_id",
+          "epoch",
+          "start_sequence",
+          "end_sequence",
+          "enabled",
+          "input_view",
+          "demultiplexer",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "IngestionAssociationInput": {
+        "additionalProperties": false,
+        "properties": {
+          "child_key": {
+            "type": "string"
+          },
+          "device_id": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "string"
+          },
+          "input_view": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "expected_revision",
+          "child_key",
+          "device_id",
+          "input_view"
+        ],
+        "type": "object"
+      },
+      "IngestionCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "compatibilities": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionCompatibility"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "identification_methods": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionIdentification"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ingestion_contract_version": {
+            "type": "integer"
+          },
+          "ingress_protocols": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionProtocol"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "release_coverage": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ingestion_contract_version",
+          "identification_methods",
+          "ingress_protocols",
+          "compatibilities",
+          "release_coverage"
+        ],
+        "type": "object"
+      },
+      "IngestionCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "expected_revision": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "expected_revision",
+          "action"
+        ],
+        "type": "object"
+      },
+      "IngestionCompatibility": {
+        "additionalProperties": false,
+        "properties": {
+          "demultiplexer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "digest": {
+            "type": "string"
+          },
+          "fixture_digest": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "ingress_protocol_digest": {
+            "type": "string"
+          },
+          "ingress_protocol_id": {
+            "type": "string"
+          },
+          "ingress_protocol_version": {
+            "type": "string"
+          },
+          "input_view": {
+            "type": "string"
+          },
+          "measurement": {
+            "$ref": "#/components/schemas/IngestionIdentityMethod"
+          },
+          "parse_transport": {
+            "type": "string"
+          },
+          "revision": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "digest",
+          "ingress_protocol_id",
+          "ingress_protocol_version",
+          "ingress_protocol_digest",
+          "input_view",
+          "parse_transport",
+          "measurement",
+          "fixture_digest"
+        ],
+        "type": "object"
+      },
+      "IngestionDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "type": "integer"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "fence": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "generation": {
+            "type": "string"
+          },
+          "grant_generation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/IngestionIdentification"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "recovery_generation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "recovery_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "response": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentifyResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "receipt_id",
+          "generation",
+          "method",
+          "state",
+          "error_code",
+          "attempts",
+          "grant_id",
+          "grant_generation",
+          "recovery_id",
+          "recovery_generation",
+          "response"
+        ],
+        "type": "object"
+      },
+      "IngestionDelivery": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionEnvelope"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "IngestionEnvelope": {
+        "additionalProperties": false,
+        "properties": {
+          "authentication_level": {
+            "type": "string"
+          },
+          "byte_length": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "connection_id": {
+            "type": "string"
+          },
+          "connection_sequence": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "content_kind": {
+            "type": "string"
+          },
+          "delivery_attempt": {
+            "type": "integer"
+          },
+          "delivery_id": {
+            "type": "string"
+          },
+          "envelope_digest": {
+            "type": "string"
+          },
+          "evidence_kind": {
+            "type": "string"
+          },
+          "ingress_id": {
+            "type": "string"
+          },
+          "ingress_protocol_digest": {
+            "type": "string"
+          },
+          "ingress_protocol_id": {
+            "type": "string"
+          },
+          "ingress_protocol_version": {
+            "type": "string"
+          },
+          "lease_token": {
+            "type": "string"
+          },
+          "lease_until": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "listener_address": {
+            "type": "string"
+          },
+          "listener_port": {
+            "type": "integer"
+          },
+          "listener_transport": {
+            "type": "string"
+          },
+          "manufacturer_id": {
+            "type": "string"
+          },
+          "manufacturer_scope": {
+            "type": "string"
+          },
+          "payload_base64": {
+            "type": "string"
+          },
+          "producer_delivery_id": {
+            "type": "string"
+          },
+          "producer_principal_id": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "received_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "relay_contract_version": {
+            "type": "integer"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "source_namespace_id": {
+            "type": "string"
+          },
+          "source_project_id": {
+            "type": "string"
+          },
+          "source_revision": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "source_revision_digest": {
+            "type": "string"
+          },
+          "source_sequence": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "spool_epoch": {
+            "type": "string"
+          },
+          "synthetic": {
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "string"
+          },
+          "transport_adapter": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_digest": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "artifact_digest"
+            ],
+            "type": "object"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "relay_contract_version",
+          "relay_id",
+          "spool_epoch",
+          "receipt_id",
+          "ingress_id",
+          "source_namespace_id",
+          "source_revision_digest",
+          "tenant_id",
+          "source_project_id",
+          "manufacturer_id",
+          "manufacturer_scope",
+          "ingress_protocol_id",
+          "ingress_protocol_version",
+          "ingress_protocol_digest",
+          "listener_transport",
+          "listener_address",
+          "listener_port",
+          "producer_principal_id",
+          "transport",
+          "authentication_level",
+          "received_at",
+          "committed_at",
+          "content_kind",
+          "payload_base64",
+          "sha256",
+          "transport_adapter",
+          "evidence_kind",
+          "truncated",
+          "synthetic",
+          "envelope_digest",
+          "delivery_attempt",
+          "lease_until"
+        ],
+        "type": "object"
+      },
+      "IngestionGrant": {
+        "additionalProperties": false,
+        "properties": {
+          "budget": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "generation": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "identify": {
+            "type": "boolean"
+          },
+          "measure": {
+            "type": "boolean"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "terminal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "source_id",
+          "terminal_id",
+          "identify",
+          "measure",
+          "enabled",
+          "generation",
+          "budget",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "IngestionGrantInput": {
+        "additionalProperties": false,
+        "properties": {
+          "budget": {
+            "type": "integer"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "type": "string"
+          },
+          "identify": {
+            "type": "boolean"
+          },
+          "measure": {
+            "type": "boolean"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "terminal_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "expected_revision",
+          "source_id",
+          "identify",
+          "measure",
+          "enabled",
+          "budget"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentification": {
+        "additionalProperties": false,
+        "properties": {
+          "example": {
+            "type": "boolean"
+          },
+          "execution_seconds": {
+            "type": "integer"
+          },
+          "input_unit": {
+            "type": "string"
+          },
+          "max_length": {
+            "type": "integer"
+          },
+          "max_units": {
+            "type": "integer"
+          },
+          "method": {
+            "$ref": "#/components/schemas/IngestionIdentityMethod"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "release_notes": {
+            "type": "string"
+          },
+          "sample_suite_digest": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "name",
+          "purpose",
+          "input_unit",
+          "transport",
+          "max_length",
+          "max_units",
+          "execution_seconds",
+          "sample_suite_digest",
+          "example",
+          "release_notes"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentifiedUnit": {
+        "additionalProperties": false,
+        "properties": {
+          "child_key": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "external_identities": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionIdentity"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_view": {
+            "$ref": "#/components/schemas/IngestionView"
+          },
+          "message_kind": {
+            "type": "string"
+          },
+          "terminal_key": {
+            "type": "string"
+          },
+          "unit_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit_key",
+          "message_kind",
+          "terminal_key",
+          "input_view",
+          "external_identities"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentifyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "additionalProperties": false,
+            "properties": {
+              "exclusive_authenticated": {
+                "type": "boolean"
+              },
+              "fixed_terminal": {
+                "type": "string"
+              },
+              "input_unit": {
+                "type": "string"
+              },
+              "received_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "transport": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "received_at",
+              "transport",
+              "input_unit"
+            ],
+            "type": "object"
+          },
+          "execution_id": {
+            "type": "string"
+          },
+          "ingestion_contract_version": {
+            "type": "integer"
+          },
+          "input": {
+            "additionalProperties": false,
+            "properties": {
+              "byte_length": {
+                "pattern": "^[0-9]+$",
+                "type": "string"
+              },
+              "bytes_base64": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "bytes_base64",
+              "sha256"
+            ],
+            "type": "object"
+          },
+          "method": {
+            "$ref": "#/components/schemas/IngestionIdentityMethod"
+          },
+          "trace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ingestion_contract_version",
+          "execution_id",
+          "method",
+          "input",
+          "context",
+          "trace_id"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentifyResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "diagnostics": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_id": {
+            "type": "string"
+          },
+          "ingestion_contract_version": {
+            "type": "integer"
+          },
+          "input_sha256": {
+            "type": "string"
+          },
+          "method": {
+            "$ref": "#/components/schemas/IngestionIdentityMethod"
+          },
+          "service_build_digest": {
+            "type": "string"
+          },
+          "service_release": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionIdentifiedUnit"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "ingestion_contract_version",
+          "execution_id",
+          "method",
+          "input_sha256",
+          "service_release",
+          "service_build_digest",
+          "status",
+          "units",
+          "diagnostics"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentity": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "location": {
+            "additionalProperties": false,
+            "properties": {
+              "end": {
+                "pattern": "^[0-9]+$",
+                "type": "string"
+              },
+              "start": {
+                "pattern": "^[0-9]+$",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "parent": {
+            "type": "string"
+          },
+          "raw": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "raw",
+          "value",
+          "parent",
+          "location"
+        ],
+        "type": "object"
+      },
+      "IngestionIdentityMethod": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_digest": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "manifest_digest": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "artifact_digest",
+          "manifest_digest"
+        ],
+        "type": "object"
+      },
+      "IngestionMessage": {
+        "additionalProperties": false,
+        "properties": {
+          "can_raw": {
+            "type": "boolean"
+          },
+          "can_reprocess": {
+            "type": "boolean"
+          },
+          "can_results": {
+            "type": "boolean"
+          },
+          "plans": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionPlan"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/IngestionReceipt"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/IngestionUnit"
+          }
+        },
+        "required": [
+          "unit",
+          "receipt",
+          "plans",
+          "can_raw",
+          "can_results",
+          "can_reprocess"
+        ],
+        "type": "object"
+      },
+      "IngestionMeta": {
+        "additionalProperties": false,
+        "properties": {
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "type": "object"
+      },
+      "IngestionMetadataPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "IngestionPlan": {
+        "additionalProperties": false,
+        "properties": {
+          "adoption_id": {
+            "type": "string"
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "device_id": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "fence": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/IngestionPlanSnapshot"
+          },
+          "state": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "unit_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "unit_id",
+          "decision_id",
+          "device_id",
+          "adoption_id",
+          "snapshot",
+          "state",
+          "error_code",
+          "attempts",
+          "created_at",
+          "finished_at"
+        ],
+        "type": "object"
+      },
+      "IngestionPlanSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "association": {
+            "$ref": "#/components/schemas/IngestionAssociation"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/IngestionCompatibility"
+          },
+          "execution_grant": {
+            "$ref": "#/components/schemas/IngestionGrant"
+          },
+          "input": {
+            "$ref": "#/components/schemas/IngestionView"
+          },
+          "parsing": {
+            "additionalProperties": false,
+            "properties": {
+              "adoption_id": {
+                "type": "string"
+              },
+              "config_revision_id": {
+                "type": "string"
+              },
+              "configuration": {
+                "additionalProperties": false,
+                "properties": {
+                  "example": {
+                    "type": "boolean"
+                  },
+                  "ignored_outputs": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "output_key": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "output_key",
+                            "reason"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mapping": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "method_semantics": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "aggregation": {
+                                  "type": "string"
+                                },
+                                "direction": {
+                                  "type": "string"
+                                },
+                                "meaning": {
+                                  "type": "string"
+                                },
+                                "reference": {
+                                  "type": "string"
+                                },
+                                "timestamp_meaning": {
+                                  "type": "string"
+                                },
+                                "unit": {
+                                  "type": "string"
+                                },
+                                "value_type": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "value_type",
+                                "meaning",
+                                "unit",
+                                "timestamp_meaning",
+                                "aggregation",
+                                "direction",
+                                "reference"
+                              ],
+                              "type": "object"
+                            },
+                            "output_generation": {
+                              "type": "integer"
+                            },
+                            "output_id": {
+                              "type": "string"
+                            },
+                            "output_key": {
+                              "type": "string"
+                            },
+                            "output_semantic_hash": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "slot_key": {
+                              "type": "string"
+                            },
+                            "slot_semantics": {
+                              "anyOf": [
+                                {
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "aggregation_description": {
+                                      "type": "string"
+                                    },
+                                    "metric_version_id": {
+                                      "type": "string"
+                                    },
+                                    "observation_direction": {
+                                      "type": "string"
+                                    },
+                                    "reference_basis": {
+                                      "type": "string"
+                                    },
+                                    "timestamp_meaning": {
+                                      "type": "string"
+                                    },
+                                    "unit_version_id": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "value_shape": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "metric_version_id",
+                                    "unit_version_id",
+                                    "value_shape",
+                                    "timestamp_meaning",
+                                    "aggregation_description",
+                                    "observation_direction",
+                                    "reference_basis"
+                                  ],
+                                  "type": "object"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "status": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "output_key",
+                            "status",
+                            "method_semantics"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "method": {
+                    "$ref": "#/components/schemas/IngestionIdentityMethod"
+                  },
+                  "output_bindings": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "confirmed": {
+                              "type": "boolean"
+                            },
+                            "output_key": {
+                              "type": "string"
+                            },
+                            "slot_key": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "output_key",
+                            "slot_key",
+                            "confirmed"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "output_contract_digest": {
+                    "type": "string"
+                  },
+                  "owner_id": {
+                    "type": "string"
+                  },
+                  "owner_kind": {
+                    "type": "string"
+                  },
+                  "product_version_id": {
+                    "type": "string"
+                  },
+                  "source_revision_id": {
+                    "type": "string"
+                  },
+                  "tenant_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "owner_kind",
+                  "owner_id",
+                  "product_version_id",
+                  "method",
+                  "output_contract_digest",
+                  "output_bindings",
+                  "ignored_outputs",
+                  "mapping",
+                  "example"
+                ],
+                "type": "object"
+              },
+              "device_id": {
+                "type": "string"
+              },
+              "entry": {
+                "additionalProperties": false,
+                "properties": {
+                  "artifact_digest": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "contract_version": {
+                    "type": "integer"
+                  },
+                  "example": {
+                    "type": "boolean"
+                  },
+                  "input_unit": {
+                    "type": "string"
+                  },
+                  "manifest_base64": {
+                    "type": "string"
+                  },
+                  "manifest_digest": {
+                    "type": "string"
+                  },
+                  "max_length": {
+                    "type": "integer"
+                  },
+                  "method_id": {
+                    "type": "string"
+                  },
+                  "method_version": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "output_contract_base64": {
+                    "type": "string"
+                  },
+                  "output_contract_digest": {
+                    "type": "string"
+                  },
+                  "outputs": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "direction": {
+                              "type": "string"
+                            },
+                            "meaning": {
+                              "type": "string"
+                            },
+                            "output_key": {
+                              "type": "string"
+                            },
+                            "reference": {
+                              "type": "string"
+                            },
+                            "timestamp_meaning": {
+                              "type": "string"
+                            },
+                            "unit": {
+                              "type": "string"
+                            },
+                            "value_type": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "output_key",
+                            "value_type",
+                            "meaning",
+                            "unit",
+                            "timestamp_meaning",
+                            "aggregation",
+                            "direction",
+                            "reference"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "protocol_reference": {
+                    "type": "string"
+                  },
+                  "release_notes": {
+                    "type": "string"
+                  },
+                  "sample_suite_digest": {
+                    "type": "string"
+                  },
+                  "transports": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "contract_version",
+                  "method_id",
+                  "method_version",
+                  "name",
+                  "category",
+                  "example",
+                  "protocol_reference",
+                  "input_unit",
+                  "transports",
+                  "max_length",
+                  "outputs",
+                  "artifact_digest",
+                  "output_contract_digest",
+                  "sample_suite_digest",
+                  "release_notes",
+                  "manifest_digest",
+                  "manifest_base64",
+                  "output_contract_base64"
+                ],
+                "type": "object"
+              },
+              "mapping": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "method_semantics": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "aggregation": {
+                              "type": "string"
+                            },
+                            "direction": {
+                              "type": "string"
+                            },
+                            "meaning": {
+                              "type": "string"
+                            },
+                            "reference": {
+                              "type": "string"
+                            },
+                            "timestamp_meaning": {
+                              "type": "string"
+                            },
+                            "unit": {
+                              "type": "string"
+                            },
+                            "value_type": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "value_type",
+                            "meaning",
+                            "unit",
+                            "timestamp_meaning",
+                            "aggregation",
+                            "direction",
+                            "reference"
+                          ],
+                          "type": "object"
+                        },
+                        "output_generation": {
+                          "type": "integer"
+                        },
+                        "output_id": {
+                          "type": "string"
+                        },
+                        "output_key": {
+                          "type": "string"
+                        },
+                        "output_semantic_hash": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "slot_key": {
+                          "type": "string"
+                        },
+                        "slot_semantics": {
+                          "anyOf": [
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "aggregation_description": {
+                                  "type": "string"
+                                },
+                                "metric_version_id": {
+                                  "type": "string"
+                                },
+                                "observation_direction": {
+                                  "type": "string"
+                                },
+                                "reference_basis": {
+                                  "type": "string"
+                                },
+                                "timestamp_meaning": {
+                                  "type": "string"
+                                },
+                                "unit_version_id": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "value_shape": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "metric_version_id",
+                                "unit_version_id",
+                                "value_shape",
+                                "timestamp_meaning",
+                                "aggregation_description",
+                                "observation_direction",
+                                "reference_basis"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "output_key",
+                        "status",
+                        "method_semantics"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "product_version_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "adoption_id",
+              "device_id",
+              "product_version_id",
+              "config_revision_id",
+              "configuration",
+              "entry",
+              "mapping"
+            ],
+            "type": "object"
+          },
+          "project_device_grant_id": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "received_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "recovery_generation": {
+            "type": "string"
+          },
+          "recovery_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/IngestionRelaySource"
+          },
+          "source_grant": {
+            "$ref": "#/components/schemas/IngestionGrant"
+          },
+          "terminal": {
+            "$ref": "#/components/schemas/IngestionTerminal"
+          },
+          "trace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipt_id",
+          "source",
+          "terminal",
+          "association",
+          "execution_grant",
+          "source_grant",
+          "compatibility",
+          "parsing",
+          "input",
+          "received_at",
+          "trace_id",
+          "project_device_grant_id"
+        ],
+        "type": "object"
+      },
+      "IngestionProtocol": {
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "type": "string"
+          },
+          "example": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "identification": {
+            "$ref": "#/components/schemas/IngestionIdentityMethod"
+          },
+          "identity_convention": {
+            "type": "string"
+          },
+          "input_views": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "string"
+          },
+          "transport_adapter": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_digest": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "artifact_digest"
+            ],
+            "type": "object"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "digest",
+          "name",
+          "transport",
+          "transport_adapter",
+          "identification",
+          "identity_convention",
+          "input_views",
+          "example"
+        ],
+        "type": "object"
+      },
+      "IngestionPull": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "max_bytes": {
+            "type": "integer"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "wait_seconds": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "request_id",
+          "limit",
+          "max_bytes",
+          "wait_seconds"
+        ],
+        "type": "object"
+      },
+      "IngestionReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "current_generation": {
+            "type": "string"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/IngestionEnvelope"
+          },
+          "envelope_digest": {
+            "type": "string"
+          },
+          "epoch": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "received_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_revision": {
+            "type": "string"
+          },
+          "source_sequence": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "stored_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "relay_id",
+          "epoch",
+          "receipt_id",
+          "source_id",
+          "source_revision",
+          "source_sequence",
+          "tenant_id",
+          "project_id",
+          "envelope",
+          "envelope_digest",
+          "object_id",
+          "state",
+          "error_code",
+          "received_at",
+          "stored_at",
+          "current_generation"
+        ],
+        "type": "object"
+      },
+      "IngestionRecovery": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_id": {
+            "type": "string"
+          },
+          "generation": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "input": {
+            "$ref": "#/components/schemas/IngestionRecoveryInput"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "decision_id": {
+                      "type": "string"
+                    },
+                    "error_code": {
+                      "type": "string"
+                    },
+                    "receipt_id": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "receipt_id",
+                    "state"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "actor_id",
+          "kind",
+          "input",
+          "state",
+          "revision",
+          "generation",
+          "items",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "IngestionRecoveryInput": {
+        "additionalProperties": false,
+        "properties": {
+          "association_id": {
+            "type": "string"
+          },
+          "config_revision_id": {
+            "type": "string"
+          },
+          "epoch": {
+            "type": "string"
+          },
+          "identification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "receipt_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "unit_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "kind",
+          "receipt_ids",
+          "unit_ids"
+        ],
+        "type": "object"
+      },
+      "IngestionRelayApplied": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "generation": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "source_revision_digest": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "source_revision_digest",
+          "state",
+          "observed_at"
+        ],
+        "type": "object"
+      },
+      "IngestionRelayApply": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "expected_generation": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/IngestionRelaySource"
+          }
+        },
+        "required": [
+          "command_id",
+          "source"
+        ],
+        "type": "object"
+      },
+      "IngestionRelayInput": {
+        "additionalProperties": false,
+        "properties": {
+          "configuration_ref": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "id",
+          "name",
+          "configuration_ref"
+        ],
+        "type": "object"
+      },
+      "IngestionRelaySource": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "budget_bytes": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "fixed_terminal": {
+            "type": "string"
+          },
+          "idle_seconds": {
+            "type": "integer"
+          },
+          "ingress_id": {
+            "type": "string"
+          },
+          "ingress_protocol_digest": {
+            "type": "string"
+          },
+          "ingress_protocol_id": {
+            "type": "string"
+          },
+          "ingress_protocol_version": {
+            "type": "string"
+          },
+          "listener_address": {
+            "type": "string"
+          },
+          "listener_port": {
+            "type": "integer"
+          },
+          "listener_transport": {
+            "type": "string"
+          },
+          "manufacturer_id": {
+            "type": "string"
+          },
+          "manufacturer_scope": {
+            "type": "string"
+          },
+          "producer_principal_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "source_code": {
+            "type": "string"
+          },
+          "source_namespace_id": {
+            "type": "string"
+          },
+          "source_project_id": {
+            "type": "string"
+          },
+          "source_revision": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "source_revision_digest": {
+            "type": "string"
+          },
+          "synthetic": {
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "transport_adapter": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_digest": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "artifact_digest"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "ingress_id",
+          "source_namespace_id",
+          "source_revision_digest",
+          "relay_id",
+          "tenant_id",
+          "source_project_id",
+          "manufacturer_id",
+          "manufacturer_scope",
+          "ingress_protocol_id",
+          "ingress_protocol_version",
+          "ingress_protocol_digest",
+          "listener_transport",
+          "listener_address",
+          "listener_port",
+          "source_code",
+          "producer_principal_ids",
+          "transport_adapter",
+          "active",
+          "synthetic",
+          "exclusive",
+          "idle_seconds"
+        ],
+        "type": "object"
+      },
+      "IngestionRelease": {
+        "additionalProperties": false,
+        "properties": {
+          "delay_seconds": {
+            "type": "integer"
+          },
+          "lease_token": {
+            "type": "string"
+          },
+          "local_receipt_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "spool_epoch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "relay_id",
+          "spool_epoch",
+          "receipt_id",
+          "lease_token",
+          "sha256",
+          "local_receipt_id",
+          "reason",
+          "delay_seconds"
+        ],
+        "type": "object"
+      },
+      "IngestionReleases": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionRelease"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "IngestionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "error_code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "replayed": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "task_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "state",
+          "replayed"
+        ],
+        "type": "object"
+      },
+      "IngestionResultView": {
+        "additionalProperties": false,
+        "properties": {
+          "business_quality": {
+            "type": "string"
+          },
+          "formally_adopted": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "mapping": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "method_semantics": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "aggregation": {
+                          "type": "string"
+                        },
+                        "direction": {
+                          "type": "string"
+                        },
+                        "meaning": {
+                          "type": "string"
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "timestamp_meaning": {
+                          "type": "string"
+                        },
+                        "unit": {
+                          "type": "string"
+                        },
+                        "value_type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "value_type",
+                        "meaning",
+                        "unit",
+                        "timestamp_meaning",
+                        "aggregation",
+                        "direction",
+                        "reference"
+                      ],
+                      "type": "object"
+                    },
+                    "output_generation": {
+                      "type": "integer"
+                    },
+                    "output_id": {
+                      "type": "string"
+                    },
+                    "output_key": {
+                      "type": "string"
+                    },
+                    "output_semantic_hash": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "slot_key": {
+                      "type": "string"
+                    },
+                    "slot_semantics": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "aggregation_description": {
+                              "type": "string"
+                            },
+                            "metric_version_id": {
+                              "type": "string"
+                            },
+                            "observation_direction": {
+                              "type": "string"
+                            },
+                            "reference_basis": {
+                              "type": "string"
+                            },
+                            "timestamp_meaning": {
+                              "type": "string"
+                            },
+                            "unit_version_id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "value_shape": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "metric_version_id",
+                            "unit_version_id",
+                            "value_shape",
+                            "timestamp_meaning",
+                            "aggregation_description",
+                            "observation_direction",
+                            "reference_basis"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "output_key",
+                    "status",
+                    "method_semantics"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_id": {
+            "type": "string"
+          },
+          "response": {
+            "additionalProperties": false,
+            "properties": {
+              "checks": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "range": {
+                          "anyOf": [
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "end": {
+                                  "type": "integer"
+                                },
+                                "start": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "start",
+                                "end"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "rule_id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "rule_id",
+                        "status"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "contract_version": {
+                "type": "integer"
+              },
+              "diagnostics": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "anyOf": [
+                            {
+                              "additionalProperties": false,
+                              "properties": {
+                                "json_pointer": {
+                                  "type": "string"
+                                },
+                                "range": {
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "end": {
+                                      "type": "integer"
+                                    },
+                                    "start": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "start",
+                                    "end"
+                                  ],
+                                  "type": "object"
+                                }
+                              },
+                              "required": [
+                                "range"
+                              ],
+                              "type": "object"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "severity": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "severity",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "execution_id": {
+                "type": "string"
+              },
+              "fields": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "json_pointer": {
+                              "type": "string"
+                            },
+                            "range": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "end": {
+                                  "type": "integer"
+                                },
+                                "start": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "start",
+                                "end"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "range"
+                          ],
+                          "type": "object"
+                        },
+                        "raw_text": {
+                          "type": "string"
+                        },
+                        "step_ids": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "value",
+                        "location",
+                        "step_ids"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "identities": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "authenticated": {
+                          "type": "boolean"
+                        },
+                        "hex": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "json_pointer": {
+                              "type": "string"
+                            },
+                            "range": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "end": {
+                                  "type": "integer"
+                                },
+                                "start": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "start",
+                                "end"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "range"
+                          ],
+                          "type": "object"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "hex",
+                        "location",
+                        "authenticated"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "input_sha256": {
+                "type": "string"
+              },
+              "message_kind": {
+                "type": "string"
+              },
+              "method": {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              "records": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "measurements": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "location": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "json_pointer": {
+                                        "type": "string"
+                                      },
+                                      "range": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "end": {
+                                            "type": "integer"
+                                          },
+                                          "start": {
+                                            "type": "integer"
+                                          }
+                                        },
+                                        "required": [
+                                          "start",
+                                          "end"
+                                        ],
+                                        "type": "object"
+                                      }
+                                    },
+                                    "required": [
+                                      "range"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "output_key": {
+                                    "type": "string"
+                                  },
+                                  "raw_text": {
+                                    "type": "string"
+                                  },
+                                  "step_ids": {
+                                    "anyOf": [
+                                      {
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "type": "array"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "unit": {
+                                    "type": "string"
+                                  },
+                                  "value": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "value_type": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "output_key",
+                                  "value_type",
+                                  "value",
+                                  "unit",
+                                  "location",
+                                  "step_ids"
+                                ],
+                                "type": "object"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "observed_at": {
+                          "anyOf": [
+                            {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "source_status": {
+                          "type": "string"
+                        },
+                        "time_source": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "index",
+                        "observed_at",
+                        "time_source",
+                        "measurements"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "service_build_digest": {
+                "type": "string"
+              },
+              "service_release": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "steps": {
+                "anyOf": [
+                  {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "field_keys": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "input_digest": {
+                          "type": "string"
+                        },
+                        "output_digest": {
+                          "type": "string"
+                        },
+                        "parent_ids": {
+                          "anyOf": [
+                            {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "range": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "end": {
+                              "type": "integer"
+                            },
+                            "start": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "start",
+                            "end"
+                          ],
+                          "type": "object"
+                        },
+                        "rule_id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "rule_id",
+                        "range",
+                        "status",
+                        "parent_ids",
+                        "field_keys",
+                        "input_digest",
+                        "output_digest"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "contract_version",
+              "execution_id",
+              "method",
+              "input_sha256",
+              "service_release",
+              "service_build_digest",
+              "status",
+              "message_kind",
+              "identities",
+              "records",
+              "fields",
+              "steps",
+              "diagnostics",
+              "checks"
+            ],
+            "type": "object"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "plan_id",
+          "status",
+          "sha256",
+          "response",
+          "mapping",
+          "business_quality",
+          "formally_adopted"
+        ],
+        "type": "object"
+      },
+      "IngestionSource": {
+        "additionalProperties": false,
+        "properties": {
+          "application": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionRelayApplied"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "applied_generation": {
+            "type": "string"
+          },
+          "applied_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "blocked": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "manufacturer_id": {
+            "type": "string"
+          },
+          "manufacturer_scope": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "namespace_id": {
+            "type": "string"
+          },
+          "planning_paused": {
+            "type": "boolean"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "synthetic": {
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "namespace_id",
+          "tenant_id",
+          "project_id",
+          "manufacturer_id",
+          "manufacturer_scope",
+          "relay_id",
+          "name",
+          "revision",
+          "state",
+          "applied_generation",
+          "applied_revision",
+          "application",
+          "planning_paused",
+          "blocked",
+          "error_code",
+          "synthetic",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "IngestionSourceDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "fresh": {
+            "type": "boolean"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relay_status": {},
+          "revisions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionSourceRevision"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/IngestionSource"
+          }
+        },
+        "required": [
+          "source",
+          "revisions",
+          "relay_status",
+          "observed_at",
+          "fresh"
+        ],
+        "type": "object"
+      },
+      "IngestionSourceInput": {
+        "additionalProperties": false,
+        "properties": {
+          "budget_bytes": {
+            "type": "string"
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "expected_revision": {
+            "type": "string"
+          },
+          "fixed_terminal": {
+            "type": "string"
+          },
+          "idle_seconds": {
+            "type": "integer"
+          },
+          "ingress_protocol_id": {
+            "type": "string"
+          },
+          "ingress_protocol_version": {
+            "type": "string"
+          },
+          "listener_address": {
+            "type": "string"
+          },
+          "listener_port": {
+            "type": "integer"
+          },
+          "manufacturer_id": {
+            "type": "string"
+          },
+          "manufacturer_scope": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "producer_principal_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "relay_id": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "source_code": {
+            "type": "string"
+          },
+          "source_project_id": {
+            "type": "string"
+          },
+          "synthetic": {
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "upstream_segregated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "request_id",
+          "expected_revision",
+          "name",
+          "tenant_id",
+          "source_project_id",
+          "manufacturer_id",
+          "manufacturer_scope",
+          "relay_id",
+          "ingress_protocol_id",
+          "ingress_protocol_version",
+          "listener_address",
+          "listener_port",
+          "source_code",
+          "producer_principal_ids",
+          "upstream_segregated",
+          "synthetic",
+          "exclusive",
+          "idle_seconds",
+          "budget_bytes"
+        ],
+        "type": "object"
+      },
+      "IngestionSourcePage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionSource"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "IngestionSourceRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "confirmed": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "digest": {
+            "type": "string"
+          },
+          "expected_generation": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/IngestionRelaySource"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "revision",
+          "snapshot",
+          "digest",
+          "command_id",
+          "expected_generation",
+          "created_at",
+          "confirmed"
+        ],
+        "type": "object"
+      },
+      "IngestionTerminal": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "demultiplexer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "terminal_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "source_id",
+          "terminal_key",
+          "name",
+          "mode",
+          "revision",
+          "enabled",
+          "demultiplexer",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "IngestionTerminalInput": {
+        "additionalProperties": false,
+        "properties": {
+          "demultiplexer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestionIdentityMethod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_revision": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "preview_hash": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "terminal_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "source_id",
+          "terminal_key",
+          "name",
+          "mode"
+        ],
+        "type": "object"
+      },
+      "IngestionTerminalPage": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionTerminal"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "IngestionTransform": {
+        "additionalProperties": false,
+        "properties": {
+          "input_sha256": {
+            "type": "string"
+          },
+          "output_length": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "output_sha256": {
+            "type": "string"
+          },
+          "range": {
+            "additionalProperties": false,
+            "properties": {
+              "end": {
+                "pattern": "^[0-9]+$",
+                "type": "string"
+              },
+              "start": {
+                "pattern": "^[0-9]+$",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "type": "object"
+          },
+          "rule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule",
+          "range",
+          "input_sha256",
+          "output_sha256"
+        ],
+        "type": "object"
+      },
+      "IngestionUnit": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment": {},
+          "association_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_key": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decision_id": {
+            "type": "string"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "message_kind": {
+            "type": "string"
+          },
+          "receipt_id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "terminal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "terminal_key": {
+            "type": "string"
+          },
+          "unit_key": {
+            "type": "string"
+          },
+          "view": {
+            "$ref": "#/components/schemas/IngestionView"
+          }
+        },
+        "required": [
+          "id",
+          "receipt_id",
+          "decision_id",
+          "unit_key",
+          "terminal_key",
+          "child_key",
+          "view",
+          "message_kind",
+          "tenant_id",
+          "device_id",
+          "terminal_id",
+          "association_id",
+          "state",
+          "error_code",
+          "assignment",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "IngestionView": {
+        "additionalProperties": false,
+        "properties": {
+          "byte_length": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "input_unit": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "parse_transport": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "transforms": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IngestionTransform"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "input_unit",
+          "parse_transport",
+          "sha256",
+          "transforms"
+        ],
+        "type": "object"
+      },
+      "IngestionWatermark": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "ingress_id": {
+            "type": "string"
+          },
+          "source_sequence": {
+            "pattern": "^[0-9]+$",
+            "type": "string"
+          },
+          "spool_epoch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "ingress_id",
+          "spool_epoch"
+        ],
+        "type": "object"
+      },
+      "IngestionWatermarkRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "command_id": {
+            "type": "string"
+          },
+          "ingress_id": {
+            "type": "string"
+          },
+          "spool_epoch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "command_id",
+          "ingress_id",
+          "spool_epoch"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "mutualTLS": {
+        "type": "mutualTLS"
+      }
+    }
+  },
+  "paths": {
+    "/v1/control/source-revisions": {
+      "post": {
+        "description": "Requires control principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionRelayApplied"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionRelayApply"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/control/source-watermarks": {
+      "post": {
+        "description": "Requires control principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionWatermark"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionWatermarkRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/consumers/{consumer_id}/pull": {
+      "post": {
+        "description": "Requires consumer principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionDelivery"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "consumer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionPull"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/consumers/{consumer_id}/acks": {
+      "post": {
+        "description": "Requires consumer principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionAckResults"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "consumer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionAcks"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/consumers/{consumer_id}/releases": {
+      "post": {
+        "description": "Requires consumer principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "consumer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionReleases"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/status": {
+      "get": {
+        "description": "Requires consumer principal; no session credentials accepted.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Strict contract rejected"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Wrong principal role"
+          },
+          "409": {
+            "description": "Revision, receipt or digest conflict"
+          },
+          "429": {
+            "description": "Budget or concurrency exhausted"
+          },
+          "503": {
+            "description": "Durable storage or exact artifact unavailable"
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/v1/push/{source_code}": {
+      "post": {
+        "description": "Dedicated HTTPS listener. Raw body ≤ 4 MiB. Producer principal must belong to this exact source. 202 is returned only after durable commit.",
+        "security": [
+          {
+            "mutualTLS": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "source_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary",
+                "maxLength": 4194304
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Durable receipt (same key and bytes replay same receipt)"
+          },
+          "400": {
+            "description": "Invalid source or request"
+          },
+          "403": {
+            "description": "Wrong producer"
+          },
+          "409": {
+            "description": "Same key different bytes"
+          },
+          "413": {
+            "description": "Body too large"
+          },
+          "503": {
+            "description": "Capacity or durable store unavailable"
+          }
+        }
+      }
+    }
+  }
+}

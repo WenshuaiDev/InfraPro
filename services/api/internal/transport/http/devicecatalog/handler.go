@@ -138,14 +138,20 @@ func Register(r *gin.Engine, i *identity.Service, s *c.Service) {
 					if err = h.Decode(raw, &in); err == nil {
 						result, err = s.NewDraft(ctx.Request.Context(), actor, scope, id, in, meta)
 					}
-				case "product:draft-delete", "product:publish":
+
+				case "product:publish":
+					var in c.PublishInput
+					if err = h.Decode(raw, &in); err == nil {
+						if in.Classification.Mode == "" {
+							err = h.Invalid("发布前请确认产品分类，或明确选择未分类。")
+						} else {
+							result, err = s.PublishClassified(ctx.Request.Context(), actor, scope, id, in.DraftRevision, in.Classification, meta)
+						}
+					}
+				case "product:draft-delete":
 					var in c.DraftRevision
 					if err = h.Decode(raw, &in); err == nil {
-						if action == "publish" {
-							result, err = s.Publish(ctx.Request.Context(), actor, scope, id, in, meta)
-						} else {
-							result, err = s.DeleteDraft(ctx.Request.Context(), actor, scope, id, in, meta)
-						}
+						result, err = s.DeleteDraft(ctx.Request.Context(), actor, scope, id, in, meta)
 					}
 				case "product:validate":
 					var empty struct{}

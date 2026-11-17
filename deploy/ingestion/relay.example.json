@@ -1,0 +1,14 @@
+{
+  "relay_id": "00000000-0000-4000-8000-000000000001",
+  "database_url": "postgres://infrapro_relay:REPLACE_IN_PRIVATE_FILE@127.0.0.1:5432/infrapro_relay?sslmode=verify-full",
+  "control_address": "0.0.0.0:9443",
+  "certificate_file": "/etc/infrapro-relay/tls/server.pem",
+  "key_file": "/etc/infrapro-relay/tls/server.key",
+  "client_ca_file": "/etc/infrapro-relay/tls/client-ca.pem",
+  "principals_file": "/etc/infrapro-relay/principals.json",
+  "budget_bytes": "107374182400",
+  "listener_port_min": 20000,
+  "listener_port_max": 20999,
+  "listen_addresses": ["0.0.0.0"],
+  "max_connections": 512
+}

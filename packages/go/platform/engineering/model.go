@@ -10,16 +10,17 @@ import (
 type Kind string
 
 const (
-	TypeDefinition     Kind = "type-definitions"
-	MetricDefinition   Kind = "metrics"
-	UnitDefinition     Kind = "units"
-	MonitoringTemplate Kind = "monitoring-templates"
-	MetamodelVersion        = "1"
-	MaxSafeInteger          = 9007199254740991.0
-	MaxContentBytes         = 256 * 1024
-	MaxFields               = 100
-	MaxComponents           = 100
-	MaxNodes                = 500
+	TypeDefinition            Kind = "type-definitions"
+	MetricDefinition          Kind = "metrics"
+	UnitDefinition            Kind = "units"
+	MonitoringTemplate        Kind = "monitoring-templates"
+	MetamodelVersion               = "1"
+	StructureMetamodelVersion      = "2"
+	MaxSafeInteger                 = 9007199254740991.0
+	MaxContentBytes                = 256 * 1024
+	MaxFields                      = 100
+	MaxComponents                  = 100
+	MaxNodes                       = 500
 )
 
 type Issue struct {
@@ -100,8 +101,18 @@ type Group struct {
 	Order       int    `json:"order"`
 }
 type Target struct {
-	TypeVersion string `json:"type_version"`
-	Component   string `json:"component"`
+	TypeVersion              string `json:"type_version"`
+	Component                string `json:"component"`
+	Applicability            string `json:"applicability,omitempty"`
+	Reason                   string `json:"reason,omitempty"`
+	AnchorKind               string `json:"anchor_kind,omitempty"`
+	PointScope               string `json:"point_scope,omitempty"`
+	RequiresBoreholeAncestor bool   `json:"requires_borehole_ancestor,omitempty"`
+	QuantityBasis            string `json:"quantity_basis,omitempty"`
+}
+type CategorySuggestion struct {
+	DictionaryReleaseID string `json:"dictionary_release_id"`
+	CategoryID          string `json:"category_id"`
 }
 type Binding struct {
 	MetricVersion string `json:"metric_version"`
@@ -111,14 +122,23 @@ type Binding struct {
 	MaxCount      *int   `json:"max_count,omitempty"`
 }
 type Item struct {
-	Key         string    `json:"key"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Enabled     bool      `json:"enabled"`
-	Group       string    `json:"group"`
-	Order       int       `json:"order"`
-	Targets     []Target  `json:"targets"`
-	Bindings    []Binding `json:"bindings"`
+	Key               string              `json:"key"`
+	Name              string              `json:"name"`
+	Description       string              `json:"description"`
+	Enabled           bool                `json:"enabled"`
+	Group             string              `json:"group"`
+	Order             int                 `json:"order"`
+	Targets           []Target            `json:"targets"`
+	Bindings          []Binding           `json:"bindings"`
+	SuggestedCategory *CategorySuggestion `json:"suggested_category,omitempty"`
+}
+type StructureCapability struct {
+	Supported *bool   `json:"supported"`
+	Fields    []Field `json:"fields"`
+}
+type Structure struct {
+	MonitoringSection *StructureCapability `json:"monitoring_section"`
+	Borehole          *StructureCapability `json:"borehole"`
 }
 type Template struct {
 	Purpose      string   `json:"purpose"`
@@ -134,6 +154,7 @@ type Content struct {
 	Fields           []Field     `json:"fields,omitempty"`
 	Components       []Component `json:"components,omitempty"`
 	Relations        []Relation  `json:"relations,omitempty"`
+	Structure        *Structure  `json:"structure,omitempty"`
 	Unit             *Unit       `json:"unit,omitempty"`
 	Metric           *Metric     `json:"metric,omitempty"`
 	Template         *Template   `json:"template,omitempty"`
@@ -251,10 +272,13 @@ type Result struct {
 	Issues       []Issue `json:"issues"`
 }
 type Node struct {
-	ID       string         `json:"id"`
-	Parent   string         `json:"parent"`
-	Category string         `json:"category"`
-	Values   map[string]any `json:"values"`
+	ID                   string         `json:"id"`
+	Parent               string         `json:"parent"`
+	Category             string         `json:"category"`
+	Values               map[string]any `json:"values"`
+	Kind                 string         `json:"kind,omitempty"`
+	ParentRef            string         `json:"parent_ref,omitempty"`
+	ComponentCategoryKey string         `json:"component_category_key,omitempty"`
 }
 type Sample struct {
 	Values map[string]any `json:"values"`
@@ -269,11 +293,12 @@ type PreviewInput struct {
 	UnitVersion string          `json:"unit_version"`
 }
 type Preview struct {
-	Valid        bool      `json:"valid"`
-	Issues       []Issue   `json:"issues"`
-	Content      Content   `json:"content"`
-	Dependencies []Version `json:"dependencies"`
-	SampleOnly   bool      `json:"sample_only"`
+	Matches      []TemplateMatch `json:"matches,omitempty"`
+	Valid        bool            `json:"valid"`
+	Issues       []Issue         `json:"issues"`
+	Content      Content         `json:"content"`
+	Dependencies []Version       `json:"dependencies"`
+	SampleOnly   bool            `json:"sample_only"`
 }
 type Difference struct {
 	Path   string `json:"path"`

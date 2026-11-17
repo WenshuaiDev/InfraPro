@@ -74,9 +74,10 @@ func Nullable(s string) any {
 	}
 	return s
 }
-func Strict(raw []byte, v any) error {
-	if len(raw) > 256*1024 {
-		return Problem("input_too_large", "单次请求最多 256 KiB。", 413)
+func Strict(raw []byte, v any) error { return StrictLimit(raw, v, 256*1024) }
+func StrictLimit(raw []byte, v any, maxBytes int) error {
+	if len(raw) > maxBytes {
+		return Problem("input_too_large", "请求超过本接口的输入字节预算。", 413)
 	}
 	if len(bytes.TrimSpace(raw)) == 0 || bytes.TrimSpace(raw)[0] != '{' {
 		return Problem("invalid_request", "请提交单个 JSON 对象。", 400)

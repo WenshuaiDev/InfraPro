@@ -310,9 +310,9 @@ func TestPointMoveNeedsDestinationCapabilityAndContextFollowsTenantStructure(t *
 	if !pr.Required {
 		t.Fatal(pr)
 	}
-	_, e = f.srv.Mutate(ctx, p.actor, res.ProjectScope(f.tenant, p.id), target(fac, res.Point, point.ID), "update", raw, access.Meta{})
+	moved, e := f.srv.Mutate(ctx, p.actor, res.ProjectScope(f.tenant, p.id), target(fac, res.Point, point.ID), "update", raw, access.Meta{})
 	must(t, e)
-	_, e = f.projectWrite(t, p, target(fac, res.Component, b.ID), "update", map[string]any{"expected_revision": 1, "expected_structure_revision": 3, "parent_component_id": a.ID})
+	_, e = f.projectWrite(t, p, target(fac, res.Component, b.ID), "update", map[string]any{"expected_revision": 1, "expected_structure_revision": moved.StructureRevision, "parent_component_id": a.ID})
 	code(t, e, "tenant_action_required")
 	// Remove full component access; only the new necessary ancestor remains visible.
 	d, e = f.srv.AccessDetail(ctx, f.actor, f.tenant, p.id, fac.ID, res.AccessFilter{})

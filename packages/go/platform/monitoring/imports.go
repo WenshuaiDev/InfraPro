@@ -149,17 +149,20 @@ func (s *Service) CreateImport(ctx context.Context, a access.Actor, scope Scope,
 		return out, invalid("size_bytes", "需要正整数字符串文件大小。")
 	}
 	ext := strings.ToLower(filepath.Ext(in.Name))
-	limit := MaxCSVBytes
+	limit := s.maxCSVBytes
 	if ext == ".xlsx" {
-		limit = MaxXLSXBytes
+		limit = s.maxXLSXBytes
 	}
-	if (ext != ".csv" && ext != ".xlsx") || len(in.Name) > 255 || strings.ContainsAny(in.Name, "\x00\r\n") || n > limit {
-		return out, invalid("name", "文件必须是限制大小内的 CSV 或 XLSX。")
+	if (ext != ".csv" && ext != ".xlsx") || len(in.Name) > 255 || strings.ContainsAny(in.Name, "\x00\r\n") {
+		return out, invalid("name", "文件必须是 CSV 或 XLSX，且名称有效。")
 	}
 	e = s.transact(ctx, a, scope, "imports.create", false, true, func(tx pgx.Tx, auth authorization) error {
 		hit, e := receiptTx(ctx, tx, auth, "imports.create", in.RequestID, in, &out)
 		if e != nil || hit {
 			return e
+		}
+		if n > limit {
+			return invalid("size_bytes", "文件超过当前部署配置的整文件大小上限。")
 		}
 		if in.ExpectedRevision != "0" {
 			return revisionChanged()
@@ -235,7 +238,7 @@ func (s *Service) UploadPart(ctx context.Context, a access.Actor, scope Scope, i
 	if e := s.requireStorage(); e != nil {
 		return out, e
 	}
-	if part < 1 || part > 1024 || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(hash) {
+	if part < 1 || int64(part) > 2147483647 || !regexp.MustCompile(`^[a-f0-9]{64}$`).MatchString(hash) {
 		return out, invalid("part", "需要有效分片及 SHA-256。")
 	}
 	var batch ImportBatch

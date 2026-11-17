@@ -21,9 +21,7 @@ func TestAdditiveMigrationPreservesLegacyObjects(t *testing.T) {
 	scope := c.TenantScope(f.tenant)
 	m, e := f.s.CreateManufacturer(ctx, f.actor(), c.PlatformScope(), c.ManufacturerCreate{Meta: f.meta(t), Code: "legacy", Name: "原有厂家"}, access.Meta{})
 	must(t, e)
-	p := f.product(t, c.PlatformScope(), f.actor(), m.ID, "legacy", []c.Slot{f.fixed()})
-	dev, e := f.b.Devices.Create(ctx, f.owner, scope, devices.DeviceCreate{Meta: f.meta(t), Code: "legacy", Name: "原有设备", ProductVersionID: p.VersionID}, access.Meta{})
-	must(t, e)
+	_, dev := seedLegacyProductDevice(t, f, m.ID, "legacy")
 	tables := []string{"device_products", "device_product_versions", "device_product_version_slots", "devices", "device_outputs", "device_installations", "monitoring_channel_device_bindings"}
 	before := map[string]string{}
 	for _, table := range tables {
@@ -55,7 +53,7 @@ func TestAdditiveMigrationPreservesLegacyObjects(t *testing.T) {
 	if adopted != 0 {
 		t.Fatal("automatic adoption")
 	}
-	t.Log("v43 -> v44 preserved legacy product/version/slot/device/output rows; no automatic adoption")
+	t.Logf("v43 -> v%d preserved legacy product/version/slot/device/output rows; no automatic adoption", migrations.Version)
 }
 func TestProjectReadOnlyTaskAtomicityAndAuditPrivacy(t *testing.T) {
 	f := setup(t)
@@ -328,4 +326,56 @@ func TestMappingRejectsKnownUnitAndShapeConflict(t *testing.T) {
 			t.Fatal("incompatible measurement accepted", i)
 		}
 	}
+}
+
+func TestIngestionMigrationPreservesV44ParsingEvidence(t *testing.T) {
+	f := setupAt(t, 44)
+	// Reproduce the old composition while the new ingestion tables do not exist.
+	f.ps.WithIngress(nil)
+	f.sync(t)
+	platform, scope := c.PlatformScope(), c.TenantScope(f.tenant)
+	m, e := f.s.CreateManufacturer(ctx, f.actor(), platform, c.ManufacturerCreate{Meta: f.meta(t), Code: "pre_ingestion", Name: "迁移前厂家"}, access.Meta{})
+	must(t, e)
+	product, device := seedLegacyProductDevice(t, f, m.ID, "pre_ingestion")
+	sample := f.sample(t, scope, f.owner, "measurement.bin", "binary")
+	run := seedLegacyParsingRun(t, f, product, device, sample)
+	_, e = f.ps.RunOne(ctx)
+	must(t, e)
+	beforeResult, _, e := f.ps.Result(ctx, f.owner, scope, run.ID, "1", false, 0, 100)
+	must(t, e)
+	if beforeResult.Response == nil || *beforeResult.Response.Records[0].Measurements[0].Value != "12.34" {
+		t.Fatal("historical fixture did not execute before upgrade")
+	}
+	tables := []string{"parsing_method_versions", "parsing_configs", "parsing_config_revisions", "parsing_product_defaults", "parsing_device_adoptions", "parsing_samples", "parsing_runs", "parsing_run_executions", "parsing_objects"}
+	hashes := map[string]string{}
+	for _, table := range tables {
+		var hash string
+		must(t, f.env.Pool.QueryRow(ctx, `SELECT md5(COALESCE(string_agg(to_jsonb(t)::text,'' ORDER BY to_jsonb(t)::text),'')) FROM `+table+` t`).Scan(&hash))
+		hashes[table] = hash
+	}
+	must(t, migrations.Up(ctx, f.env.Config.DatabaseURL))
+	must(t, migrations.Check(ctx, f.env.Pool))
+	for table, want := range hashes {
+		var got string
+		must(t, f.env.Pool.QueryRow(ctx, `SELECT md5(COALESCE(string_agg(to_jsonb(t)::text,'' ORDER BY to_jsonb(t)::text),'')) FROM `+table+` t`).Scan(&got))
+		if got != want {
+			t.Fatal("upgrade rewrote", table)
+		}
+	}
+	f.ps.WithIngress(f.b.Ingestion)
+	replay, e := f.ps.CreateRun(ctx, f.owner, scope, parse.RunInput{Meta: f.meta(t), ReplayRunID: run.ID})
+	must(t, e)
+	_, e = f.ps.RunOne(ctx)
+	must(t, e)
+	result, _, e := f.ps.Result(ctx, f.owner, scope, replay.ID, "1", false, 0, 100)
+	must(t, e)
+	if result.Response == nil || *result.Response.Records[0].Measurements[0].Value != "12.34" {
+		t.Fatal("legacy replay changed")
+	}
+	var sources, receipts int
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT (SELECT count(*) FROM ingestion_sources),(SELECT count(*) FROM ingestion_receipts)`).Scan(&sources, &receipts))
+	if sources+receipts != 0 {
+		t.Fatal("migration implicitly enabled ingestion")
+	}
+	t.Logf("v44 -> v%d preserves exact method/config/default/adoption/sample/run/object rows and replays the original method; ingestion remains empty and disabled", migrations.Version)
 }

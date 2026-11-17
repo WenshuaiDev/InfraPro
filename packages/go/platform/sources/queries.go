@@ -71,30 +71,43 @@ func (s *Service) Candidates(ctx context.Context, a access.Actor, scope Scope, t
 			return e
 		}
 		compatibleOnly := f.CompatibleOnly == nil || *f.CompatibleOnly
-		cursor, e := k.DecodeCursor(f.Cursor, k.CursorContext(auth, f, []any{"source-candidates", target, channel.Resource.Revision}))
+		cursor, e := k.DecodeCursor(f.Cursor, k.CursorContext(auth, f, []any{"source-candidates-available-first", target, channel.Resource.Revision}))
 		if e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT o.id::text,o.started_at FROM device_outputs o JOIN devices d ON d.id=o.device_id WHERE o.tenant_id=$1 AND o.ended_at IS NULL AND d.deleted_at IS NULL
+		rows, e := tx.Query(ctx, `WITH candidates AS (
+   SELECT o.id,o.started_at,
+     CASE WHEN d.status='enabled' AND meaning.compatible AND NOT EXISTS(
+       SELECT 1 FROM monitoring_source_bindings b WHERE b.tenant_id=o.tenant_id AND b.output_id=o.id AND b.ended_at IS NULL
+     ) THEN 0 ELSE 1 END availability_order
+   FROM device_outputs o JOIN devices d ON d.tenant_id=o.tenant_id AND d.id=o.device_id
+   CROSS JOIN LATERAL (SELECT o.metric_version_id=$8 AND o.unit_version_id IS NOT DISTINCT FROM $9::uuid AND o.value_shape=$10 AND o.timestamp_meaning=$11 AND device_semantic_text(o.aggregation_description)=$12 AND device_semantic_text(o.observation_direction)=$13 AND device_semantic_text(o.reference_basis)=$14 AS compatible) meaning
+   WHERE o.tenant_id=$1 AND o.ended_at IS NULL AND d.deleted_at IS NULL
    AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM project_device_grants g WHERE g.tenant_id=o.tenant_id AND g.project_id=$2 AND g.kind='output' AND g.output_id=o.id AND g.ended_at IS NULL AND g.can_use_source))
    AND ($3='' OR o.name ILIKE '%'||$3||'%' OR d.name ILIKE '%'||$3||'%' OR d.code ILIKE '%'||$3||'%') AND ($4::uuid IS NULL OR o.device_id=$4)
    AND ($5::uuid IS NULL OR o.metric_version_id=$5) AND ($6::uuid IS NULL OR o.unit_version_id=$6)
-   AND (NOT $7 OR (o.metric_version_id=$8 AND o.unit_version_id IS NOT DISTINCT FROM $9::uuid AND o.value_shape=$10 AND o.timestamp_meaning=$11 AND device_semantic_text(o.aggregation_description)=$12 AND device_semantic_text(o.observation_direction)=$13 AND device_semantic_text(o.reference_basis)=$14))
-   AND ($15::timestamptz IS NULL OR (o.started_at,o.id)>($15,$16::uuid)) ORDER BY o.started_at,o.id LIMIT $17`, auth.Tenant, k.Nullable(auth.Project), f.Query, k.Nullable(f.DeviceID), k.Nullable(f.MetricID), k.Nullable(f.UnitID), compatibleOnly, semantic.MetricVersionID, semantic.UnitVersionID, semantic.ValueShape, semantic.TimestampMeaning, semantic.AggregationDescription, semantic.ObservationDirection, semantic.ReferenceBasis, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1)
+   AND (NOT $7 OR meaning.compatible)
+   AND NOT EXISTS(SELECT 1 FROM monitoring_source_bindings b WHERE b.tenant_id=o.tenant_id AND b.channel_id=$15 AND b.output_id=o.id AND b.ended_at IS NULL)
+   ) SELECT id::text,started_at,availability_order FROM candidates
+   WHERE ($16::timestamptz IS NULL OR (availability_order,started_at,id)>($18,$16,$17::uuid))
+   ORDER BY availability_order,started_at,id LIMIT $19`, auth.Tenant, k.Nullable(auth.Project), f.Query, k.Nullable(f.DeviceID), k.Nullable(f.MetricID), k.Nullable(f.UnitID), compatibleOnly, semantic.MetricVersionID, semantic.UnitVersionID, semantic.ValueShape, semantic.TimestampMeaning, semantic.AggregationDescription, semantic.ObservationDirection, semantic.ReferenceBasis, target.ChannelID, cursor.TimeValue(), k.Nullable(cursor.ID), cursor.Number, f.Limit+1)
 		if e != nil {
 			return e
 		}
 		ids := []string{}
 		times := []time.Time{}
+		orders := []int{}
 		for rows.Next() {
 			var id string
 			var at time.Time
-			if e = rows.Scan(&id, &at); e != nil {
+			var order int
+			if e = rows.Scan(&id, &at, &order); e != nil {
 				rows.Close()
 				return e
 			}
 			ids = append(ids, id)
 			times = append(times, at)
+			orders = append(orders, order)
 		}
 		e = rows.Err()
 		rows.Close()
@@ -105,6 +118,7 @@ func (s *Service) Candidates(ctx context.Context, a access.Actor, scope Scope, t
 			ids = ids[:f.Limit]
 			cursor.ID = ids[f.Limit-1]
 			cursor.At = times[f.Limit-1]
+			cursor.Number = orders[f.Limit-1]
 			out.NextCursor = cursor.Encode()
 		}
 		outputs, e := s.devices.OutputsByIDTx(ctx, tx, a, scope, ids, true)

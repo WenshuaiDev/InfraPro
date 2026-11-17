@@ -212,10 +212,9 @@ func (s *Service) lockReadyTx(ctx context.Context, tx pgx.Tx, space, host, file 
 	return nil
 }
 
-// ProtectTx is intentionally finite: there is no registered external consumer
-// in this release. A future consumer must add a real owner resolver and tests.
+// ProtectTx checks finite concrete owners: file revisions, prepared inputs and engineering evidence.
 func (s *Service) ProtectTx(ctx context.Context, tx pgx.Tx, in Protection) error {
-	if in.Module != "files" || in.Kind != "attachment_revision" && in.Kind != "prepared_input" || !access.ValidID(in.OwnerID) || !validText(in.OwnerRevision, 1, 100) {
+	if (in.Module != "files" || in.Kind != "attachment_revision" && in.Kind != "prepared_input") && (in.Module != "engineering_structure" || in.OwnerKind != "attachment" || in.Kind != "consumer" || in.ExpiresAt != nil) || !access.ValidID(in.OwnerID) || !validText(in.OwnerRevision, 1, 100) {
 		return access.ErrDenied
 	}
 	if e := s.lockReadyTx(ctx, tx, in.SpaceID, in.HostID, in.FileID); e != nil {
@@ -223,7 +222,9 @@ func (s *Service) ProtectTx(ctx context.Context, tx pgx.Tx, in Protection) error
 	}
 	var valid bool
 	var e error
-	if in.Kind == "attachment_revision" && in.OwnerKind == "revision" {
+	if in.Module == "engineering_structure" {
+		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM engineering_resource_attachments e JOIN file_attachment_revisions r ON r.id=e.attachment_revision_id WHERE e.id=$1 AND r.space_id=$2 AND r.host_id=$3 AND r.file_id=$4 AND $5='1')`, in.OwnerID, in.SpaceID, in.HostID, in.FileID, in.OwnerRevision).Scan(&valid)
+	} else if in.Kind == "attachment_revision" && in.OwnerKind == "revision" {
 		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM file_attachment_revisions WHERE space_id=$1 AND host_id=$2 AND file_id=$3 AND id=$4 AND revision_no::text=$5)`, in.SpaceID, in.HostID, in.FileID, in.OwnerID, in.OwnerRevision).Scan(&valid)
 	} else if in.Kind == "prepared_input" && in.OwnerKind == "upload" {
 		e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM file_records WHERE space_id=$1 AND host_id=$2 AND id=$3 AND upload_id=$4 AND unbound_until=$5 AND unbound_until>$6)`, in.SpaceID, in.HostID, in.FileID, in.OwnerID, in.ExpiresAt, s.now()).Scan(&valid)

@@ -1,6 +1,5 @@
 # 独立运行诊断
 
-状态：Awaiting acceptance（实现及本机自验完成，待人工验收）。自验结果与用户接受分开记录，逐项证据见[验收台账](../verification/independent-runtime-diagnostics.md)。
 
 诊断地址、账号、观察器密钥、状态库和生命周期都独立于业务 API。它只能读取配置中登记的目标，不接收浏览器传入的探测地址或控制命令。诊断与业务同宿主时，宿主整体故障仍会使二者同时不可访问；需要异地可用性时，应把 server 放在独立主机。
 
@@ -9,13 +8,13 @@
 在仓库根目录执行：
 
 ```sh
-pnpm diagnostics:demo
+pnpm test:diagnostics:environment
 pnpm diagnostics:lab -- status
 ```
 
-demo 构建生产 UI 和 Go 二进制，创建独立 Compose project、随机 loopback 端口和私有临时目录，启动真实业务依赖和全部 10 个 owning process。终端只显示访问地址与 `accounts.json` 的绝对路径；用该文件内的独立账号登录。文件为 0600，父目录为 0700。`.artifacts/diagnostics/active.json` 只保存 run_id 和私有目录位置，不保存密码。
+测试环境构建生产 UI 和 Go 二进制，创建独立 Compose project、随机 loopback 端口和私有临时目录，启动真实业务依赖和全部 10 个 owning process。终端只显示访问地址与 `accounts.json` 的绝对路径；用该文件内的独立账号登录。文件为 0600，父目录为 0700。`.artifacts/diagnostics/active.json` 只保存 run_id 和私有目录位置，不保存密码。
 
-没有 Docker 时可执行 `pnpm diagnostics:demo -- --native-only`；此模式验证独立 server、三个原生 observer 和宿主资源，不代表已安装全部原生数据库。完整 L2–L4 自验需要本机 Docker。已有运行中的 demo 会复用。
+没有 Docker 时可执行 `pnpm test:diagnostics:environment -- --native-only`；此模式验证独立 server、三个原生 observer 和宿主资源，不代表已安装全部原生数据库。完整 L2–L4 自验需要本机 Docker。已有运行中的测试环境 会复用。
 
 人工步骤与预期：
 
@@ -107,13 +106,14 @@ compact 使用临时完整库校验、同步和原子替换；保留序号屏障
 
 ## 范围与验证解释
 
-完整自验按以下顺序执行。demo 提供所有检查使用的隔离资源；delivery 检查全仓构建、静态检查和原生／Linux 镜像资源；test 输出 L1–L4 证据并生成 60 项台账。故障套件会反复停止及恢复本 lab 的服务，不应同时用该 lab 做人工操作。
+完整自验按以下顺序执行。测试环境提供隔离资源；构建检查覆盖全仓静态检查及原生程序，诊断测试另构建 Linux 程序与容器镜像并执行 L1–L4 检查。故障套件会反复停止及恢复本 lab 的服务，不应同时用该 lab 做人工操作。
 
 ```sh
-pnpm diagnostics:demo
-pnpm diagnostics:delivery
+pnpm test:diagnostics:environment
+pnpm check
+pnpm build
 pnpm test:diagnostics
-pnpm diagnostics:acceptance --check
+pnpm diagnostics:lab -- down
 ```
 
 单独复查核心契约可执行 `pnpm test:diagnostics -- --core`；浏览器复查用 `pnpm diagnostics:browser`。开发启动用 `pnpm dev:diagnostics`（自动建立独立开发配置；自定义时用 `-- --config /absolute/server.json`，并在该配置显式允许 `http://127.0.0.1:5196`），其 Vite 和 Go 服务独立退出，不参与业务 dev 进程组。

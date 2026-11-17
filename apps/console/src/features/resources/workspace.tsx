@@ -15,6 +15,7 @@ import { ResourceHistory } from './history';
 import { ResourceTree } from './resource-tree';
 import { navigationPath, navigationRef, useResourceTree } from './resource-tree-query';
 import { WorkspaceDetail } from './workspace-detail';
+import { WorkspaceContext } from './workspace-context';
 import { resourceSelection, selectedTarget, treeFilter, type FacilityWorkspaceSearch } from './workspace-search';
 
 type Props = { facilityId?: string; search: FacilityWorkspaceSearch; navigate: (id: string | undefined, search: FacilityWorkspaceSearch, replace?: boolean) => void };
@@ -50,6 +51,14 @@ function Workspace({ facilityId, search, navigate }: Props) {
   });
   const facilityData = target?.kind === 'facility' ? detail.data : facility.data;
   const selected = detail.data;
+  const missing = detail.error instanceof ApiError && detail.error.status === 404;
+  const contextPath = useQuery({
+    queryKey: [...prefix, 'tree', 'path', activeFacility, activeId],
+    queryFn: ({ signal }) => client.resourceTree(scope, { facility_id: activeFacility, node_id: activeId, status: 'all' }, signal),
+    enabled: scope.kind === 'project' && missing && !!activeFacility && !!activeId,
+    retry: false,
+  });
+  const contextNode = missing ? contextPath.data?.items.find((node) => node.id === activeId && node.kind === target?.kind) : undefined;
   const filters = { q: search.q, type: search.type, status: search.status, deleted: search.deleted };
   const select = (node: ResourceTreeRef) => {
     if (!showDetail) mobileScroll.current = window.scrollY;
@@ -63,8 +72,9 @@ function Workspace({ facilityId, search, navigate }: Props) {
   const filtered = !!(search.q?.trim() || search.type || search.status || search.deleted);
   const clear = () => navigate(facilityId, { ...search, q: undefined, type: undefined, status: undefined, deleted: undefined }, true);
   const type = facilityData?.definitions.find((v) => v.id === facilityData.type_version_id);
-  const outsideFilter = !!selected && (search.deleted === 'only' || !!search.type && type?.definition_id !== search.type || !!search.status && (search.q?.trim() ? selected.status : facilityData?.status) !== search.status || !!search.q?.trim() && !`${selected.name}\n${selected.code}`.toLowerCase().includes(search.q.trim().toLowerCase()));
-  const path = selected && !detail.error && !outsideFilter && !search.q?.trim() ? navigationPath(selected) : [];
+  const displayed = selected ?? contextNode;
+  const outsideFilter = !!displayed && (search.deleted === 'only' || !!search.type && type?.definition_id !== search.type || !!search.status && (search.q?.trim() ? displayed.status : facilityData?.status) !== search.status || !!search.q?.trim() && !`${displayed.name}\n${displayed.code}`.toLowerCase().includes(search.q.trim().toLowerCase()));
+  const path = !outsideFilter && !search.q?.trim() ? selected && !detail.error ? navigationPath(selected) : contextNode ? [...contextNode.ancestors, contextNode] : [] : [];
   const selectedStamp = `${activeFacility}/${activeId}`;
   useEffect(() => {
     if (window.matchMedia('(max-width: 1023px)').matches) {
@@ -77,19 +87,17 @@ function Workspace({ facilityId, search, navigate }: Props) {
     previousDetail.current = showDetail;
   }, [showDetail, selectedStamp, lastSelection]);
   // Authorization errors must not leave a previously cached detail on screen.
-  const restricted = [roots.error, detail.error, target?.kind !== 'facility' ? facility.error : null].find((error) => error instanceof ApiError && [401, 403].includes(error.status ?? 0));
+  const restricted = [roots.error, detail.error, contextPath.error, target?.kind !== 'facility' ? facility.error : null].find((error) => error instanceof ApiError && [401, 403].includes(error.status ?? 0));
   if (restricted) return <ErrorState title="当前资源不可访问" message={restricted.message} />;
-  const missing = detail.error instanceof ApiError && detail.error.status === 404;
   const failure = detail.error?.message ?? (target?.kind !== 'facility' ? facility.error?.message : undefined);
   const blocked = !!detail.error || target?.kind !== 'facility' && !!facility.error || !facilityData;
   const retry = () => { void detail.refetch(); if (target?.kind !== 'facility') void facility.refetch(); void roots.refetch(); };
-  // Keep the real workspace boundary, resource queries and navigation for this throwaway rendering.
   return <section className="min-w-0 space-y-5">
-    <PageHeader title="设施管理" description="从设施到构件、测点与业务通道，在同一处维护工程资源。" actions={canCreateFacility && <Button id="create-facility" disabled={!available} onClick={() => setCreating(true)}><Plus aria-hidden="true" />新增设施</Button>} />
+    <PageHeader title={scope.kind === 'project' ? '项目设施' : '设施管理'} description={scope.kind === 'project' ? '查看和维护本项目获准使用的设施、构件、断面、孔位、测点与通道。' : '在同一处维护设施、构件、断面、孔位、测点与通道。'} actions={canCreateFacility && <Button id="create-facility" disabled={!available} onClick={() => setCreating(true)}><Plus aria-hidden="true" />新增设施</Button>} />
     <div className={cn('flex flex-wrap items-center gap-2', showDetail && 'hidden lg:flex')}>
-      <DirectorySearch label="搜索设施、构件、测点或通道" value={search.q ?? ''} onChange={(q) => navigate(facilityId, { ...search, q: q || undefined }, true)} />
+      <DirectorySearch label="搜索设施、构件、断面、孔位、测点或通道" value={search.q ?? ''} onChange={(q) => navigate(facilityId, { ...search, q: q || undefined }, true)} />
       <ListFilter label="设施类型" caption="类型" value={search.type ?? ''} onChange={(type) => navigate(facilityId, { ...search, type: type || undefined }, true)} options={[{ value: '', label: '全部类型' }, ...(roots.summary?.types ?? []).map((type) => ({ value: type.id, label: type.name }))]} />
-      <ListFilter label={search.q?.trim() ? '匹配资源状态' : '设施状态'} caption="状态" value={search.deleted ? 'deleted' : search.status ?? 'all'} onChange={(status) => navigate(facilityId, { ...search, status: status === 'normal' || status === 'retired' ? status : undefined, deleted: status === 'deleted' ? 'only' : undefined }, true)} options={[{ value: 'all', label: '全部未删除' }, { value: 'normal', label: '正常' }, { value: 'retired', label: '已退役' }, { value: 'deleted', label: '已删除记录' }]} />
+      <ListFilter label={search.q?.trim() ? '匹配资源状态' : '设施状态'} caption="状态" value={search.deleted ? 'deleted' : search.status ?? 'all'} onChange={(status) => navigate(facilityId, { ...search, status: status === 'normal' || status === 'retired' ? status : undefined, deleted: status === 'deleted' ? 'only' : undefined }, true)} options={[{ value: 'all', label: '全部未删除' }, { value: 'normal', label: '正常' }, { value: 'retired', label: '已退役' }, ...(scope.kind === 'tenant' ? [{ value: 'deleted', label: '已删除记录' }] : [])]} />
       {filtered && <Button variant="ghost" size="sm" onClick={clear}>重置筛选</Button>}
       <span className="ml-auto text-xs text-muted-foreground" role="status">{roots.summary ? search.q?.trim() && !search.deleted ? `匹配 ${roots.summary.total} 个资源，保留祖先路径` : `共 ${roots.summary.total} 座设施` : '正在读取…'}{roots.isFetching && !roots.isPending && ' · 更新中'}</span>
     </div>
@@ -100,7 +108,7 @@ function Workspace({ facilityId, search, navigate }: Props) {
       <div ref={detailRef} id="resource-workspace-anchor" tabIndex={-1} aria-label="资源详情工作区" className={cn('min-h-0 min-w-0 space-y-3 outline-none lg:overflow-y-auto lg:pr-1', !showDetail && 'hidden lg:block')}>
         <Button variant="ghost" className="-ml-3 lg:hidden" onClick={() => { if (activeId) setLastSelection(activeId); navigate(activeFacility, { ...search, directory: true }); }}><ArrowLeft aria-hidden="true" />返回资源目录</Button>
         {outsideFilter && <FormNotice>正在查看的对象不符合当前目录筛选。<Button size="sm" variant="link" onClick={clear}>清除目录筛选</Button></FormNotice>}
-        {!activeFacility ? <EmptyState title="选择一个资源开始查看" description="从左侧目录打开设施，或搜索下级构件、测点与业务通道。" /> : (activeView === 'changes' && (missing || !selected && !!first?.deleted_at)) ? <article className="space-y-4 rounded-lg border p-4"><h2 className="text-xl font-semibold">{first?.id === activeFacility ? first.name : '设施变更记录'}</h2><p className="text-sm text-muted-foreground">已删除资源保留身份和变更历史。</p>{canHistory && <ResourceHistory facility={activeFacility} />}</article> : missing ? <ErrorState title="资源已不可访问" message="对象可能已删除，或当前路径已失效。请从目录重新选择。" onRetry={retry} /> : !selected && detail.error ? <ErrorState message={detail.error.message} onRetry={retry} /> : !selected ? <LoadingState label="正在读取资源详情…" /> : <WorkspaceDetail key={`${selected.kind}:${selected.id}`} resource={selected} facility={facilityData} view={activeView} onView={view} select={select} onDeleted={(parent) => { if (parent) select(parent); else navigate(undefined, filters); }} blocked={blocked} failure={failure} retry={retry} />}
+        {!activeFacility ? <EmptyState title="选择一个资源开始查看" description="从左侧目录打开设施，或搜索下级构件、测点与业务通道。" /> : (scope.kind === 'tenant' && activeView === 'changes' && (missing || !selected && !!first?.deleted_at)) ? <article className="space-y-4 rounded-lg border p-4"><h2 className="text-xl font-semibold">{first?.id === activeFacility ? first.name : '设施变更记录'}</h2><p className="text-sm text-muted-foreground">已删除资源保留身份和变更历史。</p>{canHistory && <ResourceHistory facility={activeFacility} />}</article> : contextNode ? <WorkspaceContext key={contextNode.id} node={contextNode} select={select} /> : missing && scope.kind === 'project' && contextPath.isPending ? <LoadingState label="正在定位已授权资源…" /> : missing && contextPath.error ? <ErrorState message={contextPath.error.message} onRetry={() => void contextPath.refetch()} /> : missing ? <ErrorState title="资源已不可访问" message="资源不存在或不可访问。" onRetry={retry} /> : !selected && detail.error ? <ErrorState message={detail.error.message} onRetry={retry} /> : !selected ? <LoadingState label="正在读取资源详情…" /> : <WorkspaceDetail key={`${selected.kind}:${selected.id}`} resource={selected} facility={facilityData} view={activeView} onView={view} select={select} onDeleted={(parent) => { if (parent) select(parent); else navigate(undefined, filters); }} blocked={blocked} failure={failure} retry={retry} />}
       </div>
     </div>
     <ResponsivePanel open={creating} onOpenChange={setCreating} title="新增设施" description="选择已发布的设施类型，填写工程资料。" fallbackFocusSelector="#create-facility">

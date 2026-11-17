@@ -1,4 +1,4 @@
-import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, BookOpen, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, ListChecks, MapPinned, LayoutDashboard, Files } from 'lucide-react';
+import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, ListChecks, MapPinned, LayoutDashboard, Files } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
@@ -7,6 +7,8 @@ export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
  if (typeof value !== 'string' || value.length > 2048) return '/';
+ if(value==='/platform/device-categories')return value;
+ if(value==='/platform/ingestion'||new RegExp(`^/t/${uuid}/ingestion$`).test(value))return value;
  if(value==='/platform/parsing'||new RegExp(`^/t/${uuid}/parsing$`).test(value))return value;
  if (new RegExp(`^/t/${uuid}/bindings$`).test(value)) return value;
  if (new RegExp(`^/t/${uuid}/(?:p/${uuid}/)?files$`).test(value)) return value;
@@ -26,7 +28,9 @@ export function relativePath(path: string) {
   return base && (path === base || path.startsWith(`${base}/`)) ? path.slice(base.length) || '/' : path;
 }
 export function allowedPath(path: string, can: (permission: PermissionCode) => boolean) {
+  if (path.startsWith('/platform/ingestion')) return can(P.IngestionSourceRead)||can(P.IngestionQuarantineRead);
   if (path.startsWith('/platform/parsing')) return can(P.ParsingMethodRead)||can(P.ParsingRunRead);
+  if (path==='/platform/device-categories') return can(P.DeviceCategoryRead);
   if (path.startsWith('/platform/device-products')) return can(P.DeviceDefinitionRead);
   if (path.startsWith('/platform/engineering/')) { const kind = path.split('/').at(-1); return can(kind === 'type-definitions' ? P.EngineeringTypeRead : kind === 'monitoring-templates' ? P.EngineeringTemplateRead : P.EngineeringMetricRead); }
   if (path.startsWith('/platform/tenants')) return [P.PlatformTenantRead, P.PlatformTenantCreate, P.PlatformTenantUpdate, P.PlatformTenantTransferAdmin].some(can);
@@ -66,7 +70,7 @@ export function platformNavigation(path: string, can: (permission: PermissionCod
       { title: '指标目录', href: '/platform/engineering/metrics', icon: Ruler, active: path === '/platform/engineering/metrics' },
       { title: '单位目录', href: '/platform/engineering/units', icon: Ruler, active: path === '/platform/engineering/units' },
       { title: '公共监测模板', href: '/platform/engineering/monitoring-templates', icon: ClipboardList, active: path === '/platform/engineering/monitoring-templates' },
-    ] }, {title:'解析方法',href:'/platform/parsing',icon:Cpu,active:path.startsWith('/platform/parsing')}, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
+    ] }, {title:'设备接入',href:'/platform/ingestion',icon:Cpu,active:path.startsWith('/platform/ingestion')}, {title:'协议与解析方法',href:'/platform/parsing',icon:Cpu,active:path.startsWith('/platform/parsing')}, {title:'设备分类字典',href:'/platform/device-categories',icon:Blocks,active:path==='/platform/device-categories'}, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
     { title: '账号与权限', items: [
       { title: '账号管理', href: '/access/accounts', icon: Users, active: path === '/access/accounts' },
       { title: '账号开户邀请', href: '/invitations', icon: MailPlus, active: path === '/invitations' },
@@ -124,6 +128,7 @@ export function navigation(path: string, can: (permission: PermissionCode) => bo
           ...([P.TenantEngineeringResourceRead, P.TenantProjectRead, P.TenantEngineeringResourceAuthorizationRead].every(tenantCan) ? [{ title: '项目资源授权', href: `/t/${tenant}/resource-access`, icon: KeyRound, active: path.startsWith(`/t/${tenant}/resource-access`) }] : []),
         ]),
         ...navigationSection('设备管理', Cpu, [
+          ...([P.TenantIngestionSourceRead,P.TenantIngestionTerminalRead,P.TenantIngestionMessageRead,P.TenantIngestionUnmatchedRead].some(tenantCan)?[{title:'设备接入与原始报文',href:`/t/${tenant}/ingestion`,icon:Cpu,active:path.startsWith(`/t/${tenant}/ingestion`)}]:[]),
           ...([P.TenantParsingMethodRead,P.TenantParsingRunRead].some(tenantCan)?[{title:'试解析与运行',href:`/t/${tenant}/parsing`,icon:Cpu,active:path.startsWith(`/t/${tenant}/parsing`)}]:[]),
           ...([P.TenantDeviceDefinitionRead, P.TenantDeviceCatalogRead].some(tenantCan) ? [{ title: '设备产品目录', href: `/t/${tenant}/device-products`, icon: Factory, active: path.startsWith(`/t/${tenant}/device-products`) }] : []),
           ...(tenantCan(P.TenantDeviceRead) ? [{ title: '设备台账', href: `/t/${tenant}/devices`, icon: Cpu, active: path.startsWith(`/t/${tenant}/devices`) }] : []),
@@ -152,8 +157,7 @@ function monitoringNavigation(base: string, path: string, can: (permission: Perm
  ...(read?[{title:"监测浏览",href:`${base}/monitoring`,icon:Activity,active:path===`${base}/monitoring`||path===`${base}/monitoring/`}]:[]),
  ...(imports?[{title:"导入与批次",href:`${base}/monitoring/imports`,icon:Upload,active:path.startsWith(`${base}/monitoring/imports`)||path.startsWith(`${base}/monitoring/batches`)}]:[]),
  ...(read||imports?[{title:"监测任务",href:`${base}/monitoring/jobs`,icon:ListChecks,active:path===`${base}/monitoring/jobs`}]:[]),
- ...(tenant&&can(P.TenantDerivedMetricsRead)?[{title:"派生指标定义",href:`${base}/monitoring/derived-definitions`,icon:BookOpen,active:path===`${base}/monitoring/derived-definitions`}]:[]),
- ...(can(tenant?P.TenantDerivedChannelsRead:P.ProjectDerivedChannelsRead)?[{title:"派生通道",href:`${base}/monitoring/derived`,icon:Activity,active:path===`${base}/monitoring/derived`||path.startsWith(`${base}/monitoring/derived/`)}]:[]),
+ ...(can(tenant?P.TenantDerivedChannelsRead:P.ProjectDerivedChannelsRead)||can(tenant?P.TenantDerivedMetricsRead:P.ProjectDerivedMetricsRead)?[{title:"派生监测",href:`${base}/monitoring/derived`,icon:Activity,active:path===`${base}/monitoring/derived`||path.startsWith(`${base}/monitoring/derived/`)||path===`${base}/monitoring/derived-definitions`}]:[]),
  ...(can(tenant?P.TenantDerivedAnalysisRead:P.ProjectDerivedAnalysisRead)||can(tenant?P.TenantDerivedAnalysisResultsRead:P.ProjectDerivedAnalysisResultsRead)?[{title:"历史分析",href:`${base}/monitoring/analysis`,icon:ClipboardList,active:path.startsWith(`${base}/monitoring/analysis`)}]:[]),
  ...((can(tenant?P.TenantDerivedRunsRead:P.ProjectDerivedRunsRead)||can(tenant?P.TenantDerivedAnalysisExport:P.ProjectDerivedAnalysisExport))?[{title:"计算运行",href:`${base}/monitoring/derived-runs`,icon:ListChecks,active:path===`${base}/monitoring/derived-runs`}]:[]),
  ];

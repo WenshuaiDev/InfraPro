@@ -1,6 +1,7 @@
 import type { components } from './schema';
 type Schema<K extends keyof components['schemas']> = components['schemas'][K];
 export type ProjectSummary = Schema<'ProjectSummary'>;
+export type ProjectGovernanceOverview = Schema<'ProjectGovernanceOverview'>;
 export type ProjectProfile = Schema<'ProjectProfile'>;
 export type ProjectContext = Schema<'ProjectContext'>;
 export type ProjectPerson = Schema<'ProjectPerson'>;

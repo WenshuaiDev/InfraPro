@@ -6,14 +6,16 @@ import type {
 } from '@infrapro/api-client';
 export const kinds: Record<ResourceKind, string> = {
   facility: '设施',
-  component: '构件',
+  component: '构件', monitoring_section: '监测断面', borehole: '孔位',
   point: '测点',
   channel: '通道',
 };
 export type Capability = ResourceGrant['capabilities'][number];
 export const capabilities: Record<ResourceKind, Capability[]> = {
-  facility: ['read', 'update', 'create_component', 'create_point', 'create_derived_channel'],
-  component: ['read', 'update', 'create_component', 'create_point', 'create_derived_channel', 'lifecycle'],
+  facility: ['read', 'update', 'create_component', 'create_monitoring_section', 'create_borehole', 'create_point', 'create_derived_channel'],
+  component: ['read', 'update', 'create_component', 'create_monitoring_section', 'create_borehole', 'create_point', 'create_derived_channel', 'lifecycle'],
+  monitoring_section: ['read','update','create_component','create_monitoring_section','create_borehole','create_point','create_derived_channel','lifecycle'],
+  borehole: ['read','update','create_component','create_monitoring_section','create_borehole','create_point','create_derived_channel','lifecycle'],
   point: ['read', 'update', 'create_channel', 'create_derived_channel', 'lifecycle'],
   channel: ['read', 'update', 'lifecycle', 'source_manage', 'manage_calculation'],
 };
@@ -25,6 +27,8 @@ export const capNames: Record<Capability, string> = {
   update: '编辑资料',
   create_component: '新增构件',
   create_point: '新增测点',
+  create_monitoring_section: '新增监测断面',
+  create_borehole: '新增孔位',
   create_channel: '新增通道',
   lifecycle: '退役与恢复',
 };
@@ -43,12 +47,12 @@ export type Draft = Record<string, Choice>;
 export type Summary = ResourceAccessDetail['summary'];
 export const emptySummary: Summary = {
   facilities: 0,
-  components: 0,
+  components: 0, monitoring_sections: 0, boreholes: 0,
   points: 0,
   channels: 0,
   maintainable: 0,
 };
-export const countResources = (s: Summary) => s.facilities + s.components + s.points + s.channels;
+export const countResources = (s: Summary) => s.facilities + s.components + s.monitoring_sections + s.boreholes + s.points + s.channels;
 export const describe = (caps?: readonly Capability[]) =>
   caps?.length ? caps.map((c) => capNames[c]).join('、') : '未授权';
 export const sameCaps = (a: readonly Capability[], b: readonly Capability[]) =>
@@ -66,7 +70,7 @@ export function grantInput(v: Choice): ResourceGrantInput {
   return {
     kind: v.kind,
     capabilities: v.capabilities,
-    ...(v.kind === 'component'
+    ...(v.kind === 'monitoring_section' ? {monitoring_section_id:v.id} : v.kind === 'borehole' ? {borehole_id:v.id} : v.kind === 'component'
       ? { component_id: v.id }
       : v.kind === 'point'
         ? { point_id: v.id }
@@ -90,7 +94,7 @@ export function draftSummary(original: Summary, choices: Choice[]): Summary {
   const next = { ...original };
   const key = {
     facility: 'facilities',
-    component: 'components',
+    component: 'components', monitoring_section: 'monitoring_sections', borehole: 'boreholes',
     point: 'points',
     channel: 'channels',
   } as const;

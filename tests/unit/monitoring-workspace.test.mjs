@@ -15,7 +15,8 @@ const { latestRange, observedAge, selectedQualities } = await import('../../apps
 const { plotObservations, plotBaseline } = await import('../../apps/console/src/features/monitoring/trend-points.ts');
 const { facilityWorkspaceSearch, selectedTarget, resourceSelection } = await import('../../apps/console/src/features/resources/workspace-search.ts');
 const { plotCoefficient } = await import('../../apps/console/src/features/monitoring/detail-format.ts');
-const { projectTreePage } = await import('../../apps/console/src/features/resources/project-tree-query.ts');
+const { resourceMethods } = await import('../../packages/ts/api-client/src/resources.ts');
+const { buildTrendModel, channelAppearance } = await import('../../apps/console/src/features/monitoring/trend-model.ts');
 resolver.deregister();
 
 test('live window includes the newest nanosecond, clamps bounds and reports stale/future observations honestly', () => {
@@ -53,30 +54,23 @@ test('ordinary values keep physical axes while huge values preserve a one-trilli
   assert.equal(plotBaseline(),0n);
 });
 
-test('project tree retains component ownership and independently paginates only project-scoped metadata', async () => {
+test('project tree preserves server ownership and opaque pagination in the explicit project scope', async () => {
   const scope={kind:'project',tenantId:'t',projectId:'p'}, calls=[];
-  const client={async resourceList(actual, target, filter) {
-    calls.push({scope:actual,target,filter});
-    assert.deepEqual(actual,scope);
-    if(target.kind==='channel')return {items:[{kind:'channel',id:'derived',facility_id:'f',owner_kind:filter.owner_kind,component_id:filter.owner_kind==='component'?filter.owner_id:null,point_id:null,name:'派生通道',code:'D',status:'normal'}],next_cursor:''};
-    if(target.kind==='component')return {items:[{kind:'component',id:'c',facility_id:'f',parent_component_id:null,name:'主梁',code:'C',status:'active'}],next_cursor:''};
-    return {items:[{kind:'point',id:filter.cursor?'p2':'p1',facility_id:'f',component_id:null,name:'测点',code:'P',status:'active'}],next_cursor:filter.cursor?'':'next-point'};
-  }};
-  const filter={parent_kind:'facility',parent_id:'f',facility_id:'f'}, signal=new AbortController().signal;
-  const first=await projectTreePage({client,scope},filter,signal);
-  assert.equal(first.items[0].parent_id,'f');assert.equal(first.items[1].parent_kind,'facility');
-  assert.equal(calls[0].filter.parent_id,'root');assert.equal(calls[1].filter.owner,'root');
-  assert.equal(calls[2].filter.owner_kind,'facility');assert.equal(calls[2].filter.owner_id,'f');assert.equal(calls[2].target.point,undefined);
-  assert.equal(first.items[2].parent_kind,'facility');assert.equal(first.items[2].parent_id,'f');
-  const second=await projectTreePage({client,scope},{...filter,cursor:first.next_cursor},signal);
-  assert.equal(calls.length,4);assert.equal(calls[3].filter.cursor,'next-point');assert.equal(second.next_cursor,'');
-  assert.equal(second.items[0].id,'p2');
-  calls.length=0;
-  const component = await projectTreePage({client,scope},{parent_kind:'component',parent_id:'c',facility_id:'f'},signal);
-  assert.equal(calls[0].filter.parent_id,'c');assert.equal(calls[1].filter.owner,'c');
-  assert.equal(component.items[2].parent_kind,'component');assert.equal(component.items[2].parent_id,'c');
+  const signal=new AbortController().signal;
+  const items=[{kind:'channel',id:'derived',facility_id:'f',parent_kind:'component',parent_id:'c',name:'派生通道',code:'D',status:'normal'}];
+  const client=resourceMethods(async(path,method,body,notify,actualSignal)=>{
+    calls.push(new URL(path,'https://test.invalid'));
+    assert.equal(method,'GET');assert.equal(body,undefined);assert.equal(actualSignal,signal);
+    return {items,next_cursor:calls.length===1?'opaque/next+position':''};
+  });
+  const filter={facility_id:'f',parent_kind:'component',parent_id:'c',status:'all',limit:25};
+  const first=await client.resourceTree(scope,filter,signal);
+  assert.equal(first.items,items);assert.equal(first.items[0].parent_kind,'component');
+  const second=await client.resourceTree(scope,{...filter,cursor:first.next_cursor},signal);
+  assert.equal(second.next_cursor,'');assert.equal(calls.length,2);
+  for(const url of calls){assert.equal(url.pathname,'/tenants/t/projects/p/engineering/resources/tree');assert.equal(url.searchParams.get('parent_id'),'c');assert.equal(url.searchParams.get('facility_id'),'f');}
+  assert.equal(calls[1].searchParams.get('cursor'),'opaque/next+position');
 });
-
 
 test('derived curves retain null output gaps and differences beyond direct observation scale', () => {
  const row=(s,value)=>({source_kind:'derived',output_at:`2020-01-01T00:00:0${s}Z`,value});
@@ -96,4 +90,60 @@ test('facility and component channel deep links retain their identity without in
   assert.equal(search.channel,channel);
   assert.deepEqual(selectedTarget(facility,search),{kind:'channel',facility,point:undefined,id:channel});
  }
+});
+
+
+const comparisonRange = { from: '2020-01-01T00:00:00Z', to: '2020-01-02T00:00:00Z' };
+const comparisonChannel = (id, patch = {}) => ({ id, name: `通道 ${id}`, source_kind: 'direct', unit: 'mm', value_kind: 'decimal', owner_name: '测点', facility_name: '设施', observation_direction: '向下为正', reference_basis: '初始观测', timestamp_meaning: 'observation_time', ...patch });
+const comparisonSeries = (channel, values = ['1', '3'], patch = {}) => ({ channel_id: channel.id, range: comparisonRange, summary: false, buckets: [{ range: comparisonRange, discontinuous: false, states: [], points: values.map((value, i) => ({ source_kind: channel.source_kind, value, value_kind: channel.value_kind, quality: 'good', data_quality: 'good', calculation_status: value === null ? 'no_result' : 'valid', observed_at: `2020-01-01T00:00:0${i}Z`, output_at: `2020-01-01T00:00:0${i}Z` })) }], ...patch });
+
+test('every selected channel is represented in one plot up to fifty, regardless of metadata or missing samples', () => {
+  const channels = Array.from({ length: 50 }, (_, i) => comparisonChannel(`channel-${i}`, { metric_version_id: `metric-${i}`, source_kind: i % 2 ? 'derived' : 'direct', reference_basis: `${i}`, timestamp_meaning: i % 3 ? 'observation_time' : 'interval_end' }));
+  const model = buildTrendModel(channels, channels.slice(0, 49).map(channel => comparisonSeries(channel)), comparisonRange);
+  assert.deepEqual(model.lines.map(line => line.id), channels.map(channel => channel.id));
+  assert.equal(model.axes.length, 1);
+  assert.ok(model.lines.slice(0, 49).every(line => line.data.length === 2));
+  assert.deepEqual(model.lines[49].data, []); // no fabricated zero for the empty channel
+  assert.equal(model.lines[1].data[0].name.includes('区间结束时刻'), false);
+  assert.ok(model.lines[3].data[0].name.includes('区间结束时刻'));
+  const before = channels.map(channelAppearance);
+  assert.deepEqual(channels.slice(2).map(channelAppearance), before.slice(2));
+  assert.equal(channelAppearance(channels[1]).lineType, 'dashed');
+});
+
+test('same-unit series share an axis while other units and states remain on the same time plot', () => {
+  const channels = [comparisonChannel('direct'), comparisonChannel('derived', { source_kind: 'derived' }), comparisonChannel('temperature', { unit: '°C' }), comparisonChannel('state', { unit: '', value_kind: 'enum' })];
+  const series = channels.map(channel => comparisonSeries(channel, channel.value_kind === 'enum' ? ['yes', 'no'] : ['2', '4']));
+  const model = buildTrendModel(channels, series, comparisonRange);
+  assert.deepEqual(model.lines.map(line => line.axisIndex), [0, 0, 1, 2]);
+  assert.deepEqual(model.axes.map(axis => axis.name), ['mm', '°C', '状态']);
+  assert.deepEqual(model.lines[3].data.map(point => point.value[1]), ['yes', 'no']);
+  assert.deepEqual(model.axes[2].states, ['no', 'yes']);
+  const relative = buildTrendModel(channels, series, comparisonRange, 'relative');
+  assert.deepEqual(relative.lines.map(line => line.axisIndex), [0, 0, 0, 1]);
+  assert.deepEqual(relative.lines[0].data.map(point => point.value[1]), [0, 100]);
+  assert.match(relative.lines[0].data[0].name, /原值 2 mm/);
+});
+
+test('mixed-unit precision, derived null outputs and summary discontinuities survive comparison', () => {
+  const channels = [comparisonChannel('large', { source_kind: 'derived' }), comparisonChannel('ordinary', { unit: '°C' })];
+  const series = [comparisonSeries(channels[0], ['123456789012345678.000000000000000001', null, '123456789012345678.000000000000000002']), comparisonSeries(channels[1], ['20', '21'])];
+  const model = buildTrendModel(channels, series, comparisonRange);
+  assert.deepEqual(model.lines[0].data.map(point => point.value[1]), [0, null, 1e-18]);
+  assert.deepEqual(model.lines[1].data.map(point => point.value[1]), [20, 21]);
+  assert.match(model.lines[0].data[2].name, /123456789012345678.000000000000000002/);
+  const summary = buildTrendModel([channels[1]], [comparisonSeries(channels[1], ['20', '21'], { summary: true })], comparisonRange);
+  assert.ok(summary.lines[0].data.every((point, i, points) => point.value[1] === null || i === 0 || points[i - 1].value[1] === null));
+});
+
+test('relative amplitude uses only the current window, keeps constant signals and never fills missing data', () => {
+  const channel = comparisonChannel('relative');
+  const series = comparisonSeries(channel, ['-999', '5', null, '15', '999']);
+  const range = { from: '2020-01-01T00:00:01Z', to: '2020-01-01T00:00:04Z' };
+  const model = buildTrendModel([channel], [series], range, 'relative');
+  assert.equal(model.lines[0].data[1].value[1], 0);
+  assert.equal(model.lines[0].data[2].value[1], null);
+  assert.equal(model.lines[0].data[3].value[1], 100);
+  const constant = buildTrendModel([channel], [comparisonSeries(channel, ['5', '5'])], comparisonRange, 'relative');
+  assert.deepEqual(constant.lines[0].data.map(point => point.value[1]), [50, 50]);
 });

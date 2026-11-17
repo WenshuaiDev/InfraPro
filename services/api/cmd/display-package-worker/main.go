@@ -56,7 +56,12 @@ func run() (resultErr error) {
 	if e != nil {
 		return e
 	}
+	limits, e := config.LoadUploads(os.Getenv("INFRAPRO_CONFIG"))
+	if e != nil {
+		return e
+	}
 	options := display.DefaultOptions()
+	options.MaxPackageBytes = limits.DisplayMaxPackageBytes
 	options.EventRetention = retention
 	s := display.New(access.New(pool, slog.Default())).WithOptions(options).WithStorage(objects)
 	reporter.Ready()

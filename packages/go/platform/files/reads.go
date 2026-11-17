@@ -19,6 +19,7 @@ import (
 // GuardedRead never exposes its object key or raw reader to HTTP. Headers and
 // each output chunk must pass the current personnel and attachment boundary.
 type GuardedRead struct {
+	extraGuard                                           func(context.Context, pgx.Tx) error
 	transfer                                             *access.TransferObserver
 	closeErr                                             error
 	Name, MediaType, SHA256, Variant                     string
@@ -38,15 +39,25 @@ type GuardedRead struct {
 }
 
 func (s *Service) OpenRead(ctx context.Context, a access.Actor, scope Scope, attachment, revision, variant string) (*GuardedRead, error) {
+	return s.OpenReadWithGuard(ctx, a, scope, attachment, revision, variant, nil)
+}
+
+// OpenReadWithGuard preserves the file boundary and checks a concrete consumer's authority before headers and every chunk.
+func (s *Service) OpenReadWithGuard(ctx context.Context, a access.Actor, scope Scope, attachment, revision, variant string, guard func(context.Context, pgx.Tx) error) (*GuardedRead, error) {
 	if !access.ValidID(attachment) || !access.ValidID(revision) || variant != "source" && variant != "preview" {
 		return nil, fault("file_not_found", 404)
 	}
 	readCtx, cancel := context.WithTimeout(ctx, s.options.ReadTimeout)
-	g := &GuardedRead{s: s, actor: a, scope: scope, attachment: attachment, revision: revision, Variant: variant, lease: uuid.NewString(), ctx: readCtx, cancel: cancel, outcome: "interrupted"}
+	g := &GuardedRead{extraGuard: guard, s: s, actor: a, scope: scope, attachment: attachment, revision: revision, Variant: variant, lease: uuid.NewString(), ctx: readCtx, cancel: cancel, outcome: "interrupted"}
 	var space string
 	e := s.transactBudget(readCtx, a, scope, false, false, true, "", func(tx pgx.Tx, st txState) error {
 		if st.Mode == "reconciling" {
 			return fault("file_protocol_unavailable", 503)
+		}
+		if g.extraGuard != nil {
+			if e := g.extraGuard(ctx, tx); e != nil {
+				return e
+			}
 		}
 		if !st.Auth.CanDownload {
 			return access.ErrDenied
@@ -161,6 +172,11 @@ func (g *GuardedRead) boundary(ctx context.Context, fn func() error) error {
 	return g.s.transact(ctx, g.actor, g.scope, false, false, "", func(tx pgx.Tx, st txState) error {
 		if st.Epoch != g.epoch || st.Mode == "reconciling" {
 			return fault("file_epoch_changed", 409)
+		}
+		if g.extraGuard != nil {
+			if e := g.extraGuard(ctx, tx); e != nil {
+				return e
+			}
 		}
 		if !st.Auth.CanDownload {
 			return access.ErrDenied

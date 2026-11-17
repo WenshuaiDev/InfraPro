@@ -1,9 +1,5 @@
 # 派生监测与历史分析使用、维护说明
 
-状态：**Awaiting acceptance（功能与必要自验已完成，待用户人工验收）**。本说明随完整实施更新；实现、自验结果和待完成内容见[实施记录](../verification/derived-monitoring-and-analysis.md)。人工验收尚未开始。本文说明操作方法，不将命令示例视为已经执行或通过的证据。
-
-独立合成验收可运行 `pnpm derived:demo`；具体账号材料、固定A/B期望和逐项操作见[人工验收手册](../acceptance/derived-monitoring-and-analysis.md)。该会话停止后清理本次隔离数据，适合可重复操作验证。
-
 ## 入口和准备
 
 登录后进入有权访问的租户或项目工作空间，在监测区域使用“派生指标”“派生通道”“历史分析”“计算运行”。派生指标定义由租户维护；项目使用已发布版本。直接监测通道仍按[监测数据说明](monitoring-data.md)导入原始文件。派生通道不能绑定设备通道或接收原始文件导入。
@@ -95,7 +91,7 @@ API、独立 worker 和 CLI 使用同一份配置及相同版本程序。字段�
 
 ### 新环境
 
-先准备PostgreSQL 17、Redis、至少两个ClickHouse副本及S3兼容对象存储。CH需要与配置名称一致的存储策略、online卷和Keeper；测试用compose见`deploy/monitoring-contract`，其公开凭据仅用于合成测试。复制配置样例到自己的受保护配置文件，填写数据库／Redis、CSRF密钥、前端地址、可信Origin、维护联系人、CH地址与数据库、S3 endpoint／bucket／身份及临时目录。使用本机浏览器时绑定loopback并将`cookie_secure`设为false；实际HTTPS部署按真实入口配置。
+先准备PostgreSQL 17、Redis、一个或多个ClickHouse节点及S3兼容对象存储。单节点可用于首期试运行，不提供数据副本冗余。CH需要与配置名称一致的存储策略、online卷和Keeper；测试用compose见`deploy/monitoring-contract`，其公开凭据仅用于合成测试。复制配置样例到自己的受保护配置文件，填写数据库／Redis、CSRF密钥、前端地址、可信Origin、维护联系人、CH地址与数据库、S3 endpoint／bucket／身份及临时目录。使用本机浏览器时绑定loopback并将`cookie_secure`设为false；实际HTTPS部署按真实入口配置。
 
 从仓库根目录，在同一套配置下依次执行：
 
@@ -110,7 +106,7 @@ pnpm infrapro monitoring derived check
 pnpm infrapro account bootstrap
 ```
 
-`database migrate`应用至当前v33；`storage init`同时准备原始及派生布局。`derived check`应返回`state: passed`及布局／引擎描述。首次账号初始化必须在交互终端填写用户名、显示名和密码；已初始化环境不能再次bootstrap。随后按下方启动API、前端和worker，登录后建立租户、工程资源及授权。使用现有本机环境时应先确认配置指向，不能将此流程当作重置现有数据库的命令。
+`database migrate`应用至当前迁移版本；`storage init`同时准备原始及派生布局。`derived check`应返回`state: passed`及布局／引擎描述。首次账号初始化必须在交互终端填写用户名、显示名和密码；已初始化环境不能再次bootstrap。随后按下方启动API、前端和worker，登录后建立租户、工程资源及授权。使用现有本机环境时应先确认配置指向，不能将此流程当作重置现有数据库的命令。
 
 ### 从基础监测v12升级
 
@@ -124,7 +120,6 @@ pnpm infrapro account bootstrap
 
 持久本机监测环境使用每副本 2 GiB 容器上限、1.5 GB ClickHouse 服务预算，并停用高频内部指标和堆栈采样，保留查询与错误日志。旧卷中已经积累的内部采样表仍会自行合并；若它们触发内存不足，应先定位具体系统表并保留日志，再限制这些已停用采样表的后台合并，不能删除监测业务表或验收数据卷。容器健康后还需等待 `monitoring derived check` 通过，才启动 worker。
 
-原功能实施自验使用隔离旧库与独立恢复目标。2026-11-13 的单账号验收数据更新另在既有持久验收库完成 v12 → v33 升级：先用旧版 CLI 保留完整备份，再迁移、同步权限和初始化派生布局；升级前后 42 张原有业务表的既有字段与记录一致。新增样例、私有账号材料及备份保留在仓库外。具体功能验证边界见实施记录。
 
 在已经完成数据库迁移和物理存储初始化的环境中：
 
@@ -176,11 +171,11 @@ pnpm test:monitoring:restore
 pnpm test:monitoring:restore --legacy
 ```
 
-用户于2026-11-13决定本轮暂不执行性能、压力和长时稳定性验证。以下命令仅保留为后续专项入口，本轮不再启动，不能据已有部分记录宣称性能达标：
+性能、压力和长时稳定性验证使用以下专项入口，功能检查不能代替这些容量与稳定性检查：
 
 ```sh
 pnpm test:derived:pipeline
 pnpm test:derived:soak
 ```
 
-真实 PG／CH／S3 检查使用一次性实验室，物理测试串行运行；具体已执行命令与结果以[实施记录](../verification/derived-monitoring-and-analysis.md)为准。`pipeline`包含交互目标、四种各百万输入的真实链路及最大活动窗口；`soak`使用真实墙钟，至少需要2小时混合负载和24小时观察，另加准备与最终核对时间。短测选项仅用于接缝检查，不能代替完整观察。运行时保持主机唤醒，不与其他物理测试或验收会话共用实验室。纯计算器的百万输入测试不能代替正式导入、存储、任务、查询和导出的 DP-0。独立恢复、完整百万链路、混合负载、持续观察及人工验收分别记录，不能互相替代。
+真实 PG／CH／S3 检查使用一次性实验室，物理测试串行运行；具体已执行命令与结果以[本机工程环境与人工验收](local-environment.md)为准。`pipeline`包含交互目标、四种各百万输入的真实链路及最大活动窗口；`soak`使用真实墙钟，至少需要2小时混合负载和24小时观察，另加准备与最终核对时间。短测选项仅用于接缝检查，不能代替完整观察。运行时保持主机唤醒，不与其他物理测试或验收会话共用实验室。纯计算器的百万输入测试不能代替正式导入、存储、任务、查询和导出的 DP-0。独立恢复、完整百万链路、混合负载、持续观察及人工验收分别记录，不能互相替代。

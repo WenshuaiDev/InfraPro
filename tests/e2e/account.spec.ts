@@ -78,7 +78,7 @@ test('session revocation and changing password sign out other devices', async ({
 
 test('forgot instructions, reset completion, refresh loses only the in-memory credential', async ({ page }, testInfo) => {
   await page.goto(`${consoleURL}/forgot-password`); await expect(page.getByText('测试维护人员：内线 8000')).toBeVisible();
-  const fixture = JSON.parse(readFileSync('build/e2e/fixture.json', 'utf8')) as Record<string, string>;
+  const fixture = JSON.parse(readFileSync(process.env.INFRAPRO_E2E_FIXTURE_FILE || 'build/e2e/fixture.json', 'utf8')) as Record<string, string>;
   const link = fixture[`reset_${testInfo.project.name}`]; if (!link) throw new Error('Missing reset fixture');
   await page.goto(link); await expect(page.getByRole('heading', { name: '设置新密码' })).toBeVisible(); expect(new URL(page.url()).hash).toBe('');
   await page.reload(); await expect(page.getByRole('heading', { name: '请重新打开原链接' })).toBeVisible();

@@ -105,7 +105,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	if baseline >= 7 {
 		_, e = provider.UpTo(ctx, 7)
 		must(e)
-		must(access.New(pool, slog.Default()).Sync(ctx))
+		seedLegacyCatalog(t, ctx, pool)
 		seed, e := pool.Begin(ctx)
 		must(e)
 		defer seed.Rollback(ctx)
@@ -136,6 +136,8 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	}
 
 	snapshots := map[string]string{}
+	var legacyAuditColumns []string
+	must(pool.QueryRow(ctx, `SELECT array_agg(column_name::text ORDER BY ordinal_position) FROM information_schema.columns WHERE table_schema=$1 AND table_name='account_security_events' AND column_name<>'project_id'`, schema).Scan(&legacyAuditColumns))
 	tables := []string{"accounts", "account_passwords", "account_sessions", "account_invitations", "tenants", "tenant_codes", "tenant_member_roles", "account_security_events"}
 	if baseline >= 4 {
 		tables = append(tables, "tenant_invitations")
@@ -157,7 +159,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 			projection += "-'owner_project_id'"
 		}
 		if table == "account_security_events" {
-			projection += "-'project_id'"
+			projection = "(SELECT jsonb_object_agg(key,value) FROM jsonb_each(to_jsonb(t)) WHERE key=ANY(ARRAY['" + strings.Join(legacyAuditColumns, "','") + "']))"
 		}
 		if table == "tenants" {
 			projection = "to_jsonb(t)-'status'-'status_changed_at'-'status_changed_by'-'status_change_reason'-'status_notice'"
@@ -182,7 +184,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 			projection += "-'owner_project_id'"
 		}
 		if table == "account_security_events" {
-			projection += "-'project_id'"
+			projection = "(SELECT jsonb_object_agg(key,value) FROM jsonb_each(to_jsonb(t)) WHERE key=ANY(ARRAY['" + strings.Join(legacyAuditColumns, "','") + "']))"
 		}
 		if table == "tenants" {
 			projection = "to_jsonb(t)-'status'-'status_changed_at'-'status_changed_by'-'status_change_reason'-'status_notice'"

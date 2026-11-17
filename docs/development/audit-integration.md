@@ -1,6 +1,6 @@
 # 审计来源接入契约
 
-适用范围：AM-01–AM-14；实现与自验状态见[70 项账本](../verification/audit-and-operation-tracing.md)。事件、生产函数与真实回归入口见[目录](audit-event-catalog.md)。
+适用范围：AM-01–AM-14；实现与自验状态见[本机工程环境与人工验收](../operations/local-environment.md)。事件、生产函数与真实回归入口见[目录](audit-event-catalog.md)。
 
 ## 写入与事务拥有者
 

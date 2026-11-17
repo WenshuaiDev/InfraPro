@@ -23,7 +23,7 @@ const monitoringHelp = `监测维护：infrapro monitoring <子命令> [选项]
 
   derived                 派生计算检查、状态、对账、恢复核验及经业务 API 执行控制
 
-  storage init/check/status        显式初始化或检查布局、双副本、在线对象层与缓存
+  storage init/check/status        显式初始化或检查布局、已配置节点、在线对象层与缓存
   verify                    --tenant ID；只读对账
                             --apply --expected-watermark N --reason TEXT 排队对账及隔离修复
   summaries rebuild         --tenant ID --channel ID 显示固定重建计划

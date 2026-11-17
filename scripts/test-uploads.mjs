@@ -1,0 +1,13 @@
+import { execFileSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { ensureTestDependencies, testEnv } from './test-environment.mjs';
+const run=(cmd,args,env=process.env)=>execFileSync(cmd,args,{env,stdio:'inherit'});
+mkdirSync('.artifacts/nginx-uploads',{recursive:true});
+run('node',['scripts/nginx-routes.mjs','--check']);
+run('node',['scripts/nginx-upload-checks.mjs']);
+ensureTestDependencies();
+run('docker',['compose','-f','deploy/monitoring-contract/compose.yaml','up','-d','--wait']);
+run('go',['build','-o','.artifacts/nginx-uploads/files-checker','./services/api/cmd/files-checker']);
+run('go',['test','-count=1','./packages/go/platform/config','./packages/go/platform/internal/contentcheck','./packages/go/platform/migrations'],{...process.env,...testEnv});
+run('go',['test','-tags','monitoringintegration','-count=1','-v','-timeout=10m','./packages/go/platform/resources','-run','^TestUploadLimits'],{...process.env,...testEnv,INFRAPRO_SPATIAL_CONTRACT:'1',INFRAPRO_MONITORING_CONTRACT:'1'});
+run('node',['scripts/upload-journeys.mjs']);

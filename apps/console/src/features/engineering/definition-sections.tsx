@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { EngineeringContent, EngineeringField, EngineeringVersion } from '@infrapro/api-client';
 import { DirectoryTable } from '@infrapro/ui/patterns/directory-table';
 import { Section } from './controls';
+import { structureLabels, targetLabel } from './structure-model';
 import { shapeLabels } from './model';
 
 export function DefinitionInfo({ values }: { values: { label: string; value?: ReactNode }[] }) {
@@ -82,6 +83,7 @@ export function DefinitionSnapshot({
   if (section === 'components')
     return (
       <div className="space-y-5">
+        <Section title="监测组织能力">{(['monitoring_section', 'borehole'] as const).map((kind) => <div key={kind} className="space-y-3"><p className="text-sm">{structureLabels[kind]}：{content.metamodel_version === '1' ? '尚未建模' : content.structure?.[kind]?.supported ? '支持（允许零个）' : '不适用'}</p>{content.structure?.[kind]?.supported && <Fields fields={content.structure[kind].fields} known={known} />}</div>)}</Section>
         <Section title="构件类别">
           {content.components?.length ? (
             content.components.map((c) => (
@@ -188,7 +190,7 @@ export function DefinitionSnapshot({
                           value: item.targets
                             .map((t) => {
                               const type = known.find((v) => v.id === t.type_version);
-                              return `${ref(t.type_version)} / ${t.component === 'root' ? '设施本体' : (type?.content.components?.find((c) => c.key === t.component)?.name ?? t.component)}`;
+                              return `${ref(t.type_version)} / ${targetLabel(t, type?.content)}`;
                             })
                             .join('；'),
                         },

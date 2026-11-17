@@ -144,3 +144,17 @@
 ## 主分支集成复验
 
 本次只提取解析服务、固定方法采用及必要的权限／任务／审计／诊断接入。基于主分支已提交基线导出的独立源码快照通过 `pnpm check`、`pnpm build`、`pnpm test:parsing` 与 17 项浏览器场景；没有依赖其他未提交的项目治理、空间或界面改造。集成日志在原开发 checkout 的 `.artifacts/parsing/integration/`，浏览器验证使用独立端口 15579／18579，原人工验收入口保持 15578。临时源码目录是普通文件导出，没有新建 Git 分支或 worktree。
+
+
+## 设备接入实现的兼容复验（2026-11-16）
+
+本次在 `/Users/hijacker/.codex/worktrees/6934/InfraPro` 复验现有协议管理，未改变上面的历史自验和人工接受结论。新接入目录、生产流水和人工解析记录独立；测量目录新增 Reading 方法后，相关数量断言随实际目录更新。
+
+- `pnpm test:parsing` 的服务、fuzz、平台与 HTTP 均通过，记录 `.artifacts/parsing/tests.json`。
+- `pnpm test:parsing:regression` 的业务竞态、审计量级、诊断和任务客户端回归通过，记录 `.artifacts/parsing/regression.json`。
+- `pnpm parsing:browser` 的原浏览器路径通过，记录 `.artifacts/parsing/browser/result.json`。
+- 原三份方法 entry、manifest 与可执行文件保持字节一致，经契约1实际重放，记录 `.artifacts/ingestion/compatibility/result.json`。
+- v44已有方法、配置、采用、样本、run和对象记录迁移到v45后逐表哈希不变；旧方法仍可执行，接入不自动启用。
+- 当前权限目录为233项并通过生成一致性检查；接入管理权限不替代原设备解析管理权限。
+
+新功能的持续负载、完整 ING-001—ING-136 及环境边界单独见[设备接入验证报告](device-ingestion-and-raw-messages.md)。用户人工接受仍待进行。

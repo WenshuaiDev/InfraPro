@@ -44,7 +44,8 @@ func channelsSetup(t *testing.T) resourceFixture {
 		must(t, e)
 		return v
 	}
-	typ := publish(eng.TypeDefinition, "bridge", eng.Content{MetamodelVersion: "1", Name: "桥梁", Components: []eng.Component{{Key: "span", Name: "桥跨"}}, Relations: []eng.Relation{{Parent: "root", Child: "span", MinCount: 0}}})
+	yes := true
+	typ := publish(eng.TypeDefinition, "bridge", eng.Content{MetamodelVersion: "2", Structure: &eng.Structure{MonitoringSection: &eng.StructureCapability{Supported: &yes, Fields: []eng.Field{}}, Borehole: &eng.StructureCapability{Supported: &yes, Fields: []eng.Field{}}}, Name: "桥梁", Components: []eng.Component{{Key: "span", Name: "桥跨"}}, Relations: []eng.Relation{{Parent: "root", Child: "span", MinCount: 0}}})
 	metric := publish(eng.MetricDefinition, "displacement", eng.Content{MetamodelVersion: "1", Name: "位移", Metric: &eng.Metric{Shape: "decimal", Category: "length", StandardUnit: f.unit.VersionID, AllowedUnits: []string{f.unit.VersionID}}})
 	f.facility = f.write(t, resources.Target{Kind: resources.Facility}, map[string]any{"code": "F", "name": "设施", "type_version_id": typ.VersionID, "values": map[string]any{}}).ID
 	f.component = f.write(t, resources.Target{Kind: resources.Component, Facility: f.facility}, map[string]any{"code": "C", "name": "构件", "category_key": "span", "expected_structure_revision": 1, "values": map[string]any{}}).ID
@@ -56,7 +57,14 @@ func TestDerivedChannelOwnershipAtomicityAndInputContracts(t *testing.T) {
 	f := channelsSetup(t)
 	actor := f.actor(f.admin)
 	definition := f.publish(t, f.create(t, "difference").Definition)
-	for _, owner := range []dm.Owner{{Kind: resources.Facility, ID: f.facility, FacilityID: f.facility}, {Kind: resources.Component, ID: f.component, FacilityID: f.facility}, {Kind: resources.Point, ID: f.point, FacilityID: f.facility}} {
+	containers := []dm.Owner{}
+	for _, kind := range []resources.Kind{resources.MonitoringSection, resources.Borehole} {
+		root, e := f.r.Detail(ctx, actor, resources.TenantScope(f.scope.Tenant), resources.Target{Kind: resources.Facility, Facility: f.facility, ID: f.facility})
+		must(t, e)
+		node := f.write(t, resources.Target{Kind: kind, Facility: f.facility}, map[string]any{"code": string(kind), "name": string(kind), "expected_structure_revision": root.StructureRevision})
+		containers = append(containers, dm.Owner{Kind: kind, ID: node.ID, FacilityID: f.facility})
+	}
+	for _, owner := range append(containers, []dm.Owner{{Kind: resources.Facility, ID: f.facility, FacilityID: f.facility}, {Kind: resources.Component, ID: f.component, FacilityID: f.facility}, {Kind: resources.Point, ID: f.point, FacilityID: f.facility}}...) {
 		parentDetail, e := f.r.Detail(ctx, actor, resources.TenantScope(f.scope.Tenant), resources.Target{Kind: owner.Kind, Facility: f.facility, ID: owner.ID})
 		must(t, e)
 		if !parentDetail.Actions.CreateDerivedChannel {
@@ -131,8 +139,13 @@ func TestDerivedChannelOwnershipAtomicityAndInputContracts(t *testing.T) {
 	}
 	next, e := f.s.Channels(ctx, actor, f.scope, dm.ChannelFilter{Limit: 2, Cursor: page.NextCursor})
 	must(t, e)
-	if len(next.Items) != 1 {
+	if len(next.Items) != 2 || next.NextCursor == "" {
 		t.Fatal(next)
+	}
+	last, e := f.s.Channels(ctx, actor, f.scope, dm.ChannelFilter{Limit: 2, Cursor: next.NextCursor})
+	must(t, e)
+	if len(last.Items) != 1 || last.NextCursor != "" {
+		t.Fatal(last)
 	}
 	_, e = f.e.Pool.Exec(ctx, `INSERT INTO engineering_channels(tenant_id,code,name,created_by,updated_by,facility_id,source_kind,owner_kind,derived_metric_version_id,quantity_spec,output_contract_hash,output_semantics,timestamp_meaning) SELECT tenant_id,'incomplete','不完整',created_by,updated_by,facility_id,source_kind,owner_kind,derived_metric_version_id,quantity_spec,output_contract_hash,output_semantics,timestamp_meaning FROM engineering_channels WHERE tenant_id=$1 AND owner_kind='facility' LIMIT 1`, f.scope.Tenant)
 	var pe *pgconn.PgError

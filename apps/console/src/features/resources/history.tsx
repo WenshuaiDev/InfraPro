@@ -7,7 +7,7 @@ import { DataTable } from '@infrapro/ui/patterns/data-table';
 import { SelectControl } from '../engineering-fields/controls';
 import { useResources } from './context';
 const operations:Record<string,string>={create:'新增',update:'修改',retire:'退役',restore:'恢复',delete:'删除'};
-const kinds:Record<string,string>={facility:'设施',component:'构件',point:'测点',channel:'通道'};
+const kinds:Record<string,string>={facility:'设施',component:'构件',monitoring_section:'监测断面',borehole:'孔位',point:'测点',channel:'通道'};
 function FixedDefinitions({ change, versions }: { change: ResourceChange; versions: EngineeringVersion[] }) {
  const wanted = new Set<string>();
  const include = (id: string) => { if (wanted.has(id)) return; wanted.add(id); versions.find((v) => v.id === id)?.dependencies.forEach(include); };

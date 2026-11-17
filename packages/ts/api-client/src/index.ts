@@ -1,3 +1,5 @@
+import { ingestionMethods } from './ingestion';
+export * from './ingestion';
 import { parsingMethods } from './parsing';
 export * from './parsing';
 import { auditMethods } from './audit';
@@ -16,6 +18,8 @@ import { monitoringMethods, type MonitoringRequestOptions } from './monitoring';
 export type * from './monitoring';
 import { derivedMonitoringMethods } from './derived-monitoring';
 export type * from './derived-monitoring';
+import { classificationMethods } from './classification';
+export type * from './classification';
 import { deviceMethods } from './devices';
 export type * from './devices';
 import { resourceMethods } from './resources';
@@ -133,7 +137,7 @@ function accountMethods(base: string, timeoutMs: number) {
     const monitoringRequest = /\/monitoring(?:\/|[?]|$)/.test(path);
     const monitoringKey=`${tenant}:${project??''}`;const monitoringEpoch=monitoringEpochs.get(monitoringKey)??0;
     const resourceRequest = /\/engineering\/(resources|catalog)(?:\/|$)/.test(path);
-    const deviceRequest = /\/(devices|monitoring-source-bindings|device-(?:tree|catalog|definitions|outputs|requests|access))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
+    const deviceRequest = /\/(devices|monitoring-source-bindings|device-(?:tree|catalog|definitions|outputs|requests|access|classifications))(?:\/|[?]|$)/.test(path) || /\/source(?:\/|[?]|$)/.test(path);
     const deviceKey = `${tenant}:${project ?? ''}`; const deviceEpoch = deviceEpochs.get(deviceKey) ?? 0;
     const resourceKey = `${tenant}:${project ?? ''}`; const resourceEpoch = resourceEpochs.get(resourceKey) ?? 0;
     const projectKey = `${tenant}:${project}`; const projectEpoch = projectEpochs.get(projectKey) ?? 0;
@@ -239,6 +243,7 @@ function accountMethods(base: string, timeoutMs: number) {
  ...taskMethods(request),
  ...fileMethods(request,base),
  ...parsingMethods(request),
+ ...ingestionMethods(request),
     ...displayMethods(request),
     invalidateSpatialScope,
     spatialRevision:(tenant:string,project?:string)=>`${spatialRevisions.get(`${tenant}:${project??''}`)??''}:${spatialEpochs.get(`${tenant}:${project??''}`)??0}`,
@@ -254,6 +259,7 @@ function accountMethods(base: string, timeoutMs: number) {
     monitoringRevision:(tenant:string,project?:string)=>`${monitoringRevisions.get(`${tenant}:${project??''}`)??''}:${monitoringEpochs.get(`${tenant}:${project??''}`)??0}`,
     onMonitoringRestriction(listener:(tenant:string,project:string|undefined,code:string,revision?:string)=>void){monitoringListeners.add(listener);return ()=>{monitoringListeners.delete(listener);};},
     ...deviceMethods(request),
+    ...classificationMethods(request),
     invalidateDeviceScope,
     onDeviceRestriction(listener: (tenant: string, project: string | undefined, code: string) => void) { deviceListeners.add(listener); return () => { deviceListeners.delete(listener); }; },
     invalidateProjectScope,
@@ -317,6 +323,7 @@ function accountMethods(base: string, timeoutMs: number) {
     accessAudit: (filter?: AccessFilter, signal?: AbortSignal) => request<Schema<'AccessAuditEvents'>>(`/access/audit-events?${query(filter)}`, 'GET', undefined, true, signal),
     onUnauthorized(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     accountHelp: () => request<AccountHelp>('/public/account-help'),
+    uploadLimits: (signal?: AbortSignal) => request<Schema<'UploadLimits'>>('/auth/upload-limits', 'GET', undefined, true, signal),
     me: () => request<Schema<'AuthContext'>>('/auth/me', 'GET', undefined, false),
     login: (input: Schema<'LoginInput'>) => request<Account>('/auth/login', 'POST', input),
     logout: () => request<void>('/auth/logout', 'POST'),

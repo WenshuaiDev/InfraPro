@@ -3,6 +3,8 @@ package access
 import "strings"
 
 const (
+	DeviceCategoryRead              Code = "device.category.read"
+	DeviceCategoryManage            Code = "device.category.manage"
 	DeviceDefinitionRead            Code = "device.definition.read"
 	DeviceManufacturerManage        Code = "device.manufacturer.manage"
 	DeviceProductEdit               Code = "device.product.edit"
@@ -47,7 +49,7 @@ func deviceCatalog() []Permission {
 		code Code
 		name string
 	}{
-		{DeviceDefinitionRead, "查看公共设备产品定义"}, {DeviceManufacturerManage, "维护公共设备厂家"}, {DeviceProductEdit, "编制公共设备产品"}, {DeviceProductPublish, "发布公共设备产品"}, {DeviceProductState, "启停公共产品版本"},
+		{DeviceCategoryRead, "查看设备分类字典"}, {DeviceCategoryManage, "维护设备分类字典"}, {DeviceDefinitionRead, "查看公共设备产品定义"}, {DeviceManufacturerManage, "维护公共设备厂家"}, {DeviceProductEdit, "编制公共设备产品"}, {DeviceProductPublish, "发布公共设备产品"}, {DeviceProductState, "启停公共产品版本"},
 		{TenantDeviceCatalogRead, "读取公共设备产品目录"}, {TenantDeviceDefinitionRead, "查看私有设备产品定义"}, {TenantDeviceManufacturerManage, "维护私有设备厂家"}, {TenantDeviceProductEdit, "编制私有设备产品"}, {TenantDeviceProductPublish, "发布私有设备产品"}, {TenantDeviceProductState, "启停私有产品版本"},
 		{TenantDeviceRead, "查看租户设备"}, {TenantDeviceManage, "维护设备资料"}, {TenantDeviceInstall, "维护设备安装"}, {TenantDeviceState, "启停设备"}, {TenantDeviceOutputManage, "配置设备输出"}, {TenantDeviceHistoryRead, "查看设备历史"}, {TenantMonitoringSourceManage, "维护监测通道来源"}, {TenantDeviceAuthorizationRead, "查看项目设备授权"}, {TenantDeviceAuthorizationManage, "管理项目设备授权"},
 		{ProjectDeviceRead, "查看获准设备和输出"}, {ProjectDeviceHistoryRead, "查看获准设备历史"}, {ProjectDeviceOutputUse, "使用获准设备输出"}, {ProjectMonitoringSourceManage, "维护获准通道来源"},
@@ -81,6 +83,37 @@ func devicePolicies() []Policy {
 			}
 		}
 		out = append(out, Policy{DeviceOperation(scope, kind, action), method, path, policyScope, codes, false, false})
+	}
+
+	for _, scope := range []string{"platform", "tenant", "project"} {
+		base := "/api/v1/platform"
+		read := DeviceCategoryRead
+		if scope == "tenant" {
+			base = "/api/v1/tenants/:tenant_id"
+			read = TenantDeviceCatalogRead
+		}
+		if scope == "project" {
+			base = "/api/v1/tenants/:tenant_id/projects/:project_id"
+			read = ProjectDeviceRead
+		}
+		add(scope, "classification", "releases", "GET", base+"/business-dictionaries/device-category/releases", read)
+		add(scope, "classification", "categories", "GET", base+"/business-dictionaries/device-category/categories", read)
+		if scope == "platform" {
+			add(scope, "classification", "dictionary", "GET", base+"/business-dictionaries/device-category", read)
+			add(scope, "classification", "draft", "PUT", base+"/business-dictionaries/device-category/draft", read, DeviceCategoryManage)
+			for _, action := range []string{"publish-preview", "publish"} {
+				add(scope, "classification", action, "POST", base+"/business-dictionaries/device-category/"+action, read, DeviceCategoryManage)
+			}
+		}
+		if scope != "project" {
+			// Exact target ownership and maintenance permissions are checked by the domain.
+			add(scope, "classification", "target", "GET", base+"/device-classifications/:kind/:id", read)
+			add(scope, "classification", "history", "GET", base+"/device-classifications/:kind/:id/history", read)
+			add(scope, "classification", "targets", "GET", base+"/device-classifications", read)
+			for _, action := range []string{"preview", "apply"} {
+				add(scope, "classification", action, "POST", base+"/device-classifications/"+action, read)
+			}
+		}
 	}
 	for _, scope := range []string{"platform", "tenant"} {
 		base := "/api/v1/platform/device-definitions"
@@ -126,6 +159,9 @@ func devicePolicies() []Policy {
 		add("tenant", v.kind, v.action, v.method, t+v.path, codes...)
 	}
 	add("tenant", "device", "product-candidates", "GET", t+"/devices/product-candidates", TenantDeviceRead, TenantDeviceManage)
+	add("tenant", "installation", "legacy-sections", "GET", t+"/devices/:device_id/legacy-sections", TenantDeviceRead, TenantDeviceHistoryRead, TenantEngineeringResourceRead)
+	add("tenant", "installation", "legacy-preview", "POST", t+"/devices/:device_id/legacy-sections/:evidence_id/preview", TenantDeviceRead, TenantDeviceHistoryRead, TenantDeviceInstall, TenantEngineeringResourceRead)
+	add("tenant", "installation", "legacy-resolve", "POST", t+"/devices/:device_id/legacy-sections/:evidence_id/resolve", TenantDeviceRead, TenantDeviceHistoryRead, TenantDeviceInstall, TenantEngineeringResourceRead)
 	add("tenant", "tree", "list", "GET", t+"/device-tree") // service independently checks each readable branch
 	add("project", "tree", "list", "GET", j+"/device-tree", ProjectDeviceRead)
 	for _, v := range []struct {

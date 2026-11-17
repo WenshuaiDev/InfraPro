@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -345,7 +346,7 @@ func loadBackup(directory string) (BackupManifest, []BackupObject, error) {
 			return m, nil, e
 		}
 		size, e := integer(o.Size, 1)
-		if e != nil || size > 100<<20 || !access.ValidID(o.ID) || !access.ValidID(o.SpaceID) || seen[o.ID] || o.Key != "files/v1/"+o.SpaceID+"/"+o.ID || !digestPattern.MatchString(o.SHA256) || (o.Kind != "part" && o.Kind != "source" && o.Kind != "preview") {
+		if e != nil || size > config.MaxUploadBytes || !access.ValidID(o.ID) || !access.ValidID(o.SpaceID) || seen[o.ID] || o.Key != "files/v1/"+o.SpaceID+"/"+o.ID || !digestPattern.MatchString(o.SHA256) || (o.Kind != "part" && o.Kind != "source" && o.Kind != "preview") {
 			return m, nil, fault("backup_invalid_manifest", 422)
 		}
 		seen[o.ID] = true

@@ -150,6 +150,9 @@ func (s *Service) cachedAnalytic(ctx context.Context, a access.Actor, scope Scop
 		if digest(coverage) != digest(out.Coverage) {
 			return AnalyticResult{}, false, nil
 		}
+		// Retain the freshly qualified transaction-only tickets for host reads.
+		// They are intentionally excluded from the public JSON representation.
+		out.Coverage = coverage
 	}
 	if _, e = s.queryPlan(ctx, a, scope, in, action, "read"); e != nil {
 		return AnalyticResult{}, false, e

@@ -14,7 +14,7 @@ import type { DerivedSearch } from './search';
 export function AnalysisPage({id,view,version,export_id,...prefill}:DerivedSearch) {
  const m=useDerived(),navigate=useNavigate(),page=useCursor(),[q,setQ]=useState(''),[state,setState]=useState<''|'active'|'archived'>('');
  const tab=view==='artifacts'||!m.allows('analysis.read')?'artifacts':'configs';
- const choose=(value?:string,mode=tab)=>void navigate({to:mode==='artifacts'&&value?`${m.analysisPath}/${value}`:m.analysisPath,search:mode==='artifacts'?{view:mode}:{...prefill,view:mode,id:value}});
+ const choose=(value?:string,mode=tab)=>navigate({to:mode==='artifacts'&&value?`${m.analysisPath}/${value}`:m.analysisPath,search:mode==='artifacts'?{view:mode}:{...prefill,view:mode,id:value}});
  const configs=useQuery({queryKey:[...m.prefix,'analysis-configs',q,state,page.cursor],queryFn:({signal})=>m.client.analysisConfigs(m.scope,{q,state:state||undefined,cursor:page.cursor},signal),enabled:tab==='configs'&&!id&&m.allows('analysis.read')});
  const detail=useQuery({queryKey:[...m.prefix,'analysis-config',id],queryFn:({signal})=>m.client.analysisConfig(m.scope,id!,signal),enabled:tab==='configs'&&!!id&&id!=='new'&&m.allows('analysis.read')});
  const artifacts=useQuery({queryKey:[...m.prefix,'analysis-artifacts',q,state,page.cursor],queryFn:({signal})=>m.client.analysisArtifacts(m.scope,{q,state:state||undefined,cursor:page.cursor},signal),enabled:tab==='artifacts'&&!id&&m.allows('analysis.results.read')});

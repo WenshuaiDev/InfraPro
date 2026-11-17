@@ -10,6 +10,9 @@ public_console_url: http://127.0.0.1:5173/
 trusted_origins: 'http://127.0.0.1:5173'
 trusted_proxies: ''
 cookie_secure: 'false'
+# HTTPS behind Nginx: merge deploy/display/https.example.yaml; all three public
+# origins and trusted_origins must use HTTPS with cookie_secure=true.
+# Backend HTTP stays private; never trust arbitrary forwarded headers.
 support_contact: '' # Required: actual deployment maintenance contact.
 session_idle_timeout: 2h
 session_absolute_timeout: 12h
@@ -24,7 +27,7 @@ password_failures: '5'
 audit_retention: 2160h
 # Monitoring is optional until configured. API and the independent worker share
 # these settings. Use environment variables for real credentials.
-monitoring_clickhouse_replicas: '' # Comma-separated native endpoints; at least two.
+monitoring_clickhouse_replicas: '' # One or more comma-separated native endpoints; empty disables monitoring storage.
 monitoring_clickhouse_database: infrapro_monitoring
 monitoring_clickhouse_user: default
 monitoring_clickhouse_password: ''
@@ -42,6 +45,7 @@ monitoring_export_bytes_per_file: "268435456" # CSV bytes; Parquet may finish it
 monitoring_hot_days: "90"
 monitoring_online_volume: online
 # Additional physical shards share CH credentials/TLS and the source bucket.
+# Each shard accepts one or more real endpoints; one endpoint has no redundancy.
 # JSON array: [{"name":"second","database":"infrapro_monitoring_second","replicas":["ch3:9000","ch4:9000"]}]
 monitoring_physical_shards: "[]"
 
@@ -83,3 +87,13 @@ derived:
   event_batch: "100"
   export_ttl: 168h
   temporary_ttl: 24h
+
+# Whole-file admission limits in bytes. Positive integers; restart API and workers
+# together after changes. Existing uploads retain their accepted size.
+files:
+  max_file_bytes: '104857600' # 100 MiB; individual parts remain at most 8 MiB
+uploads:
+  spatial_max_file_bytes: '268435456' # 256 MiB; 8 MiB parts
+  monitoring_csv_max_bytes: '34359738368' # 32 GiB; 32 MiB parts
+  monitoring_xlsx_max_bytes: '536870912' # 512 MiB; 32 MiB parts
+  display_max_package_bytes: '134217728' # 128 MiB; 4 MiB parts

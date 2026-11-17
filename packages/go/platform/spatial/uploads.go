@@ -103,8 +103,8 @@ func (s *Service) StartUpload(ctx context.Context, a access.Actor, scope Scope, 
 			return k.Problem("spatial_upload_exists", "已有未完成上传，请继续同一原件或先取消。", 409)
 		}
 		format := formatFor(in.Filename)
-		if !validKindFormat(asset.Kind, format) || in.Size < 1 || in.Size > MaxSourceSize || !shaPattern.MatchString(in.SHA256) || filepath.Base(in.Filename) != in.Filename || len(in.Filename) > 200 || strings.ContainsAny(in.Filename, "\r\n\\") {
-			return invalid("/file", "文件格式、名称、大小或 SHA-256 无效；来源最大 256 MiB。")
+		if !validKindFormat(asset.Kind, format) || in.Size < 1 || in.Size > s.maxFileBytes || !shaPattern.MatchString(in.SHA256) || filepath.Base(in.Filename) != in.Filename || len(in.Filename) > 200 || strings.ContainsAny(in.Filename, "\r\n\\") {
+			return invalid("/file", "文件格式、名称、大小或 SHA-256 无效，请核对当前上传限额。")
 		}
 		e = tx.QueryRow(ctx, `INSERT INTO spatial_uploads(tenant_id,version_id,actor_id,filename,size,sha256) VALUES($1,$2,$3,$4,$5,$6) RETURNING id::text,revision::text`, scope.Tenant, in.VersionID, a.ID, in.Filename, in.Size, in.SHA256).Scan(&out.ID, &out.Revision)
 		if e != nil {

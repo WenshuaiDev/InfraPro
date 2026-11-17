@@ -18,15 +18,16 @@ const serverOptions = {
   gracefulShutdown: { signal: 'SIGTERM' as const, timeout: 10_000 },
   env,
 };
-const appCommand = process.env.INFRAPRO_E2E_PREVIEW ? 'preview' : 'dev';
 
 export default defineConfig({
   testDir: './tests/e2e',
   outputDir: './test-results/e2e',
-  fullyParallel: true,
+  // These journeys share one API fixture and intentionally change the platform
+  // authorization revision. Concurrent journeys invalidate each other's grants.
+  fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
-  workers: 2,
+  workers: 1,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report/e2e', open: 'never' }]],
   use: { trace: 'retain-on-failure', screenshot: 'only-on-failure', reducedMotion: 'reduce' },
   projects: [
@@ -36,6 +37,6 @@ export default defineConfig({
   ],
   webServer: [
     { ...serverOptions, command: 'node scripts/e2e-server.mjs', url: `${apiURL}/readyz` },
-    { ...serverOptions, command: `pnpm --filter @infrapro/console ${appCommand}`, url: `${consoleURL}/api/v1/public/account-help` },
+    { ...serverOptions, command: 'node scripts/e2e-console.mjs', url: `${consoleURL}/api/v1/public/account-help` },
   ],
 });

@@ -1,11 +1,29 @@
 {
   "name": "@infrapro/display-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Framework-independent InfraPro display read SDK and lifecycle protocol",
   "type": "module",
   "license": "MIT",
-  "files": ["dist", "README.md", "LICENSE"],
-  "exports": {".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"}, "./testing": {"types": "./dist/testing.d.ts", "import": "./dist/testing.js"}},
-  "scripts": {"build": "tsc -p tsconfig.json", "typecheck": "tsc -p tsconfig.json --noEmit"},
-  "devDependencies": {"typescript": "5.9.3"}
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
 }

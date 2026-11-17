@@ -1,10 +1,12 @@
 # InfraPro 架构设计
 
-基线：2026-11-12。本文统一工程结构、模块边界、数据与事务、接口、前端、部署及恢复。业务规则与人工验收见[软件需求规格说明书](requirements.md)，选择依据和版本来源见[技术选型](technology-selection.md)。监测数据本轮实现与本机验证另见监测操作手册及验证记录；其余章节沿用已整理的模块设计。
-导航：[系统上下文与运行结构](#overview) · [工程模块与依赖边界](#modules) · [账号、凭证与会话设计](#identity) · [授权、租户及生命周期设计](#access-tenancy) · [项目数据、接口与事务](#projects) · [工程定义与校验设计](#definitions) · [工程资源与项目授权设计](#resources) · [设备目录、输出、安装与来源设计](#devices) · [前端结构、交互和状态](#frontend) · [部署、配置与运行维护](#operations) · [迁移、授权发布与应急恢复](#migrations) · [检查、故障反馈与交付](#verification) · [下一轮空间详细设计](#spatial-design)
+基线：2026-11-15。本文统一工程结构、模块边界、数据与事务、接口、前端、部署及恢复。业务规则与人工验收见[软件需求规格说明书](requirements.md)，选择依据和版本来源见[技术选型](technology-selection.md)。各模块的运行与操作约束见 [文档索引](README.md)。
+导航：[系统上下文与运行结构](#overview) · [工程模块与依赖边界](#modules) · [账号、凭证与会话设计](#identity) · [授权、租户及生命周期设计](#access-tenancy) · [项目数据、接口与事务](#projects) · [工程定义与校验设计](#definitions) · [工程资源与项目授权设计](#resources) · [设备目录、输出、安装与来源设计](#devices) · [前端结构、交互和状态](#frontend) · [部署、配置与运行维护](#operations) · [迁移、授权发布与应急恢复](#migrations) · [检查、故障反馈与交付](#verification) · [空间详细设计](#spatial-design)
 
 
-精确接口以 [OpenAPI](../contracts/openapi/api.yaml)、当前权限以 [access](../packages/go/platform/access/)、数据库结构以[迁移](../packages/go/platform/migrations/)为准。本文保留跨模块约束与详细设计；新增字段／路由须同步这些契约源。监测数据实现采用独立 worker、ClickHouse 和对象存储，详细运行约束见[监测操作手册](operations/monitoring-data.md)，本轮仅本机合成验收。
+精确接口以 [OpenAPI](../contracts/openapi/api.yaml)、当前权限以 [access](../packages/go/platform/access/)、数据库结构以[迁移](../packages/go/platform/migrations/)为准。本文保留跨模块约束与详细设计；新增字段／路由须同步这些契约源。监测数据实现采用独立 worker、ClickHouse 和对象存储，详细运行约束见[监测操作手册](operations/monitoring-data.md)。
+
+独立解析服务、产品配置与设备固定采用已按[开发规格](development/parsing-service-and-method-binding-spec.md)实现，详见本文末节及[逐项验收报告](verification/parsing-service.md)。云端统一接收、内网主动接管和解析前身份识别也已实现；[接入规格](development/device-ingestion-and-raw-message-spec.md)、[当前验证报告](verification/device-ingestion-and-raw-messages.md)和本文设备接入章节分别记录规则、自验与架构。实现、实际部署和用户接受分别记录。
 
 <a id="overview"></a>
 
@@ -22,17 +24,17 @@ flowchart LR
     Worker[monitoring-worker] --> Runtime
     Runtime --> Monitoring[监测服务]
     Monitoring --> PG
-    Monitoring --> CH[(ClickHouse 双副本)]
+    Monitoring --> CH[(ClickHouse 单节点或多副本)]
     Monitoring --> S3[(源文件 / 摘要 / 导出对象)]
 ```
 
-部署为单个 API、单个 console、独立按需 CLI。PostgreSQL 保存持久业务真相；Redis 仅承担会话快照、活动合并及限流。来源绑定属于业务元数据；监测 worker 从 PG 持久任务领取 CSV／XLSX、摘要、导出及维护任务。原始类型化载荷位于双副本 ClickHouse，源文件与不可变派生对象位于 S3，PG 只保存清单／授权／任务／版本。Redis 不保存监测真相。设备协议采集执行器仍不在本轮范围。
+部署为单个 API、单个 console、独立按需 CLI。PostgreSQL 保存持久业务真相；Redis 仅承担会话快照、活动合并及限流。来源绑定属于业务元数据；监测 worker 从 PG 持久任务领取 CSV／XLSX、摘要、导出及维护任务。原始类型化载荷位于 ClickHouse，支持单节点及多个真实副本，全部已配置节点均须通过发布核验；源文件与不可变派生对象位于 S3，PG 只保存清单／授权／任务／版本。Redis 不保存监测真相。设备协议采集执行器仍不在本轮范围。
 
 <a id="system-1"></a>
 
 ### 当前范围
 
-Go workspace 包含四个独立 module：HTTP API、项目统一运维 CLI、项目共享 platform 和通用 foundation；前端保留一个 React 应用与五个 TS 共享包。当前业务覆盖账号、租户、项目、工程定义、统一资源、项目授权、设备目录与来源绑定；业务数据持久化到 PostgreSQL，Redis 提供共享缓存与限流。工程目录基线中的演示内容已移除。
+Go workspace 包含 API、独立诊断、运维 CLI、共享 platform 和通用 foundation 五个 module。React 应用包括 console、display-runtime 和 diagnostics；TypeScript 共享包提供 UI、布局、客户端、SDK 与开发工具。业务覆盖组织治理、工程与设备、监测与派生分析、图模、项目大屏、通知、文件、任务、审计及独立诊断。PostgreSQL 保存业务控制数据，Redis 提供会话缓存和限流，ClickHouse 与对象存储保存观测与文件。
 
 ```text
 InfraPro/
@@ -2641,8 +2643,6 @@ import { SeriesChart } from '@infrapro/ui/charts';
 - TanStack Query：沿用账户、租户成员、项目授权版本的缓存隔离，以及列表游标与详情刷新。React Hook Form 保留未保存输入。
 - 后端与数据库：使用现有 Go API 和存储，不迁移、不修改资源归属、发布或授权业务规则。
 
-
-
 <a id="operations"></a>
 
 ## 10 部署、配置与运行维护
@@ -2697,7 +2697,7 @@ docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml run
 
 默认专用子网为 `172.30.42.0/24`。若与服务器已有网络冲突，同时修改 Compose 的子网与 `INFRAPRO_TRUSTED_PROXIES`；不要把信任代理设置成任意来源。
 
-本功能明确采用 HTTP：会话 Cookie 为 `infrapro_session`，`HttpOnly`、`SameSite=Lax`、`Path=/`、无 Domain、无 Secure；CSRF Cookie 同样适配 HTTP。没有 HSTS 或 HTTPS 强制跳转。HTTP 不提供传输加密，这是已确认方案的交付边界。邀请与重置凭证放在 URL fragment，页面读取后立即移除，仅保存在内存；刷新后需重新打开原链接。页面不加载第三方分析脚本，API 与 Nginx 不记录 Cookie、请求体或原始 URL。
+上述 Compose 模板为 HTTP 模式。应用同时支持 Nginx 终止 TLS 的 HTTPS，详见[HTTPS 部署](operations/https-deployment.md)。会话 Cookie 为 `infrapro_session`，`HttpOnly`、`SameSite=Lax`、`Path=/`、无 Domain；HTTPS 必须开启 Secure，HTTP 必须关闭，CSRF 使用同一配置。三个应用 origin 与 trusted_origins 协议一致；外部协议由配置决定，不从客户端转发头推断。邀请与重置凭证放在 URL fragment，页面读取后立即移除，仅保存在内存；刷新后需重新打开原链接。页面不加载第三方分析脚本，API 与 Nginx 不记录 Cookie、请求体或原始 URL。
 
 Nginx 的访问日志保持关闭，并在当前 `server` 配置中将 `error_log` 写入 `/dev/null`，阻止上游连接失败、超时等请求错误附带原始 URL。该设置使用 [Nginx 的 `error_log` 配置](https://nginx.org/en/docs/ngx_core_module.html#error_log)。进程启动和配置错误仍由主配置记录；单个代理请求的错误详情不再保留，排障使用 API 的结构化日志、请求 ID 和 `/healthz`、`/readyz` 探针。不要临时将这个站点的请求错误日志恢复到标准错误输出，否则查询参数可能进入容器日志。
 
@@ -2717,7 +2717,7 @@ Nginx 的访问日志保持关闭，并在当前 `server` 配置中将 `error_lo
 | `INFRAPRO_TRUSTED_ORIGINS` | 本地默认 `http://127.0.0.1:5173`；多个可信 Origin 用逗号分隔；精确匹配协议、主机、端口，不含路径 |
 | `INFRAPRO_TRUSTED_PROXIES` | 默认不信任任何代理；生产填专用代理地址或 CIDR |
 | `INFRAPRO_SUPPORT_CONTACT` | 必填，显示在忘记密码页 |
-| `INFRAPRO_COOKIE_SECURE` | 当前仅接受 `false` |
+| `INFRAPRO_COOKIE_SECURE` | HTTP 必须 `false`，HTTPS 必须 `true`，与三个公开入口协议一致 |
 | `INFRAPRO_SESSION_IDLE_TIMEOUT` | `2h`，只由实际用户活动续期 |
 | `INFRAPRO_SESSION_ABSOLUTE_TIMEOUT` | `12h`，任何活动都不延长 |
 | `INFRAPRO_SESSION_CACHE_TTL` | `5m`，同时受剩余空闲和绝对期限约束 |
@@ -2956,6 +2956,7 @@ pnpm infrapro access check
 | Go 业务与并发 | `make test-go` | 专用 PostgreSQL／Redis 下运行 race、事务及业务边界用例。 |
 | 身份适配 | `pnpm test:identity` | 客户端会话、活动、失权和故障状态。 |
 | 浏览器 | `make test-e2e`、`pnpm test:e2e:preview` | 独立 Chromium 环境与构建产物下的真实操作。 |
+| HTTPS 部署 | `pnpm test:https` | 真实 Nginx TLS、Cookie／CSRF、三 origin、大屏工具、证书与代理边界。 |
 | HTTP 部署 | `pnpm test:http` | Nginx、Compose、Cookie／CSRF、CLI 和部署链路。 |
 | 发布前核对 | `infrapro access sync --dry-run`、`access check` | 目录和受影响授权、冻结状态及管理能力保护。 |
 
@@ -2967,111 +2968,9 @@ pnpm infrapro access check
 
 <a id="tenant-project-navigation-verification"></a>
 
-### 2026-11-12 租户与项目侧栏验证
-
-本轮修改租户／项目导航配置、现有浏览器测试的导航辅助函数及对应说明；复用同一工作区已有的平台折叠菜单实现。状态：**Awaiting acceptance**，人工验收尚未完成。
-
-| 检查 | 实际结果 |
-| --- | --- |
-| ESLint 与 TypeScript | `pnpm lint`、`pnpm typecheck` 通过；导航辅助函数调整后，两个变更 TS 文件的定向 ESLint 复查通过。 |
-| 前端构建 | `pnpm --filter @infrapro/console build` 通过。首次检查曾遇到并行设备产品改造中的类型错误，工作区更新后的构建已通过。 |
-| 浏览器回归 | `workspace-navigation.spec.ts`、`workspace-switcher.spec.ts` 全部适用用例，以及 `resources.spec.ts`／`device-resources.spec.ts` 的跨租户迟到写入用例，桌面与手机合计 21 项通过、1 项按设计跳过（桌面专用断点用例）。初跑设备用例在权限菜单尚未加载时过早查找链接；修正辅助函数等待可见入口后，两项设备用例重跑通过。 |
-| 真实页面操作 | Chrome 验证租户设施详情自动展开与高亮、设备子菜单、图标弹出菜单及键盘打开、搜索直达子项、项目设施／设备直接入口及设施详情高亮；页面未捕获到控制台错误。 |
-| 视觉与窄屏 | 核对租户深浅主题、项目桌面、375px 两层导航；手机选择后抽屉关闭，无整页横向溢出。临时视口和深色／减少动画模拟均已恢复。 |
-| 差异检查 | `git diff --check` 通过。 |
-
-测试使用独立 API 18085／console 15178；报告位于 `test-results/tenant-project-navigation`，设备重跑位于 `test-results/tenant-project-navigation-rerun`。未运行全量后端、部署、Safari／Firefox 或真实手机测试；权限条件保持原有逻辑，未穷举权限组合。当前未提交、未推送、未部署，无数据库迁移。
-
-本地开发服务继续通过 `http://localhost:25173` 访问，刷新即可加载新侧栏；重新启动遵循 README 的 `make dev` 与端口配置。人工验收步骤与期望见[租户与项目监测业务导航](requirements.md#interaction)。
-
-
-<a id="device-ui-verification"></a>
-
-### 2026-11-12 设备产品与三层设备页面验证
-
-状态：**Awaiting acceptance**。按照用户选择的 B 方案完成真实界面重构，并扩展到租户／项目对应设备页面；本轮自验证不替代人工验收。导航同时保留同一工作区已有的租户／项目分组修改。
-
-| 范围 | 完成内容 |
-| --- | --- |
-| 平台 | 监测业务分组；工程配置折叠菜单；公共设备产品直接入口；厂家侧栏、产品卡片、管理厂家 Drawer、版本侧栏及详情标签。 |
-| 租户 | 公共／私有产品目录及产品详情使用同一组件；厂家操作写入本租户目录；设备台账筛选、设备档案／输出／安装／记录、来源关联及项目设备授权页面同步整理。 |
-| 项目 | 设备档案与获准输出使用 Tabs 和紧凑表格；完整设备详情与具体输出详情分别展示原有授权投影；返回输出列表保留标签。 |
-| 共享交互 | 复用 shadcn/ui Card、Table、Tabs、DropdownMenu、Collapsible 与现有 ResponsivePanel；未单独定义 Drawer 遮罩。菜单筛选后单入口平铺，命令搜索可达；焦点恢复与明暗主题保持一致。 |
-
-| 检查 | 实际结果 |
-| --- | --- |
-| 静态检查及构建 | `pnpm lint`、`pnpm typecheck`、`pnpm build:apps`、`git diff --check` 通过。React ref 检查发现的菜单回调组织问题已修正，完整检查重跑通过。 |
-| 设备流程 | `device-resources.spec.ts` 与 `device-recovery.spec.ts` 共 26 个桌面／手机用例通过：厂家 Drawer 实际创建、租户厂家写入范围、公开目录只读、私有产品发布、历史版本建草稿、发布内容固定、登记／安装／来源、具体输出授权隔离、完整设备授权只读、回执／修订冲突／迟到响应与临时故障。新增跨层级用例初次误把写入回执作为完整设备读取，修正断言后通过。 |
-| 共享导航与页面回归 | `engineering.spec.ts`、`workspace-navigation.spec.ts`、`presentation.spec.ts`、`device-semantics.spec.ts` 共 32 项通过，1 项按设计跳过（手机项目下的桌面断点专用用例）。含桌面、375px 手机与 1024px 展示用例。 |
-| 最终定向复查 | 项目列表补齐 TabsContent 语义后，单输出隔离与三层工作区场景共 4 项重跑通过；核对输出标签返回、代次历史 Drawer 焦点恢复和深色文本。上述重跑不重复计入 58 个通过用例。 |
-| 视觉检查 | 实际查看平台产品卡片／版本工作区、手机与桌面厂家 Drawer、租户设备详情、项目具体输出详情及深色输出列表截图；无整页横向溢出。 |
-
-测试主服务使用独立 API 64101／console 64102；一次视觉复查使用 52706／52707，专用测试 schema 与 Redis 前缀均由测试脚本管理。首次尝试的 28080 端口已有开发服务，因此改用独立端口，未停止原服务。主要证据位于 `test-results/device-pages-redesign/`、`test-results/device-redesign-regression/` 和 `test-results/device-redesign-final/`；截图中的随机对象是隔离测试数据。
-
-本地真实页面继续访问 `http://localhost:25173/platform/device-products`，刷新现有浏览器即可加载。开发服务需重启时使用 README 的 `make dev` 及本机端口配置。本轮不新增依赖、接口或数据库迁移；改动留在当前 checkout 和分支，未提交、未推送、未部署。未重新执行全量后端／部署测试，未验证 Safari、Firefox 或真实手机。
-
-人工验收顺序：
-
-1. 平台进入「监测业务」：公共设备产品直接可见；工程配置展开后有多个页面，页面搜索可直接跳转子项。
-2. 选择厂家并搜索产品：右侧产品卡片匹配条件；打开管理厂家可维护资料，关闭恢复触发焦点和产品筛选；遮罩与现有账号／租户 Drawer 一致。
-3. 进入产品详情：选择 v1／v2 同步内容和操作；从所选版本创建草稿，保存后原发布内容保持不变；查看输出定义、产品信息、版本比较和记录。
-4. 租户切换公共／私有目录：公共产品只能读取／复制到本租户；私有厂家维护进入租户目录。设备台账可进入档案、输出和安装标签；维护操作使用统一 Drawer。
-5. 项目进入设备：切换设备档案／获准输出；整台设备仅展示获准档案，不出现租户维护按钮；只有单个输出授权时不出现完整设备序列号、业务说明或兄弟输出。返回时仍处于获准输出标签。
-6. 对上述流程核对浅色／深色、桌面／窄屏、菜单键盘操作和 Drawer 关闭后的焦点恢复。
-
-<a id="tenant-audit-verification"></a>
-
-### 2026-11-12 租户操作记录页面验证
-
-状态：**Awaiting acceptance**。独立租户审计页已实现紧凑表格、中文操作、历史操作者、服务端筛选、游标分页、上海时区和响应式详情抽屉；人工验收待用户确认。
-
-| 检查 | 实际结果 |
-| --- | --- |
-| 静态与类型 | `pnpm lint`、`pnpm typecheck` 通过；最后分离租户专用操作名称后，变更文件定向 ESLint 及构建内 TypeScript 复查通过。 |
-| 前端构建 | `pnpm --filter @infrapro/console build` 通过，最终代码已重新构建。 |
-| 浏览器回归 | 租户审计与平台审计全部用例，加上租户资料／管理员交接和跨租户迟到响应两个流程，桌面／手机合计 12 项通过。最后隔离平台筛选选项后，两类审计共 8 项复测通过。 |
-| 数据与时间 | 真实 API 创建 13 条租户历史，验证筛选、前后页、页大小和空结果；在 America/Los_Angeles 浏览器时区下验证上海展示及 UTC 查询边界。历史数据夹具覆盖未知事件、名称缺失、摘要快照与 503 后重试，不伪造结果或旧值。 |
-| 交互与视觉 | 检查桌面 1440px、手机 375px、812×375 横屏、浅／深主题与减少动画模式；列表无整页横向溢出。验证详情、技术信息、原始内容、关闭焦点恢复、筛选取消及反向日期错误。 |
-| 差异与访问 | `git diff --check` 通过；开发服务 `localhost:25173` 及新的审计源码模块返回 HTTP 200。 |
-
-浏览器测试使用独立 API 18106／console 15206，报告与截图在 `test-results/tenant-audit-final`（12 项）及 `test-results/tenant-audit`（最终 8 项复测）。测试没有使用业务数据库。当前修改留在原分支和 checkout，未提交、未推送、未部署，无新增依赖或数据库迁移。
-
-访问现有开发地址 `/t/{tenantId}/audit`，刷新即可加载；服务需重启时遵循根 README 的 `make dev` 与本机端口配置。人工验收步骤及期望见[租户操作记录页面](requirements.md#tenant-audit-redesign)。未验证 Safari、Firefox、真实触屏设备、系统最大字体或完整读屏流程；未重跑全量后端／HTTP 部署测试。接口只提供原因／事件编码搜索，没有操作者名称检索和结果字段，页面据此提供功能；嵌入式租户历史及项目审计不在本轮界面范围。
-
-### 项目资源授权工作台（2026-11-12，方案 A）
-
-项目资源授权前端按项目目录、设施清单、层级选择、单项能力设置、提交预览和历史呈现拆分。编辑基线在进入页面时冻结，显式重新加载才重建本地草稿；分页候选响应与基线授权修订不一致时停止合并，避免把并发授权覆盖为用户选择。新增勾选只写明确对象 ID，批量选择保留已有维护权限。已有设施根档案为必要授权，结束整条关联由单独的“移出项目”预览处理。
-
-`AccessDetail.summary` 与每条设施关联的 `summary` 从全部有效关联及未结束授权聚合，独立于分页和文本搜索。`candidate_point_id` 只在通道候选中使用，并与租户、设施边界共同过滤；筛选条件进入游标指纹。`AccessPreview.before` 返回本次涉及的原授权，前端用来展示权限前后对照。新增字段同步 OpenAPI；不增加数据库表或迁移，也不改变项目角色与资源授权取交集的规则。
-
-自验与人工验收状态见 [项目资源授权界面重构验证](verification/project-resource-authorization-workspace.md)。
-
-<a id="facility-workspace-verification"></a>
-
-### 2026-11-12 设施管理树形工作台验证
-
-状态：**Awaiting acceptance**。用户选择 A 的设计决策已确认；正式代码与真实数据界面的人工验收待确认。需求及操作期望见[设施工作台](requirements.md#facility-workspace)，实现边界见[目录查询设计](#facility-workspace-design)。
-
-| 检查 | 实际结果 |
-| --- | --- |
-| 静态与构建 | `pnpm lint`、`pnpm typecheck`、console 生产构建通过；相关 Go 文件 gofmt 与 `go vet` 通过，`git diff --check` 通过。 |
-| 契约与权限 | `pnpm contracts:check`、`pnpm permissions:check` 通过；树接口复用既有资源查看权限。 |
-| Go 业务与路由 | 隔离 PostgreSQL／Redis 下运行 `go test ./packages/go/platform/resources ./services/api/internal/transport/http -count=1` 通过。新增树用例覆盖分页条件绑定、字面搜索、祖先路径、租户／父级隔离、导航字段限制、退役祖先与删除历史。 |
-| 浏览器 | 设施原有 18 项、树工作台 6 项、设备来源 2 项、项目资源 2 项，桌面／手机合计 28 项通过；追加调整归属后详情路径断言，桌面／手机 2 项复查通过。 |
-| 导航与恢复 | 使用 27 座设施、28 项直属资源及四层后代验证根／分支分页、懒加载、未加载页面的深链接、搜索祖先、前进后退、收起／定位及手机返回。保留数值精度、位置校验、共享影响、409／503 草稿、收据及跨租户迟到响应检查。 |
-| 权限 | 真实只读成员可浏览但没有写按钮；撤销读取权限后树接口 403，缓存详情及树内容从页面清除。删除叶子返回父对象，删除设施只读查询历史。 |
-| HTTP 部署 | `pnpm test:http` 最终 11 项全部通过，包含普通 HTTP、`/console` 基础路径、生产 CSP、Cookie／CSRF 与现有部署流程。修正设备部署测试从 URL pathname 取 ID，避免将查询参数拼入安装接口。 |
-| 本机视觉 | 现有 `localhost:25173` API 树接口 200，使用既有验收数据只读复查 1440／1024／375px 和浅／深主题；无整页横向溢出或页面异常。检查了设施属性、通道来源和手机返回目录。 |
-
-浏览器测试使用独立 API 38080／console 35173，测试数据位于专用 schema／Redis 前缀；HTTP 测试独立容器已清理。证据位于 `test-results/facility-workspace`、`test-results/facility-workspace-tree`、`test-results/facility-workspace-permissions`、`test-results/facility-workspace-reparent`，本机截图和最终部署日志位于 `.artifacts/facility-workspace/`。早期跨模块旧定位器／URL 解析失败在复核后已通过，不将失败轮计为通过。
-
-访问现有本机验收入口 `http://localhost:25173/t/a78cdb12-b224-4869-9cb7-c7c1f76d0c8b/resources/facilities`；常规项目启动仍遵循根 README 的 `make dev` 及端口配置。本轮沿用当前 `main` 和 checkout，没有新建分支／worktree，没有执行业务库迁移、提交、推送或生产部署。未验证 Safari、Firefox、真实手机输入法、完整读屏流程及超大租户负载。
-
-<a id="spatial-design"></a>
-
 ## 13 工程空间可视化详细设计
 
-更新：2026-11-13。用户已确认[SV-01–SV-10 交付范围](requirements.md#spatial-scope)并授权完整实现。下述领域及流程已在当前仓库落地；实际契约以 OpenAPI、权限目录与迁移 00034 为准。自验证据见[空间验证记录](verification/spatial-visualization.md)，启动、样本及恢复见[空间运行手册](operations/spatial-visualization.md)。
+空间模块按 [SV-01–SV-10](requirements.md#spatial-scope) 定义；具体接口与权限以正式契约为准，启动与恢复见[空间手册](operations/spatial-visualization.md)。
 
 ### 13.1 结构与模块边界
 
@@ -3312,30 +3211,6 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 <a id="spatial-samples"></a>
 
-### 13.9 Codex 自备资料、验证与交付责任
-
-用户已明确没有布设图、模型等资料，**不得将这些资料、底图密钥或模型制作任务转交用户作为开发／验收前置条件**。已交付 `samples/spatial` 完整样本包、Python 生成器及 `spatial:demo` 正式管线装载脚本。
-
-| 资料组 | 由 Codex 准备的内容 | 验证目的 |
-| --- | --- | --- |
-| 图纸组 | 以同一工程几何定义生成平面／立面／断面 PNG、JPEG、多页 PDF，含页旋转、裁剪及不同尺寸。 | 图页身份、归一化坐标、缩放、引线和多载体一致性。 |
-| 模型组 | 真实 glTF 2.0 GLB，包含可分辨桥墩／主梁／边坡部位、实例化元素与单位轴向差异。 | 解析、命中、实例区分、遮挡、剖切及显存释放。 |
-| BIM 组 | 使用 IfcOpenShell 等工具生成合法 IFC2X3／IFC4，包含稳定实体 ID、源树、材料／类型／实例属性与对应几何。 | 走真正 IFC 转换和属性管线，不用 GLB 改后缀充当 BIM。 |
-| 地理组 | 自制 GeoJSON 点线面、本地 XYZ 示例瓦片、明确 CRS 及可复算坐标；标为示意区域。 | 无外部网络／用户密钥也能展示地图，验证投影及设施关联。 |
-| 换版组 | V1／V2 保留 ID 但移动几何、重建同名不同 ID、删除元素、交换图页与改变裁剪。 | 换版不误认、不自动迁移错误锚点、项目版本不自动扩权。 |
-| 异常组 | 损坏文件、未知必需扩展、外链资源、无效坐标、缺映射、取消与超预算样本。 | 导入错误和清理真实可复现，不能静默部分成功。 |
-| 业务组 | 两租户、共享设施的两个项目、不同资源／输出／时段授权；可手算原始值、测点／构件／设施派生及固定分析成果。 | 图模、设备、原始、派生及项目成果的联合权限与状态。 |
-
-生成器与 expected manifest 分开核对：预期对象 ID、页内位置、局部位置、变换结果、输入数值和派生期望值采用明确常量或独立计算依据，不能仅复用待测转换函数生成相同答案。来源清单保存生成版本、随机种子、格式、单位、哈希和自制／公开来源许可；所有画面标识合成示例。
-
-同一套资料通过真实上传、处理、业务 API、查询和成果流程进入系统；测试专用 schema／对象前缀与用户业务数据隔离。用户操作场景另以受控初始化建立，不复用测试残留，不覆盖已有账号或默认给所有角色增权。提供样本包路径／下载、已装载入口、重置说明和最短操作路径，用户无需先学建模或制图。
-
-实际验证涵盖领域／坐标单元检查、真实 PG/S3/转换器集成、权限与竞争、接口契约、桌面／窄屏浏览器及恢复；结果按 [SC-01–SC-13](requirements.md#spatial-delivery)记录。派生联动使用真实发布、计算、输入撤销及 pending 状态；故障注入仅用于指定竞争与异常，不能替代真实处理管线。
-
-性能记录明确文件复杂度、图页像素、几何／纹理／实例数、标记数、硬件、网络与冷暖加载条件；不从样本文件大小推导任意工程容量。没有真实工程文件不阻塞上述功能自验；真实资料兼容和部署规模在以后实际接入时另记。
-
-<a id="spatial-operations-design"></a>
-
 ### 13.10 迁移、运行、恢复与交付边界
 
 本轮在原迁移头 00033 后新增 `00034_spatial.sql`；既有账号、角色、资源、设备、观测及派生结果不重建。新增空间表初始为空，自定义角色保持原权限。spatial 引用接入 `runtime.resourceReferences` 和资源删除／退役影响预览，并处理授权及项目设施关联的结束动作。
@@ -3350,36 +3225,6 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 
 <a id="spatial-document-check"></a>
 
-### 13.11 2026-11-12 方案文档检查历史
-
-历史状态：详细方案当日自检通过，2026-11-13 已获用户确认并进入完整实施。当日只整理需求、详细设计、技术选择、领域术语和文档导航；以下保留当日检查结果，当前功能状态见空间验证记录。
-
-| 交付范围 | 详细设计位置 | 后续可观察结果 |
-| --- | --- | --- |
-| SV-01 资料／版本 | 13.2 数据、13.3 处理发布、13.4 换版、13.10 恢复 | SC-04、SC-12 |
-| SV-02 布设图 | 13.3 图页处理、13.4 坐标、13.8 交互 | SC-01、SC-02 |
-| SV-03 三维／BIM | 13.2 元素映射、13.3 IFC、13.4 关联、13.8 浏览 | SC-03、SC-04 |
-| SV-04 测点挂载 | 13.2 唯一身份、13.4 挂载与业务修订 | SC-01、SC-04、SC-08 |
-| SV-05 地图／GIS | 13.2 图形、13.4 CRS／范围、13.8 本地图层 | SC-01、SC-13 |
-| SV-06 项目授权 | 13.5 完整权限及文件流、13.7 接口／并发 | SC-05、SC-06、SC-07、SC-12 |
-| SV-07 统一工作台 | 13.8 路由、选中状态、触屏与键盘 | SC-01、SC-13 |
-| SV-08 监测联动 | 13.6 原始／派生／来源和失效 | SC-08、SC-09、SC-10 |
-| SV-09 成果联动 | 13.6 项目成果查询、版本与依赖授权 | SC-10、SC-11 |
-| SV-10 自备资料及交付 | 13.9 真实样本、演示及核对，13.10 运行恢复 | SC-01–SC-13 的资料全部由 Codex 提供 |
-
-| 本次检查 | 实际结果 |
-| --- | --- |
-| 范围覆盖 | SV-01–SV-10 均有业务正文、设计位置和后续观察场景；SC-01–SC-13 资料责任完整。 |
-| 业务一致性 | 核对同一业务身份、不可变已发布挂载、项目固定版本、完整对象／数据权限交集、派生递归输入资格及项目成果归属；未改变既有派生基线。 |
-| 资料责任 | 明确由 Codex 提供真实可解析文件、多版本、异常样本及已装载场景；无用户供件或底图密钥前置条件。 |
-| Markdown 与链接 | 7 份本轮编辑文档的 221 个本地链接／锚点检查通过；显式锚点无重名、代码围栏成对、表格列数一致。 |
-| 差异检查 | `git diff --check` 通过。与本轮开始的文件摘要比较，四份原始／派生监测总体及详细方案均逐字节未变。 |
-| 写入范围 | 本轮编辑仅为主需求、架构、技术选型、词汇表、docs 导航、空间方案入口和研究说明共 7 份文档；本轮未编辑应用、契约、配置或数据库文件。 |
-
-检查期间工作区另有 AGENTS.md 和账号／项目相关源码的并行变化，已读取更新后的工作约定，未修改或覆盖这些文件，也未将其计为本轮成果。文档检查脚本位于仓库外的临时目录，没有增加项目测试或生成器。
-
-以上为 2026-11-12 方案整理阶段的历史记录，当时没有执行空间功能测试、生成样本、安装依赖、迁移、提交、推送或部署。2026-11-13 实施及验证以第 13.12 节和空间验证记录为准；本轮仍未创建分支／worktree、提交、推送或部署生产。
-
 ### 13.12 实现接缝与当前交付
 
 - `runtime/spatial_resources.go` 使用资源模块的完整对象资格与范围查询；`spatial_monitoring.go` 通过 monitoring 目录、选择和实际 latest 提供有界摘要，配置主通道可独立进入首批结果；`derivedmonitoring/spatial_artifacts.go` 按固定成果实际输入及原空间读取。
@@ -3388,7 +3233,7 @@ WebGL 不可用、模型不支持或处理失败时显示真实原因，仍可�
 - 项目默认视图以固定版本 ID 作为稳定保存键。无自定义视图时继承获准版本默认值；保存含图页、相机、隐藏元素、底图与主通道，不包含授权或监测结果。
 - 恢复核对属于 CLI 的有限维护接口 `spatial.VerifyContent`；核对固定清单、PG 引用与私有文件字节，缺失隔离和正确字节修复分别审计。维护能力不暴露为用户 HTTP 路由。
 
-实施状态及 SC-01–SC-13 的最终证据统一记录在[空间验证记录](verification/spatial-visualization.md)，人工验收另记。
+实施状态及 SC-01–SC-13 的最终证据统一记录在[本机工程环境与人工验收](operations/local-environment.md)，人工验收另记。
 
 <a id="in-app-notifications"></a>
 
@@ -3434,7 +3279,7 @@ tenancy 以同一套邀请规则服务原 token 入口和按本人 ID 入口；�
 
 React 的账号级 Provider 组合 TanStack Query key（账号、授权代次、筛选／游标）；共享数据、15s/5s 轮询、隐藏暂停、聚焦／重连刷新。注销、权限修订取消旧请求，客户端拒绝旧身份迟到响应。布局仅提供 headerActions 插槽，不导入业务 API；正文不写本地持久缓存。
 
-notification-worker 仅依赖 PostgreSQL metadata，不实例化监测存储、转换器或大屏壳。API 和 worker 分开，开发默认启动，Compose／systemd 有独立入口。发布顺序、迁移协议、备份恢复和安全重放见[运维手册](operations/in-app-notifications.md)，实际验证见[记录](verification/in-app-notifications.md)。
+notification-worker 仅依赖 PostgreSQL metadata，不实例化监测存储、转换器或大屏壳。API 和 worker 分开，开发默认启动，Compose／systemd 有独立入口。发布顺序、迁移协议、备份恢复和安全重放见[运维手册](operations/in-app-notifications.md)，实际验证见[本机工程环境与人工验收](operations/local-environment.md)。
 
 <a id="task-center"></a>
 
@@ -3446,14 +3291,14 @@ notification-worker 仅依赖 PostgreSQL metadata，不实例化监测存储、�
 
 人员 API 使用当前业务权限重新核验每页候选；签名游标绑定账号、筛选、授权与恢复代次、首屏上界。管理摘要／控制不授予完整参数、成果或文件读取。历史 source_missing、history_incomplete 与同步中状态明确呈现，结果有效性与执行成功分别表达。前端共用任务详情／进度／动作，旧业务 URL 和结果读取路径保持兼容。
 
-独立索引仅依赖 PostgreSQL，使用 `infrapro_task_index` 最小角色。数据库 v37–v39 采用协调升级，不能任意混跑新旧版本；来源分页回填、反连接对账、完整备份恢复和 restore_epoch 操作见[运行手册](operations/task-center.md)。[验证记录](verification/task-center.md)与[人工步骤](operations/task-center-acceptance.md)分别保存软件自验和用户接受状态。
+独立索引仅依赖 PostgreSQL，使用 `infrapro_task_index` 最小角色。数据库 v37–v39 采用协调升级，不能任意混跑新旧版本；来源分页回填、反连接对账、完整备份恢复和 restore_epoch 操作见[运行手册](operations/task-center.md)。软件自验与用户接受状态在[环境说明](operations/local-environment.md)中分开记录。
 
 ## 文件与附件公共模块
 
 files 管理普通附件身份、intent、收据、代次、引用、读取租约和清理协议；runtime 提供有限宿主授权解析与任务/通知适配。S3 I/O 不进入业务事务，checker 为无凭据隔离子进程。GuardedRead 在完整内容核验后逐块重新鉴权。纯 UI pattern + 摘要 Worker + 四个 console Adapter 复用展示/传输，专业模块仍拥有业务内容及原生读取边界。详见 development/files-and-attachments-integration.md。
-# 审计与操作追踪统一架构（2026-11-14）
+## 审计与操作追踪统一架构
 
-本节为当前审计契约，历史章节的旧读取／清理描述以本节为准。[接入契约](development/audit-integration.md)、[事件目录](development/audit-event-catalog.md)、[自验账本](verification/audit-and-operation-tracing.md)分别记录实现约束、生产路径和执行证据。
+本节为当前审计契约，历史章节的旧读取／清理描述以本节为准。[接入契约](development/audit-integration.md)、[事件目录](development/audit-event-catalog.md)、[本机工程环境与人工验收](operations/local-environment.md)分别记录实现约束、生产路径和执行证据。
 
 `auditrecord` 是无 HTTP、无授权执行器和无对象存储依赖的事实内核；业务持有事务并调用 writer。迁移 41–43 在现有 `account_security_events` 上增加 schema、不可变指纹、操作链、保留策略与有限关联，新增命令、传输、导出和维护收据。触发器拒绝直接 UPDATE／DELETE，有限 SECURITY DEFINER 清理函数只处理经过复验的计划。
 
@@ -3469,13 +3314,13 @@ taskrecord 仅为 audit.export 扩展 platform scope，其余来源仍需 tenant
 
 API 元数据不依赖 S3、ClickHouse、文件检查器或通知进程。React 工作区缓存键包含账号、精确成员关系、空间、授权与投影版本；切换或撤权终止请求并移除旧数据，下载 blob URL 及时撤销。三空间旧路由与兼容 API 均进入统一 Reader。
 
-## 独立运行诊断（2026-11-14）
+## 独立运行诊断
 
 `services/diagnostics` 是独立 Go module，不依赖 platform、业务 API、业务身份、PG 或 Redis 启动。server 内嵌独立 React UI，使用本地账号和 bbolt；observer 按固定分配采集原生进程、报告、Docker、systemd、协议与基础资源。server 没有 Docker socket，业务进程只有非阻塞本地 reporter，没有观察器密钥。
 
 manifest 定义期望槽位和 required probes，bindings 保存私有定位与凭据引用；查询 DTO 不含 bindings。generation/epoch/boot/sequence 屏障、完整帧和幂等 ack 在同一事务提交。查询时重新计算新鲜度，重启缓存先是 historical；重复 attempt 不续采样时间。状态、覆盖和资源范围分别计算。人员 API 在首字节前重新核权，轮询不续空闲会话，撤权清理浏览器缓存。
 
-[运维与人工步骤](operations/independent-runtime-diagnostics.md)、[进程报告接入](development/diagnostic-process-reports.md)、[自验台账](verification/independent-runtime-diagnostics.md)。
+[运维与人工步骤](operations/independent-runtime-diagnostics.md)、[进程报告接入](development/diagnostic-process-reports.md)、[本机工程环境与人工验收](operations/local-environment.md)。
 
 
 ## 解析服务与设备固定采用（2026-11-16）
@@ -3491,3 +3336,59 @@ HTTP 主程序把方法标识／版本路由到发行包中不可变 SHA-256 执
 React 页面使用当前 Query 授权修订缓存、服务端筛选、分页、共享表格和遮罩 Drawer。结构化运行读取与原文读取分别授权；所有下载经业务 API 当前授权，结果不持久缓存。页面显示原字节依据、实际检查、固定产物和配置、映射状态与尝试；始终区分业务质量未评定及未正式采用。本模块不产生标准监测观测。
 
 运行预算、诊断接入、启动和联合 PG／S3／发行包恢复见[运行手册](operations/parsing-service.md)。Linux 子进程内核限额和独立恢复已有测试入口，生产部署、真实设备联调及用户人工接受不是开发自验的同义词。
+
+<a id="device-ingestion"></a>
+
+## 设备接入与原始报文
+
+实现入口为 `services/ingest-relay`、`packages/go/platform/ingestion`、`services/api/cmd/ingest-worker`、独立 parser 的接入能力与识别接口，以及业务 API／console 的接入工作区。完整接口和不变量见[开发规格](development/device-ingestion-and-raw-message-spec.md)，运行与联合恢复见[操作手册](operations/device-ingestion-and-raw-messages.md)，当前自验与人工接受见[验证报告](verification/device-ingestion-and-raw-messages.md)。
+
+```mermaid
+flowchart LR
+    External[模拟端／现场报送方] -->|mTLS DDP／HTTPS| Relay[ingest-relay]
+    Relay --> CloudPG[(独立云 PG：原文／包络／投递)]
+    Inner[内网 ingest-worker] -->|主动拉取／逐条确认| Relay
+    API[平台 API：配置／当前授权] --> BusinessPG[(业务 PG：配置／计划／证据)]
+    Inner --> BusinessPG
+    Inner --> S3[(私有 S3：原文／识别响应／结果)]
+    Inner -->|固定能力与字节| Parser[独立 parser]
+    Parser -->|严格结构化结果| Inner
+    Console[协议与接入工作区] --> API
+```
+
+| 事实／动作 | 拥有者及持久边界 |
+|---|---|
+| 入口、命名空间和修订 | 平台编制固定租户／来源项目／厂家／协议，租户确认准确摘要；发布命令具有代次和幂等身份，云端实际应用后才生效。 |
+| 云端接收 | producer、consumer、control 分别认证；原字节、不可变包装、epoch／来源序号和投递记录同事务提交后才返回成功。已确认保留期之外仅清理正文，接收身份仍保留。 |
+| 内网接管 | 先持久对象意图、写私有 S3 并读回核验，再同事务提交接收记录与 ACK outbox；相同接收身份重投逐项核对，冲突不确认。 |
+| 识别与关联 | 固定来源能力只解释字节，业务模块检查当前源范围、项目授权、厂家和终端关联。变更通过云端水位 N+1 划分区间；新 epoch 必须重新确认。 |
+| 机器生产解析 | 识别、规划、测量为独立持久队列；冻结设备采用、能力摘要、输入单元和机器授权。领取与终态提交复验当前资格，有限重试和 fence 阻止迟到覆盖。 |
+| 人员补处理 | 不可变清单、操作者、理由和执行代次对应真实任务来源；取消／重试及审计沿用任务中心规则。正常生产不生成逐帧人员任务。 |
+
+schema 45 增量建立目录、入口修订、终端关联区间、机器授权、接收与对象意图、识别决定、处理单元、计划／结果和恢复作业。原 schema 44 的人工解析数据、ID、采用和产物摘要保持；原契约 1 的清单不能补字段后沿用版本。新增接入目录独立声明测量与识别的准确兼容组合，目录不可用不删除历史能力，也不改变既有人工解析契约。
+
+批次根只由系统保管。人员接口从已核验处理单元授权，原文、结果、配置维护分别检查权限；平台入口管理权限和项目设备摘要权限均不授予租户正文。下载经业务 API 当前授权，Range 只能落在该单元范围，S3 不提供浏览器可访问的根 URL。历史访问和流式下载持续遵守当前来源项目授权。
+
+新功能默认关闭，停止 worker 保留历史读取。接收、接管确认、识别和测量分别报告状态；解析服务暂时故障不会阻止健康的接管／确认。诊断只暴露有界安全状态，不记录原文字节、测量值或机器凭证。联合恢复包含两套 PG、S3、固定发行包和私有配置；正常重启保留 epoch，旧云备份恢复后的新接收建立新 epoch。标准监测观测、质量规则和告警不由本模块自动发布。
+
+## 大屏命名读取协调
+
+`display` 拥有程序包、scope/config format、实例委托、人员／终端会话和视图配置；`displayread` 负责严格请求、查询生命周期、分页、选择、缓存与后台协调。`runtime.Compose` 显式安装 resources、devices、sources、monitoring、spatial 的领域读取器；领域服务重新检查业务资格并产出白名单 DTO。协调层不执行派生计算、不扫描原始上传消息、不提供任意 SQL／URL。
+
+迁移 46 以不可变 scope set/member 保存固定范围，以 query/rows/sections/cursors 保存固定公开投影，以 job lease/fence 处理后台任务，以 monitoring refs 持有正式监测快照。监测统计复用正式 PostgreSQL／ClickHouse／对象存储读取和派生 head 依据；下钻只生成绑定父查询、分组、计数口径与用途的 opaque selection。资源与设备总计在完整有效集合上计算，再分页 groups；来源和空间关联只投影各自获准部分。
+
+执行读取及交付分别在当前授权边界内核验。成功的会话证明只在同一受锁保护事务内复用，不跨请求缓存授权；REPEATABLE READ 中检查人员会话但不竞争更新 idle 时间，运行续约仍刷新活跃租约。源修订区分普通新增／改名和删除／撤权，旧目录页保持原投影，安全变化立即使旧结果不可交付。
+
+后台协调运行在 monitoring-worker 中，使用 PostgreSQL 公平队列、实例并发限额、截止时间、定期续租和 fence；终态写入前复验主体和源依据。取消及最后消费者释放解除临时监测引用，清理只删除临时读状态。恢复时更换 display environment、过期 query 并取消 job；固定配置与正式监测历史保留。
+
+公开 DTO 从 Go 生成运行 OpenAPI、管理类型和 SDK 类型。TypeScript SDK 通过可信壳白名单 Bridge 调用，消费句柄独立释放，SSE 按 generation/sequence 去重，撤权后清除结果及 Blob URL。React 管理页使用服务端候选与预览，独立 TypeScript／Three.js 工程只依赖公开 SDK。部署与复测见[大屏运行维护](operations/visualization-display.md)，证据见[验收账本](verification/display-sdk-monitoring-read.md)。
+
+## 分类与混合工程结构扩展
+
+迁移 47—54 保持元模型 1 的固定内容和摘要，新元模型 2 增加显式结构能力、属性及逐类型模板映射。`engineering_structure_nodes` 是带资源种类的唯一主边；旧构件链为最近构件投影，`engineering_resource_records` 通过实体表与主边提供统一读取。目录和路径查询在授权事务中物化本租户有效节点，避免重复展开联合视图；显式规模／深度预算在写入和读取端拒绝超限。
+
+`classification` 管理字典发布、产品版本默认、设备覆盖与固定批量预览。分类记录独立于产品内容和输出代次。`resources` 管理断面／孔位、结构移动、类型采用、孔内定位、参照及旧文字核对；同设施锁、实体／结构修订和预览摘要共同约束提交。历史文本出现记录逐条保存来源身份、修订和 JSON 路径，不通过同名猜测实体。
+
+安装、来源、派生、空间及文件继续由各自领域服务维护。新实体关联复用统一身份和当前权限，孔位定位按当前最近孔位解释，几何只保存明确输入的图纸／模型坐标。文件附件固定到附件修订，分块交付复验宿主、附件和文件权限。项目 context 祖先仅供导航，不转为实体授权或统计成员。
+
+`displayread` 的 `structure_model: 2` 范围使用带 kind 的身份，公开契约同步生成 SDK／Bridge／管理端类型。完整树、分类和结构统计、监测分组在固定查询中保存分类版本、设施采用类型、成员及结构路径；旧下钻不混用新依据，但每次交付复验当前权限。旧范围保持 legacy 投影，不可表达的新所有者返回明确升级错误。详细自验、独立恢复与本地历史数据迁移见[验收账本](verification/sensor-classification-and-engineering-structure.md)。

@@ -73,7 +73,7 @@ func resolveMonitoring(raw input) (Monitoring, error) {
 		names := map[string]bool{"local": true}
 		databases := map[string]bool{c.Database: true}
 		for _, p := range c.Shards {
-			if !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(p.Name) || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(p.Database) || names[p.Name] || databases[p.Database] || len(p.Replicas) < 2 {
+			if !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(p.Name) || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(p.Database) || names[p.Name] || databases[p.Database] || len(p.Replicas) == 0 {
 				return c, fmt.Errorf("invalid or duplicate monitoring physical shard")
 			}
 			names[p.Name] = true
@@ -88,9 +88,6 @@ func resolveMonitoring(raw input) (Monitoring, error) {
 	}
 	c.Replicas = strings.Split(raw.MonitoringReplicas, ",")
 	seen := map[string]bool{}
-	if len(c.Replicas) < 2 {
-		return c, fmt.Errorf("monitoring requires at least two replica endpoints")
-	}
 	for i, addr := range c.Replicas {
 		addr = strings.TrimSpace(addr)
 		host, port, e := net.SplitHostPort(addr)

@@ -37,8 +37,9 @@ func (s *Service) validateTx(ctx context.Context, tx pgx.Tx, a access.Actor, aut
 			return out, k.Problem("spatial_manifest_invalid", "封存清单与文件记录不一致，不能发布。", 422)
 		}
 	}
+	readSameFacility := s.sameFacilityReaderTx(ctx, tx, a, auth.Scope)
 	if asset.FacilityID != "" {
-		if _, e = s.sameFacility(ctx, tx, a, auth.Scope, ObjectRef{"facility", asset.FacilityID}, asset.FacilityID, true); e != nil {
+		if _, e = readSameFacility(ObjectRef{"facility", asset.FacilityID}, asset.FacilityID, true); e != nil {
 			return out, e
 		}
 	}
@@ -46,10 +47,10 @@ func (s *Service) validateTx(ctx context.Context, tx pgx.Tx, a access.Actor, aut
 		if e = validatePlacement(asset, v, p); e != nil {
 			return out, e
 		}
-		if _, e = s.sameFacility(ctx, tx, a, auth.Scope, ObjectRef{"point", p.PointID}, asset.FacilityID, false); e != nil {
+		if _, e = readSameFacility(placementRef(p), asset.FacilityID, false); e != nil {
 			return out, e
 		}
-		if e = s.channelTx(ctx, tx, a, auth.Scope, p.MainChannelID, ObjectRef{"point", p.PointID}, asset.FacilityID); e != nil {
+		if e = s.channelTx(ctx, tx, a, auth.Scope, p.MainChannelID, placementRef(p), asset.FacilityID); e != nil {
 			return out, e
 		}
 	}
@@ -57,7 +58,7 @@ func (s *Service) validateTx(ctx context.Context, tx pgx.Tx, a access.Actor, aut
 		if e = validateLink(asset, v, l); e != nil {
 			return out, e
 		}
-		if _, e = s.sameFacility(ctx, tx, a, auth.Scope, ObjectRef{"component", l.ComponentID}, asset.FacilityID, false); e != nil {
+		if _, e = readSameFacility(ObjectRef{"component", l.ComponentID}, asset.FacilityID, false); e != nil {
 			return out, e
 		}
 		if e = s.channelTx(ctx, tx, a, auth.Scope, l.MainChannelID, ObjectRef{"component", l.ComponentID}, asset.FacilityID); e != nil {
@@ -65,7 +66,7 @@ func (s *Service) validateTx(ctx context.Context, tx pgx.Tx, a access.Actor, aut
 		}
 	}
 	for _, l := range out.FeatureLinks {
-		if _, e = s.sameFacility(ctx, tx, a, auth.Scope, ObjectRef{"facility", l.FacilityID}, l.FacilityID, false); e != nil {
+		if _, e = readSameFacility(ObjectRef{"facility", l.FacilityID}, l.FacilityID, false); e != nil {
 			return out, e
 		}
 	}

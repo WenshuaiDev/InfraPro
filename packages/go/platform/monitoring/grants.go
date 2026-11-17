@@ -300,15 +300,21 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 		}
 	}
 	if capability == "history" {
-		if auth.Subject != nil {
-			return nil, access.ErrDenied
-		}
 		var ok bool
 		code := access.TenantMonitoringHistoryRead
 		if auth.Entry == "project" {
 			code = access.ProjectMonitoringHistoryRead
 		}
-		if auth.Entry == "project" {
+		if auth.Subject != nil {
+			if auth.Subject.HistoryWindows == nil {
+				return nil, access.ErrDenied
+			}
+			snap, e := auth.Subject.Authorize(ctx, tx, access.MonitoringOperation("project", "details"))
+			if e != nil {
+				return nil, e
+			}
+			ok = slices.Contains(snap.Permissions, code)
+		} else if auth.Entry == "project" {
 			snap, e := access.ProjectSnapshotTx(ctx, tx, auth.Account, auth.Tenant, auth.Project, auth.Revision)
 			if e != nil {
 				return out, e
@@ -351,7 +357,11 @@ func availableWindowsTx(ctx context.Context, tx pgx.Tx, auth authorization, chan
 		if auth.Subject.Windows == nil {
 			return nil, access.ErrDenied
 		}
-		ceilings, e := auth.Subject.Windows(ctx, tx, channels)
+		readWindows := auth.Subject.Windows
+		if capability == "history" {
+			readWindows = auth.Subject.HistoryWindows
+		}
+		ceilings, e := readWindows(ctx, tx, channels)
 		if e != nil {
 			return nil, e
 		}

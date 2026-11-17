@@ -3,11 +3,11 @@ import { navigateTo } from '../helpers/navigation';
 import { closeRolePanel, roleAction, submitPlatformRole } from '../helpers/roles';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
 import type { APIRequestContext, Page } from '@playwright/test';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   return headers;
 }
 async function refresh(page: Page) {
@@ -70,33 +70,33 @@ test('role UI grants and withdraws invitation capability without logging in agai
     await roleAction(page, '启用角色'); await submitPlatformRole(page, reason, '确认启用角色'); await refresh(guest); await expect(guest.getByRole('button', { name: '创建邀请', exact: true })).toBeVisible();
     await expect(guest.getByRole('table', { name: '我的邀请', exact: true }).getByText('已撤销', { exact: true })).toBeVisible();
     const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-    const old = await request.post(`${api}/public/invitations/inspect`, { headers, data: { token: new URLSearchParams(new URL(link).hash.slice(1)).get('token') } }); expect(old.status()).toBe(404);
+    const old = await request.post(`${api}/public/invitations/inspect`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { token: new URLSearchParams(new URL(link).hash.slice(1)).get('token') } }); expect(old.status()).toBe(404);
     await page.goto(`${consoleURL}/access/permissions`); await expect(page).toHaveURL(`${consoleURL}/access/roles`); await expect(page.getByRole('heading', { name: '角色管理', exact: true })).toBeVisible();
-    await navigateTo(page, '平台审计'); await page.getByLabel('搜索名称或原因').fill(reason); await page.getByRole('table', { name: '平台审计记录', exact: true }).getByRole('row').nth(1).getByRole('button').first().click(); await expect(page.getByRole('dialog').getByText(reason, { exact: true })).toBeVisible();
+    await navigateTo(page, '平台审计'); await page.getByLabel('搜索当前获准内容', { exact: true }).fill(reason); await page.getByRole('button', { name: '搜索', exact: true }).click(); await page.locator('[data-audit-record]').first().click(); await expect(page.getByRole('dialog').getByText(reason, { exact: true })).toBeVisible();
   } finally { await guestContext.close(); }
 });
 
 test('member API denies enumeration and strict writes reject direct grants', async ({ request, browser }) => {
   const member = await createAccount(request, false); const headers = await owner(request);
   let response = await request.get(`${api}/access/accounts?q=${member.username}`); const target = (await response.json()).items[0];
-  response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [], permissions: [P.PlatformAuditRead], reason: '非法直接授权' } }); expect(response.status()).toBe(400);
-  response = await request.post(`${api}/access/roles`, { headers, data: { name: '非法创建', reason: '非法权限', description: '', permission_codes: [P.PlatformAuditRead] } }); expect(response.status()).toBe(400);
-  response = await request.post(`${api}/invitations`, { headers, data: { note: '', role_ids: ['anything'] } }); expect(response.status()).toBe(400);
-  const l = await request.post(`${api}/invitations`, { headers, data: { note: '额外字段原子性' } }); const link = await l.json();
+  response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], permissions: [P.PlatformAuditRead], reason: '非法直接授权' } }); expect(response.status()).toBe(400);
+  response = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: '非法创建', reason: '非法权限', description: '', permission_codes: [P.PlatformAuditRead] } }); expect(response.status()).toBe(400);
+  response = await request.post(`${api}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: '', role_ids: ['anything'] } }); expect(response.status()).toBe(400);
+  const l = await request.post(`${api}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: '额外字段原子性' } }); const link = await l.json();
   const guest = await browser.newContext();
   try {
     const gh = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(guest.request) };
     const token = new URLSearchParams(new URL(link.url).hash.slice(1)).get('token');
-    response = await guest.request.post(`${api}/public/invitations/accept`, { headers: gh, data: { token, username: 'bad_extra', password, is_admin: true } }); expect(response.status()).toBe(400);
-    response = await guest.request.post(`${api}/public/invitations/inspect`, { headers: gh, data: { token } }); expect(response.status()).toBe(200);
-    expect((await guest.request.post(`${api}/auth/login`, { headers: gh, data: member })).status()).toBe(200);
+    response = await guest.request.post(`${api}/public/invitations/accept`, { headers: { ...gh, 'X-Command-ID': randomUUID() }, data: { token, username: 'bad_extra', password, is_admin: true } }); expect(response.status()).toBe(400);
+    response = await guest.request.post(`${api}/public/invitations/inspect`, { headers: { ...gh, 'X-Command-ID': randomUUID() }, data: { token } }); expect(response.status()).toBe(200);
+    expect((await guest.request.post(`${api}/auth/login`, { headers: { ...gh, 'X-Command-ID': randomUUID() }, data: member })).status()).toBe(200);
     for (const path of ['/access/accounts', `/access/accounts/${target.id}`, '/access/accounts/00000000-0000-0000-0000-000000000000', '/access/roles', '/access/permissions', '/invitations']) {
       response = await guest.request.get(`${api}${path}`); expect(response.status()).toBe(403); expect((await response.json()).code).toBe('permission_denied');
     }
-    response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [], reason: '清空权限' } }); expect(response.status()).toBe(200);
+    response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], reason: '清空权限' } }); expect(response.status()).toBe(200);
     response = await guest.request.get(`${api}/auth/me`); expect(response.status()).toBe(200); expect((await response.json()).permissions).toEqual([]);
     response = await guest.request.get(`${api}/account/profile`); expect(response.status()).toBe(403);
-    expect((await guest.request.post(`${api}/auth/logout`, { headers: gh })).status()).toBe(204);
+    expect((await guest.request.post(`${api}/auth/logout`, { headers: { ...gh, 'X-Command-ID': randomUUID() }})).status()).toBe(204);
   } finally { await guest.close(); }
 });
 
@@ -104,7 +104,7 @@ test('authorization refresh preserves unrelated drafts and rejects late lost-pag
   const account = await createAccount(request); await login(page, account); const headers = await owner(request);
   const target = (await (await request.get(`${api}/access/accounts?q=${account.username}`)).json()).items[0];
   await navigateTo(page, '个人资料'); await page.getByLabel('显示名称', { exact: true }).fill('保留当前未提交资料');
-  let response = await request.post(`${api}/access/roles`, { headers, data: { name: `无关变更_${randomBytes(4).toString('hex')}`, description: '', reason: '无关修订' } }); expect(response.status()).toBe(200);
+  let response = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `无关变更_${randomBytes(4).toString('hex')}`, description: '', reason: '无关修订' } }); expect(response.status()).toBe(200);
   await refresh(page); await expect(page.getByLabel('显示名称', { exact: true })).toHaveValue('保留当前未提交资料');
   const tab = await context.newPage(); await tab.goto(`${consoleURL}/invitations`);
   let release = () => {}; let fetched = () => {};
@@ -112,7 +112,7 @@ test('authorization refresh preserves unrelated drafts and rejects late lost-pag
   await tab.route('**/api/v1/invitations', async (route) => { if (route.request().method() !== 'POST') { await route.continue(); return; } const response = await route.fetch(); fetched(); await held; await route.fulfill({ response }); });
   try {
     await tab.getByRole('button', { name: '创建邀请', exact: true }).click(); await tab.getByRole('button', { name: '生成邀请链接', exact: true }).click(); await ready;
-    response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [], reason: '撤权验证' } }); expect(response.status()).toBe(200);
+    response = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], reason: '撤权验证' } }); expect(response.status()).toBe(200);
     await refresh(tab); await expect(tab.getByRole('heading', { name: '403 · 无权限' })).toBeVisible(); release();
     await refresh(page); await expect(page.getByRole('heading', { name: '403 · 无权限' })).toBeVisible();
     await tab.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
@@ -124,9 +124,9 @@ test('authorization refresh preserves unrelated drafts and rejects late lost-pag
 test('platform role tables paginate, filter and separate preset scopes', async ({ page, request }, info) => {
   const headers = await owner(request); const prefix = `界面分页_${randomBytes(4).toString('hex')}`;
   for (let i = 0; i < 12; i++) {
-    const created = await request.post(`${api}/access/roles`, { headers, data: { name: `${prefix}_${i + 1}`, description: '角色列表交互验收', reason: '准备分页验证' } });
+    const created = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `${prefix}_${i + 1}`, description: '角色列表交互验收', reason: '准备分页验证' } });
     expect(created.status()).toBe(200);
-    if (i === 0) { const role = await created.json(); expect((await request.put(`${api}/access/roles/${role.id}/status`, { headers, data: { expected_version: role.version, status: 'disabled', reason: '准备状态筛选' } })).status()).toBe(200); }
+    if (i === 0) { const role = await created.json(); expect((await request.put(`${api}/access/roles/${role.id}/status`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, status: 'disabled', reason: '准备状态筛选' } })).status()).toBe(200); }
   }
   await login(page, { username: 'e2e_owner', password }); await page.goto(`${consoleURL}/access/roles`);
   await page.getByLabel('搜索角色名称', { exact: true }).fill(prefix);

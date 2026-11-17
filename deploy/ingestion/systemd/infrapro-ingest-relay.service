@@ -1,0 +1,29 @@
+[Unit]
+Description=InfraPro cloud device relay
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=infrapro-relay
+Group=infrapro-relay
+WorkingDirectory=/opt/infrapro
+ExecStart=/opt/infrapro/bin/ingest-relay serve /etc/infrapro-relay/relay.json
+Environment=INFRAPRO_DIAGNOSTICS_INSTANCE_ID=cloud-relay
+Environment=INFRAPRO_DIAGNOSTICS_NODE_ID=cloud-node-1
+Environment=INFRAPRO_DIAGNOSTICS_REPLICA_ID=relay-1
+Environment=INFRAPRO_DIAGNOSTICS_REPORT_FILE=/run/infrapro-relay/process.json
+RuntimeDirectory=infrapro-relay
+RuntimeDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/infrapro-relay
+
+[Install]
+WantedBy=multi-user.target

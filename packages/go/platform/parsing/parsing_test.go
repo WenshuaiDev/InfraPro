@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
@@ -101,6 +102,10 @@ func setupAt(t *testing.T, version int64) fixture {
 	}
 	env, e := testsupport.NewAtMigration(ctx, slog.Default(), version)
 	must(t, e)
+	keepLoad := os.Getenv("INFRAPRO_INGESTION_LOAD") == "1" && os.Getenv("INFRAPRO_INGESTION_KEEP_LOAD") == "1"
+	if keepLoad {
+		env.PreserveSchema()
+	}
 	t.Cleanup(env.Close)
 	_, e = env.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
 	must(t, e)
@@ -146,13 +151,23 @@ func setupAt(t *testing.T, version int64) fixture {
 	f.ps.WithStorage(store)
 	f.store = store
 	f.bucket = bucket
+	if keepLoad {
+		var schema string
+		must(t, env.Pool.QueryRow(ctx, `SELECT current_schema()`).Scan(&schema))
+		data := fmt.Sprintf(`{"synthetic":true,"schema":%q,"bucket":%q,"business_container":"infrapro-ingestion-lab-business-1"}`, schema, bucket)
+		must(t, os.WriteFile(filepath.Join(os.Getenv("INFRAPRO_INGESTION_EVIDENCE"), "retained-fixture.json"), []byte(data), 0600))
+	}
 	t.Cleanup(func() {
-		for item := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Recursive: true}) {
-			if item.Err == nil {
-				_ = client.RemoveObject(ctx, bucket, item.Key, minio.RemoveObjectOptions{})
-			}
+		if keepLoad {
+			return
 		}
-		_ = client.RemoveBucket(ctx, bucket)
+		objects := client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Recursive: true})
+		for failure := range client.RemoveObjects(ctx, bucket, objects, minio.RemoveObjectsOptions{}) {
+			t.Errorf("owned fixture object cleanup: %v", failure.Err)
+		}
+		if e := client.RemoveBucket(ctx, bucket); e != nil {
+			t.Errorf("owned fixture bucket cleanup: %v", e)
+		}
 	})
 	return f
 }
@@ -174,7 +189,7 @@ func (f fixture) sync(t *testing.T) {
 	must(t, e)
 	list, e := f.ps.Methods(ctx, f.actor(), c.PlatformScope(), c.Filter{})
 	must(t, e)
-	if len(list.Items) != 3 {
+	if len(list.Items) != 4 {
 		t.Fatalf("catalog: %+v", list)
 	}
 	for _, m := range list.Items {

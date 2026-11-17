@@ -19,7 +19,7 @@ func TestFilesDefaultsAndIndependentLoader(t *testing.T) {
 	}
 }
 func TestFilesRejectsUnsafeBudgetsAndCredentialURL(t *testing.T) {
-	for _, edit := range []func(*filesInput){func(f *filesInput) { f.MaxFileBytes = "104857601" }, func(f *filesInput) { f.PartBytes = "16777216" }, func(f *filesInput) { f.Workers = "999999999999" }, func(f *filesInput) { f.CheckerMemory = "9999999999" }, func(f *filesInput) { f.CheckerTimeout = "16s" }, func(f *filesInput) { f.ChunkBytes = "65537" }, func(f *filesInput) { f.ReadTimeout = "16m" }, func(f *filesInput) { f.PreparedTTL = "48h" }, func(f *filesInput) { f.Heartbeat = "60s" }, func(f *filesInput) { f.ObjectEndpoint = "https://user:password@host" }} {
+	for _, edit := range []func(*filesInput){func(f *filesInput) { f.MaxFileBytes = "9007199254740992" }, func(f *filesInput) { f.PartBytes = "16777216" }, func(f *filesInput) { f.Workers = "999999999999" }, func(f *filesInput) { f.CheckerMemory = "9999999999" }, func(f *filesInput) { f.CheckerTimeout = "16s" }, func(f *filesInput) { f.ChunkBytes = "65537" }, func(f *filesInput) { f.ReadTimeout = "16m" }, func(f *filesInput) { f.PreparedTTL = "48h" }, func(f *filesInput) { f.Heartbeat = "60s" }, func(f *filesInput) { f.ObjectEndpoint = "https://user:password@host" }} {
 		raw := defaultFilesInput()
 		edit(&raw)
 		if _, e := parseFiles(raw); e == nil {

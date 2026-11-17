@@ -4,6 +4,7 @@ go 1.27.0
 
 require (
 	github.com/WenshuaiDev/InfraPro/packages/go/platform v0.0.0
+	github.com/WenshuaiDev/InfraPro/services/diagnostics v0.0.0
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/minio/minio-go/v7 v7.4.1
 	golang.org/x/term v0.47.0
@@ -13,7 +14,6 @@ require (
 	github.com/ClickHouse/ch-go v0.75.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.51.0 // indirect
 	github.com/WenshuaiDev/InfraPro/packages/go/foundation v0.0.0 // indirect
-	github.com/WenshuaiDev/InfraPro/services/diagnostics v0.0.0
 	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/apache/arrow-go/v18 v18.8.0 // indirect
 	github.com/apache/thrift v0.24.0 // indirect
@@ -42,6 +42,7 @@ require (
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.10 // indirect
 	github.com/shopspring/decimal v1.6.0 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect

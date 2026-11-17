@@ -15,9 +15,11 @@ import (
 
 var codePattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`)
 var mutable = map[Kind][]string{
-	Facility: {"name", "values", "position", "description", "source_reference"}, Component: {"name", "values", "position", "description", "parent_component_id"}, Point: {"name", "position", "purpose", "direction_description", "reference_description", "source_reference", "component_id"}, Channel: {"name", "description", "sampling"},
+	MonitoringSection: {"name", "values", "position", "description", "purpose", "source_reference"},
+	Borehole:          {"name", "values", "position", "description", "purpose", "source_reference", "borehole"},
+	Facility:          {"name", "values", "position", "description", "source_reference"}, Component: {"name", "values", "position", "description", "parent_component_id"}, Point: {"name", "position", "purpose", "direction_description", "reference_description", "source_reference", "component_id"}, Channel: {"name", "description", "sampling"},
 }
-var fixed = map[Kind][]string{Facility: {"code", "type_version_id"}, Component: {"code", "category_key"}, Point: {"code"}, Channel: {"code", "metric_version_id", "unit_version_id", "observation_direction", "reference_basis", "timestamp_meaning", "aggregation_description"}}
+var fixed = map[Kind][]string{MonitoringSection: {"code"}, Borehole: {"code"}, Facility: {"code", "type_version_id"}, Component: {"code", "category_key"}, Point: {"code"}, Channel: {"code", "metric_version_id", "unit_version_id", "observation_direction", "reference_basis", "timestamp_meaning", "aggregation_description"}}
 
 func strict(b []byte, v any) error {
 	d := json.NewDecoder(bytes.NewReader(b))
@@ -50,7 +52,7 @@ func parse(t scopedTarget, action string, raw json.RawMessage) (WriteMeta, map[s
 	if action != "create" {
 		allowed = append(allowed, "expected_revision")
 	}
-	if t.Kind == Component {
+	if t.Kind != Facility && t.Kind != Channel {
 		allowed = append(allowed, "expected_structure_revision")
 	}
 	if action != "create" && action != "update" {
@@ -61,6 +63,9 @@ func parse(t scopedTarget, action string, raw json.RawMessage) (WriteMeta, map[s
 	}
 	if action == "create" {
 		allowed = append(allowed, fixed[t.Kind]...)
+		if t.Kind != Facility && t.Kind != Channel {
+			allowed = append(allowed, "parent_ref")
+		}
 	}
 	for k, v := range in {
 		if !slices.Contains(allowed, k) {
@@ -121,6 +126,9 @@ func apply(r Resource, in map[string]any) (Resource, error) {
 	if e := strict(jsonBytes(in), &r); e != nil {
 		return r, problem("invalid_request", "字段类型或嵌套内容无效。", 400)
 	}
+	if r.Kind == Borehole && r.Borehole == nil {
+		r.Borehole = &BoreholeData{}
+	}
 	if r.Position == nil && r.Kind != Channel {
 		r.Position = &Position{}
 	}
@@ -128,11 +136,8 @@ func apply(r Resource, in map[string]any) (Resource, error) {
 		if r.Position.LinearReferences == nil {
 			r.Position.LinearReferences = []LinearReference{}
 		}
-		if r.Position.Sections == nil {
-			r.Position.Sections = []Section{}
-		}
 	}
-	if r.Values == nil && (r.Kind == Facility || r.Kind == Component) {
+	if r.Values == nil && (r.Kind == Facility || r.Kind == Component || r.Kind == MonitoringSection || r.Kind == Borehole) {
 		r.Values = map[string]any{}
 	}
 	return r, nil
@@ -160,6 +165,9 @@ func validateBasic(r Resource) error {
 	}
 	if len(jsonBytes(r.Values)) > 128*1024 {
 		return problem("input_too_large", "属性值最多 128 KiB。", 413)
+	}
+	if e := validateStructureBasic(r); e != nil {
+		return e
 	}
 	if e := ValidatePosition(r.Position); e != nil {
 		return e

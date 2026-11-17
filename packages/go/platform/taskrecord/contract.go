@@ -83,6 +83,7 @@ type Definition struct {
 }
 
 var definitions = []Definition{
+	{Type: "ingestion.reprocess", Module: "ingestion", Kind: "recovery", Title: "接入报文恢复", Actions: []string{"cancel", "retry"}, Scopes: []string{"platform", "tenant"}},
 	{Type: "parsing.test", Module: "parsing", Kind: "run", Title: "样本试解析", Actions: []string{"cancel", "retry"}, Scopes: []string{"platform", "tenant"}},
 	{Type: "audit.export", Module: "audit", Kind: "export", Title: "审计导出", Actions: []string{"cancel", "retry"}, Scopes: []string{"platform", "tenant", "project"}},
 	{Type: "files.prepare", Module: "files", Kind: "job", Title: "文件检查与附件绑定", Actions: []string{"cancel", "retry"}},
@@ -157,7 +158,7 @@ func (c Change) Validate() error {
 	}
 	ids := []string{c.RootID}
 	if c.Scope.Kind == "platform" {
-		if (c.Type != "audit.export" && c.Type != "parsing.test") || c.Scope.Tenant != "" || c.Scope.Project != "" {
+		if (c.Type != "audit.export" && c.Type != "parsing.test" && c.Type != "ingestion.reprocess") || c.Scope.Tenant != "" || c.Scope.Project != "" {
 			return fmt.Errorf("invalid platform task scope")
 		}
 	} else {

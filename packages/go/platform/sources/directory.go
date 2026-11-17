@@ -14,17 +14,26 @@ import (
 // same visibility rules as Current; it does not grant source management.
 type DirectoryItem struct {
 	Target
-	Name         string     `json:"name"`
-	Code         string     `json:"code"`
-	FacilityName string     `json:"facility_name"`
-	FacilityCode string     `json:"facility_code"`
-	PointName    string     `json:"point_name"`
-	PointCode    string     `json:"point_code"`
-	MetricName   string     `json:"metric_name"`
-	UnitSymbol   string     `json:"unit_symbol"`
-	State        string     `json:"state"`
-	Source       Projection `json:"source"`
-	CreatedAt    time.Time  `json:"-"`
+	Name          string               `json:"name"`
+	Code          string               `json:"code"`
+	FacilityName  string               `json:"facility_name"`
+	FacilityCode  string               `json:"facility_code"`
+	PointName     string               `json:"point_name"`
+	PointCode     string               `json:"point_code"`
+	ComponentPath []DirectoryComponent `json:"component_path"`
+	MetricName    string               `json:"metric_name"`
+	UnitSymbol    string               `json:"unit_symbol"`
+	State         string               `json:"state"`
+	Source        Projection           `json:"source"`
+	CreatedAt     time.Time            `json:"-"`
+}
+
+// ComponentPath is ordered from the facility down to the point's parent.
+// An empty path means the point belongs directly to its facility.
+type DirectoryComponent struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
 }
 
 type DirectoryPage struct {
@@ -37,7 +46,7 @@ type DirectoryPage struct {
 // device cannot be discovered indirectly by searching its name or code.
 const directorySet = `WITH channels AS (
  SELECT c.id,c.facility_id,c.point_id,c.name,c.code,c.created_at,
- f.name facility_name,f.code facility_code,p.name point_name,p.code point_code,
+ f.name facility_name,f.code facility_code,p.name point_name,p.code point_code,lineage.component_path,
  v.content->>'name' metric_name,COALESCE(u.content->'unit'->>'symbol','') unit_symbol,
  CASE WHEN lineage.retired THEN 'retired'
       WHEN b.id IS NULL THEN 'unbound'
@@ -55,14 +64,17 @@ const directorySet = `WITH channels AS (
  LEFT JOIN devices d ON d.tenant_id=o.tenant_id AND d.id=o.device_id
  CROSS JOIN LATERAL (
    WITH RECURSIVE ancestors AS (
-     SELECT * FROM engineering_resource_nodes WHERE tenant_id=c.tenant_id AND kind='channel' AND id=c.id
-     UNION ALL SELECT n.* FROM engineering_resource_nodes n JOIN ancestors a ON n.tenant_id=a.tenant_id AND n.kind=a.parent_kind AND n.id=a.parent_id
-   ) SELECT bool_or(status<>'normal') retired,bool_or(deleted_at IS NOT NULL) deleted FROM ancestors
+     SELECT n.*,0 depth FROM engineering_resource_nodes n WHERE tenant_id=c.tenant_id AND kind='channel' AND id=c.id
+     UNION ALL SELECT n.*,a.depth+1 FROM engineering_resource_nodes n JOIN ancestors a ON n.tenant_id=a.tenant_id AND n.kind=a.parent_kind AND n.id=a.parent_id
+   ) SELECT bool_or(status<>'normal') retired,bool_or(deleted_at IS NOT NULL) deleted,
+     COALESCE(jsonb_agg(jsonb_build_object('id',id,'name',name,'code',code) ORDER BY depth DESC) FILTER (WHERE kind='component'),'[]'::jsonb) component_path,
+     bool_or(kind='component' AND (name ILIKE '%'||$5||'%' OR code ILIKE '%'||$5||'%')) component_matches
+   FROM ancestors
  ) lineage
  WHERE c.tenant_id=$1 AND c.source_kind='direct' AND NOT lineage.deleted
  AND ($2::uuid IS NULL OR c.facility_id=$2) AND ($3::uuid IS NULL OR c.point_id=$3)
  AND ($6::uuid IS NULL OR c.id=$6)
- AND ($5='' OR c.name ILIKE '%'||$5||'%' OR c.code ILIKE '%'||$5||'%' OR p.name ILIKE '%'||$5||'%' OR p.code ILIKE '%'||$5||'%' OR f.name ILIKE '%'||$5||'%' OR f.code ILIKE '%'||$5||'%')
+ AND ($5='' OR lineage.component_matches OR c.name ILIKE '%'||$5||'%' OR c.code ILIKE '%'||$5||'%' OR p.name ILIKE '%'||$5||'%' OR p.code ILIKE '%'||$5||'%' OR f.name ILIKE '%'||$5||'%' OR f.code ILIKE '%'||$5||'%')
  ) `
 
 func (s *Service) Directory(ctx context.Context, a access.Actor, scope Scope, f Filter) (DirectoryPage, error) {
@@ -103,7 +115,7 @@ func (s *Service) Directory(ctx context.Context, a access.Actor, scope Scope, f 
 			return err
 		}
 		args = append(args, f.State, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1)
-		rows, err := tx.Query(ctx, directorySet+`SELECT id::text,facility_id::text,point_id::text,name,code,facility_name,facility_code,point_name,point_code,metric_name,unit_symbol,state,created_at,binding FROM channels WHERE ($7='' OR state=$7) AND ($8::timestamptz IS NULL OR (created_at,id)>($8,$9::uuid)) ORDER BY created_at,id LIMIT $10`, args...)
+		rows, err := tx.Query(ctx, directorySet+`SELECT id::text,facility_id::text,point_id::text,name,code,facility_name,facility_code,point_name,point_code,component_path,metric_name,unit_symbol,state,created_at,binding FROM channels WHERE ($7='' OR state=$7) AND ($8::timestamptz IS NULL OR (created_at,id)>($8,$9::uuid)) ORDER BY created_at,id LIMIT $10`, args...)
 		if err != nil {
 			return err
 		}
@@ -112,7 +124,7 @@ func (s *Service) Directory(ctx context.Context, a access.Actor, scope Scope, f 
 		for rows.Next() {
 			var v DirectoryItem
 			var raw []byte
-			if err = rows.Scan(&v.ChannelID, &v.FacilityID, &v.PointID, &v.Name, &v.Code, &v.FacilityName, &v.FacilityCode, &v.PointName, &v.PointCode, &v.MetricName, &v.UnitSymbol, &v.State, &v.CreatedAt, &raw); err != nil {
+			if err = rows.Scan(&v.ChannelID, &v.FacilityID, &v.PointID, &v.Name, &v.Code, &v.FacilityName, &v.FacilityCode, &v.PointName, &v.PointCode, &v.ComponentPath, &v.MetricName, &v.UnitSymbol, &v.State, &v.CreatedAt, &raw); err != nil {
 				rows.Close()
 				return err
 			}

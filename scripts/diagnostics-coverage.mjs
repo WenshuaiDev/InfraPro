@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { resolve, relative, join } from 'node:path';
 export function checkCoverage({ root = resolve('.'), additionalEntries = [] } = {}) {
   const catalog = JSON.parse(readFileSync(join(root, 'contracts/diagnostics/runtime-catalog.json'), 'utf8')).entries;
-  const entries = [...readdirSync(join(root, 'services/api/cmd')).map((name) => `services/api/cmd/${name}/main.go`), 'services/parser/cmd/parser/main.go', ...additionalEntries];
+  const entries = [...readdirSync(join(root, 'services/api/cmd')).map((name) => `services/api/cmd/${name}/main.go`), 'services/parser/cmd/parser/main.go', 'services/ingest-relay/cmd/ingest-relay/main.go', ...additionalEntries];
   for (const entry of entries) {
     const matches = catalog.filter((item) => item.entry_point === entry);
     if (matches.length !== 1 || !matches[0].reason || !matches[0].lanes.length) throw Error(`Missing runtime catalog ownership: ${entry}`);

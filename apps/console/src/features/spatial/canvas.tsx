@@ -15,8 +15,9 @@ import type {
 import { Button } from "@infrapro/ui/components/button";
 import { ObjectHistory } from "../audit/object-history";
 import { useSpatial } from "./context";
+import { allSpatialPages } from "./facility-model";
 import { Field, TextField, Failure, Info } from "./common";
-import { inputClass, objectKey, type Pick } from "./state";
+import { inputClass, objectKey, canPlace, type Pick } from "./state";
 const Layout = lazy(() => import("./layout-viewer")),
   Model = lazy(() => import("./model-viewer")),
   MapView = lazy(() => import("./map-viewer"));
@@ -27,23 +28,33 @@ export function ResourceMap({
   bbox,
   onBBox,
   children,
+  facility,
+  compact = false,
 }: {
   owner?: SpatialObjectRef;
   select: (o: SpatialObjectRef) => void;
   hover: (o?: SpatialObjectRef) => void;
   bbox: string;
   onBBox: (s: string) => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  facility?: string;
+  compact?: boolean;
 }) {
   const m = useSpatial(),
     [kind, setKind] = useState("facility");
   const q = useInfiniteQuery({
-    queryKey: [...m.prefix, "map-objects", bbox, kind],
+    queryKey: [...m.prefix, "map-objects", bbox, kind, facility],
     initialPageParam: "",
     queryFn: ({ signal, pageParam }) =>
       m.client.spatialObjects(
         m.scope,
-        { kind, bbox: bbox || undefined, cursor: pageParam, limit: 100 },
+        {
+          kind,
+          facility_id: facility,
+          bbox: bbox || undefined,
+          cursor: pageParam,
+          limit: 100,
+        },
         signal,
       ),
     getNextPageParam: (p) => p.next_cursor || undefined,
@@ -74,10 +85,18 @@ export function ResourceMap({
         >
           <option value="facility">设施位置</option>
           <option value="component">构件位置</option>
+          <option value="monitoring_section">断面位置</option>
+          <option value="borehole">孔位位置</option>
           <option value="point">测点位置</option>
         </select>
       </Field>
-      <div className="relative h-[560px] overflow-hidden rounded-xl border">
+      <div
+        className={
+          compact
+            ? "spatial-canvas-stage"
+            : "relative h-[560px] overflow-hidden rounded-xl border"
+        }
+      >
         <Suspense fallback={<Info>正在加载地图…</Info>}>
           <MapView
             objects={objects}
@@ -127,6 +146,7 @@ export function VersionCanvas({
   bbox,
   onBBox,
   children,
+  compact = false,
 }: {
   version: SpatialVersion;
   asset: SpatialAsset;
@@ -142,7 +162,8 @@ export function VersionCanvas({
   hover: (o?: SpatialObjectRef) => void;
   bbox: string;
   onBBox: (s: string) => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  compact?: boolean;
 }) {
   const m = useSpatial(),
     [settings, setSettings] = useState<SpatialSettings>(version.settings),
@@ -208,6 +229,16 @@ export function VersionCanvas({
     enabled: m.available && !!version.manifest_hash,
     retry: false,
   });
+  useEffect(() => {
+    if (
+      compact &&
+      links.hasNextPage &&
+      !links.isFetching &&
+      !links.isError &&
+      (links.data?.pages.length ?? 0) < 10
+    )
+      void links.fetchNextPage();
+  }, [compact, links]);
   const features = useInfiniteQuery({
     queryKey: [...m.prefix, "features", version.id, bbox],
     initialPageParam: "",
@@ -263,23 +294,27 @@ export function VersionCanvas({
   const selectedPoints = useQuery({
     queryKey: [...m.prefix, "selected-placements", version.id, owner],
     queryFn: ({ signal }) =>
-      m.client.spatialPlacements(
-        m.scope,
-        version.id,
-        { owner_id: owner!.id, limit: 100 },
-        signal,
+      allSpatialPages((cursor) =>
+        m.client.spatialPlacements(
+          m.scope,
+          version.id,
+          { owner_id: owner!.id, kind: owner!.kind, limit: 100, cursor },
+          signal,
+        ),
       ),
-    enabled: owner?.kind === "point" && m.available,
+    enabled: canPlace(owner?.kind) && m.available,
     retry: false,
   });
   const selectedLinks = useQuery({
     queryKey: [...m.prefix, "selected-links", version.id, owner],
     queryFn: ({ signal }) =>
-      m.client.spatialComponentLinks(
-        m.scope,
-        version.id,
-        { owner_id: owner!.id, limit: 100 },
-        signal,
+      allSpatialPages((cursor) =>
+        m.client.spatialComponentLinks(
+          m.scope,
+          version.id,
+          { owner_id: owner!.id, kind: owner!.kind, limit: 100, cursor },
+          signal,
+        ),
       ),
     enabled: owner?.kind === "component" && m.available,
     retry: false,
@@ -305,7 +340,7 @@ export function VersionCanvas({
     const key = owner ? objectKey(owner) : "";
     if (!key || locatedOwner.current === key) return;
     const targets =
-      owner?.kind === "point"
+      canPlace(owner?.kind)
         ? selectedPoints.data?.items
         : selectedLinks.data?.items;
     if (!targets) return;
@@ -364,7 +399,13 @@ export function VersionCanvas({
       {asset.status === "retired" && (
         <Info>资料已退役，保留当前获准版本供历史查询。</Info>
       )}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
+      <div
+        className={
+          compact
+            ? "spatial-canvas-tools"
+            : "flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3"
+        }
+      >
         {asset.kind === "layout" && (
           <Field label="图纸页码">
             <select
@@ -382,11 +423,21 @@ export function VersionCanvas({
         )}
         {asset.kind !== "geolayer" && (
           <div className="flex flex-wrap items-end gap-3">
-            <TextField
-              label="搜索当前图面的测点与关联"
-              value={markerQuery}
-              onChange={setMarkerQuery}
-            />
+            {compact ? (
+              <input
+                aria-label="搜索当前图面的测点与关联"
+                placeholder="搜索图面测点与构件"
+                className="spatial-search"
+                value={markerQuery}
+                onChange={(event) => setMarkerQuery(event.target.value)}
+              />
+            ) : (
+              <TextField
+                label="搜索当前图面的测点与关联"
+                value={markerQuery}
+                onChange={setMarkerQuery}
+              />
+            )}
             <label className="flex min-h-11 items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -398,7 +449,13 @@ export function VersionCanvas({
           </div>
         )}
       </div>
-      <div className="relative h-[560px] overflow-hidden rounded-xl border">
+      <div
+        className={
+          compact
+            ? "spatial-canvas-stage"
+            : "relative h-[560px] overflow-hidden rounded-xl border"
+        }
+      >
         <Suspense fallback={<Info>正在加载空间视图…</Info>}>
           {asset.kind === "layout" && page ? (
             <Layout key={page.id} page={page} version={version.id} {...scene} />
@@ -476,8 +533,9 @@ export function VersionCanvas({
         )}
       </div>
       {saveView.isSuccess && <Info>项目默认视图已保存。</Info>}
-      {owner &&
-        (owner.kind === "point"
+      {!compact &&
+        owner &&
+        (canPlace(owner.kind)
           ? selectedPoints.data?.items.length === 0
           : owner.kind === "component"
             ? selectedLinks.data?.items.length === 0
@@ -486,27 +544,31 @@ export function VersionCanvas({
             当前固定版本没有此对象的可读挂载；可通过“空间位置”查找其他载体。
           </Info>
         )}
-      <p className="text-xs text-muted-foreground" aria-label="空间图例">
-        蓝色：业务标记；橙色／金色：已选择；灰色：已退役。颜色不表示结构安全等级。
-      </p>
+      {!compact && (
+        <p className="text-xs text-muted-foreground" aria-label="空间图例">
+          蓝色：业务标记；橙色／金色：已选择；灰色：已退役。颜色不表示结构安全等级。
+        </p>
+      )}
       <p className="text-xs text-muted-foreground">
         {asset.kind === "geolayer"
           ? `已载入 ${features.data?.pages.reduce((n, p) => n + p.items.length, 0) ?? 0} 个地理图形。业务关联按当前完整资源权限显示。`
           : `已载入 ${pointItems.length} 个测点、${linkItems.length} 个构件关联。标签、位置和监测状态来自当前可读对象。`}
       </p>
-      <details className="text-sm">
-        <summary className="cursor-pointer py-2 text-muted-foreground">
-          资料与版本操作记录
-        </summary>
-        <div className="flex flex-wrap gap-2 py-2">
-          <ObjectHistory objectType="spatial_asset" objectId={asset.id} />
-          <ObjectHistory
-            objectType="spatial_version"
-            objectId={version.id}
-            label="此版本操作历史"
-          />
-        </div>
-      </details>
+      {!compact && (
+        <details className="text-sm">
+          <summary className="cursor-pointer py-2 text-muted-foreground">
+            资料与版本操作记录
+          </summary>
+          <div className="flex flex-wrap gap-2 py-2">
+            <ObjectHistory objectType="spatial_asset" objectId={asset.id} />
+            <ObjectHistory
+              objectType="spatial_version"
+              objectId={version.id}
+              label="此版本操作历史"
+            />
+          </div>
+        </details>
+      )}
     </>
   );
 }

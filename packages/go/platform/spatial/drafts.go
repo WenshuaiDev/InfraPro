@@ -33,7 +33,7 @@ func rowsJSON[T any](ctx context.Context, tx pgx.Tx, query string, args ...any) 
 func draftTx(ctx context.Context, tx pgx.Tx, asset Asset, v Version) (Draft, error) {
 	out := Draft{Asset: asset, Version: v}
 	var e error
-	out.Placements, e = rowsJSON[Placement](ctx, tx, `SELECT to_jsonb(p) FROM spatial_point_placements p WHERE version_id=$1 ORDER BY id`, v.ID)
+	out.Placements, e = rowsJSON[Placement](ctx, tx, `SELECT to_jsonb(p)||CASE WHEN target_kind='point' THEN '{}'::jsonb ELSE jsonb_build_object('target_ref',jsonb_build_object('kind',target_kind,'id',target_id)) END FROM spatial_point_placements p WHERE version_id=$1 ORDER BY id`, v.ID)
 	if e != nil {
 		return out, e
 	}
@@ -78,8 +78,19 @@ func hasElement(v Version, id string) bool {
 	}
 	return false
 }
+func placementRef(p Placement) ObjectRef {
+	if p.TargetRef != nil {
+		return *p.TargetRef
+	}
+	return ObjectRef{"point", p.PointID}
+}
 func validatePlacement(a Asset, v Version, p Placement) error {
-	if !access.ValidID(p.PointID) || p.ID != "" && !access.ValidID(p.ID) {
+	ref := placementRef(p)
+	if !slices.Contains([]string{"point", "monitoring_section", "borehole"}, ref.Kind) || p.TargetRef != nil && (ref.Kind == "point" && p.PointID != "" && p.PointID != ref.ID || ref.Kind != "point" && p.PointID != "") {
+		return invalid("/placements/target_ref", "挂载目标须为测点、断面或孔位，不能同时指定冲突身份。")
+	}
+
+	if !access.ValidID(ref.ID) || p.ID != "" && !access.ValidID(p.ID) {
 		return invalid("/placements", "测点或挂载 ID 无效。")
 	}
 	if !vector(p.LabelOffset, 2, false) || slices.ContainsFunc(p.LabelOffset, func(x float64) bool { return x < -2000 || x > 2000 }) {
@@ -96,7 +107,7 @@ func validatePlacement(a Asset, v Version, p Placement) error {
 	} else {
 		return invalid("/placements", "地图位置来自工程资源，不能拖动或另建覆盖坐标。")
 	}
-	return nil
+	return validateAssociationGeometry(a, p)
 }
 func validateLink(a Asset, v Version, l ComponentLink) error {
 	if !access.ValidID(l.ComponentID) || l.ID != "" && !access.ValidID(l.ID) {
@@ -174,7 +185,7 @@ func (s *Service) settingsTx(ctx context.Context, tx pgx.Tx, a access.Actor, sco
 	return nil
 }
 func splitOwner(key string) ObjectRef {
-	for _, kind := range []string{"point", "component", "facility"} {
+	for _, kind := range []string{"point", "component", "monitoring_section", "borehole", "facility"} {
 		prefix := kind + ":"
 		if len(key) > len(prefix) && key[:len(prefix)] == prefix && access.ValidID(key[len(prefix):]) {
 			return ObjectRef{kind, key[len(prefix):]}
@@ -211,6 +222,7 @@ func (s *Service) EditDraft(ctx context.Context, a access.Actor, scope Scope, id
 		if len(in.Placements)+len(in.ComponentLinks)+len(in.FeatureLinks)+len(in.RemovePlacements)+len(in.RemoveComponentLinks)+len(in.RemoveFeatureLinks) > 1000 {
 			return invalid("/changes", "单次最多修改 1000 个关系。")
 		}
+		readSameFacility := s.sameFacilityReaderTx(ctx, tx, a, scope)
 		for table, ids := range map[string][]string{"spatial_point_placements": in.RemovePlacements, "spatial_component_links": in.RemoveComponentLinks} {
 			for _, rid := range ids {
 				if !access.ValidID(rid) {
@@ -235,18 +247,18 @@ func (s *Service) EditDraft(ctx context.Context, a access.Actor, scope Scope, id
 				return e
 			}
 			newUse := p.ID == ""
-			o, e := s.sameFacility(ctx, tx, a, scope, ObjectRef{"point", p.PointID}, asset.FacilityID, newUse)
+			o, e := readSameFacility(placementRef(p), asset.FacilityID, newUse)
 			if e != nil {
 				return e
 			}
-			if e = s.channelTx(ctx, tx, a, scope, p.MainChannelID, ObjectRef{"point", p.PointID}, asset.FacilityID); e != nil {
+			if e = s.channelTx(ctx, tx, a, scope, p.MainChannelID, placementRef(p), asset.FacilityID); e != nil {
 				return e
 			}
 			if newUse {
 				p.ID = uuid.NewString()
-				_, e = tx.Exec(ctx, `INSERT INTO spatial_point_placements(id,tenant_id,asset_id,facility_id,version_id,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`, p.ID, scope.Tenant, asset.ID, asset.FacilityID, id, p.PointID, p.PageID, k.JSON(p.Anchor), p.ElementKey, k.JSON(p.LabelOffset), k.Nullable(p.MainChannelID), o.BasisHash)
+				_, e = tx.Exec(ctx, `INSERT INTO spatial_point_placements(id,tenant_id,asset_id,facility_id,version_id,point_id,page_id,anchor,element_key,label_offset,main_channel_id,basis_hash,target_kind,target_id,geometry) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,NULLIF($15::jsonb,'null'::jsonb))`, p.ID, scope.Tenant, asset.ID, asset.FacilityID, id, k.Nullable(p.PointID), p.PageID, k.JSON(p.Anchor), p.ElementKey, k.JSON(p.LabelOffset), k.Nullable(p.MainChannelID), o.BasisHash, placementRef(p).Kind, placementRef(p).ID, k.JSON(p.Geometry))
 			} else {
-				tag, err := tx.Exec(ctx, `UPDATE spatial_point_placements SET page_id=$4,anchor=$5,element_key=$6,label_offset=$7,main_channel_id=$8,basis_hash=$9 WHERE tenant_id=$1 AND version_id=$2 AND id=$3 AND point_id=$10`, scope.Tenant, id, p.ID, p.PageID, k.JSON(p.Anchor), p.ElementKey, k.JSON(p.LabelOffset), k.Nullable(p.MainChannelID), o.BasisHash, p.PointID)
+				tag, err := tx.Exec(ctx, `UPDATE spatial_point_placements SET page_id=$4,anchor=$5,element_key=$6,label_offset=$7,main_channel_id=$8,basis_hash=$9,geometry=NULLIF($12::jsonb,'null'::jsonb) WHERE tenant_id=$1 AND version_id=$2 AND id=$3 AND target_kind=$10 AND target_id=$11`, scope.Tenant, id, p.ID, p.PageID, k.JSON(p.Anchor), p.ElementKey, k.JSON(p.LabelOffset), k.Nullable(p.MainChannelID), o.BasisHash, placementRef(p).Kind, placementRef(p).ID, k.JSON(p.Geometry))
 				e = err
 				if e == nil && tag.RowsAffected() != 1 {
 					return notFound()
@@ -261,7 +273,7 @@ func (s *Service) EditDraft(ctx context.Context, a access.Actor, scope Scope, id
 				return e
 			}
 			newUse := l.ID == ""
-			o, e := s.sameFacility(ctx, tx, a, scope, ObjectRef{"component", l.ComponentID}, asset.FacilityID, newUse)
+			o, e := readSameFacility(ObjectRef{"component", l.ComponentID}, asset.FacilityID, newUse)
 			if e != nil {
 				return e
 			}
@@ -286,7 +298,7 @@ func (s *Service) EditDraft(ctx context.Context, a access.Actor, scope Scope, id
 			if asset.Kind != "geolayer" || !slices.ContainsFunc(v.Manifest.Features, func(f Feature) bool { return f.ID == l.FeatureKey }) {
 				return invalid("/feature_links", "图形不属于当前地理图层。")
 			}
-			if _, e = s.sameFacility(ctx, tx, a, scope, ObjectRef{"facility", l.FacilityID}, l.FacilityID, true); e != nil {
+			if _, e = readSameFacility(ObjectRef{"facility", l.FacilityID}, l.FacilityID, true); e != nil {
 				return e
 			}
 			_, e = tx.Exec(ctx, `INSERT INTO spatial_feature_links(tenant_id,version_id,feature_key,facility_id) VALUES($1,$2,$3,$4) ON CONFLICT(version_id,feature_key) DO UPDATE SET facility_id=EXCLUDED.facility_id`, scope.Tenant, id, l.FeatureKey, l.FacilityID)
@@ -318,9 +330,10 @@ func (s *Service) EditDraft(ctx context.Context, a access.Actor, scope Scope, id
 	return out, e
 }
 func (s *Service) projectDraftTx(ctx context.Context, tx pgx.Tx, a access.Actor, auth k.Authorization, out *Draft) error {
+	readObject := s.objectReaderTx(ctx, tx, a, auth.Scope)
 	placements := []Placement{}
 	for _, p := range out.Placements {
-		o, e := s.objectTx(ctx, tx, a, auth.Scope, ObjectRef{"point", p.PointID})
+		o, e := readObject(placementRef(p))
 		if restricted(e) {
 			continue
 		}
@@ -339,7 +352,7 @@ func (s *Service) projectDraftTx(ctx context.Context, tx pgx.Tx, a access.Actor,
 	out.Placements = placements
 	links := []ComponentLink{}
 	for _, l := range out.ComponentLinks {
-		o, e := s.objectTx(ctx, tx, a, auth.Scope, ObjectRef{"component", l.ComponentID})
+		o, e := readObject(ObjectRef{"component", l.ComponentID})
 		if restricted(e) {
 			continue
 		}
@@ -358,7 +371,7 @@ func (s *Service) projectDraftTx(ctx context.Context, tx pgx.Tx, a access.Actor,
 	out.ComponentLinks = links
 	features := []FeatureLink{}
 	for _, l := range out.FeatureLinks {
-		_, e := s.objectTx(ctx, tx, a, auth.Scope, ObjectRef{"facility", l.FacilityID})
+		_, e := readObject(ObjectRef{"facility", l.FacilityID})
 		if restricted(e) {
 			continue
 		}
@@ -395,7 +408,7 @@ func (s *Service) projectDraftTx(ctx context.Context, tx pgx.Tx, a access.Actor,
 	}
 	for key, id := range out.Version.Settings.MainChannels {
 		owner := splitOwner(key)
-		_, e := s.objectTx(ctx, tx, a, auth.Scope, owner)
+		_, e := readObject(owner)
 		if e == nil {
 			e = s.channelTx(ctx, tx, a, auth.Scope, id, owner, out.Asset.FacilityID)
 		}

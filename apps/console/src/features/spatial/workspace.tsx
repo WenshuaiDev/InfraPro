@@ -22,12 +22,14 @@ import { Button } from "@infrapro/ui/components/button";
 import { Badge } from "@infrapro/ui/components/badge";
 import { ResponsivePanel } from "@infrapro/ui/patterns/responsive-panel";
 import { useSpatial } from "./context";
+import { FacilitySpatialWorkspace } from "./facility-workspace";
 import { AssetManager } from "./asset-manager";
 import { DraftEditor } from "./draft-editor";
 import { ObjectPanel, HoverSummary } from "./object-panel";
 import { Failure, Info, TextField } from "./common";
 import {
   assetKinds,
+  canPlace,
   inputClass,
   objectKey,
   sectionForKind,
@@ -50,7 +52,7 @@ type Props = {
 export function SpatialWorkspace(props: Props) {
   const m = useSpatial();
   if (!m.canRead) return <Info>当前身份没有空间浏览权限。</Info>;
-  return <Workspace {...props} />;
+  return m.scope.kind === "tenant" ? <FacilitySpatialWorkspace {...props} /> : <Workspace {...props} />;
 }
 function Workspace({ search, onSearch, facility }: Props) {
   const m = useSpatial(),
@@ -306,10 +308,10 @@ function Workspace({ search, onSearch, facility }: Props) {
       m.client.spatialPlacements(
         m.scope,
         search.version!,
-        { owner_id: owner!.id, limit: 100 },
+        { owner_id: owner!.id, kind: owner!.kind, limit: 100 },
         signal,
       ),
-    enabled: !!search.version && owner?.kind === "point" && m.available,
+    enabled: !!search.version && canPlace(owner?.kind) && m.available,
     retry: false,
   });
   const selectedLink = useQuery({
@@ -318,7 +320,7 @@ function Workspace({ search, onSearch, facility }: Props) {
       m.client.spatialComponentLinks(
         m.scope,
         search.version!,
-        { owner_id: owner!.id, limit: 100 },
+        { owner_id: owner!.id, kind: owner!.kind, limit: 100 },
         signal,
       ),
     enabled: !!search.version && owner?.kind === "component" && m.available,

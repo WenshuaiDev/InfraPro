@@ -56,7 +56,7 @@ export type DerivedSaveConfigInput = Schema<'DerivedSaveConfigInput'>;
 export type DerivedConfigPreviewInput = Schema<'DerivedConfigPreviewInput'>;
 export type DerivedConfigPreview = Schema<'DerivedConfigPreview'>;
 export type DerivedRunFilter = { channel_id?: string; state?: Schema<'MonitoringJob'>['state']; cursor?: string; limit?: number };
-export type DerivedChannelFilter = { q?: string; cursor?: string; limit?: number; facility_id?: string; owner_kind?: 'facility' | 'component' | 'point'; owner_id?: string; control_state?: 'draft' | 'enabled' | 'paused' | 'retired' };
+export type DerivedChannelFilter = { q?: string; cursor?: string; limit?: number; facility_id?: string; owner_kind?: 'facility' | 'component' | 'monitoring_section' | 'borehole' | 'point'; owner_id?: string; control_state?: 'draft' | 'enabled' | 'paused' | 'retired' };
 export type DerivedFilter = { q?: string; state?: 'published' | 'draft'; cursor?: string; limit?: number };
 type TenantScope = Extract<DerivedScope, { kind: 'tenant' }>;
 type Request = <T>(path: string, method?: string, body?: unknown, notify?: boolean, signal?: AbortSignal, options?: MonitoringRequestOptions) => Promise<T>;

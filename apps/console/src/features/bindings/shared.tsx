@@ -3,14 +3,14 @@ import type { DeviceOutput, DeviceSourceCurrent } from '@infrapro/api-client';
 import { Badge } from '@infrapro/ui/components/badge';
 import { Button } from '@infrapro/ui/components/button';
 import { cn } from '@infrapro/ui/lib/utils';
-import { stateLabels, visibleOutput, type BindingRow } from './model';
+import { bindingLocation, stateLabels, visibleOutput, type BindingRow } from './model';
 
 export function BindingStatus({ state }: { state: BindingRow['state'] }) {
   const Icon = state === 'bound' ? Check : state === 'attention' ? CircleAlert : state === 'restricted' ? LockKeyhole : Unplug;
-  return <Badge variant="outline" className={cn('shrink-0 gap-1 font-normal', state === 'attention' ? 'border-destructive/40 text-destructive' : state === 'bound' ? 'bg-primary/5' : 'bg-muted/40 text-muted-foreground')}><Icon className="size-3" aria-hidden="true" />{stateLabels[state]}</Badge>;
+  return <Badge variant="outline" className={cn('shrink-0 gap-1 font-normal', state === 'attention' ? 'border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200' : state === 'bound' ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200' : 'bg-muted/40 text-muted-foreground')}><Icon className="size-3" aria-hidden="true" />{stateLabels[state]}</Badge>;
 }
 export function ChannelIdentity({ row, location = true }: { row: BindingRow; location?: boolean }) {
-  return <div className="min-w-0 space-y-1">{location && <p className="break-words text-xs text-muted-foreground">{row.facility_name} / {row.point_name}</p>}<p className="break-words font-medium">{row.name}</p><p className="break-words text-xs text-muted-foreground">{row.code} · {row.metric_name}{row.unit_symbol && ` · ${row.unit_symbol}`}</p></div>;
+  return <div className="min-w-0 space-y-1">{location && <p className="break-words text-xs text-muted-foreground">{bindingLocation(row).join(' / ')}</p>}<p className="break-words font-medium">{row.name}</p><p className="break-words text-xs text-muted-foreground">{row.code} · {row.metric_name}{row.unit_symbol && ` · ${row.unit_symbol}`}</p></div>;
 }
 export function Equipment({ output }: { output: DeviceOutput }) {
   return <div className="min-w-0 space-y-1"><p className="break-words text-sm font-medium">{output.device.name}</p><p className="break-words text-xs text-muted-foreground">{output.name} · {output.slot_key} · 第 {output.generation} 代</p><p className="break-all text-xs text-muted-foreground">{output.device.code}</p>{(output.device_status !== 'enabled' || output.ended_at) && <p className="text-xs text-destructive">{output.ended_at ? '该输出代次已结束' : '设备已停用'}，请核对或更换</p>}</div>;
@@ -25,7 +25,7 @@ export function PairSummary({ row, output, unbind = false }: { row: BindingRow; 
 export function PageButtons({ page, hasNext, busy, previous, next, label }: { page: number; hasNext: boolean; busy: boolean; previous: () => void; next: () => void; label: string }) {
   return <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3"><Button className="min-h-11" variant="ghost" disabled={!page || busy} onClick={previous}>上一页{label}</Button><span className="text-xs text-muted-foreground">第 {page + 1} 页</span><Button className="min-h-11" variant="ghost" disabled={!hasNext || busy} onClick={next}>下一页{label}</Button></div>;
 }
-export function DesignMeaning({ row, current }: { row: BindingRow; current: DeviceSourceCurrent }) {
+export function DesignMeaning({ row, current, expanded = false }: { row: BindingRow; current: DeviceSourceCurrent; expanded?: boolean }) {
   const s = current.semantics;
-  return <details className="rounded-lg border p-3"><summary className="min-h-8 cursor-pointer text-sm font-medium">设计要求 · 观测含义</summary><dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">{[['指标', row.metric_name], ['单位', row.unit_symbol || '无量纲'], ['值类型', s.value_shape === 'decimal' ? '数值' : s.value_shape === 'enum' ? '枚举状态' : s.value_shape], ['时间含义', s.timestamp_meaning === 'observation_time' ? '观测时刻' : s.timestamp_meaning === 'interval_end' ? '统计时段结束' : s.timestamp_meaning], ['聚合说明', s.aggregation_description || '无'], ['观测方向', s.observation_direction || '无'], ['参考基准', s.reference_basis || '无']].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 break-words">{value}</dd></div>)}</dl></details>;
+  return <details open={expanded || undefined} className="rounded-lg border p-3"><summary className="min-h-8 cursor-pointer text-sm font-medium">设计要求 · 观测含义</summary><dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">{[['指标', row.metric_name], ['单位', row.unit_symbol || '无量纲'], ['值类型', s.value_shape === 'decimal' ? '数值' : s.value_shape === 'enum' ? '枚举状态' : s.value_shape], ['时间含义', s.timestamp_meaning === 'observation_time' ? '观测时刻' : s.timestamp_meaning === 'interval_end' ? '统计时段结束' : s.timestamp_meaning], ['聚合说明', s.aggregation_description || '无'], ['观测方向', s.observation_direction || '无'], ['参考基准', s.reference_basis || '无']].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 break-words">{value}</dd></div>)}</dl></details>;
 }

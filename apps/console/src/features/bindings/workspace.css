@@ -1,0 +1,24 @@
+.binding-columns { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.binding-tree-panel, .binding-device-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.binding-tree-panel { border-bottom: 1px solid var(--border); }
+.binding-panel-heading { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: .5rem; min-height: 3.5rem; padding: .625rem .75rem; border-bottom: 1px solid var(--border); }
+.binding-step { display: inline-flex; width: 1.5rem; height: 1.5rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: .375rem; background: var(--muted); color: var(--muted-foreground); font-size: .75rem; font-weight: 600; }
+.binding-tree-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; max-height: 28rem; outline-offset: -2px; }
+.binding-current { flex-shrink: 0; }
+.binding-candidates { min-width: 0; min-height: 0; }
+.binding-candidates-scroll { min-height: 0; max-height: 27rem; overflow-y: auto; overscroll-behavior: contain; outline-offset: -2px; }
+.binding-review { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.binding-review > :last-child { margin-left: auto; }
+@container binding (min-width: 52rem) {
+  .binding-workbench { display: flex; flex-direction: column; height: calc(100dvh - 13.5rem); min-height: 38rem; }
+  .binding-columns { display: grid; flex: 1; grid-template-columns: minmax(20rem, .85fr) minmax(27rem, 1.4fr); }
+  .binding-tree-panel { border-right: 1px solid var(--border); border-bottom: 0; }
+  .binding-tree-scroll { flex: 1; max-height: none; }
+  .binding-candidates { flex: 1; }
+  .binding-candidates-scroll { flex: 1; max-height: none; }
+  .binding-review { flex-shrink: 0; }
+}
+@media (max-width: 639px) {
+  .binding-review > :nth-child(2) { flex-basis: calc(100% - 8rem); }
+  .binding-review > :last-child { width: 100%; }
+}

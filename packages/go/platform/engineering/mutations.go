@@ -313,13 +313,23 @@ func (s *Service) Publish(ctx context.Context, a access.Actor, scope Scope, id s
 		}
 		digest := hash([]any{c, schemas, category, digests})
 		out = Result{DefinitionID: id, Revision: d.Revision + 1, Issues: []Issue{}}
-		e = tx.QueryRow(ctx, `INSERT INTO engineering_versions(definition_id,number,content,digest,schema_version,schemas,unit_category,published_by) SELECT $1,COALESCE(MAX(number),0)+1,$2,$3,'1',$4,$5,$6 FROM engineering_versions WHERE definition_id=$1 RETURNING id::text`, id, c, digest, schemas, category, a.ID).Scan(&out.VersionID)
+		e = tx.QueryRow(ctx, `INSERT INTO engineering_versions(definition_id,number,content,digest,schema_version,schemas,unit_category,published_by) SELECT $1,COALESCE(MAX(number),0)+1,$2,$3,$7,$4,$5,$6 FROM engineering_versions WHERE definition_id=$1 RETURNING id::text`, id, c, digest, schemas, category, a.ID, c.MetamodelVersion).Scan(&out.VersionID)
 		if e != nil {
 			return e
 		}
 		for _, ref := range references(c) {
 			if _, e = tx.Exec(ctx, `INSERT INTO engineering_dependencies(version_id,target_id,path,kind) VALUES($1,$2,$3,$4)`, out.VersionID, ref.ID, ref.Path, ref.Kind); e != nil {
 				return e
+			}
+		}
+
+		if c.Template != nil {
+			for _, item := range c.Template.Items {
+				if cat := item.SuggestedCategory; cat != nil {
+					if _, e = tx.Exec(ctx, `INSERT INTO engineering_category_dependencies(version_id,item_key,release_id,category_id) VALUES($1,$2,$3,$4)`, out.VersionID, item.Key, cat.DictionaryReleaseID, cat.CategoryID); e != nil {
+						return e
+					}
+				}
 			}
 		}
 		if _, e = tx.Exec(ctx, `INSERT INTO engineering_version_states(version_id,updated_by,reason) VALUES($1,$2,$3)`, out.VersionID, a.ID, in.Reason); e != nil {

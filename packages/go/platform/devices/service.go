@@ -6,14 +6,16 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/jackc/pgx/v5"
 )
 
 type Service struct {
-	access    *access.Service
-	resources InstallationResources
-	parsing   ParsingAdopter
+	access         *access.Service
+	resources      InstallationResources
+	parsing        ParsingAdopter
+	displaySources func(context.Context, pgx.Tx, displayread.Plan) (map[string][]string, error)
 }
 
 func New(a *access.Service, r InstallationResources) *Service {
@@ -27,7 +29,7 @@ func (s *Service) transact(ctx context.Context, a access.Actor, scope Scope, kin
 }
 
 const deviceJSON = `to_jsonb(d)||jsonb_build_object('revision',d.revision::text,'output_revision',d.output_revision::text,'installation_revision',d.installation_revision::text,
- 'product',jsonb_build_object('id',p.id,'code',p.code,'name',v.content->>'name','model',v.content->>'model','version_id',v.id,'number',v.number,'manufacturer_id',m.id,'manufacturer_name',m.name,'source',CASE WHEN p.owner_tenant_id IS NULL THEN 'public' ELSE 'private' END))`
+ 'classification',(SELECT to_jsonb(ec)||jsonb_build_object('override_revision',ec.override_revision::text,'product_classification_revision',ec.product_classification_revision::text,'classification_revision',ec.classification_revision::text) FROM device_effective_classifications ec WHERE ec.tenant_id=d.tenant_id AND ec.device_id=d.id),'product',jsonb_build_object('id',p.id,'code',p.code,'name',v.content->>'name','model',v.content->>'model','version_id',v.id,'number',v.number,'manufacturer_id',m.id,'manufacturer_name',m.name,'source',CASE WHEN p.owner_tenant_id IS NULL THEN 'public' ELSE 'private' END))`
 const deviceFrom = ` FROM devices d JOIN device_products p ON p.id=d.product_id JOIN device_product_versions v ON v.id=d.product_version_id JOIN device_manufacturers m ON m.id=p.manufacturer_id `
 
 func loadDevice(ctx context.Context, tx pgx.Tx, tenant, id string, deleted bool) (Device, error) {

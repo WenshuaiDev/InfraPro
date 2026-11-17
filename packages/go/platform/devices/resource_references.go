@@ -18,13 +18,15 @@ func (s *Service) ResourceImpactTx(ctx context.Context, tx pgx.Tx, tenant, kind,
  SELECT kind,id FROM engineering_resource_nodes WHERE tenant_id=$1 AND kind=$2 AND id=$3
  UNION SELECT n.kind,n.id FROM engineering_resource_nodes n JOIN affected a ON n.parent_kind=a.kind AND n.parent_id=a.id WHERE n.tenant_id=$1
  ), refs AS (
- SELECT r.* FROM device_installation_target_refs r WHERE r.tenant_id=$1 AND EXISTS(SELECT 1 FROM affected a WHERE (a.kind='facility' AND a.id=r.facility_id) OR (a.kind='component' AND a.id=r.component_id) OR (a.kind='point' AND a.id=r.point_id))
+ SELECT r.* FROM device_installation_target_refs r WHERE r.tenant_id=$1 AND EXISTS(SELECT 1 FROM affected a WHERE (a.kind='facility' AND a.id=r.facility_id) OR (a.kind='component' AND a.id=r.component_id) OR (a.kind='point' AND a.id=r.point_id) OR (a.kind='monitoring_section' AND a.id=r.monitoring_section_id) OR (a.kind='borehole' AND a.id=r.borehole_id))
  ), binds AS (
  SELECT b.* FROM monitoring_source_bindings b WHERE b.tenant_id=$1 AND EXISTS(SELECT 1 FROM affected a WHERE a.kind='channel' AND a.id=b.channel_id)
- ) SELECT EXISTS(SELECT 1 FROM refs) OR EXISTS(SELECT 1 FROM binds),
- EXISTS(SELECT 1 FROM device_installations i WHERE i.tenant_id=$1 AND i.uninstalled_at IS NULL AND EXISTS(SELECT 1 FROM affected a WHERE (a.kind='facility' AND a.id=i.facility_id) OR (a.kind='component' AND a.id=i.component_id) OR (a.kind='point' AND a.id=i.point_id))),
+ ), legacy AS (
+ SELECT r.* FROM engineering_legacy_section_resolutions r JOIN engineering_legacy_section_evidence e ON e.id=r.evidence_id WHERE e.tenant_id=$1 AND e.device_id IS NOT NULL AND EXISTS(SELECT 1 FROM affected a WHERE a.kind=r.target_kind AND a.id=r.target_id)
+ ) SELECT EXISTS(SELECT 1 FROM refs) OR EXISTS(SELECT 1 FROM binds) OR EXISTS(SELECT 1 FROM legacy),
+ EXISTS(SELECT 1 FROM device_installations i WHERE i.tenant_id=$1 AND i.uninstalled_at IS NULL AND EXISTS(SELECT 1 FROM affected a WHERE (a.kind='facility' AND a.id=i.facility_id) OR (a.kind='component' AND a.id=i.component_id) OR (a.kind='point' AND a.id=i.point_id) OR (a.kind='monitoring_section' AND a.id=i.monitoring_section_id) OR (a.kind='borehole' AND a.id=i.borehole_id))),
  EXISTS(SELECT 1 FROM binds WHERE ended_at IS NULL),
- md5(jsonb_build_array((SELECT jsonb_agg(to_jsonb(r) ORDER BY r.id) FROM refs r),(SELECT jsonb_agg(to_jsonb(b) ORDER BY b.id) FROM binds b),
+ md5(jsonb_build_array((SELECT jsonb_agg(to_jsonb(r) ORDER BY r.id) FROM refs r),(SELECT jsonb_agg(to_jsonb(b) ORDER BY b.id) FROM binds b),(SELECT jsonb_agg(to_jsonb(r) ORDER BY r.id) FROM legacy r),
  (SELECT jsonb_agg(to_jsonb(i) ORDER BY i.id) FROM device_installations i WHERE i.id IN(SELECT installation_id FROM refs)),
  (SELECT jsonb_agg(jsonb_build_array(d.id,d.revision,d.status) ORDER BY d.id) FROM devices d WHERE d.id IN(SELECT device_id FROM binds) OR d.id IN(SELECT i.device_id FROM device_installations i JOIN refs r ON r.installation_id=i.id)))::text)`, tenant, kind, id).Scan(&out.Referenced, &out.CurrentInstallation, &out.CurrentSource, &out.Hash)
 	return out, e

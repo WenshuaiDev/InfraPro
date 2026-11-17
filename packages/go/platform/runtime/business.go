@@ -5,14 +5,17 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/audit"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/classification"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/ingestion"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/parsing"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
@@ -25,6 +28,9 @@ import (
 
 // Business is the composition root for the finite cross-module reference readers.
 type Business struct {
+	Classification    *classification.Service
+	DisplayReads      *displayread.Service
+	Ingestion         *ingestion.Service
 	Parsing           *parsing.Service
 	Audit             *audit.Service
 	Files             *files.Service
@@ -45,6 +51,8 @@ func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 	d := devices.New(a, installationResources{r})
 	parser := parsing.New(a)
 	d.WithParsing(parser)
+	ingest := ingestion.New(a, parser)
+	parser.WithIngress(ingest)
 	m := monitoring.New(a)
 	derived := derivedmonitoring.New(a).WithResources(r).WithMonitoring(m)
 	if e := derived.RegisterTasks(); e != nil {
@@ -56,7 +64,9 @@ func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 	}
 	sp := spatial.New(a, spatialObjects{r}).WithReaders(spatialMonitoring{m}, spatialArtifacts{derived})
 	r.WithExternalReferences(resourceReferences{deviceReferences{d}, monitoringReferences{m}, derived, spatialReferences{sp}})
-	business := Business{Parsing: parser, Files: files.New(a, fileHosts{}), Displays: display.New(a), Spatial: sp, DerivedMonitoring: derived, Monitoring: m, Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c, m, derived}), Resources: r, DeviceCatalog: c}
+	business := Business{Classification: classification.New(a), Ingestion: ingest, Parsing: parser, Files: files.New(a, fileHosts{}), Displays: display.New(a), Spatial: sp, DerivedMonitoring: derived, Monitoring: m, Sources: sources.New(a, d, r), Devices: d, Engineering: engineering.New(a).WithUsageReader(usageReaders{r, c, m, derived}), Resources: r, DeviceCatalog: c}
+	r.WithFiles(business.Files)
+	business.DisplayReads = displayread.New(a)
 	business.Audit = audit.New(a)
 	business.Audit.WithResolvers(auditDisclosure{business}, auditTrace{business})
 	business.Audit.WithHandoffBridge(display.BridgeAuditTx)
@@ -68,6 +78,7 @@ func Compose(a *access.Service, storage ...*monitoring.Storage) Business {
 		return business.Files.BeginRestoreTx(ctx, tx, reason)
 	})
 	installDisplayProviders(business)
+	installDisplayReads(business)
 	m.WithReadSubjects(business.Displays.ReadSubject)
 	return business
 }
@@ -87,6 +98,17 @@ func (readers usageReaders) HasResourceReferences(ctx context.Context, tx pgx.Tx
 // Configure applies deployment budgets only at composition time. Fixed rules
 // retain their stored numeric and time semantics across process restarts.
 func (b Business) Configure(cfg config.Config) Business {
+	limits := cfg.EffectiveUploads()
+	b.Spatial.WithMaxFileBytes(limits.SpatialMaxFileBytes)
+	b.Monitoring.WithUploadLimits(limits.MonitoringCSVMaxBytes, limits.MonitoringXLSXMaxBytes)
+	if cfg.IngestionFile != "" {
+		options, e := ingestion.LoadOptions(cfg.IngestionFile)
+		if e != nil {
+			panic("invalid ingestion deployment configuration")
+		}
+		b.Ingestion.WithOptions(options)
+	}
+
 	if cfg.Audit.PageSize > 0 {
 		b.Audit.WithOptions(cfg.Audit)
 	}
@@ -109,8 +131,14 @@ func (b Business) Configure(cfg config.Config) Business {
 			panic(e)
 		}
 		b.Parsing.WithStorage(objects)
+		ingressObjects, err := blobstore.Open(p.ObjectEndpoint, p.ObjectAccessKey, p.ObjectSecretKey, p.Bucket, "ingestion")
+		if err != nil {
+			panic(err)
+		}
+		b.Ingestion.WithStorage(ingressObjects)
 	}
 	displayOptions := display.DefaultOptions()
+	displayOptions.MaxPackageBytes = limits.DisplayMaxPackageBytes
 	if cfg.Display.RuntimeOrigin != "" {
 		d := cfg.Display
 		displayOptions.RuntimeOrigin = d.RuntimeOrigin
@@ -144,6 +172,11 @@ func (b Business) Configure(cfg config.Config) Business {
 		}
 		if cfg.Parsing.ObjectEndpoint == "" {
 			b.Parsing.WithStorage(parsingObjects)
+			ingressObjects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "ingestion")
+			if err != nil {
+				panic(err)
+			}
+			b.Ingestion.WithStorage(ingressObjects)
 		}
 		objects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "spatial")
 		if err != nil {

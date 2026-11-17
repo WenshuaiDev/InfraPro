@@ -13,11 +13,13 @@ type Service struct {
 	access  *access.Service
 	options Options
 	objects ObjectStore
+	ingress AdoptionCompatibility
 }
 
-func New(a *access.Service) *Service                  { return &Service{access: a, options: DefaultOptions()} }
-func (s *Service) WithOptions(o Options) *Service     { s.options = o; return s }
-func (s *Service) WithStorage(o ObjectStore) *Service { s.objects = o; return s }
+func New(a *access.Service) *Service                            { return &Service{access: a, options: DefaultOptions()} }
+func (s *Service) WithOptions(o Options) *Service               { s.options = o; return s }
+func (s *Service) WithStorage(o ObjectStore) *Service           { s.objects = o; return s }
+func (s *Service) WithIngress(o AdoptionCompatibility) *Service { s.ingress = o; return s }
 func scopeKey(s Scope) string {
 	if s.Entry == "platform" {
 		return "platform"

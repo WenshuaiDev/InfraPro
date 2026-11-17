@@ -14,20 +14,22 @@ import (
 )
 
 type Service struct {
-	basemaps   []Basemap
-	access     *access.Service
-	objects    ObjectReader
-	monitoring MonitoringReader
-	artifacts  ArtifactReader
-	blobs      BlobStore
-	converter  Converter
-	temp       string
+	basemaps     []Basemap
+	access       *access.Service
+	objects      ObjectReader
+	monitoring   MonitoringReader
+	artifacts    ArtifactReader
+	blobs        BlobStore
+	converter    Converter
+	temp         string
+	maxFileBytes int64
 }
 
 func New(a *access.Service, objects ObjectReader) *Service {
-	return &Service{access: a, objects: objects}
+	return &Service{access: a, objects: objects, maxFileBytes: MaxSourceSize}
 }
-func (s *Service) WithStorage(b BlobStore) *Service { s.blobs = b; return s }
+func (s *Service) WithMaxFileBytes(n int64) *Service { s.maxFileBytes = n; return s }
+func (s *Service) WithStorage(b BlobStore) *Service  { s.blobs = b; return s }
 func (s *Service) WithConverter(c Converter, temp string) *Service {
 	s.converter = c
 	s.temp = temp
@@ -144,6 +146,36 @@ func (s *Service) objectTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope
 }
 func (s *Service) sameFacility(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, ref ObjectRef, facility string, newUse bool) (Object, error) {
 	o, e := s.objectTx(ctx, tx, a, scope, ref)
+	return checkObjectFacility(o, e, facility, newUse)
+}
+
+// Only use inside one authorization-locked transaction. BIM geometry fragments
+// share business objects, but permissions must never be cached between requests.
+func (s *Service) objectReaderTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope) func(ObjectRef) (Object, error) {
+	type result struct {
+		object Object
+		err    error
+	}
+	objects := map[ObjectRef]result{}
+	return func(ref ObjectRef) (Object, error) {
+		if cached, ok := objects[ref]; ok {
+			return cached.object, cached.err
+		}
+		o, err := s.objectTx(ctx, tx, a, scope, ref)
+		objects[ref] = result{o, err}
+		return o, err
+	}
+}
+
+func (s *Service) sameFacilityReaderTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope) func(ObjectRef, string, bool) (Object, error) {
+	read := s.objectReaderTx(ctx, tx, a, scope)
+	return func(ref ObjectRef, facility string, newUse bool) (Object, error) {
+		o, err := read(ref)
+		return checkObjectFacility(o, err, facility, newUse)
+	}
+}
+
+func checkObjectFacility(o Object, e error, facility string, newUse bool) (Object, error) {
 	if e != nil {
 		return o, e
 	}

@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/location"
 	s "github.com/WenshuaiDev/InfraPro/packages/go/platform/spatial"
 	"os"
 	"reflect"
@@ -81,13 +82,14 @@ func structure(t reflect.Type) schema {
 	return schema{"type": "object", "properties": props, "required": required, "additionalProperties": false}
 }
 func main() {
-	types := map[string]any{"Asset": s.Asset{}, "Version": s.Version{}, "File": s.File{}, "Manifest": s.Manifest{}, "Coordinates": s.Coordinates{}, "Page": s.Page{}, "PageImage": s.PageImage{}, "Element": s.Element{}, "Fragment": s.Fragment{}, "Feature": s.Feature{}, "FeatureView": s.FeatureView{}, "Camera": s.Camera{}, "Settings": s.Settings{}, "Placement": s.Placement{}, "ComponentLink": s.ComponentLink{}, "FeatureLink": s.FeatureLink{}, "Candidate": s.Candidate{}, "Draft": s.Draft{}, "ObjectRef": s.ObjectRef{}, "Object": s.Object{}, "AssetInput": s.AssetInput{}, "VersionInput": s.VersionInput{}, "DraftInput": s.DraftInput{}, "ControlInput": s.ControlInput{}, "UploadInput": s.UploadInput{}, "Upload": s.Upload{}, "Job": s.Job{}, "Grant": s.Grant{}, "GrantChange": s.GrantChange{}, "AccessInput": s.AccessInput{}, "AccessDetail": s.AccessDetail{}, "View": s.View{}, "ViewInput": s.ViewInput{}, "RelatedInput": s.RelatedInput{}, "ObjectQuery": s.ObjectQuery{}, "RevisionInput": s.RevisionInput{}, "Result": s.Result{}, "Preview": s.Preview{}, "Issue": s.Issue{}, "Error": s.Error{}, "Location": s.Location{}, "Basemap": s.Basemap{}}
+	types := map[string]any{"Asset": s.Asset{}, "Version": s.Version{}, "File": s.File{}, "Manifest": s.Manifest{}, "Coordinates": s.Coordinates{}, "Page": s.Page{}, "PageImage": s.PageImage{}, "Element": s.Element{}, "Fragment": s.Fragment{}, "Feature": s.Feature{}, "FeatureView": s.FeatureView{}, "Camera": s.Camera{}, "Settings": s.Settings{}, "Placement": s.Placement{}, "AssociationGeometry": location.AssociationGeometry{}, "ComponentLink": s.ComponentLink{}, "FeatureLink": s.FeatureLink{}, "Candidate": s.Candidate{}, "Draft": s.Draft{}, "ObjectRef": s.ObjectRef{}, "Object": s.Object{}, "AssetInput": s.AssetInput{}, "VersionInput": s.VersionInput{}, "DraftInput": s.DraftInput{}, "ControlInput": s.ControlInput{}, "UploadInput": s.UploadInput{}, "Upload": s.Upload{}, "Job": s.Job{}, "Grant": s.Grant{}, "GrantChange": s.GrantChange{}, "AccessInput": s.AccessInput{}, "AccessDetail": s.AccessDetail{}, "View": s.View{}, "ViewInput": s.ViewInput{}, "RelatedInput": s.RelatedInput{}, "ObjectQuery": s.ObjectQuery{}, "RevisionInput": s.RevisionInput{}, "Result": s.Result{}, "Preview": s.Preview{}, "Issue": s.Issue{}, "Error": s.Error{}, "Location": s.Location{}, "Basemap": s.Basemap{}}
 	for n, v := range types {
 		register(n, v)
 	}
 	for _, v := range types {
 		value(reflect.TypeOf(v))
 	}
+	schemas["SpatialAssociationGeometry"]["properties"].(map[string]any)["kind"].(schema)["enum"] = []string{"region", "path", "plane"}
 	policies := []access.Policy{}
 	for _, p := range access.Policies() {
 		if strings.HasPrefix(string(p.Operation), "Spatial:") {

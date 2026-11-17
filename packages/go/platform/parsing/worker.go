@@ -255,15 +255,9 @@ func (s *Service) RunOne(ctx context.Context) (bool, error) {
 				}
 			}
 		}()
-		responseBytes, callErr := s.call(callCtx, "/v1/parse", req)
+		responseBytes, response, callErr := s.ExecuteFixed(callCtx, req, r.Input.Entry)
 		cancel()
 		<-watchDone
-		var response c.Response
-		if callErr == nil {
-			if c.StrictJSON(responseBytes, &response) != nil || c.ValidateResponse(req, r.Input.Entry, response) != nil {
-				callErr = &serviceError{"invalid_response", false}
-			}
-		}
 		var stored *object
 		if len(responseBytes) > 0 {
 			resultObject.Hash = c.Digest(responseBytes)

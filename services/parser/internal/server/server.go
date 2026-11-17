@@ -7,27 +7,32 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
+	i "github.com/WenshuaiDev/InfraPro/packages/go/foundation/ingestioncontract"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
 )
 
 type Server struct {
-	Catalog     c.Catalog
-	Directory   string
-	Token       string
-	Timeout     time.Duration
-	MemoryLimit string
-	Reporter    diagnosticreport.Sink
-	slots       chan int
-	reportOnce  sync.Once
-	group       *diagnosticreport.Group
+	Catalog       c.Catalog
+	Ingestion     *i.Catalog
+	Directory     string
+	Token         string
+	Timeout       time.Duration
+	MemoryLimit   string
+	Reporter      diagnosticreport.Sink
+	slots         chan int
+	production    chan struct{}
+	artifactCache sync.Map
+	reportOnce    sync.Once
+	group         *diagnosticreport.Group
 }
 
 func Open(directory, token, release, build string, concurrency int) (*Server, error) {
@@ -38,11 +43,17 @@ func Open(directory, token, release, build string, concurrency int) (*Server, er
 	if e != nil {
 		return nil, e
 	}
-	s := &Server{Catalog: catalog, Directory: directory, Token: token, Timeout: 5 * time.Second, MemoryLimit: "256MiB", Reporter: diagnosticreport.Optional(nil), slots: make(chan int, concurrency)}
+	s := &Server{Catalog: catalog, Directory: directory, Token: token, Timeout: 5 * time.Second, MemoryLimit: "256MiB", Reporter: diagnosticreport.Optional(nil), slots: make(chan int, concurrency), production: make(chan struct{}, max(1, concurrency-1))}
 	for i := 0; i < concurrency; i++ {
 		s.slots <- i
 	}
 	s.Catalog.ServiceRelease = release
+	if raw, err := os.ReadFile(filepath.Join(directory, "ingestion-capabilities.json")); err == nil {
+		var capabilities i.Catalog
+		if c.StrictJSON(raw, &capabilities) == nil && i.ValidateCatalog(capabilities, catalog) == nil {
+			s.Ingestion = &capabilities
+		}
+	}
 	s.Catalog.ServiceBuildDigest = build
 	s.Catalog.Limits = c.Limits{Input: c.MaxInput, Response: c.MaxResponse, Records: c.MaxRecords, Steps: c.MaxSteps, Depth: c.MaxDepth, Seconds: 5, Concurrency: concurrency}
 	if e = s.Preflight(); e != nil {
@@ -59,11 +70,41 @@ func (s *Server) artifact(e c.Entry) (string, error) {
 	if err != nil || !f.Mode().IsRegular() || f.Mode().Perm()&0222 != 0 {
 		return "", c.Fail("artifact_unavailable")
 	}
+	if cached, ok := s.artifactCache.Load(e.ArtifactDigest); ok && sameArtifact(cached.(os.FileInfo), f) {
+		return path, nil
+	}
 	b, err := os.ReadFile(path)
 	if err != nil || c.Digest(b) != e.ArtifactDigest {
 		return "", c.Fail("artifact_digest_mismatch")
 	}
+	after, err := os.Lstat(path)
+	if err != nil || !sameArtifact(f, after) {
+		return "", c.Fail("artifact_unavailable")
+	}
+	s.artifactCache.Store(e.ArtifactDigest, after)
 	return path, nil
+}
+
+// Cache only immutable file identities; inode, mode, size, modification and
+// change times must all match. Replacement or in-place writes rehash bytes.
+func sameArtifact(a, b os.FileInfo) bool {
+	change := func(f os.FileInfo) any {
+		v := reflect.ValueOf(f.Sys())
+		if v.Kind() == reflect.Pointer {
+			v = v.Elem()
+		}
+		if v.Kind() != reflect.Struct {
+			return f.Sys()
+		}
+		for _, name := range []string{"Ctimespec", "Ctim"} {
+			field := v.FieldByName(name)
+			if field.IsValid() {
+				return field.Interface()
+			}
+		}
+		return f.Sys()
+	}
+	return os.SameFile(a, b) && a.Mode() == b.Mode() && a.Size() == b.Size() && a.ModTime().Equal(b.ModTime()) && reflect.DeepEqual(change(a), change(b))
 }
 func (s *Server) Preflight() error {
 	for _, e := range s.Catalog.Entries {
@@ -96,6 +137,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		respond(w, 200, s.Catalog)
 	case r.Method == "POST" && r.URL.Path == "/v1/parse":
 		s.parse(w, r)
+	case r.Method == "GET" && r.URL.Path == "/v1/ingestion-capabilities":
+		if s.Ingestion == nil {
+			problem(w, 503, "ingestion_catalog_unavailable")
+			return
+		}
+		respond(w, 200, s.Ingestion)
+	case r.Method == "POST" && r.URL.Path == "/v1/identify":
+		s.identify(w, r)
 	default:
 		problem(w, 404, "not_found")
 	}
@@ -137,6 +186,13 @@ func (s *Server) parse(w http.ResponseWriter, r *http.Request) {
 		}
 		problem(w, status, e.Error())
 		return
+	}
+	if r.Header.Get("X-Infrapro-Workload") == "ingestion" {
+		if !s.claimProduction() {
+			problem(w, 429, "service_busy")
+			return
+		}
+		defer s.releaseProduction()
 	}
 	var slot int
 	select {
@@ -216,3 +272,13 @@ func respond(w http.ResponseWriter, status int, v any) {
 func problem(w http.ResponseWriter, status int, code string) {
 	respond(w, status, c.Error{Code: code, Message: code})
 }
+
+func (s *Server) claimProduction() bool {
+	select {
+	case s.production <- struct{}{}:
+		return true
+	default:
+		return false
+	}
+}
+func (s *Server) releaseProduction() { <-s.production }

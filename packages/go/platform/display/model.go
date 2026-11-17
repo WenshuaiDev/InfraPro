@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/jackc/pgx/v5"
 	"io"
 	"time"
@@ -16,26 +17,14 @@ import (
 
 const PartSize = int64(4 << 20)
 
-type Error struct {
-	Code    string  `json:"code"`
-	Message string  `json:"message"`
-	Status  int     `json:"-"`
-	Issues  []Issue `json:"issues,omitempty"`
-}
-
-func (e *Error) Error() string { return e.Message }
-
-type Issue struct {
-	Path    string `json:"path"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
+type Error = displayread.Error
+type Issue = displayread.Issue
 
 func problem(code, message string, status int) *Error {
 	return &Error{Code: code, Message: message, Status: status}
 }
 func invalid(path, message string) *Error {
-	return &Error{Code: "query_invalid", Message: "请求未通过校验。", Status: 422, Issues: []Issue{{path, "invalid", message}}}
+	return &Error{Code: "query_invalid", Message: "请求未通过校验。", Status: 422, Issues: []Issue{{Path: path, Code: "invalid", Message: message}}}
 }
 func hidden() error { return problem("not_found", "对象不存在或不可访问。", 404) }
 func conflict() error {
@@ -84,12 +73,14 @@ type Package struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 type Config struct {
-	ID         string             `json:"id"`
-	PackageID  string             `json:"package_id"`
-	Parameters map[string]any     `json:"parameters"`
-	Bindings   map[string]Binding `json:"bindings"`
-	Mode       string             `json:"mode"`
-	CreatedAt  time.Time          `json:"created_at"`
+	Format     int                               `json:"config_format"`
+	ReadViews  map[string]displayread.Definition `json:"read_views,omitempty"`
+	ID         string                            `json:"id"`
+	PackageID  string                            `json:"package_id"`
+	Parameters map[string]any                    `json:"parameters"`
+	Bindings   map[string]Binding                `json:"bindings"`
+	Mode       string                            `json:"mode"`
+	CreatedAt  time.Time                         `json:"created_at"`
 }
 type Binding struct {
 	Kind    string   `json:"kind"`
@@ -117,13 +108,15 @@ type ReadScope struct {
 	To        *string  `json:"to,omitempty"`
 }
 type Grant struct {
-	Revision     string    `json:"revision"`
-	Capabilities []string  `json:"capabilities"`
-	Scope        ReadScope `json:"scope"`
-	Fields       []string  `json:"fields"`
-	ValidUntil   time.Time `json:"valid_until"`
-	Revoked      bool      `json:"revoked"`
-	IssuedBy     string    `json:"issued_by"`
+	Format       int                      `json:"scope_format"`
+	ReadScopes   []displayread.Definition `json:"read_scopes,omitempty"`
+	Revision     string                   `json:"revision"`
+	Capabilities []string                 `json:"capabilities"`
+	Scope        ReadScope                `json:"scope"`
+	Fields       []string                 `json:"fields"`
+	ValidUntil   time.Time                `json:"valid_until"`
+	Revoked      bool                     `json:"revoked"`
+	IssuedBy     string                   `json:"issued_by"`
 }
 type Release struct {
 	ID           string          `json:"id"`
@@ -134,13 +127,16 @@ type Release struct {
 	CreatedAt    time.Time       `json:"created_at"`
 }
 type Capability struct {
-	Name         string        `json:"name"`
-	Version      int           `json:"version"`
-	Availability string        `json:"availability"`
-	Reason       string        `json:"reason,omitempty"`
-	Permissions  []access.Code `json:"required_permissions"`
-	Subscribe    bool          `json:"subscribe"`
-	MaxTargets   int           `json:"max_targets"`
+	MaxViewMembers       int           `json:"max_view_members,omitempty"`
+	MaxPageSize          int           `json:"max_page_size,omitempty"`
+	AsyncDeadlineSeconds int           `json:"async_deadline_seconds,omitempty"`
+	Name                 string        `json:"name"`
+	Version              int           `json:"version"`
+	Availability         string        `json:"availability"`
+	Reason               string        `json:"reason,omitempty"`
+	Permissions          []access.Code `json:"required_permissions"`
+	Subscribe            bool          `json:"subscribe"`
+	MaxTargets           int           `json:"max_targets"`
 }
 type Call struct {
 	Method     string          `json:"method"`
@@ -148,13 +144,35 @@ type Call struct {
 	Generation string          `json:"generation"`
 }
 type Envelope struct {
-	State         string            `json:"state"`
-	Data          any               `json:"data"`
-	ReadAt        string            `json:"read_at"`
-	Authorization string            `json:"authorization_revision"`
-	Generation    string            `json:"generation"`
-	SourceVector  map[string]string `json:"source_vector"`
+	NamedRead      bool                   `json:"-"`
+	Query          *displayread.QueryInfo `json:"query,omitempty"`
+	IncludedFields []string               `json:"included_field_groups,omitempty"`
+	RetryAfter     int                    `json:"retry_after_ms,omitempty"`
+	State          string                 `json:"state"`
+	Data           any                    `json:"data"`
+	ReadAt         string                 `json:"read_at"`
+	Authorization  string                 `json:"authorization_revision"`
+	Generation     string                 `json:"generation"`
+	SourceVector   map[string]string      `json:"source_vector"`
 }
+
+// Named reads always report the field projection, including an empty set.
+// Legacy envelopes retain their original wire shape.
+func (e Envelope) MarshalJSON() ([]byte, error) {
+	type wire Envelope
+	if !e.NamedRead {
+		return json.Marshal(wire(e))
+	}
+	fields := e.IncludedFields
+	if fields == nil {
+		fields = []string{}
+	}
+	return json.Marshal(struct {
+		wire
+		Fields []string `json:"included_field_groups"`
+	}{wire(e), fields})
+}
+
 type Provider interface {
 	Read(context.Context, *access.ReadSubject, Call) (any, error)
 }
@@ -173,15 +191,21 @@ type Options struct {
 	RuntimeOrigin, AssetOrigin, ConsoleOrigin, ShellDirectory               string
 	Lease, SwitchGrace, EventRetention                                      time.Duration
 	MaxSessions, MaxSubscriptions, MaxQueries, MaxInstances, MaxPackageJobs int
+	MaxPackageBytes                                                         int64
 	MaxResultBytes, MaxFileBytes                                            int64
 	Secure                                                                  bool
 }
 
 func DefaultOptions() Options {
-	return Options{RuntimeOrigin: "http://127.0.0.1:5180", AssetOrigin: "http://127.0.0.1:5181", ConsoleOrigin: "http://127.0.0.1:5173", ShellDirectory: "apps/display-runtime/dist", EventRetention: 90 * 24 * time.Hour, Lease: 60 * time.Second, SwitchGrace: 30 * time.Second, MaxSessions: 100, MaxSubscriptions: 16, MaxQueries: 8, MaxInstances: 100, MaxPackageJobs: 8, MaxResultBytes: 8 << 20, MaxFileBytes: 4 << 20}
+	return Options{MaxPackageBytes: 128 << 20, RuntimeOrigin: "http://127.0.0.1:5180", AssetOrigin: "http://127.0.0.1:5181", ConsoleOrigin: "http://127.0.0.1:5173", ShellDirectory: "apps/display-runtime/dist", EventRetention: 90 * 24 * time.Hour, Lease: 60 * time.Second, SwitchGrace: 30 * time.Second, MaxSessions: 100, MaxSubscriptions: 16, MaxQueries: 8, MaxInstances: 100, MaxPackageJobs: 8, MaxResultBytes: 8 << 20, MaxFileBytes: 4 << 20}
 }
 
 type Service struct {
+	reads           *displayread.Service
+	readResolvers   map[string]displayread.Resolver
+	readOptions     map[string]displayread.OptionsReader
+	readDefaults    map[string]displayread.DefaultsReader
+	readQualifiers  map[string]displayread.ScopeQualifier
 	descriptors     map[string]Capability
 	telemetry       telemetry
 	access          *access.Service
@@ -198,7 +222,7 @@ func New(a *access.Service) *Service {
 	for name, c := range capabilities {
 		descriptors[name] = c
 	}
-	return &Service{descriptors: descriptors, access: a, options: DefaultOptions(), providers: map[string]Provider{}, budget: NewBudget()}
+	return &Service{descriptors: descriptors, access: a, options: DefaultOptions(), providers: map[string]Provider{}, readResolvers: map[string]displayread.Resolver{}, budget: NewBudget()}
 }
 func (s *Service) WithStorage(b BlobStore) *Service { s.blobs = b; return s }
 func (s *Service) WithOptions(o Options) *Service   { s.options = o; return s }
@@ -242,5 +266,3 @@ func (s *Service) RegisterCapability(c Capability, p Provider) error {
 	s.descriptors[c.Name] = c
 	return nil
 }
-
-func (e *Error) StatusCode() int { return e.Status }

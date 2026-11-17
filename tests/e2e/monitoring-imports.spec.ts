@@ -14,9 +14,9 @@ test('imports search the full authorized set, retain list context through drawer
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
   const batches: { id: string; revision: string; name: string }[] = [];
   for (let i = 0; i < 23; i++) {
-    const response = await page.request.post(api, { headers, data: { request_id: randomUUID(), expected_revision: '0', reason: '列表与 Drawer 合成自验', name: `列表样本-${String(i).padStart(2,'0')}.${i % 3 === 0 ? 'xlsx' : 'csv'}`, size_bytes: '4' } });
+    const response = await page.request.post(api, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { request_id: randomUUID(), expected_revision: '0', reason: '列表与 Drawer 合成自验', name: `列表样本-${String(i).padStart(2,'0')}.${i % 3 === 0 ? 'xlsx' : 'csv'}`, size_bytes: '4' } });
     expect(response.status(), await response.text()).toBe(201); batches.push(await response.json());
-    if (i > 0 && i < 22) { const b = batches.at(-1)!; const cancel = await page.request.post(`${api}/${b.id}/cancel`, { headers, data: { request_id: randomUUID(), expected_revision: b.revision, reason: '合成历史批次' } }); expect(cancel.status(), await cancel.text()).toBe(200); }
+    if (i > 0 && i < 22) { const b = batches.at(-1)!; const cancel = await page.request.post(`${api}/${b.id}/cancel`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { request_id: randomUUID(), expected_revision: b.revision, reason: '合成历史批次' } }); expect(cancel.status(), await cancel.text()).toBe(200); }
   }
   for (const query of ['limit=11', 'states=unknown', 'formats=pdf', 'sort=bad', 'q=a&q=b']) {
     expect((await page.request.get(`${api}?${query}`)).status()).toBe(query === 'q=a&q=b' ? 400 : 422);

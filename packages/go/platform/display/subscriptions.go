@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/jackc/pgx/v5"
 	"slices"
@@ -26,20 +27,36 @@ type SubscriptionEvent struct {
 	Result       *Envelope `json:"result,omitempty"`
 	Code         string    `json:"code,omitempty"`
 }
+type subscriptionRow struct {
+	id, state                     string
+	query                         SubscriptionInput
+	generation, sequence, applied int64
+	vector                        map[string]string
+	updated                       time.Time
+	pending                       json.RawMessage
+	readQueryID                   string
+}
 
 func (s *Service) Subscribe(ctx context.Context, v Session, in SubscriptionInput) (string, error) {
-	if !slices.Contains([]string{"latest", "trends", "overview", "statistics", "alerts"}, in.Kind) {
+	if !slices.Contains([]string{"latest", "trends", "overview", "statistics", "alerts", "statistics.resources", "statistics.structure", "statistics.devices", "statistics.deviceCategories", "statistics.monitoring"}, in.Kind) {
 
 		return "", invalid("/kind", "订阅类型无效。")
 	}
 	if s.providers[subscriptionMethod(in.Kind)] == nil {
 		return "", problem("capability_unavailable", "订阅能力尚未接入。", 409)
 	}
-	q, e := decodeQuery(in.Query)
+	named := newReadCall(Call{Method: subscriptionMethod(in.Kind), Params: in.Query})
+	var q Query
+	var e error
+	if !named {
+		q, e = decodeQuery(in.Query)
+	} else {
+		_, e = displayread.DecodeRequest(subscriptionMethod(in.Kind), in.Query)
+	}
 	if e != nil {
 		return "", e
 	}
-	if q.Cursor != "" || q.Snapshot != "" || q.Selection != "" {
+	if !named && (q.Cursor != "" || q.Snapshot != "" || q.Selection != "") {
 		return "", invalid("/query", "连续订阅不接受外部快照或游标。")
 	}
 	if len(in.Generation) > 80 {
@@ -57,7 +74,12 @@ func (s *Service) Subscribe(ctx context.Context, v Session, in SubscriptionInput
 		if !slices.Contains(g.Capabilities, subscriptionMethod(in.Kind)) {
 			return hidden()
 		}
-		if _, e = s.resolveTargetsTx(ctx, tx, v, subscriptionMethod(in.Kind), &q); e != nil {
+		if named {
+			_, e = displayread.InspectTx(ctx, tx, s.ReadAuthority(v), subscriptionMethod(in.Kind), in.Query)
+		} else {
+			_, e = s.resolveTargetsTx(ctx, tx, v, subscriptionMethod(in.Kind), &q)
+		}
+		if e != nil {
 			return e
 		}
 		var count int
@@ -79,13 +101,21 @@ func (s *Service) CancelSubscription(ctx context.Context, v Session, id string) 
 	if !access.ValidID(id) {
 		return hidden()
 	}
-	return s.access.Transact(ctx, func(tx pgx.Tx) error {
+	var queryID string
+	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
+		if e := tx.QueryRow(ctx, `SELECT COALESCE(read_query_id::text,'') FROM display_subscriptions WHERE id=$1 AND session_id=$2`, id, v.ID).Scan(&queryID); e != nil {
+			return e
+		}
 		tag, e := tx.Exec(ctx, `UPDATE display_subscriptions SET state='canceled',generation=generation+1 WHERE id=$1 AND session_id=$2`, id, v.ID)
 		if e == nil && tag.RowsAffected() != 1 {
 			return hidden()
 		}
 		return e
 	})
+	if e == nil && queryID != "" {
+		_, e = s.reads.Read(ctx, s.ReadAuthority(v), "queries.release", jsonBytes(displayread.QueryControlRequest{QueryID: queryID}), "")
+	}
+	return e
 }
 func (s *Service) Ack(ctx context.Context, v Session, id, generation, sequence string) error {
 	if !access.ValidID(id) || !revision(generation) || !revision(sequence) {
@@ -114,16 +144,7 @@ func (s *Service) Ack(ctx context.Context, v Session, id, generation, sequence s
 // Events remain unacknowledged until the application's consumer completes.
 func (s *Service) Poll(ctx context.Context, v Session) ([]SubscriptionEvent, error) {
 	out := []SubscriptionEvent{}
-	type row struct {
-		id                            string
-		state                         string
-		query                         SubscriptionInput
-		generation, sequence, applied int64
-		vector                        map[string]string
-		updated                       time.Time
-		pending                       json.RawMessage
-	}
-	subscriptions := []row{}
+	subscriptions := []subscriptionRow{}
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
 		if _, e := access.Lock(ctx, tx, false); e != nil {
 			return e
@@ -136,14 +157,14 @@ func (s *Service) Poll(ctx context.Context, v Session) ([]SubscriptionEvent, err
 		if _, _, e = s.checkSessionTx(ctx, tx, v, false); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text,query,generation,sequence,applied,source_vector,updated_at,pending_query,state FROM display_subscriptions WHERE session_id=$1 AND state IN ('active','invalid') ORDER BY id LIMIT $2`, v.ID, s.options.MaxSubscriptions)
+		rows, e := tx.Query(ctx, `SELECT id::text,query,generation,sequence,applied,source_vector,updated_at,pending_query,state,COALESCE(read_query_id::text,'') FROM display_subscriptions WHERE session_id=$1 AND state IN ('active','invalid') ORDER BY id LIMIT $2`, v.ID, s.options.MaxSubscriptions)
 		if e != nil {
 			return e
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var r row
-			if e = rows.Scan(&r.id, &r.query, &r.generation, &r.sequence, &r.applied, &r.vector, &r.updated, &r.pending, &r.state); e != nil {
+			var r subscriptionRow
+			if e = rows.Scan(&r.id, &r.query, &r.generation, &r.sequence, &r.applied, &r.vector, &r.updated, &r.pending, &r.state, &r.readQueryID); e != nil {
 				return e
 			}
 			subscriptions = append(subscriptions, r)
@@ -154,6 +175,14 @@ func (s *Service) Poll(ctx context.Context, v Session) ([]SubscriptionEvent, err
 		return out, e
 	}
 	for _, sub := range subscriptions {
+		if newReadCall(Call{Method: subscriptionMethod(sub.query.Kind), Params: sub.query.Query}) {
+			events, e := s.pollReadSubscription(ctx, v, sub)
+			if e != nil {
+				return out, e
+			}
+			out = append(out, events...)
+			continue
+		}
 		// Invalid bindings are a terminal status, not a fresh data generation.
 		// Reconstruct that status after event retention until the app acknowledges it.
 		if sub.state == "invalid" {
@@ -320,7 +349,7 @@ func (s *Service) Poll(ctx context.Context, v Session) ([]SubscriptionEvent, err
 }
 func (s *Service) resetSubscription(ctx context.Context, id string, generation int64) error {
 	return s.access.Transact(ctx, func(tx pgx.Tx) error {
-		_, e := tx.Exec(ctx, `UPDATE display_subscriptions SET generation=generation+1,sequence=0,applied=0,source_vector='{}',pending_query=NULL,updated_at=clock_timestamp() WHERE id=$1 AND generation=$2 AND state='active'`, id, generation)
+		_, e := tx.Exec(ctx, `UPDATE display_subscriptions SET generation=generation+1,sequence=0,applied=0,source_vector='{}',pending_query=NULL,read_query_id=NULL,updated_at=clock_timestamp() WHERE id=$1 AND generation=$2 AND state='active'`, id, generation)
 		return e
 	})
 }
@@ -353,6 +382,9 @@ func (s *Service) invalidateSubscription(ctx context.Context, id string, generat
 }
 
 func subscriptionMethod(kind string) string {
+	if strings.HasPrefix(kind, "statistics.") {
+		return kind
+	}
 	if kind == "alerts" {
 		return "alerts.subscribe"
 	}

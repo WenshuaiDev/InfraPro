@@ -68,6 +68,7 @@ export async function startServer(options = {}) {
   async function remote(path, params = {}, signal, raw, headers = {}) {
     const response = await fetch(runtime + path, {
       method: "POST",
+      redirect: "error",
       headers: {
         Origin: runtime,
         "X-Display-Protocol": "1",
@@ -119,6 +120,7 @@ export async function startServer(options = {}) {
           protocol: 1,
           switch_grace_ms: 30000,
           local: true,
+          simulated: !options.real && !options.upload,
         });
       if (url.pathname === "/pair") {
         res.setHeader("Content-Type", "text/html");
@@ -190,6 +192,7 @@ export async function startServer(options = {}) {
             const abort = new AbortController();
             req.on("close", () => abort.abort());
             const upstream = await fetch(runtime + url.pathname, {
+              redirect: "error",
               headers: {
                 Authorization: `Bearer ${credential}`,
                 "Last-Event-ID": req.headers["last-event-id"] ?? "",
@@ -234,7 +237,7 @@ export async function startServer(options = {}) {
         }
         const input = await body(req);
         if (action === "query")
-          return json(res, await fixture.request(input.method, input.params));
+          return json(res, await fixture.request(input.method, input.params, {generation:input.generation}));
         if (action === "bindings")
           return json(res, input.name ? { [input.name]: await fixture.request("bindings.resolve", input) } : {site: await fixture.request("bindings.resolve", {name:"site"})});
         if (action === "subscribe")
@@ -316,10 +319,18 @@ export async function startServer(options = {}) {
         "real preview needs --console, --instance and --config; upload needs --console and --instance",
       );
     }
-    const url = new URL(options.console.replace(/\/$/, "") + "/display-launch");
-    if (url.protocol !== "http:") {
-      close();
-      throw new Error("console must use HTTP");
+    let url, ru;
+    try {
+      url = new URL(options.console);
+      if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash || /[?#]/.test(options.console))
+        throw new Error("console must be an HTTP/HTTPS base URL without credentials, query or fragment");
+      ru = new URL(options.runtime);
+      if (ru.protocol !== url.protocol || ru.pathname !== "/" || ru.username || ru.password || ru.search || ru.hash || /[?#]/.test(options.runtime))
+        throw new Error("runtime must be an exact HTTP/HTTPS origin with the console scheme");
+      url.pathname = url.pathname.replace(/\/$/, "") + "/display-launch";
+    } catch (error) {
+      await close();
+      throw error;
     }
     url.search = new URLSearchParams({
       instance: options.instance,
@@ -331,27 +342,11 @@ export async function startServer(options = {}) {
     }).toString();
     loginURL = url.href;
     // Only the management response may select its configured runtime. Callback includes it.
-    runtime = options.runtime;
-    if (!runtime) {
-      close();
-      throw new Error("--runtime http://... is required for real pairing");
-    }
-    const ru = new URL(runtime);
-    if (
-      ru.protocol !== "http:" ||
-      ru.pathname !== "/" ||
-      ru.username ||
-      ru.password
-    ) {
-      close();
-      throw new Error("runtime must be an exact HTTP origin");
-    }
     runtime = ru.origin;
   }
   async function upload(path) {
     await authorized;
     const data = await readFile(path);
-    if (data.length > 128 * 1024 ** 2) throw new Error("ZIP exceeds budget");
     const root = `/tool/${boot.session.id}/`,
       inspect = await remote(root + "inspect"),
       meta = (revision) => ({
@@ -359,6 +354,7 @@ export async function startServer(options = {}) {
         reason: "开发工具上传",
         expected_revision: revision,
       });
+    if (!options.resume && data.length > Number(inspect.max_package_bytes)) throw new Error(`ZIP exceeds configured ${inspect.max_package_bytes} byte limit`);
     let revision = inspect.instance.revision;
     let created;
     let completedParts = [];

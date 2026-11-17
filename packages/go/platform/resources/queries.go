@@ -15,70 +15,9 @@ import (
 )
 
 func ancestorsTx(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facility Resource) ([]Resource, error) {
-	out := []Resource{}
-	if r.Kind == Facility {
-		return out, nil
-	}
-	out = append(out, facility)
-	var point *Resource
-	parent := ""
-	switch r.Kind {
-	case Component:
-		parent = ptrValue(r.ParentComponentID)
-	case Point:
-		parent = ptrValue(r.ComponentID)
-	case Channel:
-		if r.OwnerKind == "facility" {
-			break
-		}
-		if r.OwnerKind == "component" {
-			parent = ptrValue(r.ComponentID)
-			break
-		}
-		p, e := load(ctx, tx, scoped(t.Scope, Target{Facility: t.Facility, Kind: Point, ID: r.PointID}), false)
-		if e != nil {
-			return nil, e
-		}
-		point = &p
-		parent = ptrValue(p.ComponentID)
-	}
-	chain := []Resource{}
-	if parent != "" {
-		rows, e := tx.Query(ctx, `WITH RECURSIVE path AS (
- SELECT c.*,1 AS depth FROM engineering_components c WHERE c.tenant_id=$1 AND c.facility_id=$2 AND c.id=$3 AND c.deleted_at IS NULL
- UNION ALL SELECT c.*,p.depth+1 FROM engineering_components c JOIN path p ON c.id=p.parent_component_id WHERE c.tenant_id=$1 AND c.facility_id=$2 AND c.deleted_at IS NULL)
- SELECT to_jsonb(path) FROM path ORDER BY depth DESC`, t.Tenant, t.Facility, parent)
-		if e != nil {
-			return nil, e
-		}
-		for rows.Next() {
-			r := Resource{Kind: Component}
-			var raw []byte
-			if e = rows.Scan(&raw); e != nil {
-				rows.Close()
-				return nil, e
-			}
-			if e = json.Unmarshal(raw, &r); e != nil {
-				rows.Close()
-				return nil, e
-			}
-			chain = append(chain, r)
-		}
-		e = rows.Err()
-		rows.Close()
-		if e != nil {
-			return nil, e
-		}
-		if len(chain) == 0 {
-			return nil, notFound()
-		}
-	}
-	out = append(out, chain...)
-	if point != nil {
-		out = append(out, *point)
-	}
-	return out, nil
+	return structureAncestorsTx(ctx, tx, t, r, facility)
 }
+
 func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, target Target) (Detail, error) {
 	t := scoped(scope, target)
 	out := Detail{Ancestors: []Resource{}, Definitions: []engineering.Version{}}
@@ -121,8 +60,8 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 		manage := access.RequireScopedTx(ctx, tx, a.ID, t.operation(string(t.Kind), "update"), t.Tenant) == nil
 		out.Actions = actionAllowed(r, out.Ancestors, manage)
 		out.Actions.Read = true
-		out.Actions.CreateComponent = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
-		out.Actions.CreatePoint = out.Actions.Add && (r.Kind == Facility || r.Kind == Component)
+		out.Actions.CreateComponent = out.Actions.Add && (isStructureContainer(r.Kind))
+		out.Actions.CreatePoint = out.Actions.Add && (isStructureContainer(r.Kind))
 		out.Actions.CreateChannel = out.Actions.Add && r.Kind == Point
 		if out.Actions.Delete && s.external != nil {
 			impact, err := s.external.ResourceImpactTx(ctx, tx, scope, target)
@@ -154,6 +93,8 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, targe
 				out.Ancestors[i] = sourceProjection(out.Ancestors[i], auth)
 			}
 		}
+		applyStructureActions(&out, auth)
+		out.Actions.AdoptType = out.Actions.AdoptType && access.RequireScopedTx(ctx, tx, a.ID, access.ResourceOperation("facility", "adopt-type"), t.Tenant) == nil
 		out.Resource = sourceProjection(r, auth)
 		return nil
 	})
@@ -210,6 +151,9 @@ func nextCursor(t scopedTarget, f Filter, history bool, at time.Time, id string)
 	return base64.RawURLEncoding.EncodeToString(jsonBytes(cursor{cursorScope(t, f, history), at, id}))
 }
 func normalizeFilter(f *Filter) error {
+	if f.StructureParent != nil && (!isStructureContainer(f.StructureParent.Kind) || !access.ValidID(f.StructureParent.ID)) {
+		return invalid("/structure_parent", "invalid", "Invalid structure parent.")
+	}
 	f.Query = strings.TrimSpace(f.Query)
 	if f.Limit == 0 {
 		f.Limit = 25
@@ -227,7 +171,7 @@ func normalizeFilter(f *Filter) error {
 		return problem("invalid_request", "删除筛选无效。", 400)
 	}
 	if f.OwnerKind != "" || f.OwnerID != "" {
-		if !slices.Contains([]string{"facility", "component", "point"}, f.OwnerKind) || !access.ValidID(f.OwnerID) {
+		if !slices.Contains([]string{"facility", "component", "monitoring_section", "borehole", "point"}, f.OwnerKind) || !access.ValidID(f.OwnerID) {
 			return problem("invalid_request", "请选择完整的通道所属对象。", 400)
 		}
 	}
@@ -385,7 +329,13 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, target 
 			out.NextCursor = nextCursor(t, f, false, last.CreatedAt, last.ID)
 			out.Items = out.Items[:f.Limit]
 		}
+		rows.Close()
 		for i := range out.Items {
+			if out.Items[i].Kind != Facility {
+				if e = loadParentRef(ctx, tx, &out.Items[i].Resource); e != nil {
+					return e
+				}
+			}
 			out.Items[i].Resource = sourceProjection(out.Items[i].Resource, auth)
 		}
 
@@ -440,7 +390,7 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, targ
 		scopeWhere := ""
 		if auth.Entry == "project" {
 			args = append(args, auth.Project)
-			scopeWhere = ` AND EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=c.tenant_id AND g.project_id=$8 AND g.facility_id=c.facility_id AND g.resource_kind=c.resource_kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.facility_id)=c.resource_id AND g.ended_at IS NULL)`
+			scopeWhere = ` AND EXISTS(SELECT 1 FROM project_resource_grants g JOIN project_facility_links l ON l.id=g.link_id AND l.status='active' WHERE g.tenant_id=c.tenant_id AND g.project_id=$8 AND g.facility_id=c.facility_id AND g.resource_kind=c.resource_kind AND COALESCE(g.component_id,g.point_id,g.channel_id,g.monitoring_section_id,g.borehole_id,g.facility_id)=c.resource_id AND g.ended_at IS NULL)`
 		}
 		rows, e := tx.Query(ctx, `SELECT to_jsonb(c) FROM engineering_resource_changes c WHERE tenant_id::text=$1 AND facility_id::text=$2 AND ($3='' OR resource_kind=$3) AND ($4='' OR resource_id::text=$4) AND ($5='' OR (changed_at,id)<($6::timestamptz,NULLIF($5,'')::uuid))`+scopeWhere+` ORDER BY changed_at DESC,id DESC LIMIT $7`, args...)
 		if e != nil {
@@ -504,7 +454,7 @@ func (s *Service) Changes(ctx context.Context, a access.Actor, scope Scope, targ
 // Owner filters are independent of legacy point/component browsing filters.
 // Values remain query parameters; the owner column comes from this fixed map.
 func channelOwnerFilter(where string, args []any, f Filter) (string, []any) {
-	column := map[string]string{"facility": "facility_id", "component": "component_id", "point": "point_id"}[f.OwnerKind]
+	column := map[string]string{"facility": "facility_id", "component": "component_id", "point": "point_id", "monitoring_section": "monitoring_section_id", "borehole": "borehole_id"}[f.OwnerKind]
 	args = append(args, f.OwnerKind, f.OwnerID)
 	return where + fmt.Sprintf(" AND r.owner_kind=$%d AND r.%s::text=$%d", len(args)-1, column, len(args)), args
 }

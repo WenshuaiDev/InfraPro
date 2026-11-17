@@ -1,21 +1,29 @@
 import { useState } from 'react';
+import { CategoryPicker } from '../classification/picker';
+import { useOptionalTenant } from '../tenancy/context';
 import type { EngineeringTemplate, EngineeringVersion } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
 import { CheckControl, NumberControl, Section, SelectControl, TextControl } from './controls';
+import { TargetEditor } from './structure-editor';
 import { VersionPicker } from './reference-picker';
 export function TemplateEditor({
   value,
+  version,
+  onUpgrade,
   onChange,
   known,
   section,
   onReferences,
 }: {
   value: EngineeringTemplate;
+  version: string;
+  onUpgrade: () => void;
   onChange: (v: EngineeringTemplate) => void;
   known: EngineeringVersion[];
   section?: 'scope' | 'items';
   onReferences?: (versions: EngineeringVersion[]) => void;
 }) {
+  const tenant = useOptionalTenant();
   const [picked, setPicked] = useState<EngineeringVersion[]>([]);
   const definitions = [...known, ...picked];
   const types = value.type_versions ?? [];
@@ -23,6 +31,7 @@ export function TemplateEditor({
   const items = value.items ?? [];
   return (
     <div className="space-y-5">
+      {version !== '2' && <Section title="扩展监测目标"><p className="text-sm text-muted-foreground">当前为根对象／构件映射。扩展草稿后可按类型映射断面、孔位和测点。</p><Button type="button" variant="outline" onClick={onUpgrade}>扩展目标映射</Button></Section>}
       {section !== 'items' && (
         <>
           <TextControl
@@ -153,7 +162,7 @@ export function TemplateEditor({
                         enabled: true,
                         group: '',
                         order: items.length,
-                        targets: types.filter(Boolean).map((type_version) => ({ type_version, component: 'root' })),
+                        targets: types.filter(Boolean).map((type_version) => ({ type_version, component: version === '2' ? '' : 'root', ...(version === '2' ? { applicability: 'applicable' as const, anchor_kind: 'facility' as const, point_scope: 'descendant_points' as const, quantity_basis: 'per_anchor' as const } : {}) })),
                         bindings: [
                           { metric_version: '', unit_version: '', resource_kind: 'observation_channel', min_count: 1 },
                         ],
@@ -207,9 +216,11 @@ export function TemplateEditor({
                     onChange={(description) => update({ description })}
                   />
                   <CheckControl label="默认选用" value={item.enabled} onChange={(enabled) => update({ enabled })} />
+                  {version==='2'&&<Section title="建议设备分类"><CategoryPicker suggestion scope={tenant?{kind:'tenant',tenantId:tenant.tenant.id}:{kind:'platform'}} value={item.suggested_category?{mode:'classify',dictionary_release_id:item.suggested_category.dictionary_release_id,category_id:item.suggested_category.category_id}:{mode:'unclassified'}} onChange={v=>update({suggested_category:v.mode==='classify'&&v.category_id&&v.dictionary_release_id?{dictionary_release_id:v.dictionary_release_id,category_id:v.category_id}:undefined})}/><p className="text-sm text-muted-foreground">建议分类保留所选字典版本，实际设备通过独立分类流程维护。</p></Section>}
                   <Section title="逐版本目标映射">
                     {types.filter(Boolean).map((id) => {
                       const def = definitions.find((v) => v.id === id);
+                      if (version === '2') return <TargetEditor key={id} typeVersion={id} definition={def} value={item.targets.find((t) => t.type_version === id)} onChange={(target) => update({ targets: [...item.targets.filter((t) => t.type_version !== id), target] })} />;
                       return (
                         <SelectControl
                           key={id}

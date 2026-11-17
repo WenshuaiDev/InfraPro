@@ -103,6 +103,15 @@ func (s *Service) Select(ctx context.Context, a access.Actor, scope Scope, in Se
 		}
 	}
 	e := s.transact(ctx, a, scope, "selections.create", false, false, func(tx pgx.Tx, auth authorization) error {
+		var e error
+		out, e = s.selectTx(ctx, tx, a, scope, in, auth)
+		return e
+	})
+	return out, e
+}
+func (s *Service) selectTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, in SelectionInput, auth authorization) (Selection, error) {
+	out := Selection{}
+	e := func() error {
 		ids := append([]string{}, in.Channels...)
 		if in.All || len(in.Points) > 0 {
 			rows, e := tx.Query(ctx, `SELECT c.id::text FROM engineering_channels c WHERE c.tenant_id=$1 AND c.deleted_at IS NULL AND ($2 OR c.point_id=ANY($3::uuid[])) AND ($4='' OR EXISTS(SELECT 1 FROM monitoring_data_grants d JOIN project_resource_grants g ON g.id=d.resource_grant_id JOIN project_facility_links l ON l.id=g.link_id WHERE d.tenant_id=c.tenant_id AND d.channel_id=c.id AND d.project_id::text=$4 AND d.revoked_at IS NULL AND 'read'=ANY(d.capabilities) AND g.ended_at IS NULL AND l.status='active')) ORDER BY c.id LIMIT 50001`, scope.Tenant, in.All, in.Points, scope.Project)
@@ -136,7 +145,7 @@ func (s *Service) Select(ctx context.Context, a access.Actor, scope Scope, in Se
 		out.Hash = digest(ids)
 		out.Count = fmt.Sprint(len(ids))
 		return tx.QueryRow(ctx, `INSERT INTO monitoring_selections(tenant_id,project_id,actor_id,display_subject_id,channel_ids,selection_hash,authorization_revision,expires_at) VALUES($1,$2,$3,$7,$4,$5,$6,clock_timestamp()+interval '15 minutes') RETURNING id::text,expires_at`, scope.Tenant, nullable(scope.Project), a.OwnerAccount(), ids, out.Hash, authorizationVersion(auth), a.OwnerSubject()).Scan(&out.ID, &out.ExpiresAt)
-	})
+	}()
 	return out, e
 }
 func normalizedQuery(in QueryInput) (QueryInput, error) {
@@ -224,9 +233,19 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 		return plan, e
 	}
 	e := s.transact(ctx, a, scope, action, false, false, func(tx pgx.Tx, auth authorization) error {
+		var e error
+		plan, e = s.queryPlanTx(ctx, tx, a, scope, in, action, capability, useLease, auth)
+		return e
+	})
+	return plan, e
+}
+func (s *Service) queryPlanTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, in QueryInput, action, capability string, useLease bool, auth authorization) (queryPlan, error) {
+	plan := queryPlan{filter: in}
+	e := func() error {
 		var selectionHash, selectionAuth string
+		var selectionWindows map[string][]Window
 		var expired bool
-		e := tx.QueryRow(ctx, `SELECT channel_ids::text[],selection_hash,authorization_revision,expires_at<=clock_timestamp() FROM monitoring_selections WHERE tenant_id=$1 AND id=$2 AND COALESCE(actor_id,display_subject_id)=$3 AND project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, in.Selection, a.ID, nullable(scope.Project)).Scan(&plan.channels, &selectionHash, &selectionAuth, &expired)
+		e := tx.QueryRow(ctx, `SELECT channel_ids::text[],selection_hash,authorization_revision,expires_at<=clock_timestamp(),read_windows FROM monitoring_selections WHERE tenant_id=$1 AND id=$2 AND COALESCE(actor_id,display_subject_id)=$3 AND project_id IS NOT DISTINCT FROM $4::uuid`, scope.Tenant, in.Selection, a.ID, nullable(scope.Project)).Scan(&plan.channels, &selectionHash, &selectionAuth, &expired, &selectionWindows)
 		if e == pgx.ErrNoRows {
 			return notFound()
 		}
@@ -283,6 +302,9 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 			}
 
 		}
+		if selectionWindows != nil {
+			plan.windows = intersectWindows(plan.windows, selectionWindows)
+		}
 		current := map[string]string{}
 		contents := map[string]string{}
 		integrity := map[string]string{}
@@ -335,7 +357,7 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 		} else {
 			var vector []byte
 			var authRevision string
-			e = tx.QueryRow(ctx, `SELECT id::text,watermark::text,route_revision::text,expires_at,query_hash,revision_vector,authorization_revision,(expires_at<=clock_timestamp() AND (NOT $5::bool OR lease_until IS NULL OR lease_until<=clock_timestamp())) FROM monitoring_snapshots WHERE tenant_id=$1 AND id=$2 AND selection_id=$3 AND COALESCE(actor_id,display_subject_id)=$4`, scope.Tenant, in.Snapshot, in.Selection, a.ID, useLease).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt, &plan.snapshot.QueryHash, &vector, &authRevision, &expired)
+			e = tx.QueryRow(ctx, `SELECT id::text,watermark::text,route_revision::text,expires_at,query_hash,revision_vector,authorization_revision,(expires_at<=clock_timestamp() AND (NOT $5::bool OR lease_until IS NULL OR lease_until<=clock_timestamp())) FROM monitoring_snapshots WHERE tenant_id=$1 AND id=$2 AND selection_id=$3 AND COALESCE(actor_id,display_subject_id)=$4 AND (NOT display_managed OR EXISTS(SELECT 1 FROM display_read_monitoring_refs r JOIN display_read_queries q ON q.id=r.query_id WHERE r.snapshot_id=monitoring_snapshots.id AND q.state NOT IN ('canceled','expired','failed') AND q.expires_at>clock_timestamp()))`, scope.Tenant, in.Snapshot, in.Selection, a.ID, useLease).Scan(&plan.snapshot.ID, &plan.snapshot.Watermark, &plan.snapshot.RouteRevision, &plan.snapshot.ExpiresAt, &plan.snapshot.QueryHash, &vector, &authRevision, &expired)
 			if e == pgx.ErrNoRows {
 				return notFound()
 			}
@@ -362,7 +384,7 @@ func (s *Service) queryPlan(ctx context.Context, a access.Actor, scope Scope, in
 		}
 		plan.manifest, e = manifestTx(ctx, tx, scope.Tenant, plan.windows, watermark, in.Status, mustRevision(plan.snapshot.RouteRevision))
 		return e
-	})
+	}()
 	return plan, e
 }
 func intersectWindows(a, b map[string][]Window) map[string][]Window {

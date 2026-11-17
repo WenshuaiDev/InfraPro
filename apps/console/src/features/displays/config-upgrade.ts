@@ -1,7 +1,7 @@
-import type { DisplayBinding, DisplayConfig, DisplayPackage, DisplaySchema } from "@infrapro/api-client";
+import type { DisplayBinding, DisplayConfig, DisplayPackage, DisplaySchema, DisplayReadDefinition } from "@infrapro/api-client";
 
 /** A declarative projection only: new packages never execute migration code. */
-export function upgradeConfig(pack: DisplayPackage, prior?: Pick<DisplayConfig, "parameters" | "bindings" | "mode">) {
+export function upgradeConfig(pack: DisplayPackage, prior?: Pick<DisplayConfig, "parameters" | "bindings" | "mode" | "read_views">) {
   const inherited: string[] = [], replaced: string[] = [], missing: string[] = [], removed: string[] = [];
   function project(schema: DisplaySchema, old: unknown, path: string, required: boolean): unknown {
     if (schema.type === "object") {
@@ -39,5 +39,11 @@ export function upgradeConfig(pack: DisplayPackage, prior?: Pick<DisplayConfig, 
       bindings[key] = structuredClone(old); inherited.push(path);
     } else { bindings[key] = { kind: schema.kind, ids: [] }; if (old) replaced.push(path); if (schema.required) missing.push(path); }
   }
-  return { parameters, bindings, mode: prior?.mode ?? "fixed", inherited, replaced, missing, removed };
+  const read_views:Record<string,DisplayReadDefinition>={};
+  for(const key of Object.keys(prior?.read_views??{}))if(!pack.manifest.read_view_schema?.[key])removed.push(`视图.${key}`);
+  for(const [key,schema]of Object.entries(pack.manifest.read_view_schema??{})){
+    const old=prior?.read_views?.[key];
+    if(old&&old.domain===schema.domain&&(!old.include_future||schema.allow_dynamic)){const value=structuredClone(old);delete value.set_id;delete value.digest;read_views[key]=value;inherited.push(`视图.${key}`);}else {if(old)replaced.push(`视图.${key}`);if(schema.required)missing.push(`视图.${key}`);}
+  }
+  return { parameters, bindings, read_views, mode: prior?.mode ?? "fixed", inherited, replaced, missing, removed };
 }

@@ -125,18 +125,20 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 		t.Fatal(scope)
 	}
 	a := access.New(pool, slog.Default())
+	var catalogBeforeSync int
+	must(pool.QueryRow(ctx, `SELECT count(*) FROM permission_catalog`).Scan(&catalogBeforeSync))
 	if e = a.Sync(ctx); !errors.Is(e, access.ErrLastManager) {
 		t.Fatal("missing new management permissions not caught", e)
 	}
 	must(pool.QueryRow(ctx, `SELECT count(*) FROM permission_catalog`).Scan(&count))
-	if count != 22 {
+	if count != catalogBeforeSync {
 		t.Fatal("failed sync partially updated catalog", count)
 	}
 	must(a.RecoverAdmin(ctx, "Legacy", "显式发布前保障"))
 	must(a.Sync(ctx))
 	must(a.Check(ctx))
 	must(pool.QueryRow(ctx, `SELECT count(*) FROM role_permissions WHERE role_id=$1`, custom).Scan(&count))
-	if count != 22 {
+	if count != len(codes) {
 		t.Fatal("custom role silently expanded", count)
 	}
 	var rev1, rev2 string
@@ -150,9 +152,10 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 	if count != 1 {
 		t.Fatal("legacy audit changed")
 	}
-	// Down refuses to destroy tenant history, keeping version and data intact.
-	if _, e = provider.Down(ctx); e == nil {
-		t.Fatal("destructive downgrade allowed")
+	// Check the tenancy migration itself: later additive migrations may safely
+	// roll back empty new columns, so the latest Down is not this boundary.
+	if _, e = provider.ApplyVersion(ctx, 3, false); e == nil || !strings.Contains(e.Error(), "Tenant membership and code history is irreversible") {
+		t.Fatal("tenant history downgrade was not explicitly rejected", e)
 	}
 	must(Check(ctx, pool))
 }

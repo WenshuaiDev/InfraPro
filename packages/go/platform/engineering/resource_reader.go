@@ -13,7 +13,7 @@ func ResolvePublicTx(ctx context.Context, tx pgx.Tx, id string, kind Kind, newUs
 	if e != nil {
 		return v, nil, e
 	}
-	if v.SchemaVersion != MetamodelVersion {
+	if !SupportedMetamodel(v.SchemaVersion) || v.Content.MetamodelVersion != v.SchemaVersion {
 		return v, nil, problem("definition_unavailable", "不支持该定义格式。", 409)
 	}
 	if newUse && !v.Usable {

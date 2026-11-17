@@ -1,4 +1,5 @@
 import { DomainFiles } from "../files/domain-files";
+import { ObjectHistory } from "../audit/object-history";
 import { spatialAdapter } from "../files/adapters/spatial";
 import { transferFile } from "../files/upload-controller";
 import { phases } from "../files/state";
@@ -69,6 +70,14 @@ export function AssetManager(props: Props) {
             <span className="text-sm text-muted-foreground">
               {props.asset.code}
             </span>
+            <ObjectHistory objectType="spatial_asset" objectId={props.asset.id} />
+            {props.version && (
+              <ObjectHistory
+                objectType="spatial_version"
+                objectId={props.version.id}
+                label="此版本操作历史"
+              />
+            )}
           </div>
           <nav className="flex gap-2 border-b pb-2" aria-label="资料管理内容">
             {[

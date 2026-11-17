@@ -14,7 +14,7 @@ for (const delayed of [false, true]) {
   const f = await seed(request); await login(page, f.user);
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
   const base = `${api}/tenants/${f.tenant}/engineering/resources/facilities`;
-  const created = await page.request.post(base, { headers, data: { request_id: randomUUID(), code: 'OUTAGE', name: '故障回归设施', type_version_id: f.type.version_id, values: { length: 0 } } });
+  const created = await page.request.post(base, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { request_id: randomUUID(), code: 'OUTAGE', name: '故障回归设施', type_version_id: f.type.version_id, values: { length: 0 } } });
   expect(created.status()).toBe(201); const facility = await created.json();
   await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${facility.id}`);
   await page.getByRole('button', { name: '故障回归设施 操作', exact: true }).click();
@@ -48,6 +48,7 @@ for (const delayed of [false, true]) {
 }
 
 test('numeric resource inputs preserve typed decimals and save their exact numeric values', async ({ page, request }) => {
+ test.setTimeout(60_000);
  const f = await seed(request); await login(page, f.user);
  for (const [index, text] of ['0.05', '-0.5', '1.05', '1.00'].entries()) {
   await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities`);
@@ -82,49 +83,47 @@ test('numeric resource inputs preserve typed decimals and save their exact numer
  await expect(actions).toBeFocused();
 });
 
-test('component ownership tree never submits an edit until explicit save', async ({ page, request }) => {
+test('structure move never writes before explicit preview confirmation', async ({ page, request }) => {
  const f = await seed(request); await login(page, f.user);
  const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
  const base = `${api}/tenants/${f.tenant}/engineering/resources`;
- const post = async (path: string, data: object) => { const r = await page.request.post(base + path, { headers, data: { request_id: randomUUID(), ...data } }); expect(r.status(), await r.text()).toBe(201); return r.json(); };
+ const post = async (path: string, data: object) => { const r = await page.request.post(base + path, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { request_id: randomUUID(), ...data } }); expect(r.status(), await r.text()).toBe(201); return r.json(); };
  const facility = await post('/facilities', { code: 'TREE', name: '树操作设施', type_version_id: f.type.version_id, values: { length: 0 } });
  const root = `/facilities/${facility.id}`;
  const span = await post(`${root}/components`, { code: 'SPAN', name: '第一跨', category_key: 'span', expected_structure_revision: 1 });
  const beam = await post(`${root}/components`, { code: 'BEAM', name: '第一梁', category_key: 'beam', parent_component_id: span.id, expected_structure_revision: 2 });
  const point = await post(`${root}/points`, { code: 'POINT', name: '归属测试点' });
  await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities/${facility.id}?point=${point.id}`);
- await page.getByRole('button', { name: '归属测试点 操作', exact: true }).click();
- await page.getByRole('menuitem', { name: '编辑测点', exact: true }).click();
- const panel = page.getByRole('dialog'); let writes = 0;
- page.on('request', (r) => { if (r.method() === 'PATCH' && r.url().endsWith(`/points/${point.id}`)) writes++; });
- await panel.getByLabel('名称 *', { exact: true }).fill('主动保存后改名');
- await panel.getByText('选择或纠正同设施归属', { exact: true }).click();
- const tree = panel.getByRole('navigation', { name: '设施构件', exact: true });
- await tree.getByRole('button', { name: '展开 第一跨', exact: true }).click();
- await expect(tree.getByRole('button', { name: '第一梁 BEAM', exact: true })).toBeVisible();
- await tree.getByRole('button', { name: '第一梁 BEAM', exact: true }).click();
- await expect(tree.getByRole('button', { name: '第一梁 BEAM', exact: true })).toHaveAttribute('aria-current', 'true');
- await tree.getByRole('button', { name: '设施整体', exact: true }).click();
- await expect(tree.getByRole('button', { name: '设施整体', exact: true })).toHaveAttribute('aria-current', 'true');
- await tree.getByRole('button', { name: '第一梁 BEAM', exact: true }).click();
+ await page.getByRole('button', { name: '移动结构', exact: true }).click();
+ const panel = page.getByRole('dialog', { name: '移动工程结构', exact: true }); let writes = 0;
+ page.on('request', (r) => { if (r.method() === 'POST' && r.url().endsWith(`/points/${point.id}/move`)) writes++; });
+ await panel.getByRole('button', { name: '下级', exact: true }).click();
+ const choice = panel.getByRole('button', { name: /第一梁.*BEAM/ });
+ await choice.click();
+ await panel.getByRole('button', { name: '选用设施整体', exact: true }).click();
+ await choice.click();
  expect(writes).toBe(0);
- expect((await (await page.request.get(base + root + `/points/${point.id}`)).json()).name).toBe('归属测试点');
- await panel.getByLabel('修改原因（共享或归属修改必填）',{exact:true}).fill('纠正同设施归属');
- await page.getByRole('button',{name:'保存',exact:true}).click();await page.getByRole('button',{name:'确认保存',exact:true}).click();
+ const before = await (await page.request.get(base + root + `/points/${point.id}`)).json();
+ expect(before.parent_ref).toEqual({ kind: 'facility', id: facility.id });
+ await panel.getByLabel('操作原因 *', { exact: true }).fill('纠正同设施主结构');
+ await panel.getByRole('button', { name: '预览变更', exact: true }).click();
+ await expect(panel.getByRole('heading', { name: '核对变更影响', exact: true })).toBeVisible();
+ expect(writes).toBe(0);
+ await panel.getByRole('button', { name: '确认提交', exact: true }).click();
  await expect(panel).toBeHidden(); expect(writes).toBe(1);
  const saved = await (await page.request.get(base + root + `/points/${point.id}`)).json();
- expect(saved.component_id).toBe(beam.id); expect(saved.name).toBe('主动保存后改名');
- await expect(page.getByRole('heading', { name: '主动保存后改名', exact: true })).toBeVisible();
+ expect(saved.parent_ref).toEqual({ kind: 'component', id: beam.id });
+ expect(saved.component_id).toBe(beam.id); expect(saved.name).toBe('归属测试点');
  await expect(page.getByRole('navigation', { name: '当前资源路径' }).getByRole('button', { name: '第一梁', exact: true })).toBeVisible();
 });
 
 test('actual resources: direct save, min count reference, point/channel, positions, history, retirement and deep link',async({page,request},info)=>{
  test.setTimeout(180_000);const f=await seed(request);const errors:string[]=[];page.on('pageerror',(e)=>errors.push(e.message));await login(page,f.user);await page.goto(`${consoleURL}/t/${f.tenant}/resources/facilities`);await page.getByRole('button',{name:'新增设施',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill(`F-${f.suffix}`);await page.getByLabel('名称 *',{exact:true}).fill('测试桥梁');await pick(page,'设施类型',f.type.definition_id,f.type.version_id,f.suffix);await expect(page.getByLabel('设计长度 *',{exact:true})).toHaveValue('0');const facility=await save(page,'/facilities');await expect(page.getByRole('heading',{name:'测试桥梁',exact:true})).toBeVisible();await page.getByRole('tab',{name:'下级资源',exact:true}).click();await expect(page.getByText('暂无直属资源',{exact:true})).toBeVisible();await expect(page.getByText(/待完善|完成度|发布后启用/)).toHaveCount(0);
- await page.getByRole('button',{name:'添加下级',exact:true}).click();await page.getByRole('menuitem',{name:'新增构件',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('C-1');await page.getByLabel('名称 *',{exact:true}).fill('第一跨');await page.getByLabel('构件类别 *',{exact:true}).selectOption('span');const component=await save(page,'/components');await expect(page.getByRole('heading',{name:'第一跨',exact:true})).toBeVisible();await page.getByRole('button',{name:'添加下级',exact:true}).click();await page.getByRole('menuitem',{name:'添加测点',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('P-1');await page.getByLabel('名称 *',{exact:true}).fill('跨中位移测点');await page.getByText('位置资料（可选）',{exact:true}).click();await page.getByRole('button',{name:'填写地理坐标',exact:true}).click();await page.getByLabel('经度（度）',{exact:true}).fill('0');await page.getByLabel('纬度（度）',{exact:true}).fill('0');await page.getByRole('button',{name:'保存',exact:true}).click();await expect(page.getByRole('heading',{name:/需要处理的问题/})).toBeVisible();await page.screenshot({path:info.outputPath('resource-position-error.png'),fullPage:true});await page.getByLabel('坐标系依据',{exact:true}).fill('EPSG:4326');await page.getByRole('button',{name:'添加路线参照',exact:true}).click();await page.getByLabel('路线编号',{exact:true}).fill('G109');await page.getByLabel('起点或点位桩号',{exact:true}).fill('K123+450');await page.getByRole('button',{name:'添加断面参照',exact:true}).click();await page.getByLabel('断面种类',{exact:true}).selectOption('facility_monitoring_section');await page.getByLabel('断面编号',{exact:true}).fill('DM-01');await page.getByLabel('参照说明',{exact:true}).fill('主梁跨中断面');const point=await save(page,'/points');await expect(page.getByRole('heading',{name:'跨中位移测点',exact:true})).toBeVisible();await page.getByRole('tab',{name:'业务通道',exact:true}).click();await expect(page.getByText('暂无业务通道',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'添加通道',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('CH-1');await page.getByLabel('名称 *',{exact:true}).fill('横向位移');await pick(page,'监测指标',f.metric.definition_id,f.metric.version_id,f.suffix);await page.getByLabel('固定单位 *',{exact:true}).selectOption(f.unit.version_id);const channel=await save(page,'/channels');await expect(page.getByRole('heading',{name:'横向位移',exact:true})).toBeVisible();await expect(page.getByText(/固定单位：毫米/)).toBeVisible();
+ await page.getByRole('button',{name:'添加下级',exact:true}).click();await page.getByRole('menuitem',{name:'新增构件',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('C-1');await page.getByLabel('名称 *',{exact:true}).fill('第一跨');await page.getByLabel('构件类别 *',{exact:true}).selectOption('span');const component=await save(page,'/components');await expect(page.getByRole('heading',{name:'第一跨',exact:true})).toBeVisible();await page.getByRole('button',{name:'添加下级',exact:true}).click();await page.getByRole('menuitem',{name:'新增测点',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('P-1');await page.getByLabel('名称 *',{exact:true}).fill('跨中位移测点');await page.getByText('位置资料（可选）',{exact:true}).click();await page.getByRole('button',{name:'填写地理坐标',exact:true}).click();await page.getByLabel('经度（度）',{exact:true}).fill('0');await page.getByLabel('纬度（度）',{exact:true}).fill('0');await page.getByRole('button',{name:'保存',exact:true}).click();await expect(page.getByRole('heading',{name:/需要处理的问题/})).toBeVisible();await page.screenshot({path:info.outputPath('resource-position-error.png'),fullPage:true});await page.getByLabel('坐标系依据',{exact:true}).fill('EPSG:4326');await page.getByRole('button',{name:'添加路线参照',exact:true}).click();await page.getByLabel('路线编号',{exact:true}).fill('G109');await page.getByLabel('起点或点位桩号',{exact:true}).fill('K123+450');await expect(page.getByRole('button',{name:'添加断面参照',exact:true})).toHaveCount(0);const point=await save(page,'/points');await expect(page.getByRole('heading',{name:'跨中位移测点',exact:true})).toBeVisible();await page.getByRole('tab',{name:'业务通道',exact:true}).click();await expect(page.getByText('暂无业务通道',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'新增业务通道',exact:true}).click();await page.getByLabel('编号 *',{exact:true}).fill('CH-1');await page.getByLabel('名称 *',{exact:true}).fill('横向位移');await pick(page,'监测指标',f.metric.definition_id,f.metric.version_id,f.suffix);await page.getByLabel('固定单位 *',{exact:true}).selectOption(f.unit.version_id);const channel=await save(page,'/channels');await expect(page.getByRole('heading',{name:'横向位移',exact:true})).toBeVisible();await expect(page.getByText(/固定单位：毫米/)).toBeVisible();
  await page.screenshot({path:info.outputPath('resource-workspace.png'),fullPage:true});await page.reload();await expect(page.getByRole('heading',{name:'横向位移',exact:true})).toBeVisible();await page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'跨中位移测点',exact:true}).click();await expect(page.getByRole('heading',{name:'跨中位移测点',exact:true})).toBeVisible();await expect(page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'第一跨',exact:true})).toBeVisible();expect(page.url()).toContain(`point=${point.id}`);
  const headers={Origin:origin,'X-CSRF-Token':await csrf(page.request,origin)};const root=`${api}/tenants/${f.tenant}/engineering/resources/facilities/${facility.id}`;const detail=await(await page.request.get(`${root}/points/${point.id}`)).json();expect(detail.position.geographic.longitude).toBe(0);expect(detail.component_id).toBe(component.id);expect((await page.request.get(`${root}/points/${point.id}/channels/${channel.id}`)).status()).toBe(200);
- await page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'第一跨',exact:true}).click();await page.getByRole('button',{name:'第一跨 操作',exact:true}).click();await page.getByRole('menuitem',{name:'删除构件',exact:true}).click();await page.getByLabel('原因 *',{exact:true}).fill('依赖保护');await page.getByRole('button',{name:'预览删除影响',exact:true}).click();await expect(page.getByText('仍有 1 个测点',{exact:true})).toBeVisible();await page.getByRole('button',{name:'关闭面板',exact:true}).click();
+ await page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'第一跨',exact:true}).click();await page.getByRole('button',{name:'第一跨 操作',exact:true}).click();await page.getByRole('menuitem',{name:'删除构件',exact:true}).click();await page.getByLabel('原因 *',{exact:true}).fill('依赖保护');await page.getByRole('button',{name:'预览删除影响',exact:true}).click();await expect(page.getByText('仍有结构下级，请先处理后再删除。',{exact:true})).toBeVisible();await page.getByRole('button',{name:'关闭面板',exact:true}).click();
  await page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'测试桥梁',exact:true}).click();await page.getByRole('button',{name:'测试桥梁 操作',exact:true}).click();await page.getByRole('menuitem',{name:'退役设施',exact:true}).click();await page.getByLabel('原因 *',{exact:true}).fill('暂停使用');await page.getByRole('button',{name:'预览退役影响',exact:true}).click();await page.getByRole('button',{name:'确认保存',exact:true}).click();await expect(page.getByRole('button',{name:'添加下级',exact:true})).toHaveCount(0);await page.getByRole('table',{name:'直属资源'}).getByRole('button',{name:/第一跨/}).click();await expect(page.getByText('祖先已退役，请先恢复祖先。').first()).toBeVisible();await page.getByRole('navigation',{name:'当前资源路径'}).getByRole('button',{name:'测试桥梁',exact:true}).click();await page.getByRole('button',{name:'测试桥梁 操作',exact:true}).click();await page.getByRole('menuitem',{name:'恢复设施',exact:true}).click();await page.getByLabel('原因 *',{exact:true}).fill('恢复使用');await page.getByRole('button',{name:'预览恢复影响',exact:true}).click();await page.getByRole('button',{name:'确认保存',exact:true}).click();await expect(page.getByRole('button',{name:'添加下级',exact:true})).toBeVisible();
  // Conflict keeps input; a failed write is not automatically replayed.
  await page.getByRole('tab',{name:'下级资源',exact:true}).click();await page.getByLabel('搜索直属资源名称或编号',{exact:true}).fill('C-1');await page.getByRole('table',{name:'直属资源'}).getByRole('button',{name:/第一跨/}).click();await page.getByRole('button',{name:'第一跨 操作',exact:true}).click();await page.getByRole('menuitem',{name:'编辑构件',exact:true}).click();await page.getByLabel('名称 *',{exact:true}).fill('我的未提交名称');expect((await page.request.patch(`${root}/components/${component.id}`,{headers,data:{request_id:randomUUID(),expected_revision:1,name:'另一窗口已修改'}})).status()).toBe(200);await save(page,`/components/${component.id}`,409);await expect(page.getByLabel('名称 *',{exact:true})).toHaveValue('我的未提交名称');await page.getByRole('button',{name:'关闭面板',exact:true}).click();

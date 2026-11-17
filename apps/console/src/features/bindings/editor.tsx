@@ -9,7 +9,7 @@ import { CommandFeedback, useDeviceCommand } from '../devices/command';
 import { DeviceField } from '../devices/fields';
 import { CandidatePicker } from './candidates';
 import { BindingHistory } from './history';
-import { actionLabels, bindingCommand, targetOf, visibleOutput, type BindingAction, type BindingCommand, type BindingRow } from './model';
+import { actionLabels, bindingCommand, bindingLocation, targetOf, visibleOutput, type BindingAction, type BindingCommand, type BindingRow } from './model';
 import { CurrentEquipment, PairSummary, DesignMeaning } from './shared';
 
 export type BindingEdit = { row: BindingRow; action?: BindingAction; output?: DeviceOutput };
@@ -20,7 +20,7 @@ export function BindingDialog({ edit, close, saved }: { edit: BindingEdit; close
   const trigger = useRef<HTMLElement | null>(document.activeElement instanceof HTMLElement ? document.activeElement : null);
   const target = targetOf(edit.row);
   const current = useQuery({ queryKey: [...prefix, 'source', target], queryFn: ({ signal }) => client.deviceSource(scope, target, signal), refetchOnMount: 'always' });
-  return <Dialog open onOpenChange={open => { if (!open && !locked) close(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl" showCloseButton={!locked} onCloseAutoFocus={event => { if (trigger.current?.isConnected) { event.preventDefault(); trigger.current.focus(); } }} onPointerDownOutside={event => event.preventDefault()}><DialogHeader><DialogTitle>{action ? actionLabels[action] : '查看绑定关系'}</DialogTitle><DialogDescription>{edit.row.facility_name} / {edit.row.point_name} / {edit.row.name}</DialogDescription></DialogHeader>
+  return <Dialog open onOpenChange={open => { if (!open && !locked) close(); }}><DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl" showCloseButton={!locked} onCloseAutoFocus={event => { if (trigger.current?.isConnected) { event.preventDefault(); trigger.current.focus(); } }} onPointerDownOutside={event => event.preventDefault()}><DialogHeader><DialogTitle>{action ? actionLabels[action] : '查看绑定关系'}</DialogTitle><DialogDescription>{[...bindingLocation(edit.row), edit.row.name].join(' / ')}</DialogDescription></DialogHeader>
     {current.isPending ? <LoadingState /> : current.error || !current.data ? <ErrorState message={current.error?.message ?? '无法读取当前绑定'} onRetry={() => void current.refetch()} /> : action ? <BindingForm key={action} row={edit.row} action={action} current={current.data} preferred={edit.output} lock={setLocked} cancel={close} saved={saved} refreshCurrent={async () => { await current.refetch({ throwOnError: true }); }} /> : <div className="space-y-5"><PairSummary row={edit.row} output={visibleOutput(current.data.source)} /><DesignMeaning row={edit.row} current={current.data} /><BindingControls current={current.data} choose={setAction} /><BindingHistory target={target} /></div>}
   </DialogContent></Dialog>;
 }

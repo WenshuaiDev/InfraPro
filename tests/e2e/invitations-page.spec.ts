@@ -59,7 +59,7 @@ test('server search treats percent and underscore literally and detail access is
   await login(page, account);
   const api = new URL('/api/v1', consoleURL).href;
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
-  for (const note of ['Bridge 100%_汉字🙂', 'Bridge other']) expect((await context.request.post(`${api}/invitations`, { headers, data: { note } })).status()).toBe(200);
+  for (const note of ['Bridge 100%_汉字🙂', 'Bridge other']) expect((await context.request.post(`${api}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note } })).status()).toBe(200);
   await page.goto(`${consoleURL}/invitations`);
   await page.getByLabel('搜索用途备注').fill('%_');
   const table = page.getByRole('table', { name: '我的邀请', exact: true });
@@ -100,7 +100,7 @@ test('withdrawing write permissions clears the open link while preserving read-o
   await expect(page.getByLabel('可手动复制的完整链接')).toBeVisible();
   const api = new URL('/api/v1', consoleURL).href;
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const role = (await (await request.get(`${api}/access/roles?q=${encodeURIComponent(`邀请回归_${account.username}`)}`)).json()).items[0];
   expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead], reason: '验证只读权限与凭证清理' } })).status()).toBe(200);
   const refreshed = page.waitForResponse((response) => response.url().endsWith('/auth/me'));
@@ -114,5 +114,5 @@ test('withdrawing write permissions clears the open link while preserving read-o
   await expect(detail.getByRole('button', { name: '重新生成链接', exact: true })).toHaveCount(0);
   await expect(detail.getByRole('button', { name: '撤销邀请', exact: true })).toHaveCount(0);
   const guestHeaders = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(context.request) };
-  expect((await context.request.post(`${api}/invitations`, { headers: guestHeaders, data: { note: '禁止创建' } })).status()).toBe(403);
+  expect((await context.request.post(`${api}/invitations`, { headers: { ...guestHeaders, 'X-Command-ID': randomUUID() }, data: { note: '禁止创建' } })).status()).toBe(403);
 });

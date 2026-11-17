@@ -5,6 +5,7 @@ import { querySlot } from '../monitoring/query-hooks';
 import { calculationStatusNames } from '../monitoring/detail-format';
 import { rangeLabel } from '../monitoring/format';
 import { useDerived } from './common';
+import { QuantityLabel } from './rule-summary';
 
 export function ChannelStatus({channel,compact=false}:{channel:DerivedChannel;compact?:boolean}) {
  const m=useDerived();
@@ -19,8 +20,10 @@ export function ChannelStatus({channel,compact=false}:{channel:DerivedChannel;co
  const c=result.data.channels?.[0];if(!c)return <p className="text-xs">暂无获准当前结果。</p>;
  const latest=c.latest_output,valid=c.last_valid_output??c.last;
  const spans=result.data.coverage??[];
- return <div className={`space-y-2 text-xs ${compact?'min-w-56':'rounded-lg bg-muted/30 p-4'}`}>
-  <p>最新输出：<span className="font-mono">{latest?.output_at??'尚无输出'}</span>{latest&&<> · {calculationStatusNames[latest.calculation_status]} · <span className="break-all font-mono">{latest.value??'无结果'}</span></>}</p>
+ if(compact)return <div className="max-w-56 space-y-1 text-xs"><p className="break-all font-mono text-base font-medium">{latest?.value??'—'}</p><p className="text-muted-foreground"><QuantityLabel quantity={channel.resource.quantity_spec??undefined}/></p><p className="text-muted-foreground">{latest?calculationStatusNames[latest.calculation_status]:'尚无输出'}</p>{latest&&<p title={latest.output_at} className="text-muted-foreground">{new Date(latest.output_at).toLocaleString('zh-CN',{hour12:false})}</p>}{!!c.pending_ranges?.length&&<p className="text-amber-700 dark:text-amber-300">部分范围等待更新</p>}</div>;
+
+ return <div className={`space-y-2 text-xs rounded-lg bg-muted/30 p-4`}>
+  <p className="text-sm font-medium">输出单位：<QuantityLabel quantity={channel.resource.quantity_spec??undefined}/></p><p>最新输出：<span className="font-mono">{latest?.output_at??'尚无输出'}</span>{latest&&<> · {calculationStatusNames[latest.calculation_status]} · <span className="break-all font-mono">{latest.value??'无结果'}</span></>}</p>
   <p>上一有效值：<span className="break-all font-mono">{valid?.value??'—'}</span>{valid&&<span className="block font-mono">{'output_at' in valid?valid.output_at:valid.observed_at}</span>}</p>
   <p>已计算至：<span className="font-mono">{c.computed_through??'尚未计算'}</span></p>
   <p>输入已到达：<span className="font-mono">{c.input_through??'范围内尚无输入'}</span></p>

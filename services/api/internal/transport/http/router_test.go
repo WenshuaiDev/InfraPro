@@ -195,6 +195,10 @@ func TestE2EServer(t *testing.T) {
 		env.Config.PublicConsoleURL = value
 		env.Config.TrustedOrigins = strings.Split(os.Getenv("INFRAPRO_E2E_ORIGINS"), ",")
 	}
+	env.Config.CookieSecure = os.Getenv("INFRAPRO_E2E_COOKIE_SECURE") == "true"
+	if env.Config.CookieSecure {
+		env.Config.TrustedProxies = []string{"127.0.0.1", "::1"}
+	}
 	env.Service, e = identity.NewService(env.Pool, env.Redis, env.Config, logger)
 	if e != nil {
 		t.Fatal(e)
@@ -228,6 +232,7 @@ func TestE2EServer(t *testing.T) {
 			}
 			fixture["reset_"+project] = reset.URL
 		}
+		governanceBrowserFixture(t, ctx, env, owner, fixture)
 		b, _ := json.Marshal(fixture)
 		if e = os.WriteFile(p, b, 0600); e != nil {
 			t.Fatal(e)
@@ -237,6 +242,14 @@ func TestE2EServer(t *testing.T) {
 	address := os.Getenv("INFRAPRO_HTTP_ADDR")
 	if address == "" {
 		address = "127.0.0.1:18080"
+	}
+	if os.Getenv("INFRAPRO_E2E_UPLOAD_LIMITS") == "1" {
+		env.Config.Uploads, e = config.LoadUploads("")
+		if e != nil {
+			t.Fatal(e)
+		}
+		env.Config.Files = config.DefaultFiles()
+		env.Config.Files.MaxFileBytes = 110 << 20
 	}
 	storage, cleanupMonitoring := browserMonitoring(t, ctx, env)
 	defer cleanupMonitoring()
@@ -251,6 +264,10 @@ func TestE2EServer(t *testing.T) {
 	cleanupParsing := browserParsing(t, ctx, env)
 	defer cleanupParsing()
 	server := &http.Server{Addr: address, Handler: httptransport.NewRouter(logger, env.Service, env.Config, storage), ReadHeaderTimeout: 5 * time.Second}
+	if os.Getenv("INFRAPRO_E2E_UPLOAD_LIMITS") == "1" {
+		server.ReadTimeout = 10 * time.Second
+		server.WriteTimeout = 15 * time.Second
+	}
 	done := make(chan error, 1)
 	go func() { done <- server.ListenAndServe() }()
 	jobs, stopJobs := context.WithCancel(ctx)

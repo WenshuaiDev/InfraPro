@@ -48,7 +48,7 @@ type Service struct {
 func New(a *access.Service, sources map[string]Source) *Service {
 	copy := map[string]Source{}
 	for k, s := range sources {
-		if !slices.Contains([]string{"monitoring", "derived", "spatial", "display", "files", "audit", "parsing"}, k) || s == nil {
+		if !slices.Contains([]string{"monitoring", "derived", "spatial", "display", "files", "audit", "parsing", "ingestion"}, k) || s == nil {
 			panic("unregistered task source")
 		}
 		copy[k] = s

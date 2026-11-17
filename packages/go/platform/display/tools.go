@@ -5,6 +5,7 @@ import (
 	"crypto/subtle"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/jackc/pgx/v5"
+	"strconv"
 )
 
 // Upload pairing is separate from the data session: an empty instance can receive
@@ -104,7 +105,7 @@ func (s *Service) ToolCommand(ctx context.Context, id, token, action, target str
 			v, e = instanceTx(ctx, tx, scope, instance)
 			return e
 		})
-		return map[string]any{"instance": v}, e
+		return map[string]any{"instance": v, "max_package_bytes": strconv.FormatInt(s.options.MaxPackageBytes, 10)}, e
 	case "upload.get":
 		return s.Upload(ctx, a, scope, instance, target)
 	case "upload", "upload.complete", "upload.cancel", "package.retry":

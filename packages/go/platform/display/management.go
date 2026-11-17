@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"github.com/jackc/pgx/v5"
@@ -15,7 +16,9 @@ import (
 )
 
 type Command struct {
-	taskCommand *tasks.Command
+	ConfigFormat int                               `json:"config_format,omitempty"`
+	ReadViews    map[string]displayread.Definition `json:"read_views,omitempty"`
+	taskCommand  *tasks.Command
 	Meta
 	Name        string             `json:"name,omitempty"`
 	State       string             `json:"state,omitempty"`
@@ -157,7 +160,7 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, id st
 		}
 		for name, q := range map[string]string{
 			"packages":  `SELECT jsonb_build_object('id',id,'sha256',sha256,'state',state,'manifest',manifest,'created_at',created_at) FROM display_packages WHERE instance_id=$1 ORDER BY created_at DESC LIMIT 100`,
-			"configs":   `SELECT jsonb_build_object('id',id,'package_id',package_id,'parameters',parameters,'bindings',bindings,'mode',mode,'created_at',created_at) FROM display_configs WHERE instance_id=$1 ORDER BY created_at DESC LIMIT 100`,
+			"configs":   `SELECT jsonb_build_object('id',id,'package_id',package_id,'parameters',parameters,'bindings',bindings,'config_format',config_format,'read_views',read_views,'mode',mode,'created_at',created_at) FROM display_configs WHERE instance_id=$1 ORDER BY created_at DESC LIMIT 100`,
 			"releases":  `SELECT jsonb_build_object('id',id,'package_id',package_id,'config_id',config_id,'requirements',requirements,'withdrawn',withdrawn,'created_at',created_at) FROM display_releases WHERE instance_id=$1 ORDER BY created_at DESC LIMIT 100`,
 			"uploads":   `SELECT jsonb_build_object('id',u.id,'size',u.size_bytes::text,'state',u.state,'job',jsonb_build_object('id',j.id,'state',j.state,'issues',j.issues,'error_code',j.error_code)) FROM display_uploads u LEFT JOIN display_package_jobs j ON j.upload_id=u.id WHERE u.instance_id=$1 ORDER BY u.created_at DESC LIMIT 100`,
 			"sessions":  `SELECT jsonb_build_object('id',id,'release_id',release_id,'preview',preview,'state',CASE WHEN lease_until<=clock_timestamp() AND state IN ('starting','ready','degraded') THEN 'expired' ELSE state END,'last_seen_at',last_seen_at,'lease_until',lease_until,'last_error',last_error,'last_data_at',last_data_at,'last_query_state',last_query_state) FROM display_sessions WHERE instance_id=$1 ORDER BY created_at DESC LIMIT 100`,
@@ -182,7 +185,10 @@ func (s *Service) Detail(ctx context.Context, a access.Actor, scope Scope, id st
 }
 func grantTx(ctx context.Context, tx pgx.Tx, id string) (Grant, error) {
 	v := Grant{}
-	e := tx.QueryRow(ctx, `SELECT revision::text,capabilities,scope,fields,valid_until,revoked,issued_by::text FROM display_grants WHERE instance_id=$1`, id).Scan(&v.Revision, &v.Capabilities, &v.Scope, &v.Fields, &v.ValidUntil, &v.Revoked, &v.IssuedBy)
+	e := tx.QueryRow(ctx, `SELECT revision::text,capabilities,scope,fields,valid_until,revoked,issued_by::text,scope_format,read_scopes FROM display_grants WHERE instance_id=$1`, id).Scan(&v.Revision, &v.Capabilities, &v.Scope, &v.Fields, &v.ValidUntil, &v.Revoked, &v.IssuedBy, &v.Format, &v.ReadScopes)
+	if e == nil {
+		e = displayread.ValidateFormat(v.Format, len(v.ReadScopes) > 0, "/scope_format")
+	}
 	return v, e
 }
 func configTx(ctx context.Context, tx pgx.Tx, instance, id string) (Config, error) {
@@ -190,9 +196,12 @@ func configTx(ctx context.Context, tx pgx.Tx, instance, id string) (Config, erro
 	if !access.ValidID(id) {
 		return v, hidden()
 	}
-	e := tx.QueryRow(ctx, `SELECT id::text,package_id::text,parameters,bindings,mode,created_at FROM display_configs WHERE instance_id=$1 AND id=$2`, instance, id).Scan(&v.ID, &v.PackageID, &v.Parameters, &v.Bindings, &v.Mode, &v.CreatedAt)
+	e := tx.QueryRow(ctx, `SELECT id::text,package_id::text,parameters,bindings,mode,created_at,config_format,read_views FROM display_configs WHERE instance_id=$1 AND id=$2`, instance, id).Scan(&v.ID, &v.PackageID, &v.Parameters, &v.Bindings, &v.Mode, &v.CreatedAt, &v.Format, &v.ReadViews)
 	if e == pgx.ErrNoRows {
 		e = hidden()
+	}
+	if e == nil {
+		e = displayread.ValidateFormat(v.Format, len(v.ReadViews) > 0, "/config_format")
 	}
 	return v, e
 }
@@ -354,8 +363,17 @@ func (s *Service) Command(ctx context.Context, a access.Actor, scope Scope, id, 
 				if e = s.validateBindingsTx(ctx, tx, scope, p.Manifest, in.Bindings, nil, false); e != nil {
 					return e
 				}
+				if in.ReadViews == nil {
+					in.ReadViews = map[string]displayread.Definition{}
+				}
 				var configID string
-				e = tx.QueryRow(ctx, `INSERT INTO display_configs(tenant_id,project_id,instance_id,package_id,parameters,bindings,mode,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id::text`, scope.Tenant, scope.Project, id, in.PackageID, jsonBytes(in.Parameters), jsonBytes(in.Bindings), in.Mode, a.ID).Scan(&configID)
+				if e = tx.QueryRow(ctx, `SELECT gen_random_uuid()::text`).Scan(&configID); e != nil {
+					return e
+				}
+				if e = s.freezeReadViewsTx(ctx, tx, a, scope, v, p, &in, configID); e != nil {
+					return e
+				}
+				e = tx.QueryRow(ctx, `INSERT INTO display_configs(id,tenant_id,project_id,instance_id,package_id,parameters,bindings,mode,created_by,config_format,read_views) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id::text`, configID, scope.Tenant, scope.Project, id, in.PackageID, jsonBytes(in.Parameters), jsonBytes(in.Bindings), in.Mode, a.ID, in.ConfigFormat, jsonBytes(in.ReadViews)).Scan(&configID)
 				if e != nil {
 					return e
 				}

@@ -33,7 +33,10 @@ type filesFixture struct {
 
 func newFilesFixture(t *testing.T) filesFixture {
 	t.Helper()
-	f := resourcesSetup(t)
+	return filesFixtureForResources(t, resourcesSetup(t))
+}
+func filesFixtureForResources(t *testing.T, f resourceFixture) filesFixture {
+	t.Helper()
 	b := runtime.Compose(f.env.Service.Access())
 	o := config.DefaultFiles()
 	o.TempDirectory = t.TempDir()

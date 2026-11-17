@@ -1,13 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ResourceTreeFilter, ResourceTreeRef } from '@infrapro/api-client';
 import { useResources } from './context';
-import { projectTreePage } from './project-tree-query';
 
 export function useResourceTree(filter: ResourceTreeFilter, enabled = true) {
-  const { client, tenantId, scope, prefix, canRead } = useResources();
+  const { client, scope, prefix, canRead } = useResources();
   const query = useInfiniteQuery({
     queryKey: [...prefix, 'tree', filter],
-    queryFn: ({ pageParam, signal }) => scope.kind === 'project' ? projectTreePage({ client, scope }, { ...filter, cursor: pageParam }, signal) : client.resourceTree(tenantId, { ...filter, limit: 25, cursor: pageParam }, signal),
+    queryFn: ({ pageParam, signal }) => client.resourceTree(scope, { ...filter, limit: 25, cursor: pageParam }, signal),
     initialPageParam: '',
     getNextPageParam: (page) => page.next_cursor || undefined,
     enabled: enabled && canRead,

@@ -14,7 +14,7 @@ import { RuleEditor } from './rule-editor';
 import { AnalysisExecution } from './analysis-execution';
 import { useCursor } from './use-cursor';
 
-export function AnalysisEditor({config,onSelect,prefill}:{config?:AnalysisConfig;onSelect:(id:string)=>void;prefill?:DerivedSearch}) {
+export function AnalysisEditor({config,onSelect,prefill}:{config?:AnalysisConfig;onSelect:(id:string)=>void|Promise<void>;prefill?:DerivedSearch}) {
  const m=useDerived(),cache=useQueryClient(),meta=useRequestMeta(),page=useCursor();
  const [current,setCurrent]=useState(config),[code,setCode]=useState(config?.code??''),[name,setName]=useState(config?.name??''),[description,setDescription]=useState(config?.description??'');
  const [body,setBody]=useState<AnalysisBody>(config?.draft?.body??{rule:emptyRule(),input_bindings:prefill?.channel?{x:{channel_id:prefill.channel}}:{},parameters:{}}),[baseVersion,setBaseVersion]=useState(''),[reset,setReset]=useState(false),[reason,setReason]=useState('');
@@ -29,7 +29,7 @@ export function AnalysisEditor({config,onSelect,prefill}:{config?:AnalysisConfig
   if(action==='save'){
    const input={name,description,body};const payload=current?{...input,expected_revision:current.revision}:{...input,code};
    const result=current?await m.client.analysisSaveConfig(m.scope,current.id,{...input,expected_revision:current.revision,...meta('save-analysis',payload,reason)}):await m.client.analysisCreateConfig(m.scope,{...input,code,...meta('create-analysis',payload,reason)});
-   flushSync(()=>{setCurrent(result.config);setSaved(JSON.stringify(fields));setValidation(undefined);setNotice('分析草稿已保存。');});if(!current)onSelect(result.config.id);
+   flushSync(()=>{setCurrent(result.config);setSaved(JSON.stringify(fields));setValidation(undefined);setNotice('分析草稿已保存。');});if(!current){cache.setQueryData([...m.prefix,'analysis-config',result.config.id],result.config);await onSelect(result.config.id);return;}
   } else if(action==='publish'){
    if(!current?.draft||!validation||validation.issues.length||dirty)throw new Error('请先保存并校验当前草稿');const payload={expected_revision:current.revision,draft_revision:current.draft.revision,validation_hash:validation.validation_hash,base_version_id:baseVersion||undefined,reset_baselines:reset};const result=await m.client.analysisPublishConfig(m.scope,current.id,{...payload,...meta('publish-analysis',payload,reason)});setCurrent(result.config);setSelected(result.version);setValidation(undefined);setNotice(`固定执行版本 V${result.version?.version_no} 已保存。`);
   } else if(action==='copy'){

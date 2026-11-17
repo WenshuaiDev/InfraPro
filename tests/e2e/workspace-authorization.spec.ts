@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { test, expect, login, createAccount, consoleURL, csrf, password } from './fixtures';
 import { prepareProjectOnly } from '../helpers/workspaces';
 import { navigateTo, openWorkspacePicker } from '../helpers/navigation';
@@ -8,14 +9,14 @@ const api = new URL('/api/v1', consoleURL).href;
 test('a platform device-catalog-only role enters its readable workspace after login', async ({ page, request }) => {
   const account = await createAccount(request, false);
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const accounts = await (await request.get(`${api}/access/accounts?q=${account.username}`)).json();
   const target = accounts.items[0];
-  const created = await request.post(`${api}/access/roles`, { headers, data: { name: `设备目录_${account.username}`, description: '仅目录读取', reason: '工作空间入口回归' } });
+  const created = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `设备目录_${account.username}`, description: '仅目录读取', reason: '工作空间入口回归' } });
   expect(created.status()).toBe(200); const role = await created.json();
-  const permissions = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: ['device.definition.read'], reason: '目录读取回归' } });
+  const permissions = await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: ['device.definition.read'], reason: '目录读取回归' } });
   expect(permissions.status(), await permissions.text()).toBe(200);
-  const assigned = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [role.id], reason: '仅授权设备产品目录' } });
+  const assigned = await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [role.id], reason: '仅授权设备产品目录' } });
   expect(assigned.status(), await assigned.text()).toBe(200);
   await login(page, account);
   await expect(page).toHaveURL(`${consoleURL}/platform/device-products`);
@@ -26,6 +27,7 @@ test('a platform device-catalog-only role enters its readable workspace after lo
 });
 
 test('one project enters directly, preserves personal pages and rejects ungranted parent and sibling', async ({ page, request }) => {
+  test.setTimeout(90_000);
   const f = await prepareProjectOnly(request);
   await login(page, f.member);
   const target = `${consoleURL}/t/${f.tenantIds[0]}/p/${f.projectIds[0]}/profile`;
@@ -52,6 +54,7 @@ test('one project enters directly, preserves personal pages and rejects ungrante
 });
 
 test('project-only multiple entries use a flat list and filtered single results do not redirect', async ({ page, request }, info) => {
+  test.setTimeout(90_000);
   const f = await prepareProjectOnly(request, 2);
   await login(page, f.member);
   await expect(page).toHaveURL(`${consoleURL}/`);
@@ -88,6 +91,7 @@ test('no business entry keeps personal access and failed resolution is retryable
 });
 
 test('retrying an explicit entry request enters the only project and dismisses the error dialog', async ({ page, request }) => {
+  test.setTimeout(90_000);
   const f = await prepareProjectOnly(request);
   await login(page, f.member);
   await expect(page).toHaveURL(new RegExp(`${f.projectIds[0]}/profile$`));

@@ -1,6 +1,6 @@
 # 任务中心运行、升级与恢复
 
-数据库版本 v39；公共任务协议 schema_version=1，通知协议 v2。完整功能范围见[开发方案](../requirements/task-center-development-plan.md)，实现接缝见[接入指南](../development/task-center-integration.md)，本机操作见[人工验收](task-center-acceptance.md)。
+数据库版本 v39；公共任务协议 schema_version=1，通知协议 v2。完整功能范围见[正式需求规格](../requirements.md)，实现接缝见[接入指南](../development/task-center-integration.md)，本机操作见[本机工程环境与人工验收](local-environment.md)。
 
 ## 进程与配置
 

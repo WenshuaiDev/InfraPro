@@ -5,6 +5,9 @@ export type BindingAction = 'bind' | 'switch' | 'unbind';
 export type BindingCommand = DeviceTenantSourcePreviewInput | DeviceProjectSourcePreviewInput;
 export const stateLabels = { all: '全部', unbound: '待绑定', bound: '已绑定', attention: '需处理', restricted: '详情受限', retired: '已退役' };
 export const actionLabels = { bind: '绑定设备', switch: '更换设备', unbind: '解除绑定' };
+export function bindingLocation(row: BindingRow) {
+  return [row.facility_name, ...(row.component_path.length ? row.component_path.map(component => component.name) : ['设施直属（无构件）']), row.point_name];
+}
 export function targetOf(row: DeviceSourceTarget): DeviceSourceTarget { return { facility_id: row.facility_id, point_id: row.point_id, channel_id: row.channel_id }; }
 export function visibleOutput(source: DeviceSourceCurrent['source']) { return source.configured && source.visibility === 'full' ? source.output ?? undefined : undefined; }
 export function bindingCommand(scope: DeviceScope, action: BindingAction, current: DeviceSourceCurrent, reason: string, output?: DeviceOutput): BindingCommand | undefined {

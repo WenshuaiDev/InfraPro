@@ -1,5 +1,8 @@
 import { connectBridge } from "./transport.js";
 import { DisplayError } from "./error.js";
+import { createReads } from "./reads.js";
+import type { ReadMethod, ReadRequest, ReadData, ReadResult, ReadConsumer, ReadSubscriptionEvent, ReadFileChunk } from './read-types.js';
+export * from './read-types.js';
 import type {
   Alert,
   AlertConsumer,
@@ -46,12 +49,14 @@ function stable(value: unknown): string {
 }
 interface Shared {
   id?: string;
-  consumers: Set<Consumer>;
+  consumers: Set<Consumer<unknown>>;
   promise: Promise<void>;
   generation: bigint;
   sequence: bigint;
   busy: boolean;
   active: boolean;
+  pendingReset?: SubscriptionEvent;
+  pendingEvent?: SubscriptionEvent;
 }
 /** Connect only inside the trusted shell. Inject a transport for deterministic tests. */
 export async function connect(
@@ -81,6 +86,15 @@ export async function connect(
     disposed
       ? Promise.reject(new DisplayError("disposed"))
       : transport.request<T>(method, params, opts);
+  const clearURLs=()=>{for(const url of urls)URL.revokeObjectURL(url);urls.clear();};
+  const reads=createReads(request,subscribe,clearURLs);
+  const isNamed=(params:unknown):boolean=>!!params&&typeof params==='object'&&'target' in params&&!!params.target&&typeof params.target==='object'&&('view' in params.target||'selection' in params.target);
+  function compatibleQuery<M extends ReadMethod,L>(method:M){
+    function call(params:ReadRequest<M>,options?:CallOptions):Promise<ReadResult<ReadData[M]>>;
+    function call(params?:Query,options?:CallOptions):Promise<Result<L>>;
+    function call(params:ReadRequest<M>|Query={},options?:CallOptions):Promise<ReadResult<ReadData[M]>|Result<L>>{return isNamed(params)?reads.call<ReadData[M]>(method,params,options):request<Result<L>>(method,params,options);}
+    return call;
+  }
   const query =
     <T>(method: string) =>
     (params: Query = {}, opts?: CallOptions) =>
@@ -93,7 +107,6 @@ export async function connect(
     }
     if (
       !sub.active ||
-      sub.busy ||
       !/^\d+$/.test(event.generation) ||
       !/^\d+$/.test(event.sequence)
     )
@@ -101,9 +114,20 @@ export async function connect(
     const generation = BigInt(event.generation),
       sequence = BigInt(event.sequence);
     if (generation < sub.generation) return;
+    if(event.kind==='reset')reads.invalidate();
     if (generation > sub.generation) {
       sub.generation = generation;
       sub.sequence = 0n;
+      sub.pendingReset = undefined;
+      sub.pendingEvent = undefined;
+    }
+    // A reset must fence a slow consumer immediately. Deliver callbacks in
+    // order after it settles, so an older async render cannot overwrite a
+    // newer render. Retain only the bounded reset and next unacknowledged event.
+    if (sub.busy) {
+      if (event.kind === 'reset') sub.pendingReset = event;
+      else if (!sub.pendingEvent || sequence < BigInt(sub.pendingEvent.sequence)) sub.pendingEvent = event;
+      return;
     }
     if (sequence <= sub.sequence && event.kind !== "reset") {
       await request("subscription.ack", {
@@ -141,10 +165,15 @@ export async function connect(
       }); /* Server replays the unacknowledged event. */
     } finally {
       sub.busy = false;
+      const next = sub.pendingReset ?? sub.pendingEvent;
+      if (sub.pendingReset) sub.pendingReset = undefined;
+      else sub.pendingEvent = undefined;
+      if (next && sub.active && !disposed) void receive(next);
     }
   }
   function dispose() {
     if (disposed) return;
+    reads.invalidate(true);
     for (const sub of shared.values()) {
       sub.active = false;
       if (sub.id)
@@ -155,8 +184,7 @@ export async function connect(
     shared.clear();
     byID.clear();
     early.clear();
-    for (const url of urls) URL.revokeObjectURL(url);
-    urls.clear();
+    clearURLs();
     transport.dispose();
     emit({ type: "disposed" });
     listeners.clear();
@@ -166,13 +194,14 @@ export async function connect(
       void receive(event);
     } else {
       emit(event);
+      if(event.type==='release_changed')reads.invalidate();
       if (event.type === "revoked") dispose();
     }
   });
   async function subscribe(
-    kind: SubscriptionInput["kind"] | "alerts",
-    input: Query | AlertQuery,
-    consumer: Consumer,
+    kind: string,
+    input: unknown,
+    consumer: Consumer<unknown>,
     opts: CallOptions = {},
   ): Promise<Subscription> {
     if (disposed || opts.signal?.aborted)
@@ -212,12 +241,12 @@ export async function connect(
         })
         .catch((error) => {
           current.active = false;
-          shared.delete(key);
+          if(shared.get(key)===current)shared.delete(key);
           throw error;
         });
     }
     const current = sub;
-    const ownConsumer: Consumer = (event) => consumer(event);
+    const ownConsumer: Consumer<unknown> = (event) => consumer(event);
     current.consumers.add(ownConsumer);
     let ended = false;
     const unsubscribe = () => {
@@ -227,7 +256,7 @@ export async function connect(
       current.consumers.delete(ownConsumer);
       if (!current.consumers.size) {
         current.active = false;
-        shared.delete(key);
+        if(shared.get(key)===current)shared.delete(key);
         if (current.id) {
           byID.delete(current.id);
           void request("subscription.cancel", { id: current.id }).catch(
@@ -238,17 +267,29 @@ export async function connect(
     };
     opts.signal?.addEventListener("abort", unsubscribe, { once: true });
     try {
-      await current.promise;
+      await new Promise<void>((resolve,reject)=>{
+        const abort=()=>{unsubscribe();reject(new DisplayError('aborted'));};
+        opts.signal?.addEventListener('abort',abort,{once:true});
+        current.promise.then(()=>{opts.signal?.removeEventListener('abort',abort);if(ended)reject(new DisplayError('aborted'));else resolve();},error=>{opts.signal?.removeEventListener('abort',abort);reject(error);});
+        if(opts.signal?.aborted)abort();
+      });
     } catch (error) {
       unsubscribe();
       throw error;
     }
     return { unsubscribe };
   }
-  async function readFile(
-    params: FileQuery,
-    opts?: CallOptions,
-  ): Promise<Result<FileChunk>> {
+  function readFile(params:ReadRequest<'spatial.readFile'>,opts?:CallOptions):Promise<ReadResult<Omit<ReadFileChunk,'base64'>&{bytes:ArrayBuffer}>>;
+  function readFile(params:FileQuery,opts?:CallOptions):Promise<Result<FileChunk>>;
+  async function readFile(params:FileQuery|ReadRequest<'spatial.readFile'>,opts?:CallOptions):Promise<Result<FileChunk>|ReadResult<Omit<ReadFileChunk,'base64'>&{bytes:ArrayBuffer}>> {
+    if(isNamed(params)){
+      const result=await reads.call<ReadFileChunk>('spatial.readFile',params,opts);
+      if(result.state==='pending')return result;
+      const binary=atob(result.data.base64),bytes=new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+      const {base64,...metadata}=result.data;void base64;
+      return {...result,data:{...metadata,bytes:bytes.buffer}};
+    }
     const result = await request<
       Result<Omit<FileChunk, "bytes"> & { base64: string }>
     >("spatial.readFile", params, opts);
@@ -266,6 +307,7 @@ export async function connect(
     return { ...result, data: { ...metadata, bytes: bytes.buffer } };
   }
   return {
+    views:reads.views,queries:reads.queries,devices:reads.devices,classification:reads.classification,map:reads.map,statistics:reads.statistics,
     context: { get: () => request<Context>("context.get") },
     config: { get: () => request<Record<string, JSONValue>>("config.get") },
     capabilities: {
@@ -278,24 +320,27 @@ export async function connect(
         request<Binding>("bindings.resolve", { name }, opts),
     },
     resources: {
+      types:reads.read('resources.types'),query:reads.read('resources.query'),tree:reads.read('resources.tree'),hierarchy:reads.read('resources.hierarchy'),detail:reads.read('resources.detail'),
       list: query<ResourcePage>("resources.list"),
       get: query<Resource>("resources.get"),
       summary:
         query<Pick<ResourcePage, "count" | "counts">>("resources.summary"),
     },
     channels: {
-      list: query<Page<Channel>>("channels.list"),
-      get: query<Channel>("channels.get"),
+      list: compatibleQuery<'channels.list',Page<Channel>>("channels.list"),
+      get: compatibleQuery<'channels.get',Channel>("channels.get"),
     },
     monitoring: {
-      latest: query<AnalyticResult>("monitoring.latest"),
-      details: query<DetailResult>("monitoring.details"),
-      trends: query<AnalyticResult>("monitoring.trends"),
-      statistics: query<AnalyticResult>("monitoring.statistics"),
-      overview: query<AnalyticResult>("monitoring.overview"),
-      subscribe,
+      latest: compatibleQuery<'monitoring.latest',AnalyticResult>("monitoring.latest"),
+      details: compatibleQuery<'monitoring.details',DetailResult>("monitoring.details"),
+      trends: compatibleQuery<'monitoring.trends',AnalyticResult>("monitoring.trends"),
+      statistics: compatibleQuery<'monitoring.statistics',AnalyticResult>("monitoring.statistics"),
+      overview: compatibleQuery<'monitoring.overview',AnalyticResult>("monitoring.overview"),
+      subscribe:(kind:SubscriptionInput['kind'],input:Query,consumer:Consumer,opts?:CallOptions)=>subscribe(kind,input,event=>consumer(event as SubscriptionEvent),opts),
+      subscribeRead:<K extends SubscriptionInput['kind']>(kind:K,input:ReadRequest<`monitoring.${K}`>,consumer:ReadConsumer<ReadData[`monitoring.${K}`]>,opts?:CallOptions)=>subscribe(kind,input,event=>consumer(event as ReadSubscriptionEvent<ReadData[`monitoring.${K}`]>),opts),
     },
     sources: {
+      bindings:reads.read('sources.bindings'),bindingHistory:reads.read('sources.bindingHistory'),
       get: query<SourceProjection>("sources.get"),
       history: query<Page<SourceProjection>>("sources.history"),
     },
@@ -305,10 +350,11 @@ export async function connect(
       read: query<Page<ArtifactRow>>("artifacts.read"),
     },
     spatial: {
+      assets:reads.read('spatial.assets'),versions:reads.read('spatial.versions'),locations:reads.read('spatial.locations'),componentLinks:reads.read('spatial.componentLinks'),settings:reads.read('spatial.settings'),
       list: query<Page<SpatialVersion>>("spatial.list"),
-      manifest: query<SpatialManifest>("spatial.manifest"),
-      objects: query<Page<JSONValue>>("spatial.objects"),
-      placements: query<Page<JSONValue>>("spatial.placements"),
+      manifest: compatibleQuery<'spatial.manifest',SpatialManifest>("spatial.manifest"),
+      objects: compatibleQuery<'spatial.objects',Page<JSONValue>>("spatial.objects"),
+      placements: compatibleQuery<'spatial.placements',Page<JSONValue>>("spatial.placements"),
       readFile,
       createObjectURL: (blob: Blob) => {
         if (disposed) throw new DisplayError("disposed");

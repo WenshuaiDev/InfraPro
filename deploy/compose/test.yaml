@@ -2,6 +2,9 @@ name: infrapro-account-tests
 services:
   postgres:
     image: postgres:17-alpine
+    # Each integration fixture migrates the complete schema in one transaction.
+    # Concurrent packages otherwise exhaust PostgreSQL's shared relation locks.
+    command: ["postgres", "-c", "max_locks_per_transaction=512"]
     environment:
       POSTGRES_USER: infrapro_test
       POSTGRES_PASSWORD: test-only-local-password

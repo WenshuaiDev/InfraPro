@@ -6,13 +6,13 @@ import { Permissions as P } from '../../packages/ts/api-client/src/permissions.g
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
-  expect((await request.post(`${api}/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
+  expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const account = (await (await request.get(`${api}/access/accounts?q=e2e_owner`)).json()).items[0];
   return { headers, id: account.id as string };
 }
 async function create(request: APIRequestContext, headers: Record<string, string>, admin: string, name: string) {
   const code = `tm-${randomBytes(5).toString('hex')}`;
-  const result = await request.post(`${api}/platform/tenants`, { headers, data: { name, code, description: '负责基础设施监测项目的日常管理与协作。', administrator_account_id: admin, client_request_id: randomUUID(), reason: '租户列表界面验收' } });
+  const result = await request.post(`${api}/platform/tenants`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name, code, description: '负责基础设施监测项目的日常管理与协作。', administrator_account_id: admin, client_request_id: randomUUID(), reason: '租户列表界面验收' } });
   expect(result.status()).toBe(201);
   return { id: (await result.json()).tenant_id as string, code };
 }
@@ -26,9 +26,9 @@ test('tenant list filters, cursor pagination and panels preserve context and sup
   // Parallel fixture creation can change the global authorization revision.
   // Re-read only a stale preview; never replay a previously confirmed write.
   for (let attempt = 0; ; attempt++) {
-    const preview = await request.post(`${api}/platform/tenants/${disabled.id}/disable/preview`, { headers, data: {} });
+    const preview = await request.post(`${api}/platform/tenants/${disabled.id}/disable/preview`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: {} });
     expect(preview.status()).toBe(200); const impact = await preview.json();
-    const response = await request.post(`${api}/platform/tenants/${disabled.id}/disable`, { headers, data: { expected_version: impact.expected_version, preview_hash: impact.preview_hash, reason: '筛选状态验收', tenant_notice: '维护期间暂停使用。' } });
+    const response = await request.post(`${api}/platform/tenants/${disabled.id}/disable`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: impact.expected_version, preview_hash: impact.preview_hash, reason: '筛选状态验收', tenant_notice: '维护期间暂停使用。' } });
     if (response.status() === 409 && attempt < 2) { expect((await response.json()).code).toBe('preview_changed'); continue; }
     expect(response.status(), await response.text()).toBe(200); break;
   }
@@ -84,7 +84,7 @@ test('tenant list filters, cursor pagination and panels preserve context and sup
   await expect(search).toHaveValue(''); await expect(page.getByRole('tab', { name: '全部租户', exact: true })).toHaveAttribute('aria-selected', 'true');
   const changedCode = `${disabled.code}-new`;
   const current = await (await request.get(`${api}/platform/tenants/${disabled.id}`)).json();
-  expect((await request.patch(`${api}/platform/tenants/${disabled.id}`, { headers, data: { code: changedCode, expected_version: current.version, reason: '验证历史编号搜索' } })).status()).toBe(200);
+  expect((await request.patch(`${api}/platform/tenants/${disabled.id}`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { code: changedCode, expected_version: current.version, reason: '验证历史编号搜索' } })).status()).toBe(200);
   await search.fill(disabled.code); await expect(table.getByRole('row')).toHaveCount(2); await expect(table).toContainText(changedCode);
   await table.locator('button[id$="-name"]').click(); await panel.getByRole('link', { name: '打开完整档案', exact: true }).click();
   await expect(page).toHaveURL(`${consoleURL}/platform/tenants/${disabled.id}`); await expect(page.getByRole('button', { name: '恢复租户', exact: true })).toBeVisible();
@@ -94,10 +94,10 @@ test('tenant read-only list recovers from query errors and hides mutation contro
   const reader = await createAccount(request, false), { headers, id } = await owner(request);
   const tenant = await create(request, headers, id, `只读租户_${randomBytes(4).toString('hex')}`);
   const target = (await (await request.get(`${api}/access/accounts?q=${reader.username}`)).json()).items[0];
-  const roleResponse = await request.post(`${api}/access/roles`, { headers, data: { name: `租户只读_${randomBytes(4).toString('hex')}`, description: '', reason: '列表权限验收' } }); expect(roleResponse.status()).toBe(200);
+  const roleResponse = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `租户只读_${randomBytes(4).toString('hex')}`, description: '', reason: '列表权限验收' } }); expect(roleResponse.status()).toBe(200);
   const role = await roleResponse.json();
-  expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers, data: { expected_version: role.version, permission_codes: [P.PlatformTenantRead], reason: '列表权限验收' } })).status()).toBe(200);
-  expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers, data: { expected_version: target.management_version, role_ids: [role.id], reason: '列表权限验收' } })).status()).toBe(200);
+  expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: [P.PlatformTenantRead], reason: '列表权限验收' } })).status()).toBe(200);
+  expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [role.id], reason: '列表权限验收' } })).status()).toBe(200);
   await login(page, reader);
   let unavailable = true;
   await page.route('**/api/v1/platform/tenants?*', (route) => unavailable ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'unavailable', message: '租户查询暂时不可用，请重试。' }) }) : route.continue());

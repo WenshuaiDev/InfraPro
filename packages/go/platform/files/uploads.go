@@ -23,9 +23,6 @@ func (s *Service) StartUpload(ctx context.Context, a access.Actor, scope Scope, 
 	if e != nil {
 		return out, e
 	}
-	if size > s.options.MaxFileBytes {
-		return out, fault("file_too_large", 413)
-	}
 	format, e := fileFormat(in.Filename, in.DeclaredMediaType)
 	if e != nil {
 		return out, e
@@ -49,6 +46,9 @@ func (s *Service) StartUpload(ctx context.Context, a access.Actor, scope Scope, 
 		out, replay, e = receiptTx(ctx, tx, st, a, in.WriteMeta, "upload.create", in)
 		if replay || e != nil {
 			return e
+		}
+		if size > s.options.MaxFileBytes {
+			return fault("file_too_large", 413)
 		}
 		if e = st.mutable(); e != nil {
 			return e

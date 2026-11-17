@@ -9,6 +9,7 @@ import { useFiles } from './context';
 import { ordinaryAdapter } from './adapters/ordinary';
 import { transferFile, type UploadProgress as Progress } from './upload-controller';
 import { phases } from './state';
+import { uploadSizeLabel } from './upload-limits';
 
 export function FileUploadForm({ initial, attachment, done }: { initial?: FileUpload; attachment?: { id: string; revision: string }; done: (value: FileCommandResult) => void }) {
   const f = useFiles(), [file, setFile] = useState<File | null>(null), [name, setName] = useState(initial?.display_name ?? ''), [description, setDescription] = useState(initial?.description ?? ''), [reason, setReason] = useState('');
@@ -31,7 +32,7 @@ export function FileUploadForm({ initial, attachment, done }: { initial?: FileUp
     } finally { setBusy(false); }
   };
   return <form className="space-y-5" onSubmit={event => { event.preventDefault(); void submit(); }}>
-    <UploadPicker label={upload ? '重新选择原文件以续传' : '选择普通附件'} accept=".png,.jpg,.jpeg,.pdf,.txt,.csv,.docx,.xlsx,.pptx" hint="支持图片、PDF、文本和 Office 文档，单文件最多 100 MiB。" disabled={busy || !resumable} onChange={value => { setFile(value); if (!upload) adapter.current = null; }} />
+    <UploadPicker label={upload ? '重新选择原文件以续传' : '选择普通附件'} accept=".png,.jpg,.jpeg,.pdf,.txt,.csv,.docx,.xlsx,.pptx" hint={`支持图片、PDF、文本和 Office 文档${f.capabilities.data ? `，新文件最多 ${uploadSizeLabel(f.capabilities.data.max_file_bytes)}` : ''}。`} disabled={busy || !resumable} onChange={value => { setFile(value); if (!upload) adapter.current = null; }} />
     {!attachment && <><div className="space-y-2"><Label htmlFor="file-name">显示名称</Label><Input id="file-name" value={name} placeholder={file?.name ?? '留空使用文件名'} maxLength={200} disabled={busy || !!upload} onChange={event => { setName(event.target.value); adapter.current = null; }} /></div><div className="space-y-2"><Label htmlFor="file-description">说明 <span className="font-normal text-muted-foreground">（选填）</span></Label><Textarea id="file-description" rows={3} value={description} maxLength={1000} disabled={busy || !!upload} onChange={event => { setDescription(event.target.value); adapter.current = null; }} /></div></>}
     <div className="space-y-2"><Label htmlFor="file-reason">操作原因</Label><Input id="file-reason" value={reason} required maxLength={500} disabled={busy || locked} onChange={event => setReason(event.target.value)} /></div>
     {upload && <p className="text-xs leading-5 text-muted-foreground">离开后可在「上传与待处理」中续传。提交检查后，后台会继续处理。</p>}

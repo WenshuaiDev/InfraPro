@@ -1,6 +1,8 @@
 # InfraPro 技术选型
 
-基线：2026-11-13。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据组件见第8节，空间可视化实现及固定依赖见[第9节](#spatial-technology)。本机自验不代表生产部署或人工验收。
+基线：2026-11-15。本文记录当前工程采用的技术、用途、选择理由及约束。业务范围见[软件需求规格说明书](requirements.md)，模块协作及运行方式见[架构设计](architecture.md)。监测数据组件见第8节，空间可视化实现及固定依赖见[第9节](#spatial-technology)。本机自验不代表生产部署或人工验收。
+
+Go 独立解析服务已经实现，代码、存储和执行边界见[解析服务开发规格](development/parsing-service-and-method-binding-spec.md#engineering)。沿用仓库固定依赖，执行子进程使用 Go 标准库及既有 x/sys 的 Linux 资源／seccomp 能力；平台继续使用 pgx、Goose 和 S3 客户端，未引入协议 DSL 或动态插件。自验与部署状态见[验收报告](verification/parsing-service.md)。设备接入增加 Go ingest-relay、独立 PostgreSQL 持久缓冲、内网 ingest-worker 和 foundation 纯协议／契约包：TLS、HTTP、TCP 分帧使用 Go 标准库，业务采用 pgx 事务与 Goose 增量迁移，原文使用现有私有 S3 客户端，页面复用 React／TypeScript、TanStack Query、表格和遮罩 Drawer。独立云库用于断联期间保管原文与投递状态，不持有业务库或 S3 凭证。运行配置和自验事实见[接入手册](operations/device-ingestion-and-raw-messages.md)与[验证报告](verification/device-ingestion-and-raw-messages.md)。
 
 ## 1 选型原则
 
@@ -14,7 +16,7 @@
 
 | 技术 | 当前基线 | 使用位置与方式 | 选择理由／约束 |
 | --- | --- | --- | --- |
-| Go | 1.27.0 | `services/api`、`tools/infrapro`、`packages/go/platform`、`packages/go/foundation` | API 与 CLI 复用相同业务事务；四个独立 module 由 `go.work` 统一管理。 |
+| Go | 1.27.0 | `services/api`、`services/diagnostics`、`services/parser`、`services/ingest-relay`、`tools/infrapro`、`packages/go/platform`、`packages/go/foundation` | API 与 CLI 复用相同业务事务；七个独立 module 由 `go.work` 统一管理。 |
 | Node.js | 26.10.0 | 前端开发、构建及 `scripts/*.mjs` | 单一工具版本支持 workspace 编排；不作为当前业务 API 运行时。 |
 | pnpm | 12.18.0 | 根 `package.json`、`pnpm-workspace.yaml`、锁文件 | `workspace:*` 管理 TS 共享包，锁定依赖并按包执行检查。 |
 | TypeScript | 5.9.3 | console、UI、布局、API client 及工具脚本类型检查 | 严格类型和生成契约；保持现有 ESLint／生成器兼容范围。 |
@@ -77,7 +79,7 @@
 3. 工程位置使用受校验的结构化字段；空间工作台使用 OpenLayers 处理二维地图与明确的 EPSG:4326／3857 转换，未引入 PostGIS。桩号及未知局部坐标不能推导虚构 GIS 结果。
 4. 权限和来源变更使用 PostgreSQL 短事务及共享协调锁，不引入分布式锁、跨库授权同步或隐式最终一致放行。
 5. 模板和产品采用不可变版本、独立启停和固定依赖；没有审批引擎、任意公式解释器或在线协议执行器。
-6. 监测数据的存储、导入、趋势、统计及集群方案以[总体方案](requirements/monitoring-data-foundation-plan.md)和[详细方案](requirements/monitoring-data-development-plan.md)为准。实施与用户的本机优先调整记录在原路径，目标规模与部署验证仍未完成。
+6. 监测数据的存储、导入、趋势、统计及集群方案以[正式需求规格](requirements.md)和[正式需求规格](requirements.md)为准。实施与用户的本机优先调整记录在原路径，目标规模与部署验证仍未完成。
 
 ## 7 选型变更规则
 
@@ -87,7 +89,7 @@
 
 | 技术 | 锁定版本／来源 | 实际用途与边界 |
 | --- | --- | --- |
-| ClickHouse + Keeper | 26.8.36.3；本机 Compose 锁定镜像 digest | 双副本类型化不可变采用载荷，按月分区；PG 清单决定业务可见性，不靠最终去重。单主机 Keeper 不代表生产容灾。 |
+| ClickHouse + Keeper | 26.8.36.3；本机 Compose 锁定镜像 digest | 一个或多个真实节点保存类型化不可变采用载荷，按月分区；PG 清单决定业务可见性，核验全部已配置节点，不靠最终去重。单节点及同机 Keeper 不提供冗余或容灾。 |
 | SeaweedFS S3 | 4.53；本机 Compose 锁定镜像 digest | 原文件、不可变摘要、导出和 CH 在线历史磁盘；本地缓存256 MiB／副本。备份使用独立服务与身份，仍在同一主机。 |
 | clickhouse-go / minio-go | platform go.mod | CH 原生精确读写、取消及逐副本核验；S3 流式、multipart、条件写。 |
 | Excelize / 有界 XML 解析 | v2.11.1 | 工作簿元数据和合成样本，实际行与共享字符串使用有界流／磁盘处理，不执行公式。 |
@@ -95,13 +97,13 @@
 | math/big / shopspring decimal | Go 标准库／v1.6.0 | 精确整数矩、38位原值、总体标准差和half-even舍入，大数不经过JS Number。 |
 | ECharts Canvas | 6.1.0；console package.json | 按需加载的监测趋势模块、固定视窗、真实极值点、精确tooltip和键盘等价明细。普通图表继续使用共享Recharts。 |
 
-监测原始明细不写入 PostgreSQL；PG 只保存控制元数据、授权、清单、版本和任务。存储许可、兼容性与故障行为见[契约证据](verification/monitoring-data.md)，启动和恢复见[维护手册](operations/monitoring-data.md)。镜像及依赖锁定不代表生产容量保证。
+监测原始明细不写入 PostgreSQL；PG 只保存控制元数据、授权、清单、版本和任务。存储许可、兼容性与故障行为见[本机工程环境与人工验收](operations/local-environment.md)，启动和恢复见[维护手册](operations/monitoring-data.md)。镜像及依赖锁定不代表生产容量保证。
 
 <a id="spatial-technology"></a>
 
 ## 9 工程空间可视化技术
 
-完整方案于 2026-11-13 获用户确认并授权实施。范围见[SV-01–SV-10](requirements.md#spatial-scope)，数据流和接口见[空间详细设计](architecture.md#spatial-design)，实际测试见[自验记录](verification/spatial-visualization.md)。
+范围见[SV-01–SV-10](requirements.md#spatial-scope)，数据流与接口见[空间架构](architecture.md#spatial-design)，实际操作见[空间手册](operations/spatial-visualization.md)。
 
 | 技术 | 使用位置与方式 | 选择理由及明确限制 |
 | --- | --- | --- |
@@ -118,9 +120,9 @@
 
 实际固定版本：OpenLayers `10.11.0`、Three.js `0.187.0`，由 console package 与 `pnpm-lock.yaml` 锁定；Python `3.12` 环境使用 IfcOpenShell `0.9.0.post1`、pypdfium2 `5.15.2`、Pillow `13.0.0`、NumPy `2.5.4` 和仅供样本生成的 ReportLab `5.1.0`，完整传递依赖及 SHA-256 保存于 `tools/spatial-converter/requirements.lock`。来源及许可见[第三方清单](../third-party/README.md#空间可视化)。
 
-`deploy/docker/spatial.Dockerfile` 构建同一 API／独立 worker 镜像，采用 Python 3.12 的 Debian trixie 基础环境、非 root 用户、`libgomp1` 和完整哈希安装。该 IfcOpenShell Linux wheel 需要较新的 glibc，bookworm 不满足；构建中执行真实导入检查，转换在独立受限子进程运行。镜像实际构建摘要和样本转换结果随本次自验记录保存；目标生产环境尚未部署。
+`deploy/docker/spatial.Dockerfile` 构建同一 API／独立 worker 镜像，采用 Python 3.12 的 Debian trixie 基础环境、非 root 用户、`libgomp1` 和完整哈希安装。该 IfcOpenShell Linux wheel 需要较新的 glibc，bookworm 不满足；构建中执行真实导入检查，转换在独立受限子进程运行。部署时须记录实际镜像摘要，转换依赖以固定哈希校验。
 
-MapLibre 和 web-ifc 是可行替代路线，本轮不同时引入。CesiumJS／3D Tiles 留给完整三维地理场景；它们不是设施局部模型浏览的必备依赖。相关能力及官方来源保留在[研究说明](requirements/spatial-visualization-technical-research.md)，研究中的候选说明不覆盖本节的规划选择。
+MapLibre 和 web-ifc 是可行替代路线，本轮不同时引入。CesiumJS／3D Tiles 留给完整三维地理场景；它们不是设施局部模型浏览的必备依赖。相关能力及官方来源保留在[正式需求规格](requirements.md)，研究中的候选说明不覆盖本节的规划选择。
 
 **交付不依赖用户提供资料。** 已使用脚本生成 PNG、JPEG、PDF、GLB、IFC、GeoJSON、本地示例瓦片和多版本／异常样本。图纸／模型生成用于开发与演示准备，产品本身不提供建模功能。样本标识为合成示例；不配置第三方地图密钥也可完成本地演示。
 
@@ -144,7 +146,7 @@ MapLibre 和 web-ifc 是可行替代路线，本轮不同时引入。CesiumJS／
 ## 文件与附件技术
 
 沿用 Go/Gin/pgx/PostgreSQL 与私有 S3，新增独立 Go worker/checker；普通文件无需 ClickHouse。Go 标准库完成图片重新编码与 Office ZIP/XML 有界核验，Linux seccomp/rlimit 配合容器或 systemd 隔离。React/TypeScript 使用 Web Worker 增量 SHA-256、AbortSignal、TanStack Query 和纯 UI 模式组件；不引入全文件 WebCrypto 缓冲、公共对象 URL 或预签名下载旁路。运行配置与平台限制见 operations/files-and-attachments.md。
-# 审计与操作追踪技术补充（2026-11-14）
+## 审计与操作追踪技术
 
 沿用 Go、PostgreSQL、React／TypeScript 和现有 S3 协议，不增加消息队列或独立审计搜索集群。Go 的 `auditrecord` 在来源事务中写事实；`audit` 用 pgx 事务、MVCC、租约和 fence 完成查询、固定快照与任务执行。PostgreSQL 保存事实、明确关联、授权向量、收据和物化行；S3 只保存注册的私有 CSV，不能作为事实真相或授权判断来源。
 
@@ -152,15 +154,18 @@ React 工作区复用现有表格、响应式弹层和 DomainFiles，TanStack Qu
 
 独立 Go worker 使用 PostgreSQL 领取及持久重试，不引入 Redis 队列。Redis 仍只承担既有身份功能。业务元数据 Adapter 不启动 ClickHouse、S3 或文件检查器；导出／下载按需要检查其依赖。部署预算见 `deploy/audit/worker.example.yaml`，只允许下调上限。
 
-验证使用真实隔离 PostgreSQL schema、私有 S3 桶、实际来源 worker、Playwright 浏览器和 Go race detector；恢复用 pg_dump／pg_restore 到独立数据库并复制／校验实际对象。纯状态测试的替身不替代完整来源验证。具体证据和未覆盖的生产运行条件见[验收账本](verification/audit-and-operation-tracing.md)。
+验证使用真实隔离 PostgreSQL schema、私有 S3 桶、实际来源 worker、Playwright 浏览器和 Go race detector；恢复用 pg_dump／pg_restore 到独立数据库并复制／校验实际对象。纯状态测试的替身不替代完整来源验证。具体证据和未覆盖的生产运行条件见[本机工程环境与人工验收](operations/local-environment.md)。
 
-## 独立诊断技术（2026-11-14）
+## 独立诊断技术
 
 Go 1.27 net/http 提供独立 server 与 observer，bbolt 1.5 保存本机有限历史及顺序屏障，不新增业务 migration。Argon2id 保存人员密码散列，crypto/tls 校验证书，securefile 使用 no-follow、编辑锁和原子替换保护配置。gopsutil 与 Linux cgroup 分别采集进程、宿主和容器资源；godbus 只读取 systemd 固定属性，Docker 限制为固定 GET。pgx、go-redis、clickhouse-go 与 minio-go 只执行登记的固定探针。
 
 React 19、TypeScript、TanStack Router/Query 和现有 UI/layouts 构建独立页面；客户端只消费 diagnostics OpenAPI。Vite 参与构建及显式开发，release 将资源嵌入 Go；Docker 最终镜像没有 Node。Compose/systemd 生命周期独立于业务。版本由 go.mod 和工作区 lockfile 固定；真实 owning process、TLS 网络、实际容器及私有 D-Bus 契约证据不代表已验证真实多服务器或 systemd unit。
 
+## 大屏命名读取技术
 
-## 独立解析服务
+Go／pgx 实现领域权限、严格 JSON DTO 和读取协调；PostgreSQL／Goose 保存不可变成员、固定结果与持久任务，避免引入第二套权限库或 Redis 任务真相。ClickHouse 的一个或多个已配置节点和私有对象存储承担正式原始／派生观测及摘要读取；统计不重新执行派生规则。事务内成功证明复用只减少同一次读取的重复 SQL，交付仍新开事务复验。
 
-Go 独立解析服务已经实现，代码、存储和执行边界见[解析服务开发规格](development/parsing-service-and-method-binding-spec.md#engineering)。沿用仓库固定依赖，执行子进程使用 Go 标准库及既有 x/sys 的 Linux 资源／seccomp 能力；平台继续使用 pgx、Goose 和 S3 客户端，未引入协议 DSL 或动态插件。自验与部署状态见[验收报告](verification/parsing-service.md)。
+公开 SDK 1.1 是无框架依赖 ESM 与 TypeScript 声明，Go DTO 生成管理／运行协议，Bridge 主版本继续为 1。开发工具保留 Manifest 1，并支持 Manifest 2 模板、九种显式模拟场景、独立 tgz 安装和真实预览。独立验收工程使用 TypeScript、esbuild 和锁定的 Three.js 0.187.0：esbuild 将依赖全部打入本地 ZIP，Three.js 仅绘制已授权固定 GLB；SVG 绘制地图、图纸区域和趋势，不访问 CDN。React 管理端继续复用既有 Drawer、表单和服务端搜索分页。
+
+Playwright 验证真实三 origin、opaque iframe、终端和开发壳；Go race 与真实 PG／ClickHouse／S3 验证领域计数、固定下钻、后台 fencing、迁移和独立恢复。负载报告明确环境、数据、冷／热定义和延迟，不能据此推断生产容量。

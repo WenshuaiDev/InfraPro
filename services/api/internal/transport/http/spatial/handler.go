@@ -161,6 +161,7 @@ func Register(r *gin.Engine, identityService *identity.Service, s *sp.Service) {
 					e = invalid("分片序号无效。")
 				} else {
 					_ = http.NewResponseController(c.Writer).SetReadDeadline(time.Now().Add(2 * time.Minute))
+					_ = http.NewResponseController(c.Writer).SetWriteDeadline(time.Now().Add(3 * time.Minute))
 					out, e = s.UploadPart(ctx, actor, scope, id, part, c.GetHeader("X-Content-SHA256"), http.MaxBytesReader(c.Writer, c.Request.Body, sp.UploadPartSize+1))
 				}
 			case "uploads.complete", "uploads.cancel":

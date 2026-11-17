@@ -52,8 +52,8 @@ func monitoringSetup(t *testing.T, options ...func(*md.StorageConfig)) monitorin
 	must(t, storage.Check(ctx))
 	t.Cleanup(func() {
 		storage.Close()
-		for _, port := range []string{"59000", "59001"} {
-			ch, e := clickhouse.Open(&clickhouse.Options{Addr: []string{"127.0.0.1:" + port}})
+		for _, endpoint := range cfg.Replicas {
+			ch, e := clickhouse.Open(&clickhouse.Options{Addr: []string{endpoint}})
 			if e != nil {
 				t.Error(e)
 				continue

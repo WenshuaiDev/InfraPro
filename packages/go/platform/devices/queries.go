@@ -28,19 +28,29 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, f Filte
 				return e
 			}
 		}
-		cursor, e := k.DecodeCursor(f.Cursor, k.CursorContext(auth, f, "devices"))
+		if !slices.Contains([]string{"", "exact", "descendants"}, f.CategoryScope) || !slices.Contains([]string{"", "sensor", "non_sensor", "unclassified", "unavailable"}, f.CategoryGroup) {
+			return k.Problem("invalid_request", "Invalid classification filter.", 400)
+		}
+		var classificationRevision string
+		if e := tx.QueryRow(ctx, `SELECT revision::text FROM device_classification_state WHERE id=1 FOR SHARE`).Scan(&classificationRevision); e != nil {
+			return e
+		}
+		cursor, e := k.DecodeCursor(f.Cursor, k.CursorContext(auth, f, []string{"devices", classificationRevision}))
 		if e != nil {
 			return e
 		}
 		rows, e := tx.Query(ctx, `SELECT `+deviceJSON+`||jsonb_build_object('current_installation', installation.value)`+deviceFrom+`
    LEFT JOIN LATERAL (SELECT i.target_kind,i.facility_id,to_jsonb(i)||jsonb_build_object('revision',i.revision::text) AS value FROM device_installations i WHERE i.tenant_id=d.tenant_id AND i.device_id=d.id AND i.uninstalled_at IS NULL) installation ON true
+   LEFT JOIN device_effective_classifications dc ON dc.tenant_id=d.tenant_id AND dc.device_id=d.id
    WHERE d.tenant_id=$1 AND d.deleted_at IS NULL
+   AND ($14::uuid IS NULL OR ($15 IN ('','exact') AND dc.category_id=$14) OR ($15='descendants' AND $14=ANY(dc.path)))
+   AND ($16='' OR ($16='sensor' AND dc.sensor IS TRUE) OR ($16='non_sensor' AND dc.sensor IS FALSE) OR ($16 IN ('unclassified','unavailable') AND dc.state=$16))
    AND ($2::uuid IS NULL OR EXISTS(SELECT 1 FROM project_device_grants g WHERE g.tenant_id=d.tenant_id AND g.project_id=$2 AND g.device_id=d.id AND g.kind='device' AND g.ended_at IS NULL))
    AND ($3='' OR d.name ILIKE '%'||$3||'%' OR d.code ILIKE '%'||$3||'%' OR d.serial_number ILIKE '%'||$3||'%') AND ($4='' OR d.status=$4)
    AND ($5::uuid IS NULL OR p.manufacturer_id=$5) AND ($6::uuid IS NULL OR d.product_id=$6) AND ($7::uuid IS NULL OR d.product_version_id=$7)
-   AND ($8='' OR ($8='recorded' AND installation.value IS NOT NULL) OR ($8='unrecorded' AND installation.value IS NULL) OR ($8='location' AND installation.target_kind='location') OR ($8='resource' AND installation.target_kind IN ('facility','component','point')))
+   AND ($8='' OR ($8='recorded' AND installation.value IS NOT NULL) OR ($8='unrecorded' AND installation.value IS NULL) OR ($8='location' AND installation.target_kind='location') OR ($8='resource' AND installation.target_kind IN ('facility','component','monitoring_section','borehole','point')))
    AND ($13::uuid IS NULL OR installation.facility_id=$13)
-   AND ($12 IN ('','all') OR ($12='public')=(p.owner_tenant_id IS NULL)) AND ($9::timestamptz IS NULL OR (d.created_at,d.id)>($9,$10::uuid)) ORDER BY d.created_at,d.id LIMIT $11`, auth.Tenant, k.Nullable(auth.Project), f.Query, f.Status, k.Nullable(f.ManufacturerID), k.Nullable(f.ProductID), k.Nullable(f.ProductVersionID), f.Installation, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1, f.Source, k.Nullable(f.FacilityID))
+   AND ($12 IN ('','all') OR ($12='public')=(p.owner_tenant_id IS NULL)) AND ($9::timestamptz IS NULL OR (d.created_at,d.id)>($9,$10::uuid)) ORDER BY d.created_at,d.id LIMIT $11`, auth.Tenant, k.Nullable(auth.Project), f.Query, f.Status, k.Nullable(f.ManufacturerID), k.Nullable(f.ProductID), k.Nullable(f.ProductVersionID), f.Installation, cursor.TimeValue(), k.Nullable(cursor.ID), f.Limit+1, f.Source, k.Nullable(f.FacilityID), k.Nullable(f.CategoryID), f.CategoryScope, f.CategoryGroup)
 		if e != nil {
 			return e
 		}

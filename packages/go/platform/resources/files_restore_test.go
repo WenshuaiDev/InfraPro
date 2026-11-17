@@ -26,7 +26,15 @@ func TestFilesFrozenBackupIndependentDatabaseAndObjectsRestore(t *testing.T) {
 		t.Skip("run pnpm test:files:restore")
 	}
 	f := newFilesFixture(t)
-	first := f.run(t, f.upload(t, []byte("backup fixed source one"), nil, nil))
+	firstBytes := []byte("backup fixed source one")
+	if os.Getenv("INFRAPRO_UPLOAD_DEPLOYMENT") == "1" {
+		firstBytes = bytes.Repeat([]byte("x"), 101<<20)
+		f.options.MaxFileBytes = int64(len(firstBytes))
+		f.s.WithOptions(f.options)
+	}
+	first := f.run(t, f.upload(t, firstBytes, nil, nil))
+	f.options.MaxFileBytes = 100 << 20
+	f.s.WithOptions(f.options)
 	if first.State != "succeeded" {
 		t.Fatal(first)
 	}
@@ -168,8 +176,8 @@ func TestFilesFrozenBackupIndependentDatabaseAndObjectsRestore(t *testing.T) {
 	var body bytes.Buffer
 	must(t, r.Write(ctx, 0, r.Size, body.Write))
 	r.Close()
-	if body.String() != "backup fixed source one" {
-		t.Fatal(body.String())
+	if !bytes.Equal(body.Bytes(), firstBytes) {
+		t.Fatal("restored file content differs")
 	}
 	var after int
 	must(t, pool.QueryRow(ctx, `SELECT count(*) FROM notification_events`).Scan(&after))

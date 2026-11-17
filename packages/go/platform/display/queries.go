@@ -49,6 +49,9 @@ func (s *Service) Query(ctx context.Context, v Session, call Call) (result Envel
 			s.RecordDiagnostic(parent, v, kind, code)
 		}
 	}()
+	if newReadCall(call) {
+		return s.readQuery(ctx, v, call)
+	}
 	out := Envelope{Generation: call.Generation, ReadAt: time.Now().UTC().Format(time.RFC3339Nano)}
 	capName, ok := methodCapabilities[call.Method]
 	if !ok {

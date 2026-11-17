@@ -89,7 +89,7 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 				r.StructureRevision = 1
 			}
 		}
-		structural := t.Kind == Component && (action != "update" || in["parent_component_id"] != nil || hasKey(in, "parent_component_id"))
+		structural := (t.Kind == Component || t.Kind == MonitoringSection || t.Kind == Borehole || t.Kind == Point && hasKey(in, "parent_ref")) && (action != "update" || hasKey(in, "parent_component_id"))
 		if structural && (m.StructureRevision < 1 || m.StructureRevision != facility.StructureRevision) {
 			return problem("structure_revision_conflict", "构件结构已变化，请刷新结构后核对重试。", 409)
 		}
@@ -99,6 +99,9 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			}
 			r, e = apply(r, in)
 			if e != nil {
+				return e
+			}
+			if e = prepareStructureWrite(ctx, tx, t, &r, before, in, facility); e != nil {
 				return e
 			}
 			if e = validateBasic(r); e != nil {
@@ -129,7 +132,7 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 		}
 		if action == "restore" {
 			r.Status = "normal"
-			if t.Kind == Component {
+			if t.Kind != Facility && t.Kind != Channel {
 				if e = validateResource(ctx, tx, t, r, facility, false); e != nil {
 					return e
 				}
@@ -189,13 +192,16 @@ func (s *Service) mutate(ctx context.Context, a access.Actor, scope Scope, targe
 			if e = storeResource(ctx, tx, r, before == nil); e != nil {
 				return e
 			}
+			if e = storeStructureParent(ctx, tx, r); e != nil {
+				return e
+			}
 			if lifecycle, ok := s.external.(ResourceLifecycle); ok {
 				if e = lifecycle.ResourceChangedTx(ctx, tx, a, t.Scope, before, r, m.RequestID, m.Reason, meta); e != nil {
 					return e
 				}
 			}
 			// Property edits do not advance structure; parent moves do, even at the root.
-			structureChanged := t.Kind == Component && (before == nil || action != "update" || ptrValue(before.ParentComponentID) != ptrValue(r.ParentComponentID))
+			structureChanged := t.Kind != Facility && t.Kind != Channel && (before == nil || action != "update" || fingerprint(before.ParentRef) != fingerprint(r.ParentRef))
 			if structureChanged {
 				if e = tx.QueryRow(ctx, `UPDATE engineering_facilities SET structure_revision=structure_revision+1 WHERE tenant_id=$1 AND id=$2 RETURNING structure_revision`, t.Tenant, t.Facility).Scan(&facility.StructureRevision); e != nil {
 					return e
@@ -251,7 +257,7 @@ func storeResource(ctx context.Context, tx pgx.Tx, r Resource, create bool) erro
 	}
 	var data map[string]any
 	_ = json.Unmarshal(jsonBytes(r), &data)
-	if r.Kind == Facility || r.Kind == Component {
+	if r.Kind == Facility || r.Kind == Component || r.Kind == MonitoringSection || r.Kind == Borehole {
 		data["values"] = r.Values
 	}
 	cs := strings.Join(columns, ",")
@@ -324,6 +330,17 @@ func validateResource(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facilit
 		}
 		return invalid("/parent_component_id", "relation", "类型不允许该父子类别关系。")
 	}
+	if r.Kind == MonitoringSection || r.Kind == Borehole {
+		v, _, e := engineering.ResolvePublicTx(ctx, tx, facility.TypeVersionID, engineering.TypeDefinition, false)
+		if e != nil {
+			return e
+		}
+		fs, ok := engineering.StructureFields(v.Content, string(r.Kind), "")
+		if !ok {
+			return invalid("/kind", "type_not_applicable", "设施当前采用类型不支持此对象种类。")
+		}
+		return valuesValid(fs, r.Values)
+	}
 	if r.Kind == Channel && r.SourceKind != "derived" {
 		v, _, e := engineering.ResolvePublicTx(ctx, tx, r.MetricVersionID, engineering.MetricDefinition, newUse)
 		if e != nil {
@@ -382,6 +399,13 @@ func (s *Service) checkDependencies(ctx context.Context, tx pgx.Tx, t scopedTarg
 	if referenced {
 		return problem("resource_referenced", "仍有项目使用此资源，请先由租户明确解除相应授权。", 409)
 	}
+	var children int
+	if e := tx.QueryRow(ctx, `SELECT count(*) FROM engineering_resource_nodes WHERE tenant_id=$1 AND facility_id=$2 AND parent_kind=$3 AND parent_id=$4 AND deleted_at IS NULL`, t.Tenant, t.Facility, r.Kind, r.ID).Scan(&children); e != nil {
+		return e
+	}
+	if children > 0 {
+		return problem("resource_referenced", "仍有结构下级，请先处理后再删除。", 409)
+	}
 	deps := map[string]int{}
 	queries := map[string]string{}
 	switch r.Kind {
@@ -419,7 +443,7 @@ func recordChange(ctx context.Context, tx pgx.Tx, a access.Actor, auth authoriza
 			versions = append(versions, id)
 		}
 	}
-	if t.Kind == Component || t.Kind == Point {
+	if t.Kind == Component || t.Kind == Point || t.Kind == MonitoringSection || t.Kind == Borehole {
 		var v string
 		if e := tx.QueryRow(ctx, `SELECT type_version_id::text FROM engineering_facilities WHERE tenant_id=$1 AND id=$2`, t.Tenant, fid).Scan(&v); e != nil {
 			return e

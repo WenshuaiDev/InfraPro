@@ -4,7 +4,7 @@ export type DeviceScope = { kind: 'tenant'; tenantId: string } | { kind: 'projec
 export type DeviceTenantScope = Extract<DeviceScope, { kind: 'tenant' }>;
 export type DeviceCatalogScope = { kind: 'platform' } | { kind: 'tenant'; tenantId: string; source: 'public' | 'private' };
 export type DeviceCatalogWriteScope = { kind: 'platform' } | { kind: 'tenant'; tenantId: string; source: 'private' };
-export type DeviceFilter = {q?: string; cursor?: string; limit?: number; manufacturer_id?: string; product_id?: string; product_version_id?: string; device_id?: string; status?: string; installation?: 'recorded'|'unrecorded'|'location'|'resource'; facility_id?: string; channel_id?: string; source?: 'all'|'public'|'private'; state?: string; level?: 'manufacturer'|'product'|'device'|'output'; parent_id?: string; kind?: string; slot_key?: string; metric_version_id?: string; unit_version_id?: string; compatible_only?: boolean};
+export type DeviceFilter = {category_id?:string;category_scope?:'exact'|'descendants';category_group?:'sensor'|'non_sensor'|'unclassified'|'unavailable';q?: string; cursor?: string; limit?: number; manufacturer_id?: string; product_id?: string; product_version_id?: string; device_id?: string; status?: string; installation?: 'recorded'|'unrecorded'|'location'|'resource'; facility_id?: string; channel_id?: string; source?: 'all'|'public'|'private'; state?: string; level?: 'manufacturer'|'product'|'device'|'output'; parent_id?: string; kind?: string; slot_key?: string; metric_version_id?: string; unit_version_id?: string; compatible_only?: boolean};
 export type DeviceSourceTarget = { facility_id: string; point_id: string; channel_id: string };
 export type DeviceBindingDirectoryItem = Schema<'DeviceBindingDirectoryItem'>;
 export type DeviceBindingDirectoryPage = Schema<'DeviceBindingDirectoryPage'>;
@@ -36,6 +36,8 @@ export type DeviceInstallationEnd = Schema<'DeviceInstallationEnd'>;
 export type DeviceInstallationPage = Schema<'DeviceInstallationPage'>;
 export type DeviceInstallationRelocate = Schema<'DeviceInstallationRelocate'>;
 export type DeviceInstallationTarget = Schema<'DeviceInstallationTarget'>;
+export type DeviceLegacySection = Schema<'DeviceLegacySection'>;
+export type DeviceLegacySectionResolution = Schema<'DeviceLegacySectionResolution'>;
 export type DeviceManufacturer = Schema<'DeviceManufacturer'>;
 export type DeviceManufacturerCreate = Schema<'DeviceManufacturerCreate'>;
 export type DeviceManufacturerPage = Schema<'DeviceManufacturerPage'>;
@@ -58,6 +60,7 @@ export type DeviceProductCopy = Schema<'DeviceProductCopy'>;
 export type DeviceProductCreate = Schema<'DeviceProductCreate'>;
 export type DeviceProductDraft = Schema<'DeviceProductDraft'>;
 export type DeviceProductDraftCreate = Schema<'DeviceProductDraftCreate'>;
+export type DeviceProductPublish = Schema<'DeviceProductPublish'>;
 export type DeviceProductDraftRevision = Schema<'DeviceProductDraftRevision'>;
 export type DeviceProductDraftSave = Schema<'DeviceProductDraftSave'>;
 export type DeviceProductIdentity = Schema<'DeviceProductIdentity'>;
@@ -157,6 +160,9 @@ export function deviceMethods(request: Request) {
   projectDeviceOutputs: (scope:Extract<DeviceScope,{kind:'project'}>,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceProjectOutputPage>(`${root(scope)}/device-outputs`,f,signal),
   deviceOutput: (scope:DeviceScope,output:string,device?:string,signal?:AbortSignal) => get<DeviceOutput>(scope.kind==='project'?`${root(scope)}/device-outputs/${id(output)}`:`${root(scope)}/devices/${id(device!)}/outputs/${id(output)}`,{},signal),
   deviceInstallations: (scope:DeviceScope,device:string,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceInstallationPage>(`${root(scope)}/devices/${id(device)}/installations`,f,signal),
+  deviceLegacySections: (scope:DeviceTenantScope,device:string,f:Pick<DeviceFilter,'cursor'|'limit'>={},signal?:AbortSignal) => get<Schema<'DeviceLegacySectionPage'>>(`${root(scope)}/devices/${id(device)}/legacy-sections`,f,signal),
+  previewDeviceLegacySection: (scope:DeviceTenantScope,device:string,evidence:string,input:DeviceLegacySectionResolution) => request<DeviceMutationPreview>(`${root(scope)}/devices/${id(device)}/legacy-sections/${id(evidence)}/preview`,'POST',input),
+  resolveDeviceLegacySection: (scope:DeviceTenantScope,device:string,evidence:string,input:DeviceLegacySectionResolution) => request<DeviceWriteResult>(`${root(scope)}/devices/${id(device)}/legacy-sections/${id(evidence)}/resolve`,'POST',input),
   deviceInstallationTargets: (scope:DeviceTenantScope,device:string,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceInstallationCandidatePage>(`${root(scope)}/devices/${id(device)}/installation-targets`,f,signal),
   deviceChanges: (scope:DeviceScope,device:string,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceResourceChanges>(`${root(scope)}/devices/${id(device)}/changes`,f,signal),
   deviceOutputChanges: (scope:Extract<DeviceScope,{kind:'project'}>,output:string,f:DeviceFilter={},signal?:AbortSignal) => get<DeviceResourceChanges>(`${root(scope)}/device-outputs/${id(output)}/changes`,f,signal),
@@ -179,7 +185,7 @@ export function deviceMethods(request: Request) {
   saveDeviceProductDraft: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductDraftSave) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/draft`,'PUT',input),
   newDeviceProductDraft: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductDraftCreate) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/drafts`,'POST',input),
   deleteDeviceProductDraft: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductDraftRevision) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/draft/delete`,'POST',input),
-  publishDeviceProduct: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductDraftRevision) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/publish`,'POST',input),
+  publishDeviceProduct: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductPublish) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/publish`,'POST',input),
   stateDeviceProductVersion: (scope:DeviceCatalogWriteScope,product:string,version:string,input:DeviceProductVersionState) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/versions/${id(version)}/state`,'POST',input),
   previewDeviceProduct: (scope:DeviceCatalogWriteScope,product:string,input:DeviceProductPreviewInput) => request<DeviceMutationPreview>(`${catalog(scope)}/products/${id(product)}/mutation-preview`,'POST',input),
   deleteDeviceProduct: (scope:DeviceCatalogWriteScope,product:string,input:DeviceRevisionInput) => request<DeviceWriteResult>(`${catalog(scope)}/products/${id(product)}/delete`,'POST',input),

@@ -13,6 +13,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
 	audithttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/audit"
+	classificationhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/classification"
 	derivedmonitoringhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/derivedmonitoring"
 	devicecataloghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecatalog"
 	deviceshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devices"
@@ -35,6 +36,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
+	ingestionhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/ingestion"
 	"github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/middleware"
 	parsinghttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/parsing"
 	"github.com/gin-gonic/gin"
@@ -141,8 +143,10 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		resourceshttp.Register(r, service, business.Resources)
 		engineeringhttp.Register(r, service, business.Engineering)
 		devicecataloghttp.Register(r, service, business.DeviceCatalog)
+		classificationhttp.Register(r, service, business.Classification)
 		deviceshttp.Register(r, service, business.Devices)
 		parsinghttp.Register(r, service, business.Parsing)
+		ingestionhttp.Register(r, service, business.Ingestion)
 		sourceshttp.Register(r, service, business.Sources)
 		tenantService := tenancy.New(service.Access(), tenancy.Options{ConsoleURL: cfg.PublicConsoleURL, Limit: service.Limit, CredentialLimit: service.Rate})
 		tenancyhttp.Register(r, service, tenantService)

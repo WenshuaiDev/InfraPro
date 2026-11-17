@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -130,7 +131,7 @@ func TestLifecycleIsolationHistoryAndRecovery(t *testing.T) {
 	code(t, e, "permission_denied")
 	c, e := s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(c.Permissions) != 85 || len(c.Roles) != 1 || len(c.Sources) != 85 {
+	if !slices.Equal(c.Permissions, tenantCatalogCodes()) || len(c.Roles) != 1 || len(c.Sources) != len(c.Permissions) {
 		t.Fatal(c)
 	}
 	originalMember := c.MembershipID
@@ -522,7 +523,7 @@ func TestPlatformActionsAreIndependentAndTenantOnlyIdentity(t *testing.T) {
 	}
 	context, e := f.s.Context(ctx, f.actor(f.a), a.TenantID)
 	must(t, e)
-	if len(context.Permissions) != 85 {
+	if !slices.Equal(context.Permissions, tenantCatalogCodes()) {
 		t.Fatal(context)
 	}
 	_, e = f.s.Memberships(ctx, f.actor(f.a), "", tenancy.Filter{})

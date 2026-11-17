@@ -8,6 +8,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
@@ -19,6 +20,11 @@ import (
 )
 
 func installDisplayProviders(b Business) {
+	b.Displays.WithReadResolver("resources", displayread.ResolverFunc(b.Resources.DisplayMembersTx)).
+		WithReadResolver("channels", displayread.ResolverFunc(b.Monitoring.DisplayMembersTx)).
+		WithReadResolver("devices", displayread.ResolverFunc(b.Devices.DisplayMembersTx)).
+		WithReadResolver("spatial", displayread.ResolverFunc(b.Spatial.DisplayMembersTx))
+
 	b.Displays.WithBindingQualification(func(ctx context.Context, tx pgx.Tx, subject *access.ReadSubject, bindings map[string]display.Binding) error {
 		for _, binding := range bindings {
 			if binding.Kind == "artifacts" {
@@ -44,7 +50,7 @@ func installDisplayProviders(b Business) {
 	})
 	seen := map[string]bool{}
 	for _, cap := range display.Methods() {
-		if !seen[cap] && !strings.HasPrefix(cap, "alerts.") {
+		if !seen[cap] && !strings.HasPrefix(cap, "alerts.") && !newDisplayCapability(cap) {
 			if e := b.Displays.Register(cap, p); e != nil {
 				panic(e)
 			}
@@ -57,6 +63,11 @@ func (b Business) readDisplay(ctx context.Context, subject *access.ReadSubject, 
 	scope := resources.ProjectScope(subject.Tenant, subject.Project)
 	ms := monitoring.ProjectScope(subject.Tenant, subject.Project)
 	ids := q.Target.IDs
+	if strings.HasPrefix(method, "channels.") || strings.HasPrefix(method, "monitoring.") {
+		if e := b.Monitoring.CheckLegacyStructure(ctx, a, ms, ids); e != nil {
+			return nil, e
+		}
+	}
 	switch {
 	case strings.HasPrefix(method, "resources."):
 		page, e := b.Resources.ReadCatalog(ctx, a, scope, ids, q.Kind, q.Search, q.Cursor, q.Limit)
@@ -70,7 +81,7 @@ func (b Business) readDisplay(ctx context.Context, subject *access.ReadSubject, 
 			return page.Items[0], nil
 		}
 		if method == "resources.summary" {
-			return map[string]any{"count": page.Count, "counts": page.Counts}, nil
+			return map[string]any{"count": page.Count, "counts": page.Counts, "structure_model": 1, "structure_projection": "legacy"}, nil
 		}
 		return page, nil
 	case strings.HasPrefix(method, "channels."):
@@ -284,4 +295,10 @@ func displayProjection(v any) (any, error) {
 		return v
 	}
 	return walk(out, ""), nil
+}
+
+// New capabilities are installed by the snapshot coordinator, never by the
+// format-1 generic provider.
+func newDisplayCapability(cap string) bool {
+	return slices.Contains([]string{"classification.categories", "statistics.deviceCategories", "statistics.structure", "views.read", "queries.read", "resources.directory", "resources.hierarchy", "resources.detail", "devices.read", "devices.history", "sources.directory", "sources.history", "map.read", "spatial.catalog", "spatial.links", "statistics.resources", "statistics.devices", "statistics.monitoring"}, cap)
 }

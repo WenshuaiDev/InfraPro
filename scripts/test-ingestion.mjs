@@ -1,0 +1,12 @@
+import {execFileSync,spawn} from 'node:child_process';
+import {mkdirSync,writeFileSync,createWriteStream,mkdtempSync} from 'node:fs';
+import {resolve,join} from 'node:path';
+import {ensureTestDependencies,testEnv} from './test-environment.mjs';
+import {startParser} from './fixtures/parsing-lab.mjs';
+import {startRelay} from './fixtures/ingestion-relay.mjs';
+import {ingestionTestEnv} from './fixtures/ingestion-environment.mjs';
+const out=resolve('.artifacts/ingestion');mkdirSync(out,{recursive:true});ensureTestDependencies();
+execFileSync('docker',['compose','-f','deploy/monitoring-contract/compose.yaml','up','-d','--wait'],{stdio:'inherit'});
+const session=mkdtempSync(join(out,'test-')),parser=await startParser(join(session,'parser')),relay=await startRelay(join(session,'relay'));
+const env={...process.env,...testEnv,...ingestionTestEnv,...relay.env,INFRAPRO_PARSER_TEST_PACKAGE:parser.pkg,INFRAPRO_PARSING_URL:parser.url,INFRAPRO_PARSING_TOKEN_FILE:parser.token,INFRAPRO_INGESTION_EVIDENCE:session,INFRAPRO_INGESTION_KEEP_LOAD:process.env.INFRAPRO_INGESTION_KEEP_LOAD??(process.env.INFRAPRO_INGESTION_LOAD==='1'&&Number(process.env.INFRAPRO_INGESTION_LOAD_SECONDS??1800)>=1800?'1':'0')};
+let exit=1;try{if(process.env.INFRAPRO_INGESTION_LOAD!=='1')execFileSync('go',['test','./services/ingest-relay/...','./packages/go/foundation/ddp','./packages/go/foundation/ingestioncontract','./packages/go/platform/ingestion','./services/parser/internal/identification','./services/api/internal/transport/http/ingestion','-v','-count=1'],{env,stdio:'inherit'});const log=createWriteStream(join(session,'tests.log'));const child=spawn('go',['test','./packages/go/platform/parsing','-run',process.env.INGESTION_TEST_PATTERN??(process.env.INFRAPRO_INGESTION_LOAD==='1'?'^TestIngestionSustainedLoad$':'^TestIngestion'),'-v','-count=1','-timeout','180m'],{env,stdio:['ignore','pipe','pipe']});for(const stream of [child.stdout,child.stderr])stream.on('data',b=>{process.stdout.write(b);log.write(b)});exit=await new Promise(r=>child.on('close',code=>r(typeof code==='number'?code:1)));log.end();}finally{await relay.close();await parser.close();writeFileSync(join(session,'result.json'),JSON.stringify({session,exit,synthetic:true},null,2));writeFileSync(join(out,'latest-tests.json'),JSON.stringify({session,exit,synthetic:true},null,2));}process.exitCode=exit;

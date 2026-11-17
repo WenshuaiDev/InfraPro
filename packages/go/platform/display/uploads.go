@@ -15,7 +15,7 @@ func (s *Service) createUploadTx(ctx context.Context, tx pgx.Tx, a access.Actor,
 	if s.blobs == nil {
 		return problem("dependency_unavailable", "包存储尚未配置。", 503)
 	}
-	if in.Size < 1 || in.Size > 128<<20 || !digestPattern.MatchString(in.SHA256) {
+	if in.Size < 1 || in.Size > s.options.MaxPackageBytes || !digestPattern.MatchString(in.SHA256) {
 		return invalid("/upload", "需要有效 ZIP 长度和 SHA-256。")
 	}
 	var count int
@@ -65,7 +65,7 @@ func (s *Service) UploadPart(ctx context.Context, a access.Actor, scope Scope, i
 	if s.blobs == nil {
 		return problem("dependency_unavailable", "包存储暂不可用。", 503)
 	}
-	if part < 0 || part > 31 || len(data) < 1 || len(data) > int(PartSize) || hashBytes(data) != sha {
+	if part < 0 || int64(part) > 2147483647 || len(data) < 1 || len(data) > int(PartSize) || hashBytes(data) != sha {
 		return invalid("/part", "分片编号、大小或摘要不正确。")
 	}
 	if !access.ValidID(upload) || !access.ValidID(scope.Project) {
@@ -88,6 +88,9 @@ func (s *Service) UploadPart(ctx context.Context, a access.Actor, scope Scope, i
 		}
 		if state != "receiving" || expires.Before(time.Now()) {
 			return conflict()
+		}
+		if int64(part) >= (size-1)/PartSize+1 {
+			return invalid("/part", "分片编号超出整包范围。")
 		}
 		expected := min(PartSize, size-int64(part)*PartSize)
 		if int64(len(data)) != expected {

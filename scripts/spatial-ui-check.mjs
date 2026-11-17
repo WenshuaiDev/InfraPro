@@ -3,7 +3,7 @@ import {chromium,request,expect} from '@playwright/test';
 import {randomUUID} from 'node:crypto';
 import {readFileSync,readdirSync,mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
-const sessions='.artifacts/spatial-demo',directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1)),state=JSON.parse(readFileSync(join(directory,'spatial-acceptance.json'))),login=JSON.parse(readFileSync(join(directory,'login.json'))),origin='http://127.0.0.1:15473',base='/tenants/'+state.tenant,sp=base+'/spatial',output='.artifacts/spatial-browser';mkdirSync(output,{recursive:true});
+const sessions='.artifacts/spatial-tests',directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1)),state=JSON.parse(readFileSync(join(directory,'spatial-acceptance.json'))),login=JSON.parse(readFileSync(join(directory,'login.json'))),origin='http://127.0.0.1:15473',base='/tenants/'+state.tenant,sp=base+'/spatial',output='.artifacts/spatial-browser';mkdirSync(output,{recursive:true});
 const client=await request.newContext(),csrf=await(await client.get(origin+'/api/v1/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token},results=[],errors=[];
 const wm=(r='0')=>({request_id:randomUUID(),expected_revision:r,reason:'空间交互自验'});
 async function call(path,data,method=data===undefined?'GET':'POST'){const r=await client.fetch(origin+'/api/v1'+path,{method,headers,data});assert(r.ok(),path+': '+r.status()+' '+await r.text());return r.json();}

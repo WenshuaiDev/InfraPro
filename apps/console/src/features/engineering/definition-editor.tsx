@@ -30,6 +30,7 @@ import { Badge } from '@infrapro/ui/components/badge';
 import { emptyContent, titles } from './model';
 import { PreviewPanel } from './preview-panel';
 import { TemplateEditor } from './template-editor';
+import { upgradeStructureContent } from './structure-model';
 import { TypeEditor } from './type-editor';
 import { useRequestMeta } from './use-request-meta';
 export function DefinitionEditor({
@@ -533,6 +534,8 @@ export function DefinitionEditor({
               {modifying ? (
                 <fieldset disabled={busy} className="min-w-0">
                   <TemplateEditor
+                    version={content.metamodel_version}
+                    onUpgrade={() => update(upgradeStructureContent(content))}
                     onReferences={remember}
                     section={section}
                     value={content.template!}

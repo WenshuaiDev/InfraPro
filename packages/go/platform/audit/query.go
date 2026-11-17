@@ -273,6 +273,29 @@ func (s *Service) candidatesTx(ctx context.Context, tx pgx.Tx, auth authorizatio
 			where += ` AND e.project_id IS NULL`
 		}
 	}
+	// Narrow exact subjects before LIMIT and the candidate budget; unrelated
+	// history must not exhaust a specific object's query. Keep matchesTx after
+	// projection so search and disclosure-dependent filters still see safe values.
+	if f.ObjectType != "" || f.ObjectID != "" {
+		subject := []string{}
+		if f.ObjectType != "" {
+			subject = append(subject, `e.object_type=`+bind(f.ObjectType))
+		}
+		if f.ObjectID != "" {
+			subject = append(subject, `e.object_id=`+bind(f.ObjectID))
+		}
+		predicate := strings.Join(subject, ` AND `)
+		if auth.Scope.Kind == "tenant" {
+			// Tenant notices expose the tenant as their subject, regardless of
+			// the platform object stored in the source fact (see projectTx).
+			noticeMatches := (f.ObjectType == "" || f.ObjectType == "tenant") && (f.ObjectID == "" || f.ObjectID == auth.Scope.Tenant)
+			predicate = `(e.visibility_class<>'platform_tenant_notice' AND ` + predicate + `) OR (e.visibility_class='platform_tenant_notice' AND ` + bind(noticeMatches) + `)`
+		}
+		where += ` AND (` + predicate + `)`
+	}
+	if f.EventType != "" {
+		where += ` AND e.event_type=` + bind(f.EventType)
+	}
 	if !c.At.IsZero() {
 		where += ` AND (e.created_at,e.id)<(` + bind(c.At) + `,` + bind(c.ID) + `::bigint)`
 	}

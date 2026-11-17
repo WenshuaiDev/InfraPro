@@ -58,7 +58,7 @@ func failed(r Request, code string) Result {
 	return Result{RequestID: r.RequestID, Nonce: r.Nonce, Status: "failed", Code: code}
 }
 func Check(ctx context.Context, root string, r Request) Result {
-	if r.Protocol != 1 || r.Size < 1 || r.Size > 100<<20 || len(r.SHA256) != 64 || !component(r.Directory) || !component(r.Input) || !component(r.Output) || r.Input == r.Output || r.Policy.MaxPixels < 1 || r.Policy.MaxPixels > 25000000 || r.Policy.Edge < 1 || r.Policy.Edge > 1600 || r.Policy.MaxBytes < 1 || r.Policy.MaxBytes > 2<<20 {
+	if r.Protocol != 1 || r.Size < 1 || r.Size > (1<<53)-1 || len(r.SHA256) != 64 || !component(r.Directory) || !component(r.Input) || !component(r.Output) || r.Input == r.Output || r.Policy.MaxPixels < 1 || r.Policy.MaxPixels > 25000000 || r.Policy.Edge < 1 || r.Policy.Edge > 1600 || r.Policy.MaxBytes < 1 || r.Policy.MaxBytes > 2<<20 {
 		return failed(r, "checker_invalid_request")
 	}
 	dir := filepath.Join(root, r.Directory)
@@ -227,7 +227,7 @@ func office(ctx context.Context, f *os.File, r Request) string {
 	contentType := map[string]string{"docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml", "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"}[r.Format]
 	seen := map[string]bool{}
 	var total int64
-	hasType := false
+	defaultType, overrideType := "", ""
 	for _, entry := range archive.File {
 		if ctx.Err() != nil {
 			return "content_check_timeout"
@@ -279,7 +279,7 @@ func office(ctx context.Context, f *os.File, r Request) string {
 					return "office_invalid_types"
 				}
 				if start, ok := token.(xml.StartElement); ok {
-					part, typ := "", ""
+					part, typ, extension := "", "", ""
 					for _, a := range start.Attr {
 						if a.Name.Local == "PartName" {
 							part = a.Value
@@ -287,18 +287,38 @@ func office(ctx context.Context, f *os.File, r Request) string {
 						if a.Name.Local == "ContentType" {
 							typ = a.Value
 						}
+						if a.Name.Local == "Extension" {
+							extension = a.Value
+						}
 					}
 					if strings.Contains(strings.ToLower(typ), "macroenabled") || strings.Contains(strings.ToLower(typ), "vbaproject") {
 						return "office_macro_rejected"
 					}
-					if start.Name.Local == "Override" && part == expected && typ == contentType {
-						hasType = true
+					if start.Name.Space != "http://schemas.openxmlformats.org/package/2006/content-types" {
+						continue
+					}
+					if start.Name.Local == "Override" && part == expected {
+						if overrideType != "" || typ == "" {
+							return "office_invalid_types"
+						}
+						overrideType = typ
+					}
+					if start.Name.Local == "Default" && strings.EqualFold(extension, strings.TrimPrefix(path.Ext(expected), ".")) {
+						if defaultType != "" || typ == "" {
+							return "office_invalid_types"
+						}
+						defaultType = typ
 					}
 				}
 			}
 		}
 	}
-	if !hasType || !seen[strings.TrimPrefix(expected, "/")] {
+	// OPC resolves an explicit part override before the extension default.
+	resolvedType := defaultType
+	if overrideType != "" {
+		resolvedType = overrideType
+	}
+	if resolvedType != contentType || !seen[strings.TrimPrefix(expected, "/")] {
 		return "office_type_mismatch"
 	}
 	return ""

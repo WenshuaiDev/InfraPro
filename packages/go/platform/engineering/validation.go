@@ -121,7 +121,7 @@ func numberRange(out *[]Issue, min, max *float64, path, k string) {
 // ValidateContent checks the supported metamodel, independently of storage or business facility names.
 func ValidateContent(kind Kind, c Content) []Issue {
 	out := []Issue{}
-	if c.MetamodelVersion != MetamodelVersion {
+	if !SupportedMetamodel(c.MetamodelVersion) {
 		add(&out, "unsupported_metamodel", "不支持的元模型格式版本。", "/metamodel_version", "")
 	}
 	bounded(&out, c.Name, "/name", 200, true)
@@ -130,6 +130,7 @@ func ValidateContent(kind Kind, c Content) []Issue {
 	if (kind != TypeDefinition && (len(c.Fields) > 0 || len(c.Components) > 0 || len(c.Relations) > 0)) || (kind != UnitDefinition && c.Unit != nil) || (kind != MetricDefinition && c.Metric != nil) || (kind != MonitoringTemplate && c.Template != nil) {
 		add(&out, "unsupported_content", "该目录不接受其他种类的定义内容。", "/", "")
 	}
+	out = append(out, validateStructureContent(kind, c)...)
 	switch kind {
 	case TypeDefinition:
 		fields(&out, c.Fields, "/fields")
@@ -270,7 +271,8 @@ func ValidateContent(kind Kind, c Content) []Issue {
 					add(&out, "target_mapping", "映射须对应一个适用版本且不可重复。", tp, item.Key)
 				}
 				seen[v.TypeVersion] = true
-				if v.Component == "" {
+				out = append(out, validateTarget(c.MetamodelVersion, v, tp)...)
+				if c.MetamodelVersion == "1" && v.Component == "" {
 					add(&out, "target_missing", "请选择根对象或构件类别。", tp, item.Key)
 				}
 			}

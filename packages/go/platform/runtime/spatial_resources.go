@@ -25,7 +25,7 @@ func spatialObject(r resources.Resource, retired bool) spatial.Object {
 	if r.Kind == resources.Facility {
 		facility = r.ID
 	}
-	out := spatial.Object{ObjectRef: spatial.ObjectRef{Kind: string(r.Kind), ID: r.ID}, FacilityID: facility, Code: r.Code, Name: r.Name, Status: r.Status, Retired: retired, Position: k.JSON(r.Position), BasisHash: k.Hash([]any{r.FacilityID, r.ComponentID, r.ParentComponentID, r.Position})}
+	out := spatial.Object{ObjectRef: spatial.ObjectRef{Kind: string(r.Kind), ID: r.ID}, FacilityID: facility, Code: r.Code, Name: r.Name, Status: r.Status, Retired: retired, Position: k.JSON(r.Position), BasisHash: k.Hash([]any{r.FacilityID, r.ParentRef, r.Borehole, r.Position})}
 	if r.Kind == resources.Channel {
 		out.OwnerKind = r.OwnerKind
 		switch r.OwnerKind {
@@ -34,6 +34,14 @@ func spatialObject(r resources.Resource, retired bool) spatial.Object {
 		case "component":
 			if r.ComponentID != nil {
 				out.OwnerID = *r.ComponentID
+			}
+		case "monitoring_section":
+			if r.MonitoringSectionID != nil {
+				out.OwnerID = *r.MonitoringSectionID
+			}
+		case "borehole":
+			if r.BoreholeID != nil {
+				out.OwnerID = *r.BoreholeID
 			}
 		default:
 			out.OwnerKind = "point"

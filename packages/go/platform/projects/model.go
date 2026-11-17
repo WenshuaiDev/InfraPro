@@ -86,21 +86,22 @@ type Person struct {
 	Available    bool   `json:"available"`
 }
 type Summary struct {
-	ID                        string    `json:"id"`
-	TenantID                  string    `json:"tenant_id"`
-	TenantName                string    `json:"tenant_name"`
-	Name                      string    `json:"name"`
-	Code                      string    `json:"code"`
-	Status                    string    `json:"status"`
-	Version                   string    `json:"version"`
-	Owner                     Person    `json:"owner"`
-	Administrator             Person    `json:"administrator"`
-	AdministratorMembershipID string    `json:"administrator_membership_id"`
-	ManagementGap             bool      `json:"management_gap"`
-	PlannedStart              string    `json:"planned_start"`
-	PlannedEnd                string    `json:"planned_end"`
-	CreatedAt                 time.Time `json:"created_at"`
-	UpdatedAt                 time.Time `json:"updated_at"`
+	ID                        string                `json:"id"`
+	TenantID                  string                `json:"tenant_id"`
+	TenantName                string                `json:"tenant_name"`
+	Name                      string                `json:"name"`
+	Code                      string                `json:"code"`
+	Status                    string                `json:"status"`
+	Version                   string                `json:"version"`
+	Owner                     Person                `json:"owner"`
+	Administrator             Person                `json:"administrator"`
+	AdministratorMembershipID string                `json:"administrator_membership_id"`
+	ManagementGap             bool                  `json:"management_gap"`
+	PlannedStart              string                `json:"planned_start"`
+	PlannedEnd                string                `json:"planned_end"`
+	CreatedAt                 time.Time             `json:"created_at"`
+	UpdatedAt                 time.Time             `json:"updated_at"`
+	Statistics                *GovernanceStatistics `json:"statistics,omitempty"`
 }
 type Project struct {
 	Summary

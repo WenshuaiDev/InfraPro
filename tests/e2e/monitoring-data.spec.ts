@@ -11,7 +11,7 @@ test.skip(process.env.INFRAPRO_MONITORING_E2E !== '1', 'requires the real dispos
 async function prepare(page: Page, request: APIRequestContext) {
   const f = await seedResources(request); await login(page, f.user);
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(page.request, origin) };
-  const post = async (path: string, data: object, status = 201) => { const r = await page.request.post(api + path, { headers, data }); expect(r.status(), await r.text()).toBe(status); return r.json(); };
+  const post = async (path: string, data: object, status = 201) => { const r = await page.request.post(api + path, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data }); expect(r.status(), await r.text()).toBe(status); return r.json(); };
   const base = `/tenants/${f.tenant}`;
   const facility = await post(`${base}/engineering/resources/facilities`, { request_id: randomUUID(), code: 'MONITOR', name: '合成监测设施', type_version_id: f.type.version_id, values: { length: 0 } });
   const point = await post(`${base}/engineering/resources/facilities/${facility.id}/points`, { request_id: randomUUID(), code: 'P10', name: '孔 A 深度 10 m' });
@@ -197,7 +197,7 @@ test('project data grants, archive reading and revocation clear cached and late 
  await projectPage.getByRole('button',{name:'明细',exact:true}).click();await waiting;
  await page.reload();await page.getByRole('button',{name:'预览撤销',exact:true}).click();await page.getByRole('dialog').getByLabel('撤销授权原因').fill('当前会话立即收回');await page.getByRole('dialog').getByRole('button',{name:'撤销此数据授权',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
  await projectPage.evaluate(()=>{window.dispatchEvent(new Event('focus'));document.dispatchEvent(new Event('visibilitychange'));});
- await expect(projectPage.getByText('此通道在当前工作空间不可读，请从目录选择其他通道。',{exact:true})).toBeVisible({timeout:35000});release();
+ await expect(projectPage.getByText('此通道在当前工作空间不可读，请从目录选择其他通道。',{exact:true})).toBeVisible({timeout:15000});release();
  await expect(projectPage.getByRole('table',{name:'监测明细'})).toHaveCount(0);await expect(projectPage.getByText('22.000000000000',{exact:true})).toHaveCount(0);
  expect(await projectPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await projectPage.screenshot({path:info.outputPath('monitoring-project-revoked.png'),fullPage:true});
@@ -238,15 +238,23 @@ test('point deep links, comparison, enum samples and keyboard window controls us
   await expect(page.getByRole('heading',{name:'最新观测',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'多通道比较',exact:true}).click();
   const panel=page.getByRole('dialog',{name:'多通道比较',exact:true});
-  const target=panel.getByRole('button',{name:/孔 A 深度 20 m/});await target.focus();await page.keyboard.press('Enter');
+  const narrow = (page.viewportSize()?.width ?? 1440) <= 760;
+  if (narrow) await panel.getByRole('button', { name: '选择比较通道', exact: true }).click();
+  const search=panel.getByRole('textbox',{name:'搜索比较通道'});
+  await search.fill('深层位移');
   const choose=panel.getByRole('checkbox',{name:/深层位移/});await choose.focus();await page.keyboard.press('Space');await expect(choose).toBeChecked();
-  await panel.getByRole('checkbox',{name:/状态样本/}).check();
-  if ((page.viewportSize()?.width ?? 1440) < 1280) await panel.getByRole('button',{name:'查看 3 个通道的比较',exact:true}).click();
-  await allHistory(page);
-  await expect(panel.getByRole('img',{name:/监测趋势/})).toBeVisible({timeout:30000});
-  const legend=panel.locator('[aria-label="图例开关"]');await expect(legend.getByRole('button')).toHaveCount(2);
-  const toggle=legend.getByRole('button').first();await toggle.focus();await page.keyboard.press('Enter');await expect(toggle).toHaveAttribute('aria-pressed','false');await page.keyboard.press('Enter');
-  await panel.getByRole('button',{name:/枚举 · 第 2 组/}).click();await expect(legend).toContainText('状态样本');
+  await search.fill('状态样本');await panel.getByRole('checkbox',{name:/状态样本/}).check();
+  if (narrow) await panel.getByRole('button',{name:'查看 3 个通道的比较',exact:true}).click();
+  await panel.getByRole('button', { name: '自定义时间', exact: true }).click();
+  await page.getByRole('dialog', { name: '查阅时间范围', exact: true }).getByRole('button', { name: '全部历史范围', exact: true }).click();
+  // Wait for the closing panel's focus handoff before testing legend keys.
+  await expect(panel.getByRole('button', { name: '自定义时间', exact: true })).toBeFocused();
+  const plot=panel.getByRole('img',{name:/监测趋势/});
+  await expect(plot).toHaveAttribute('data-series-count','3',{timeout:30000});
+  await expect(plot).toHaveCount(1);
+  const legend=panel.locator('[aria-label="图例开关"]');await expect(legend.getByRole('button', { name: /^隐藏 / })).toHaveCount(3);
+  await expect(legend).toContainText('状态样本');
+  const toggle=legend.getByRole('button', { name: /孔 A 深度 10 m 位移通道/ }).first();await toggle.focus();await page.keyboard.press('Enter');await expect(toggle).toHaveAttribute('aria-pressed','false');await expect(plot).toHaveAttribute('data-series-count','2');await page.keyboard.press('Enter');await expect(plot).toHaveAttribute('data-series-count','3');
   await panel.getByRole('button',{name:'数据概况',exact:true}).click();
   const overview=page.getByRole('dialog',{name:'数据概况',exact:true});
   await expect(overview.getByRole('table',{name:'监测基础统计'})).toContainText('yes');

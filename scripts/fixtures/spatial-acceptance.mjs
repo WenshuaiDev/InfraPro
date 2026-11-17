@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { request } from "@playwright/test";
 // All business objects, original uploads, publications and grants use production HTTP APIs.
-export async function seedSpatialAcceptance(directory, origin) {
+export async function seedSpatialAcceptance(directory, origin, options = {}) {
   if (!["http://127.0.0.1:15473","http://127.0.0.1:15573","http://127.0.0.1:15773","http://127.0.0.1:15576"].includes(origin))
     throw Error("Spatial samples require their isolated loopback laboratory.");
   const prior = JSON.parse(
@@ -425,6 +425,7 @@ export async function seedSpatialAcceptance(directory, origin) {
         undefined,
       ],
     ]) {
+      if (options.minimal && !["BRIDGE-PDF", "BRIDGE-GLB", "REGION"].includes(key)) continue;
       await createAsset(key, kind, fid, name);
       let previous;
       for (const file of files)

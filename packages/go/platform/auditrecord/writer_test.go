@@ -195,6 +195,38 @@ func TestAuditAllowListedValuesAndMissingStates(t *testing.T) {
 	}
 }
 
+func TestAuditTopLevelCollectionSummaryCommits(t *testing.T) {
+	env := environment(t)
+	for _, count := range []int{20, 21, 100} {
+		values := make([]map[string]any, count)
+		for i := range values {
+			values[i] = map[string]any{"id": uuid.NewString(), "name": "工程设备授权"}
+		}
+		tx, err := env.Pool.Begin(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		ref, err := ar.AppendLegacyTx(ctx, tx, ar.LegacyInput{Event: "role_created", ObjectType: "role", ObjectID: uuid.NewString(), ActorType: "maintenance", Reason: "批量授权摘要", Before: []any{}, After: values})
+		if err != nil {
+			_ = tx.Rollback(ctx)
+			t.Fatal(count, err)
+		}
+		if err = tx.Commit(ctx); err != nil {
+			t.Fatal(err)
+		}
+		var changes []ar.Change
+		if err = env.Pool.QueryRow(ctx, `SELECT changes FROM account_security_events WHERE id=$1`, ref.ID).Scan(&changes); err != nil {
+			t.Fatal(err)
+		}
+		if len(changes) != 1 || changes[0].Key != "value" {
+			t.Fatal(changes)
+		}
+		if count > 20 && changes[0].AfterState != ar.Truncated {
+			t.Fatal("large collection lost its truncation state", changes)
+		}
+	}
+}
+
 func TestAuditCommandReceiptsAndTombstones(t *testing.T) {
 	e := environment(t)
 	var actor string

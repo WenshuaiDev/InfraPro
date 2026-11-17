@@ -3,7 +3,7 @@ import { request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { readFileSync,readdirSync,writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-const root=process.cwd(),sessions=join(root,'.artifacts/spatial-demo'),directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1));
+const root=process.cwd(),sessions=join(root,'.artifacts/spatial-tests'),directory=process.env.SPATIAL_SESSION??join(sessions,readdirSync(sessions).sort().at(-1));
 const state=JSON.parse(readFileSync(join(directory,'spatial-acceptance.json'))),login=JSON.parse(readFileSync(join(directory,'login.json'))),origin='http://127.0.0.1:15473',api=origin+'/api/v1',client=await request.newContext(),csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token},results=[];
 const base='/tenants/'+state.tenant,tenant=base+'/spatial',pa=base+'/projects/'+state.projects.A.id,pb=base+'/projects/'+state.projects.B.id;
 const wm=(revision='0')=>({request_id:randomUUID(),expected_revision:revision,reason:'工程空间范围自验，完成后恢复样本授权'});

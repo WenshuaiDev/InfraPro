@@ -47,6 +47,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
+	github.com/shirou/gopsutil/v4 v4.26.10 // indirect
 	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/xuri/efp v0.0.3-0.20260924042702-217b81952dec // indirect

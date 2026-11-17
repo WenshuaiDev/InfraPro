@@ -13,6 +13,9 @@ type CatalogEntry struct {
 }
 
 var RuntimeCatalog = []CatalogEntry{
+	{"ingest-worker", "设备接入流水", "worker", "services/api/cmd/ingest-worker/main.go", []string{"pull", "relay-status", "confirmation", "identify", "planning", "parse", "source-publication", "association-watermark", "recovery", "object-maintenance"}, "disabled", "机器执行独立于人员授权；接收、识别和测量均有持久队列"},
+	{"ingest-relay", "云端转发", "application", "services/ingest-relay/cmd/ingest-relay/main.go", []string{"control", "receivers", "spool-maintenance"}, "disabled", "独立云 PG 持久缓冲；只接受 mTLS 机器身份，无业务库凭证"},
+	{"ingest-relay-postgres", "云端缓冲 PostgreSQL", "database", "", []string{}, "disabled", "独立于业务数据库，检查 fsync、synchronous_commit 和容量"},
 	{"parser", "独立解析服务", "application", "services/parser/cmd/parser/main.go", []string{"catalog", "parse"}, "disabled", "启用试解析时部署；不读取业务存储，按固定产物启动有界子进程"},
 	{"api", "业务 API", "application", "services/api/cmd/api/main.go", []string{"http"}, "continuous", "人员及业务接口进程"},
 	{"monitoring-worker", "监测、派生计算与试解析", "worker", "services/api/cmd/monitoring-worker/main.go", []string{"scheduler", "foreground", "historical", "parsing", "parsing-maintenance"}, "continuous", "派生计算在此进程内运行"},

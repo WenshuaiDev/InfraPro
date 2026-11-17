@@ -14,7 +14,7 @@ export async function checkNotificationInbox(page,call,state,origin,checks) {
  if(!box||box.width>460||box.x<700)throw Error('Notification popover is not anchored at the right of the desktop toolbar');
  await expect(page.locator('[data-slot="dialog-overlay"]')).toHaveCount(0);
  const scopedResponse=page.waitForResponse(r=>r.request().method()==='GET'&&new URL(r.url()).pathname==='/api/v1/me/notifications'&&new URL(r.url()).searchParams.get('tenant_id')===state.tenants[0]);
- await panel.getByLabel('通知来源范围',{exact:true}).selectOption('current');await scopedResponse;
+ await panel.getByRole('combobox',{name:'通知来源范围',exact:true}).click();await page.getByRole('option',{name:'当前工作空间',exact:true}).click();await scopedResponse;
  if((await call('/me/notifications/summary')).unread!==before)throw Error('Scope filtering marked notifications read');
  const selected=(await call('/me/notifications?tenant_id='+state.tenants[0]+'&limit=8')).items[0];
  await panel.locator(`[data-notification-id="${selected.id}"] button`).click();

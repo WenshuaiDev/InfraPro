@@ -1,135 +1,52 @@
 # InfraPro
 
-交通基础设施监测管理项目，采用 Go API、统一运维 CLI 和 React console。当前提供账号与权限、租户、项目、工程定义、设施资源、设备产品、设备台账及来源绑定；数据存储使用 PostgreSQL，缓存与限流使用 Redis。
+交通基础设施监测管理系统。平台维护账号、公共工程定义和设备产品；租户管理设施、构件、测点、通道与设备，项目按明确授权使用这些资源。
 
-租户统一持有设施、构件、测点、业务通道及设备，项目通过逐对象授权使用资源。公共类型和设备产品由平台维护，租户可维护私有模板和产品。监测观测数据的存储、导入、查询和统计见后续开发方案，尚未实现。
+当前包含原始监测导入、查询与统计、派生计算与历史分析、图纸／三维／BIM／GIS、项目大屏 SDK 与独立运行壳、文件附件、任务中心、站内通知、审计追踪和独立运行诊断。
 
-## 工具链
+当前生产应用版本固定为 Git 标签 **`production-2026-11-17`**，对应服务器发行包 **`20261117-802a92f81b63`**、数据库 schema **55**。代码与实机文件的核对依据、访问入口及验收边界见[生产版本基线](docs/operations/production-version-2026-11-17.md)。
 
-| 工具 | 本工程固定/验证版本 | 配置位置 |
-| --- | --- | --- |
-| Go | 1.27.0 | `.go-version`、`go.work`、各 `go.mod` |
-| Node.js | 26.10.0 | `.node-version` |
-| pnpm | 12.18.0 | 根 `package.json` 的 `packageManager` |
-| Gin | 1.12.0 | `services/api/go.mod` |
-| React | 19.3.1 | 应用 `package.json` |
-| Vite | 8.3.6 | 应用 `package.json` |
-| TypeScript | 5.9.3 | 各 TS 包 `package.json` |
+## 本机完整环境
 
-准备好 Go、Node、pnpm 和 Make。首次依赖安装需要访问软件包源。TypeScript 版本与 ESLint、OpenAPI 生成器的 peer dependency 范围保持兼容。
+已经准备的工程环境、唯一账号的凭据位置和逐项人工操作见[本机工程环境与人工验收](docs/operations/local-environment.md)。在仓库根目录执行：
 
-## 快速启动
+```bash
+pnpm local:start
+pnpm local:status
+```
 
-在仓库根目录执行：
+管理端为 <http://localhost:25173>，独立诊断为 <http://127.0.0.1:8096>。重启使用 `pnpm local:restart`，停止应用进程使用 `pnpm local:stop`。配置、密钥、持久数据及工程原始资料保存在仓库外，不随代码清理删除。
+
+首次安装全新环境时先安装依赖、构建，再初始化基础设施及账号：
 
 ```bash
 make install
-pnpm setup:local
-pnpm infrapro account bootstrap
-make dev
+pnpm build
+pnpm local:init
+pnpm local:cli account bootstrap
+pnpm local:start
 ```
 
-`setup:local` 生成本机随机配置并启动持久化数据库与 Redis；首次通过交互命令创建账号，没有默认密码。访问：
+不要在已有环境重复创建账号。空间转换需按 `tools/spatial-converter/requirements.lock` 安装 Python 依赖，并设置运行配置中的转换器路径。独立诊断的配置与凭据初始化见[诊断运行手册](docs/operations/independent-runtime-diagnostics.md)。
 
-| 入口 | 默认地址 |
+## 开发与检查
+
+Go、Node 和 pnpm 版本分别由 `.go-version`、`.node-version` 和 `package.json` 固定；依赖以 `go.sum` 与 `pnpm-lock.yaml` 为准。
+
+| 命令 | 用途 |
 | --- | --- |
-| 管理端 console | http://127.0.0.1:5173 |
-| 进程存活检查 | http://127.0.0.1:8080/healthz |
-| 依赖就绪检查 | http://127.0.0.1:8080/readyz |
+| `pnpm setup:local`、`pnpm dev` | 最小 PostgreSQL／Redis 开发环境及热更新 console |
+| `pnpm build` | 构建全部前端、API、worker、诊断及 CLI |
+| `pnpm check` | Go 格式／vet、ESLint、类型、接口及权限契约 |
+| `pnpm test:identity` | 隔离数据库下的 Go 回归及 race 检测 |
+| `pnpm test:e2e:preview` | 已构建应用的浏览器回归 |
+| `pnpm test:monitoring:contract` | ClickHouse／Keeper／S3 实际存储契约 |
+| `pnpm test:derived:contract` | 派生规则、事务及正式计算存储 |
+| `pnpm test:spatial`、`pnpm test:display` | 空间转换与大屏运行机制 |
+| `pnpm test:tasks`、`pnpm test:files`、`pnpm test:audit` | 公共能力与来源集成 |
+| `pnpm test:diagnostics:environment`、`pnpm test:diagnostics` | 隔离诊断环境与故障恢复 |
+| `pnpm infrapro --help` | 统一运维 CLI |
 
-当前只保留 console 一个前端应用。登录后显示当前账号信息，并提供个人资料、账号安全及账号开户邀请入口；首页无业务侧栏，通过左上工作空间切换器进入租户、项目或平台；账号菜单仅位于右上角。按 `Ctrl+C` 停止本次命令启动的全部应用进程；数据库和 Redis 持续运行。端口冲突会报错并停止本轮启动的进程，不自动切换端口。
+测试在隔离 schema、对象前缀和容器中进行。共享存储的故障注入、恢复和领域套件按顺序执行，避免相互干扰。生成的报告、截图、模型转换缓存等位于忽略目录，不属于正式源文件。
 
-React/共享 TS 源码支持 Vite 热更新。Go 源码修改后重新执行启动命令；当前未引入 Go 热重载工具。
-
-单独运行时使用两个终端：
-
-```bash
-# 终端 A：API
-make dev-api
-
-# 终端 B：管理端
-pnpm dev:console
-```
-
-## 命令
-
-| 命令 | 行为 |
-| --- | --- |
-| `make install` | 按 pnpm 锁文件安装依赖，并逐 Go module 下载依赖 |
-| `make dev` | 构建并运行 API，启动 console Vite 应用 |
-| `make build` | 构建全部 Go module、服务可执行文件与 console 应用 |
-| `make check` | gofmt、Go vet、ESLint、TypeScript、OpenAPI 类型同步检查 |
-| `make test-go` | 自动准备专用 PostgreSQL/Redis，执行带 race 检测的 Go 测试 |
-| `pnpm infrapro --help` | 项目统一运维入口，查看数据库、账号等命令组 |
-| `pnpm test:http` | Nginx/Compose、普通 HTTP 与维护 CLI 集成测试 |
-| `make test-e2e` | 自动启动独立测试环境，运行 Chromium 端到端测试 |
-| `make test` | Go 测试 + 浏览器端到端测试 |
-| `make preview` | 启动 API，并通过 Vite preview 预览已构建的 console 应用 |
-| `make fmt` | 格式化工作区内的 Go 源文件 |
-| `pnpm contracts:generate` | 根据 OpenAPI 重新生成客户端类型 |
-| `pnpm test:e2e:preview` | 对已构建应用运行同一套浏览器测试 |
-
-首次运行浏览器测试前安装浏览器：
-
-```bash
-pnpm exec playwright install chromium
-make check
-make build
-make test
-pnpm test:e2e:preview
-```
-
-E2E 使用独立端口：API `18080`、console `15173`；不复用已有服务，结束时关闭自己启动的进程。失败时查看 `playwright-report/` 与 `test-results/` 中的报告、截图和 trace。测试覆盖账号流程、多个标签页的共享登录、依赖故障提示及恢复。
-
-单独构建应用：
-
-```bash
-pnpm --filter @infrapro/console build
-```
-
-产物：`build/bin/api`、`build/bin/infrapro`、`apps/console/dist/`。`make preview` 使用默认的 8080/5173 端口，与开发服务互斥。正式 HTTP 托管使用提供的 Nginx/Compose，详见 [架构设计：运行维护](docs/architecture.md#operations)。
-
-## 配置
-
-API 优先级：默认值 < `INFRAPRO_CONFIG` 指定的 YAML < 环境变量。
-
-| 变量 | 默认值 | 作用 |
-| --- | --- | --- |
-| `INFRAPRO_CONFIG` | 空 | 可选 YAML 文件路径，相对启动工作目录 |
-| `INFRAPRO_HTTP_ADDR` | `127.0.0.1:8080` | API 监听地址 |
-| `INFRAPRO_LOG_LEVEL` | `info` | 结构化日志等级 |
-| `INFRAPRO_SHUTDOWN_TIMEOUT` | `5s` | 优雅关闭超时 |
-
-账号服务还必须配置 PostgreSQL、Redis、CSRF 持久密钥与维护联系方式。完整列表、恢复命令和备份步骤见 [架构设计：运行维护](docs/architecture.md#operations)。配置示例为 `configs/infrapro.example.yaml`；需要 YAML 时复制为 `config.local.yaml` 并设置 `INFRAPRO_CONFIG`，未知字段直接报错。
-
-`apps/console/.env.example` 列出默认值；可复制成该应用目录下的 `.env.local` 后修改，并重启 Vite。API 不自动读取应用的 `.env.local`。
-
-| 应用配置 | 作用 |
-| --- | --- |
-| `CONSOLE_PORT` | console 的监听端口，默认 5173 |
-| `API_PROXY_TARGET` | Vite 转发 `/api` 请求的服务地址，仅在开发/本地预览进程使用 |
-| `VITE_API_BASE_URL` | 浏览器中的 API 前缀，默认 `/api/v1` |
-| `VITE_APP_BASE` | 应用部署基础路径，开发默认 `/`，部署为 `/console/` |
-
-例如切换 API 端口，同时让 console 代理到新地址：
-
-```bash
-INFRAPRO_HTTP_ADDR=127.0.0.1:9090 API_PROXY_TARGET=http://127.0.0.1:9090 make dev
-```
-
-更改前端端口时同步更新 `INFRAPRO_PUBLIC_CONSOLE_URL` 和 `INFRAPRO_TRUSTED_ORIGINS`。`VITE_*` 会进入浏览器构建产物，仅用于公开配置。
-
-
-## 工程文档
-
-文档统一从 [docs 目录](docs/README.md) 进入：
-
-| 文档 | 内容 |
-| --- | --- |
-| [软件需求规格说明书](docs/requirements.md) | 业务范围、完整规则、页面交互、质量要求和人工验收。 |
-| [技术选型](docs/technology-selection.md) | 语言、框架、存储、组件及工具的用途、理由和版本来源。 |
-| [架构设计](docs/architecture.md#overview) | 模块、数据、接口、前端、部署配置、迁移和恢复。 |
-
-监测数据尚未开发，保留独立的[完整需求与总体方案](docs/requirements/monitoring-data-foundation-plan.md)和[详细开发方案](docs/requirements/monitoring-data-development-plan.md)。
-
-配套说明：[领域词汇表](GLOSSARY.md)、[统一运维 CLI](tools/infrapro/README.md)、[数据库迁移](packages/go/platform/migrations/README.md)、[第三方来源与许可证](third-party/README.md)。
+正式部署采用仓库中的 Compose／systemd／Nginx 配置；本机预览不代表生产部署。完整运行、升级和恢复约束见[架构设计](docs/architecture.md#operations)和[文档目录](docs/README.md)。

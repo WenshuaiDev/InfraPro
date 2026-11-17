@@ -59,7 +59,7 @@ type Position struct {
 	Projected        *Projected        `json:"projected,omitempty"`
 	Elevation        *Elevation        `json:"elevation,omitempty"`
 	Local            *Local            `json:"local,omitempty"`
-	Sections         []Section         `json:"sections"`
+	Sections         []Section         `json:"sections,omitempty"`
 	SourceReference  string            `json:"source_reference"`
 	SourceDate       *string           `json:"source_date,omitempty"`
 	AccuracyM        *float64          `json:"accuracy_m,omitempty"`
@@ -146,17 +146,8 @@ func ValidatePosition(p *Position) error {
 			return invalid("/position/"+path+"start_station", "required", "填写终点桩号时须提供起点桩号。")
 		}
 	}
-	for i, r := range p.Sections {
-		path := fmt.Sprintf("sections/%d/", i)
-		if r.Kind != "route_cross_section" && r.Kind != "facility_monitoring_section" {
-			return invalid("/position/"+path+"kind", "section_kind", "请选择工程断面或设施内部监测断面。")
-		}
-		if e := required(path+"code", r.Code); e != nil {
-			return e
-		}
-		if e := required(path+"reference_description", r.ReferenceDescription); e != nil {
-			return e
-		}
+	if p.Sections != nil {
+		return invalid("/position/sections", "legacy_section_write_rejected", "断面文字已退出当前位置录入；请选择正式监测断面实体。旧原文保留在迁移核对记录中。")
 	}
 	if g := p.Geographic; g != nil {
 		if e := required("geographic/crs", g.CRS); e != nil {

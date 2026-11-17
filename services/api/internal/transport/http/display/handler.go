@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func PublicError(e error) *display.Error {
@@ -86,6 +87,33 @@ func Register(r *gin.Engine, auth *identity.Service, s *display.Service) {
 				}
 			}
 			switch action {
+			case "read-scope-preview":
+				var in display.ReadScopePreviewInput
+				b, e := io.ReadAll(http.MaxBytesReader(c.Writer, c.Request.Body, 1<<20))
+				if e == nil {
+					e = display.Decode(b, &in)
+				}
+				if e != nil {
+					reply(c, nil, e)
+					return
+				}
+				out, e := s.ReadScopePreview(ctx, a, scope, id, in)
+				reply(c, out, e)
+				return
+			case "read-scope-options":
+				structureModel, e := strconv.Atoi(c.DefaultQuery("structure_model", "1"))
+				if e != nil || structureModel < 1 || structureModel > 2 {
+					reply(c, nil, &display.Error{Code: "query_invalid", Message: "结构模型版本无效。", Status: 422})
+					return
+				}
+				limit, e := strconv.Atoi(c.DefaultQuery("limit", "50"))
+				if e != nil {
+					reply(c, nil, &display.Error{Code: "query_invalid", Message: "分页大小无效。", Status: 422})
+					return
+				}
+				out, e := s.ReadScopeOptions(ctx, a, scope, id, display.ReadScopeOptionsInput{StructureModel: structureModel, Purpose: c.Query("purpose"), Domain: c.Query("domain"), ScopeID: c.Query("scope_id"), Kind: c.Query("kind"), Search: c.Query("search"), Cursor: c.Query("cursor"), Limit: limit})
+				reply(c, out, e)
+				return
 			case "list":
 				out, e := s.List(ctx, a, scope)
 				reply(c, out, e)
@@ -104,6 +132,9 @@ func Register(r *gin.Engine, auth *identity.Service, s *display.Service) {
 					reply(c, nil, &display.Error{Code: "query_invalid", Message: "分片编号无效。", Status: 422})
 					return
 				}
+				controller := http.NewResponseController(c.Writer)
+				_ = controller.SetReadDeadline(time.Now().Add(2 * time.Minute))
+				_ = controller.SetWriteDeadline(time.Now().Add(3 * time.Minute))
 				b, e := io.ReadAll(http.MaxBytesReader(c.Writer, c.Request.Body, display.PartSize))
 				if e == nil {
 					e = s.UploadPart(ctx, a, scope, id, c.Param("upload_id"), part, c.GetHeader("X-Content-SHA256"), b)

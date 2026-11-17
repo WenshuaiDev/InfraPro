@@ -52,6 +52,8 @@ func Register(r *gin.Engine, identity *identity.Service, service *p.Service) {
 				switch kind + "." + action {
 				case "device-configs.list":
 					out, err = service.DeviceConfigs(cc, actor, scope, device, filter)
+				case "ingress-protocols.list", "identification-methods.list", "ingress-compatibilities.list":
+					out, err = service.Capabilities(cc, actor, scope, kind, filter)
 				case "methods.list":
 					out, err = service.Methods(cc, actor, scope, filter)
 				case "catalog.status":
@@ -137,6 +139,17 @@ func Register(r *gin.Engine, identity *identity.Service, service *p.Service) {
 					return nil
 				}
 				switch kind + "." + action {
+				case "ingestion-catalog.sync":
+					var input p.Meta
+					if err = c.StrictJSON(raw, &input); err == nil {
+						out, err = service.SyncIngestion(cc, actor, input)
+					}
+				case "ingress-protocols.state", "identification-methods.state", "ingress-compatibilities.state":
+					var input p.StateInput
+					if err = c.StrictJSON(raw, &input); err == nil {
+						out, err = service.SetCapabilityState(cc, actor, kind, ctx.Param("capability_id"), input)
+					}
+
 				case "catalog.sync":
 					var in p.Meta
 					if err = decode(&in); err == nil {

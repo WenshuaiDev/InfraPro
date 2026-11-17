@@ -13,6 +13,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	eng "github.com/WenshuaiDev/InfraPro/packages/go/platform/engineering"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
 	res "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/testsupport"
@@ -54,12 +55,13 @@ type fixture struct {
 	p   identity.Principal
 }
 
-func setup(t *testing.T) fixture {
+func setup(t *testing.T) fixture { return setupAtMigration(t, migrations.Version) }
+func setupAtMigration(t *testing.T, version int64) fixture {
 	t.Helper()
 	if os.Getenv("INFRAPRO_TEST_DATABASE_URL") == "" {
 		t.Skip("requires isolated test database")
 	}
-	e, err := testsupport.New(ctx, slog.Default())
+	e, err := testsupport.NewAtMigration(ctx, slog.Default(), version)
 	must(t, err)
 	t.Cleanup(e.Close)
 	_, err = e.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
@@ -112,8 +114,8 @@ type resourceFixture struct {
 	tenant, typ, metric, unit string
 }
 
-func resourcesSetup(t *testing.T) resourceFixture {
-	f := setup(t)
+func resourcesSetup(t *testing.T) resourceFixture { return resourcesFromFixture(t, setup(t)) }
+func resourcesFromFixture(t *testing.T, f fixture) resourceFixture {
 	a := f.actor(f.p)
 	user := f.member(t, "ResourceOwner")
 	ts := tenancy.New(f.env.Service.Access())
@@ -228,7 +230,11 @@ func TestResourceLifecycleAndStableHistory(t *testing.T) {
 	must(t, e)
 	_, e = f.write(t, pt, "delete", map[string]any{"expected_revision": moved.Revision, "reason": "误建测点"})
 	must(t, e)
-	_, e = f.write(t, target(facility, res.Component, component.ID), "delete", map[string]any{"expected_revision": component.Revision, "expected_structure_revision": component.StructureRevision, "reason": "误建构件"})
+	_, e = f.write(t, target(facility, res.Component, component.ID), "delete", map[string]any{"expected_revision": component.Revision, "expected_structure_revision": func() int {
+		d, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
+		must(t, e)
+		return d.StructureRevision
+	}(), "reason": "误建构件"})
 	must(t, e)
 	_, e = f.write(t, ft, "delete", map[string]any{"expected_revision": restored.Revision, "reason": "误建设施"})
 	must(t, e)

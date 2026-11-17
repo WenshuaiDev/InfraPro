@@ -1,3 +1,10 @@
+import type {ReadDefinition,ReadViewSchema,ReadReadScopePreview,ReadScopeOptionsPage,ReadReadScopeOptionsInput,ReadReadViewDescription} from "./display-read.generated";
+export type DisplayReadDefinition=ReadDefinition;
+export type DisplayReadViewSchema=ReadViewSchema;
+export type DisplayReadScopePreview=ReadReadScopePreview;
+export type DisplayReadScopeOptions=ReadScopeOptionsPage;
+export type DisplayReadScopeOptionsInput=ReadReadScopeOptionsInput;
+export type DisplayReadViewDescription=ReadReadViewDescription;
 import type { MonitoringRequestOptions } from "./monitoring";
 export type DisplayScope = { tenantId: string; projectId: string };
 export type DisplaySchema = {
@@ -31,6 +38,8 @@ export type DisplayBinding = {
   };
 };
 export type DisplayManifest = {
+  manifest_version?: 1|2;
+  read_view_schema?:Record<string,ReadViewSchema>;
   app_key: string;
   name?: string;
   version: string;
@@ -68,6 +77,8 @@ export type DisplayPackage = {
   created_at: string;
 };
 export type DisplayConfig = {
+  config_format?:1|2;
+  read_views?:Record<string,ReadDefinition>;
   id: string;
   package_id: string;
   parameters: Record<string, unknown>;
@@ -76,6 +87,8 @@ export type DisplayConfig = {
   created_at: string;
 };
 export type DisplayGrant = {
+  scope_format?:1|2;
+  read_scopes?:ReadDefinition[];
   revision?: string;
   capabilities: string[];
   scope: {
@@ -171,6 +184,8 @@ export const displayRoot = (s: DisplayScope) =>
   `/tenants/${encodeURIComponent(s.tenantId)}/projects/${encodeURIComponent(s.projectId)}/displays`;
 export function displayMethods(request: Request) {
   return {
+    displayReadScopePreview:(s:DisplayScope,id:string,input:{purpose:"config"|"grant";definition:ReadDefinition},signal?:AbortSignal)=>request<ReadReadScopePreview>(`${displayRoot(s)}/instances/${encodeURIComponent(id)}/read-scope-preview`,"POST",input,false,signal),
+    displayReadScopeOptions:(s:DisplayScope,id:string,input:ReadReadScopeOptionsInput,signal?:AbortSignal)=>{const query=new URLSearchParams();for(const [k,v]of Object.entries(input))if(v!==undefined&&v!=="")query.set(k,String(v));return request<ReadScopeOptionsPage>(`${displayRoot(s)}/instances/${encodeURIComponent(id)}/read-scope-options?${query}`,"GET",undefined,false,signal);},
     displayList: (s: DisplayScope, signal?: AbortSignal) =>
       request<DisplayList>(displayRoot(s), "GET", undefined, true, signal),
     displayDetail: (s: DisplayScope, id: string, signal?: AbortSignal) =>
@@ -204,6 +219,7 @@ export function displayMethods(request: Request) {
     ) =>
       request<{
         hash: string;
+        read_views?:ReadReadViewDescription[];
         binding_sets: Record<string, string[]>;
         grant_revision: string;
       }>(

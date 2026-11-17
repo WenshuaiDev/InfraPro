@@ -22,7 +22,7 @@ func baseBuiltins() []Builtin {
 	return []Builtin{
 		{AdminKey, "平台管理员", "平台管理及本人账号能力，由系统维护。", "platform", admin, "manual"},
 		{MemberKey, "基础成员", "本人资料、密码、会话及安全记录，由系统维护。", "platform", []Code{ProfileRead, ProfileUpdate, PasswordUpdate, SessionRead, SessionRevoke, SecurityEventRead}, "manual"},
-		{TenantAdminKey, "租户管理员", "管理所属租户资料、成员、邀请和操作记录。", "tenant", append(tenantDeviceCodes(), []Code{TenantEngineeringResourceAuthorizationRead, TenantEngineeringResourceAuthorizationManage, TenantEngineeringResourceRead, TenantEngineeringResourceManage, TenantEngineeringCatalogRead, TenantEngineeringTemplateRead, TenantEngineeringTemplateEdit, TenantEngineeringTemplatePublish, TenantEngineeringTemplateState, TenantProjectRead, TenantProjectCreate, TenantProjectRecoverAdmin, TenantProfileRead, TenantProfileUpdate, TenantAuditRead, TenantMemberRead, TenantMemberSuspend, TenantMemberResume, TenantMemberRemove, TenantInvitationRead, TenantInvitationCreate, TenantInvitationRevoke, TenantInvitationRegenerate, TenantPermissionRead, TenantRoleRead, TenantRoleCreate, TenantRoleUpdate, TenantRoleSetPermissions, TenantRoleSetStatus, TenantRoleDelete, TenantMemberAssignRoles}...), "administrator_transfer_only"},
+		{TenantAdminKey, "租户管理员", "管理所属租户资料、成员、邀请和操作记录。", "tenant", append(tenantDeviceCodes(), []Code{TenantEngineeringResourceAuthorizationRead, TenantEngineeringResourceAuthorizationManage, TenantEngineeringResourceRead, TenantEngineeringResourceManage, TenantEngineeringTypeAdopt, TenantEngineeringCatalogRead, TenantEngineeringTemplateRead, TenantEngineeringTemplateEdit, TenantEngineeringTemplatePublish, TenantEngineeringTemplateState, TenantProjectRead, TenantProjectCreate, TenantProjectRecoverAdmin, TenantProfileRead, TenantProfileUpdate, TenantAuditRead, TenantMemberRead, TenantMemberSuspend, TenantMemberResume, TenantMemberRemove, TenantInvitationRead, TenantInvitationCreate, TenantInvitationRevoke, TenantInvitationRegenerate, TenantPermissionRead, TenantRoleRead, TenantRoleCreate, TenantRoleUpdate, TenantRoleSetPermissions, TenantRoleSetStatus, TenantRoleDelete, TenantMemberAssignRoles}...), "administrator_transfer_only"},
 		{TenantMemberKey, "租户普通成员", "可查看所属租户基本资料。", "tenant", []Code{TenantProfileRead}, "manual"},
 		{"tenant_profile_maintainer", "租户资料维护员", "查看及修改本租户资料。", "tenant", []Code{TenantProfileRead, TenantProfileUpdate}, "manual"},
 		{"tenant_member_manager", "租户成员管理人员", "查看和管理权限覆盖范围内的普通成员。", "tenant", []Code{TenantProfileRead, TenantMemberRead, TenantMemberSuspend, TenantMemberResume, TenantMemberRemove}, "manual"},
@@ -47,7 +47,7 @@ func Builtins() []Builtin {
 	}...)
 	for i := range out {
 		if out[i].Key == TenantAdminKey {
-			out[i].Permissions = append(out[i].Permissions, parsingCodes("tenant")...)
+			out[i].Permissions = append(out[i].Permissions, append(ingestionCodes("tenant"), parsingCodes("tenant")...)...)
 			out[i].Permissions = append(out[i].Permissions, append(filesCodes("tenant"), auditCodes("tenant")...)...)
 			out[i].Permissions = append(append(append(out[i].Permissions, monitoringCodes("tenant")...), derivedCodes("tenant")...), spatialCodes("tenant")...)
 		}

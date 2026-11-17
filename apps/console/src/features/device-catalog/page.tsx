@@ -1,3 +1,4 @@
+import { ClassificationBulk } from '../classification/bulk';
 import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
@@ -56,7 +57,7 @@ function CatalogBody({ search, onSearch }: { search: CatalogSearch; onSearch: (v
 
   return <section className="space-y-6">
     <PageHeader title={c.tenant ? '设备产品目录' : '公共设备产品'} description="按厂家浏览产品，维护产品草稿与设备可采用的发布版本。"
-      actions={c.edit && <Button id="create-product" disabled={!c.available} onClick={(event) => { returnFocus.current = event.currentTarget; setPanel({ kind: 'product' }); }}><Plus aria-hidden="true" />{c.owned ? '新建产品' : '新增本租户产品'}</Button>} />
+      actions={c.edit && <>{c.owned&&<ClassificationBulk scope={c.writeScope} kind="product_version" disabled={!c.available}/>}<Button id="create-product" disabled={!c.available} onClick={(event) => { returnFocus.current = event.currentTarget; setPanel({ kind: 'product' }); }}><Plus aria-hidden="true" />{c.owned ? '新建产品' : '新增本租户产品'}</Button></>} />
     {c.tenant && <div className="flex flex-wrap gap-2" aria-label="产品目录来源"><Button variant={search.source !== 'public' ? 'secondary' : 'ghost'} aria-pressed={search.source !== 'public'} onClick={() => onSearch({ source: 'private' })}>本租户私有</Button><Button variant={search.source === 'public' ? 'secondary' : 'ghost'} aria-pressed={search.source === 'public'} onClick={() => onSearch({ source: 'public' })}>平台公共目录</Button></div>}
     <div className="grid min-w-0 gap-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
       <aside className="min-w-0 space-y-4 border-b pb-5 lg:border-r lg:border-b-0 lg:pr-5 lg:pb-0" aria-label="厂家目录">

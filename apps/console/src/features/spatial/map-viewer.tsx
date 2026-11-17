@@ -90,19 +90,45 @@ export default function MapViewer(props: Props) {
     });
     const shapes = new VectorLayer({
       source: shapeSource.current,
-      style: (f) =>
-        new Style({
-          fill: new Fill({
-            color: sameObject(latest.current.selected, f.get("owner"))
-              ? "rgba(194,65,12,.25)"
-              : "rgba(3,105,161,.12)",
+      style: (f) => {
+        const category = String(f.get("category") ?? "");
+        const palette: Record<string, [string, string]> = {
+          boundary: ["#64748b", "rgba(100,116,139,.04)"],
+          structure: ["#475569", "rgba(100,116,139,.25)"],
+          alignment: ["#c56a22", "rgba(197,106,34,.12)"],
+          water: ["#4697bc", "rgba(70,151,188,.28)"],
+          contour: ["#b2997b", "rgba(178,153,123,.08)"],
+          monitoring: ["#b85125", "rgba(184,81,37,.2)"],
+        };
+        const [line, fill] = palette[category] ?? [
+          "#0369a1",
+          "rgba(3,105,161,.12)",
+        ];
+        const selected =
+          sameObject(latest.current.selected, f.get("owner")) &&
+          (category === "boundary" || !category);
+        return new Style({
+          zIndex:
+            category === "monitoring"
+              ? 6
+              : category === "alignment"
+                ? 4
+                : category === "structure"
+                  ? 3
+                  : 1,
+          fill: new Fill({ color: fill }),
+          stroke: new Stroke({
+            color: selected ? "#c2410c" : line,
+            width: selected ? 3 : category === "contour" ? 1 : 1.5,
+            lineDash: category === "boundary" ? [7, 5] : undefined,
           }),
-          stroke: new Stroke({ color: sameObject(latest.current.selected, f.get("owner")) ? "#c2410c" : "#0369a1", width: 2 }),
           image: new Circle({
             radius: 5,
-            fill: new Fill({ color: f.get("retired") ? "#64748b" : sameObject(latest.current.selected, f.get("owner")) ? "#c2410c" : "#0369a1" }),
+            fill: new Fill({ color: f.get("retired") ? "#64748b" : line }),
+            stroke: new Stroke({ color: "white", width: 1.5 }),
           }),
-        }),
+        });
+      },
     });
     const map = new Map({
       target: host.current,
@@ -133,7 +159,9 @@ export default function MapViewer(props: Props) {
         );
       }, 250);
     });
-    const userMove = () => { initialized.current = true; };
+    const userMove = () => {
+      initialized.current = true;
+    };
     map.on("pointerdrag", userMove);
     map.getViewport()?.addEventListener("wheel", userMove, { passive: true });
     map.on("singleclick", (e) => {
@@ -215,13 +243,15 @@ export default function MapViewer(props: Props) {
     }
     if (!initialized.current) {
       const extent = createEmpty();
-      const points = pointSource.current.getExtent(), shapes = shapeSource.current.getExtent();
+      const points = pointSource.current.getExtent(),
+        shapes = shapeSource.current.getExtent();
       if (points) extend(extent, points);
       if (shapes) extend(extent, shapes);
       if (!isEmpty(extent)) {
         initialized.current = true;
         mapRef.current?.getView().fit(extent, {
-          padding: [70, 70, 70, 70], maxZoom: 16,
+          padding: [70, 70, 70, 70],
+          maxZoom: 20,
         });
       }
     }
@@ -230,8 +260,15 @@ export default function MapViewer(props: Props) {
   useEffect(() => {
     mapRef.current?.render();
     const selected = props.objects.find((o) => sameObject(o, props.selected));
-    const feature = props.features.find((f) => f.facility && sameObject(f.facility, props.selected));
-    const stamp = JSON.stringify([props.selected, selected?.longitude, selected?.latitude, feature?.bbox]);
+    const feature = props.features.find(
+      (f) => f.facility && sameObject(f.facility, props.selected),
+    );
+    const stamp = JSON.stringify([
+      props.selected,
+      selected?.longitude,
+      selected?.latitude,
+      feature?.bbox,
+    ]);
     if (located.current === stamp) return;
     located.current = stamp;
     if (selected?.longitude != null && selected.latitude != null) {
@@ -241,9 +278,12 @@ export default function MapViewer(props: Props) {
         .setCenter(fromLonLat([selected.longitude, selected.latitude]));
     } else if (feature) {
       initialized.current = true;
-      mapRef.current?.getView().fit(transformExtent(feature.bbox, "EPSG:4326", "EPSG:3857"), {
-        padding: [80, 80, 80, 80], maxZoom: 16,
-      });
+      mapRef.current
+        ?.getView()
+        .fit(transformExtent(feature.bbox, "EPSG:4326", "EPSG:3857"), {
+          padding: [80, 80, 80, 80],
+          maxZoom: 20,
+        });
     }
   }, [props.selected, props.objects, props.features]);
   useEffect(() => {
@@ -272,7 +312,7 @@ export default function MapViewer(props: Props) {
       if (extent && !isEmpty(extent))
         mapRef.current
           ?.getView()
-          .fit(extent, { padding: [60, 60, 60, 60], maxZoom: 16 });
+          .fit(extent, { padding: [60, 60, 60, 60], maxZoom: 20 });
     }
   };
   const selectedExtent = props.features.find(
@@ -300,7 +340,7 @@ export default function MapViewer(props: Props) {
                 ?.getView()
                 .fit(
                   transformExtent(selectedExtent, "EPSG:4326", "EPSG:3857"),
-                  { padding: [80, 80, 80, 80], maxZoom: 17 },
+                  { padding: [80, 80, 80, 80], maxZoom: 20 },
                 )
             }
           >

@@ -45,6 +45,24 @@ const caps = new Set([
   "alerts.query",
   "alerts.summary",
   "alerts.subscribe",
+  "views.read",
+  "queries.read",
+  "resources.directory",
+  "resources.detail",
+  "devices.read",
+  "devices.history",
+  "sources.directory",
+  "sources.history",
+  "map.read",
+  "spatial.catalog",
+  "spatial.links",
+  "statistics.resources",
+  "resources.hierarchy",
+  "classification.categories",
+  "statistics.structure",
+  "statistics.deviceCategories",
+  "statistics.devices",
+  "statistics.monitoring",
 ]);
 export const digest = (b) => createHash("sha256").update(b).digest("hex");
 function fail(path, message) {
@@ -179,13 +197,31 @@ export function validateManifest(m) {
       "optional_capabilities",
       "config_schema",
       "binding_schema",
+      "read_view_schema",
       "files",
     ],
     "/manifest",
   );
-  if (m.manifest_version !== 1 || m.sdk_protocol?.major !== 1)
+  if (![1, 2].includes(m.manifest_version) || m.sdk_protocol?.major !== 1)
     fail("/sdk_protocol", "Unsupported version");
   keys(m.sdk_protocol, ["major"], "/sdk_protocol");
+  if (m.manifest_version === 1 && Object.hasOwn(m, "read_view_schema"))
+    fail("/read_view_schema", "Named views require Manifest 2");
+  if (m.read_view_schema !== undefined) {
+    const views = m.read_view_schema;
+    if (!views || typeof views !== "object" || Array.isArray(views) || Object.keys(views).length > 64)
+      fail("/read_view_schema", "Expected at most 64 named views");
+    for (const [name, view] of Object.entries(views)) {
+      const path = `/read_view_schema/${name}`;
+      if (!/^[A-Za-z][A-Za-z0-9._-]{0,79}$/.test(name)) fail(path, "Invalid view name");
+      keys(view, ["domain", "required", "purpose", "allow_dynamic", "structure_model"], path);
+      if (view.structure_model !== undefined && ![1,2].includes(view.structure_model)) fail(path + "/structure_model", "Unknown structure model");
+      if (!["resources", "channels", "devices", "spatial"].includes(view.domain)) fail(path + "/domain", "Invalid domain");
+      for (const field of ["required", "allow_dynamic"])
+        if (view[field] !== undefined && typeof view[field] !== "boolean") fail(path + "/" + field, "Expected boolean");
+      if (view.purpose !== undefined && (typeof view.purpose !== "string" || [...view.purpose].length > 240)) fail(path + "/purpose", "Purpose exceeds 240 characters");
+    }
+  }
   if (
     !/^[A-Za-z][\w.-]{0,79}$/.test(m.app_key) ||
     typeof m.version !== "string" ||
@@ -324,7 +360,6 @@ function zip(files) {
   return Buffer.concat([...local, directory, end]);
 }
 function unzip(buf) {
-  if (buf.length > 128 * 1024 ** 2) fail("/", "ZIP too large");
   let end = -1;
   for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--)
     if (buf.readUInt32LE(i) === 0x06054b50) {
@@ -433,7 +468,6 @@ export async function pack(directory, manifestPath, out) {
   const { manifest, files } = await validate(directory, manifestPath);
   files.set("manifest.json", Buffer.from(JSON.stringify(manifest)));
   const data = zip(files);
-  if (data.length > 128 * 1024 ** 2) fail("/", "ZIP too large");
   await writeFile(out, data);
   return {
     size: data.length,

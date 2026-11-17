@@ -223,7 +223,7 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	child := makeComponent("CHILD", "beam", a.ID, 3)
 	p, e := f.write(t, target(facility, res.Point, ""), "create", map[string]any{"code": "P", "name": "测点", "component_id": child.ID})
 	must(t, e)
-	moved, e := f.write(t, target(facility, res.Component, child.ID), "update", map[string]any{"expected_revision": 1, "expected_structure_revision": 4, "parent_component_id": b.ID})
+	_, e = f.write(t, target(facility, res.Component, child.ID), "update", map[string]any{"expected_revision": 1, "expected_structure_revision": p.StructureRevision, "parent_component_id": b.ID})
 	must(t, e)
 	pt := target(facility, res.Point, p.ID)
 
@@ -245,7 +245,9 @@ func TestMoveRestoreVersionPinningAndScopeGuards(t *testing.T) {
 	if d.Status != "retired" {
 		t.Fatal("restoring ancestor resurrected descendant")
 	}
-	retired, e := f.write(t, target(facility, res.Component, a.ID), "retire", map[string]any{"expected_revision": 1, "expected_structure_revision": moved.StructureRevision, "reason": "退出使用"})
+	root, e := f.srv.Detail(ctx, f.actor, res.TenantScope(f.tenant), ft)
+	must(t, e)
+	retired, e := f.write(t, target(facility, res.Component, a.ID), "retire", map[string]any{"expected_revision": 1, "expected_structure_revision": root.StructureRevision, "reason": "退出使用"})
 	must(t, e)
 	_ = makeComponent("C", "span", nil, retired.StructureRevision)
 	_, e = f.write(t, target(facility, res.Component, a.ID), "restore", map[string]any{"expected_revision": retired.Revision, "expected_structure_revision": retired.StructureRevision + 1, "reason": "不能绕过上限"})

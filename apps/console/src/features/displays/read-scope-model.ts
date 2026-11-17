@@ -1,0 +1,9 @@
+import type {DisplayReadDefinition as Definition,DisplayReadScopeOptions} from "@infrapro/api-client";
+export type Domain=Definition['domain'];
+export type Field=Definition['field_groups'][number];
+export type Option=DisplayReadScopeOptions['items'][number];
+export const domainLabels:Record<Domain,string>={resources:'工程资源',channels:'监测通道',devices:'设备与输出',spatial:'空间资料'};
+export const fields:Record<Domain,[Field,...Field[]]>={resources:['resource.metadata','resource.attributes','resource.position','statistics.counts'],channels:['resource.metadata','resource.attributes','resource.position','source.binding','history','monitoring.values','monitoring.quality','statistics.counts'],devices:['device.metadata','device.serial_number','device.description','device.outputs','device.installations','device.classification','history','statistics.counts','statistics.classification'],spatial:['spatial.metadata','spatial.geometry','spatial.properties']};
+export const fieldNames:Record<Field,string>={'resource.metadata':'目录与名称','resource.attributes':'工程属性','resource.position':'坐标与位置','device.metadata':'设备档案','device.serial_number':'序列号','device.description':'设备说明','device.outputs':'输出与语义','device.installations':'安装关系','device.classification':'设备主分类及依据','source.binding':'当前来源','history':'历史记录','spatial.metadata':'空间资料目录','spatial.geometry':'图形与文件','spatial.properties':'模型属性','monitoring.values':'监测数值','monitoring.quality':'质量标记','statistics.counts':'统计数量','statistics.classification':'分类汇总（独立于设备名单）'};
+export const cleanDefinition=(d:Definition):Definition=>{const value={...d};delete value.set_id;delete value.digest;return value;};
+export const newDefinition=(domain:Domain,id?:string):Definition=>({...(id?{id}:{}),structure_model:2,domain,selector:{kind:'project',...(domain==='channels'?{source_kinds:['direct']}:{})},field_groups:[fields[domain][0]],include_future:false});

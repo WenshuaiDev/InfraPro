@@ -10,13 +10,15 @@ import (
 type Kind string
 
 const (
-	Facility  Kind = "facility"
-	Component Kind = "component"
-	Point     Kind = "point"
-	Channel   Kind = "channel"
+	Facility          Kind = "facility"
+	Component         Kind = "component"
+	Point             Kind = "point"
+	Channel           Kind = "channel"
+	MonitoringSection Kind = "monitoring_section"
+	Borehole          Kind = "borehole"
 )
 
-var tables = map[Kind]string{Facility: "engineering_facilities", Component: "engineering_components", Point: "engineering_points", Channel: "engineering_channels"}
+var tables = map[Kind]string{Facility: "engineering_facilities", Component: "engineering_components", Point: "engineering_points", Channel: "engineering_channels", MonitoringSection: "engineering_monitoring_sections", Borehole: "engineering_boreholes"}
 
 type Target struct {
 	Facility, Point, ID string
@@ -43,7 +45,27 @@ type Result struct {
 	Changed           bool   `json:"changed"`
 	Replayed          bool   `json:"replayed"`
 }
+type StructureRef struct {
+	Kind Kind   `json:"kind"`
+	ID   string `json:"id"`
+}
+type BoreholeData struct {
+	CollarElevation    *float64 `json:"collar_elevation,omitempty"`
+	ElevationDatum     string   `json:"elevation_datum,omitempty"`
+	DesignDepthM       *float64 `json:"design_depth_m,omitempty"`
+	MeasuredDepthM     *float64 `json:"measured_depth_m,omitempty"`
+	DiameterMM         *float64 `json:"diameter_mm,omitempty"`
+	Azimuth            *float64 `json:"azimuth,omitempty"`
+	Inclination        *float64 `json:"inclination,omitempty"`
+	DirectionReference string   `json:"direction_reference,omitempty"`
+	Source             string   `json:"source,omitempty"`
+	MeasuredAt         string   `json:"measured_at,omitempty"`
+}
 type Resource struct {
+	ParentRef               *StructureRef   `json:"parent_ref,omitempty"`
+	Borehole                *BoreholeData   `json:"borehole,omitempty"`
+	MonitoringSectionID     *string         `json:"monitoring_section_id,omitempty"`
+	BoreholeID              *string         `json:"borehole_id,omitempty"`
 	SourceKind              string          `json:"source_kind,omitempty"`
 	OwnerKind               string          `json:"owner_kind,omitempty"`
 	DerivedMetricVersionID  string          `json:"derived_metric_version_id,omitempty"`
@@ -93,18 +115,22 @@ type Sampling struct {
 	Description     string   `json:"description"`
 }
 type Actions struct {
-	CreateDerivedChannel bool   `json:"create_derived_channel"`
-	ManageCalculation    bool   `json:"manage_calculation"`
-	Read                 bool   `json:"read"`
-	CreateComponent      bool   `json:"create_component"`
-	CreatePoint          bool   `json:"create_point"`
-	CreateChannel        bool   `json:"create_channel"`
-	Edit                 bool   `json:"edit"`
-	Add                  bool   `json:"add"`
-	Retire               bool   `json:"retire"`
-	Restore              bool   `json:"restore"`
-	Delete               bool   `json:"delete"`
-	Reason               string `json:"reason"`
+	CreateMonitoringSection bool   `json:"create_monitoring_section"`
+	CreateBorehole          bool   `json:"create_borehole"`
+	Move                    bool   `json:"move"`
+	AdoptType               bool   `json:"adopt_type"`
+	CreateDerivedChannel    bool   `json:"create_derived_channel"`
+	ManageCalculation       bool   `json:"manage_calculation"`
+	Read                    bool   `json:"read"`
+	CreateComponent         bool   `json:"create_component"`
+	CreatePoint             bool   `json:"create_point"`
+	CreateChannel           bool   `json:"create_channel"`
+	Edit                    bool   `json:"edit"`
+	Add                     bool   `json:"add"`
+	Retire                  bool   `json:"retire"`
+	Restore                 bool   `json:"restore"`
+	Delete                  bool   `json:"delete"`
+	Reason                  string `json:"reason"`
 }
 type Item struct {
 	Resource
@@ -131,6 +157,7 @@ type Page struct {
 }
 type Filter struct {
 	Query, Status, TypeDefinition, Deleted, Parent, Owner, OwnerKind, OwnerID, Cursor, Kind, ID string
+	StructureParent                                                                             *StructureRef
 	Limit                                                                                       int
 }
 type Change struct {
