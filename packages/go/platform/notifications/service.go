@@ -203,6 +203,17 @@ func (s *Service) disclose(ctx context.Context, tx pgx.Tx, account string, items
 	return out, nil
 }
 func outcomeText(outcome string) string {
+	mfa := map[string]string{
+		"mfa_enabled":                    "已启用多因素认证。请妥善保存恢复码。",
+		"mfa_replaced":                   "已更换验证器，旧验证器和旧恢复码已失效。",
+		"mfa_disabled":                   "已关闭个人多因素认证。",
+		"mfa_recovery_codes_regenerated": "已重建恢复码，旧码组已失效。",
+		"mfa_reset":                      "管理员已重置多因素认证。请通过受控恢复流程重新绑定验证器。",
+		"mfa_recovered":                  "多因素认证恢复完成，已绑定新的验证器。",
+	}
+	if v := mfa[outcome]; v != "" {
+		return v
+	}
 	m := map[string]string{"succeeded": "处理已完成。请进入业务页面查看当前结果。", "ready": "结果已就绪。", "failed": "处理未成功，请进入业务页面查看和处理。", "needs_action": "需要你继续处理。", "cancelled": "任务已取消。", "canceled": "任务已取消。", "validated": "校验已完成，等待你确认采用。", "adopted": "数据已正式采用。", "pending": "你收到一份租户邀请，请明确确认是否加入。", "accepted": "邀请已接受。", "replaced": "邀请已替换，请查看新的邀请。", "revoked": "邀请或授权已撤销。", "expired": "有效期已结束。", "invalidated": "邀请已失效。", "recovered": "此前的故障条件已经恢复。", "missing": "已发布包暂时不可用，请检查存储。"}
 	if v := m[outcome]; v != "" {
 		return v

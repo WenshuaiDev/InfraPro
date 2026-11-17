@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from '../login-result.mjs';
 import {randomUUID,createHash} from 'node:crypto';
 import {readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
@@ -7,7 +8,7 @@ export const notificationLogin={username:'e2e_owner',password:'Real browser 河�
 export async function notificationClient(origin,username=notificationLogin.username){
  const client=await request.newContext();const api=origin+'/api/v1',csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token};
  const call=async(path,data,method=data===undefined?'GET':'POST')=>{const r=await client.fetch(api+path,{method,headers:{...headers,'X-Command-ID':randomUUID()},data});if(!r.ok())throw Error(`${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();};
- await call('/auth/login',{username,password:notificationLogin.password});return {client,call,headers,api};
+ requireAuthenticatedLogin(await call('/auth/login',{username,password:notificationLogin.password}));return {client,call,headers,api};
 }
 export async function queueNotificationImport(connection,state,name,csv){
  const {client,call,headers,api}=connection,base=`/tenants/${state.tenants[0]}/monitoring`,wm=revision=>({request_id:randomUUID(),expected_revision:revision,reason:'站内通知合成验收'}),bytes=Buffer.from(csv),sha256=createHash('sha256').update(bytes).digest('hex');

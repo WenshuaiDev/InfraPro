@@ -45,12 +45,12 @@ func run() (resultErr error) {
 	}
 	reporter.End("converter", "", time.Time{})
 	reporter.Dependency("converter", true, "")
-	host, e := runtime.Open(ctx, cfg, logger, false)
+	host, e := runtime.OpenWorker(ctx, cfg, logger)
 	if e != nil {
 		return e
 	}
 	defer host.Close()
-	business := runtime.Compose(host.Identity.Access(), host.Monitoring).Configure(cfg)
+	business := runtime.Compose(host.Access, host.Monitoring).Configure(cfg)
 	reporter.Ready()
 	logger.Info("spatial worker ready")
 	business.Spatial.RunWorker(ctx, uuid.NewString(), func(e error) { logger.Warn("spatial task did not complete", "error", e) }, reporter)

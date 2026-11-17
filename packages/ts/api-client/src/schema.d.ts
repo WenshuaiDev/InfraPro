@@ -15769,12 +15769,268 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/mfa/challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mfaChallenge"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaVerify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/enrollment/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaLoginEnrollmentStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/enrollment/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaLoginEnrollmentConfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/recovery/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaRecoveryClaim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/mfa/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaCancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["mfaRead"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa/enrollment/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaEnrollmentStart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa/enrollment/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaEnrollmentConfirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa/enrollment/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaEnrollmentCancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaDisable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/mfa/recovery-codes/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mfaRecoveryRegenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/security-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["securityPolicyRead"];
+        put: operations["securityPolicyUpdate"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/security-policy/mfa-impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["securityPolicyImpact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/access/accounts/{id}/mfa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["accountMfaRead"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/access/accounts/{id}/mfa-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["accountMfaReset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         Error: {
-            /** @description Membership errors: member_already_exists, member_suspended, invitation_pending_exists, invitation_already_accepted, invitation_not_pending, member_state_conflict, target_account_unavailable, tenant_admin_transfer_required, administrator_membership_suspended, tenant_invitation_unavailable, tenant_invitation_not_found, member_not_found, version_conflict, idempotency_conflict, operation_busy. */
+            /** @description Membership errors: member_already_exists, member_suspended, invitation_pending_exists, invitation_already_accepted, invitation_not_pending, member_state_conflict, target_account_unavailable, tenant_admin_transfer_required, administrator_membership_suspended, tenant_invitation_unavailable, tenant_invitation_not_found, member_not_found, version_conflict, idempotency_conflict, operation_busy. MFA errors: mfa_login_required, mfa_challenge_invalid, mfa_code_invalid, mfa_challenge_completed, self_mfa_reset_forbidden, mfa_required_by_policy, mfa_state_conflict. */
             code: string;
             message: string;
             request_id: string;
@@ -15815,6 +16071,8 @@ export interface components {
             user_agent: string;
             ip: string;
             current: boolean;
+            /** @enum {string} */
+            authentication_method: "password" | "password_totp" | "password_recovery_code";
         };
         Invitation: {
             /** Format: uuid */
@@ -15895,7 +16153,7 @@ export interface components {
             status: "ok";
         };
         /** @enum {string} */
-        PermissionCode: "ingestion.source.read" | "ingestion.source.manage" | "ingestion.quarantine.read" | "ingestion.quarantine.manage" | "tenant.ingestion.source.read" | "tenant.ingestion.source.confirm" | "tenant.ingestion.terminal.read" | "tenant.ingestion.terminal.manage" | "tenant.ingestion.execution.manage" | "tenant.ingestion.unmatched.read" | "tenant.ingestion.unmatched.process" | "tenant.ingestion.message.read" | "tenant.ingestion.raw.read" | "tenant.ingestion.reprocess" | "parsing.method.read" | "parsing.method.manage" | "device.product.parsing.manage" | "parsing.test.execute" | "parsing.run.read" | "parsing.sample.read" | "tenant.parsing.method.read" | "tenant.device.product.parsing.manage" | "tenant.device.parsing.manage" | "tenant.parsing.test.execute" | "tenant.parsing.run.read" | "tenant.parsing.sample.read" | "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.type.adopt" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.monitoring_section.create" | "project.engineering.borehole.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.category.read" | "device.category.manage" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "tenant.monitoring.jobs.read" | "tenant.monitoring.jobs.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "project.monitoring.jobs.read" | "project.monitoring.jobs.manage" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export" | "tenant.spatial.read" | "tenant.spatial.manage" | "tenant.spatial.placement.manage" | "tenant.spatial.publish" | "tenant.spatial.source.download" | "tenant.project.spatial_access.read" | "tenant.project.spatial_access.manage" | "project.spatial.view" | "project.spatial.source.download" | "project.spatial.views.manage" | "project.display.view" | "project.display.settings" | "project.display.manage" | "project.display.upload" | "project.display.configure" | "project.display.grant" | "project.display.preview" | "project.display.publish" | "project.display.terminals" | "tenant.attachments.read" | "tenant.attachments.download" | "tenant.attachments.manage" | "project.attachments.read" | "project.attachments.download" | "project.attachments.manage" | "platform.audit.export" | "platform.audit.technical.read" | "platform.audit.exports.manage" | "tenant.audit.export" | "tenant.audit.technical.read" | "tenant.audit.exports.manage" | "project.audit.export" | "project.audit.technical.read" | "project.audit.exports.manage";
+        PermissionCode: "ingestion.source.read" | "ingestion.source.manage" | "ingestion.quarantine.read" | "ingestion.quarantine.manage" | "tenant.ingestion.source.read" | "tenant.ingestion.source.confirm" | "tenant.ingestion.terminal.read" | "tenant.ingestion.terminal.manage" | "tenant.ingestion.execution.manage" | "tenant.ingestion.unmatched.read" | "tenant.ingestion.unmatched.process" | "tenant.ingestion.message.read" | "tenant.ingestion.raw.read" | "tenant.ingestion.reprocess" | "parsing.method.read" | "parsing.method.manage" | "device.product.parsing.manage" | "parsing.test.execute" | "parsing.run.read" | "parsing.sample.read" | "tenant.parsing.method.read" | "tenant.device.product.parsing.manage" | "tenant.device.parsing.manage" | "tenant.parsing.test.execute" | "tenant.parsing.run.read" | "tenant.parsing.sample.read" | "platform.security_policy.read" | "platform.security_policy.update" | "platform.account.mfa.reset" | "platform.tenant.disable" | "platform.tenant.enable" | "tenant.permission.read" | "tenant.role.read" | "tenant.role.create" | "tenant.role.update" | "tenant.role.set_permissions" | "tenant.role.set_status" | "tenant.role.delete" | "tenant.member.assign_roles" | "tenant.member.read" | "tenant.member.suspend" | "tenant.member.resume" | "tenant.member.remove" | "tenant.invitation.read" | "tenant.invitation.create" | "tenant.invitation.revoke" | "tenant.invitation.regenerate" | "platform.tenant.read" | "platform.tenant.create" | "platform.tenant.update" | "platform.tenant.transfer_admin" | "tenant.profile.read" | "tenant.profile.update" | "tenant.audit.read" | "account.profile.read" | "account.profile.update" | "account.password.update" | "account.session.read" | "account.session.revoke" | "account.security_event.read" | "platform.invitation.read" | "platform.invitation.create" | "platform.invitation.revoke" | "platform.invitation.regenerate" | "platform.account.read" | "platform.account.assign_roles" | "platform.account.disable" | "platform.account.enable" | "platform.role.read" | "platform.role.create" | "platform.role.update" | "platform.role.set_permissions" | "platform.role.set_status" | "platform.role.delete" | "platform.permission.read" | "platform.audit.read" | "tenant.project.read" | "tenant.project.create" | "tenant.project.recover_admin" | "project.profile.read" | "project.profile.update" | "project.member.read" | "project.member.add" | "project.member.suspend" | "project.member.resume" | "project.member.remove" | "project.role.read" | "project.permission.read" | "project.authorization.read" | "project.audit.read" | "project.role.create" | "project.role.update" | "project.role.set_permissions" | "project.role.set_status" | "project.role.delete" | "project.member.assign_roles" | "project.administrator.transfer" | "project.owner.change" | "project.archive" | "project.restore" | "engineering.type.read" | "engineering.type.edit" | "engineering.type.publish" | "engineering.type.state" | "engineering.metric.read" | "engineering.metric.edit" | "engineering.metric.publish" | "engineering.metric.state" | "engineering.template.read" | "engineering.template.edit" | "engineering.template.publish" | "engineering.template.state" | "tenant.engineering.template.read" | "tenant.engineering.template.edit" | "tenant.engineering.template.publish" | "tenant.engineering.template.state" | "tenant.engineering.catalog.read" | "tenant.engineering.type.adopt" | "tenant.engineering.resource.read" | "tenant.engineering.resource.manage" | "tenant.engineering.resource.authorization.read" | "tenant.engineering.resource.authorization.manage" | "project.engineering.resource.read" | "project.engineering.resource.update" | "project.engineering.resource.history.read" | "project.engineering.resource.lifecycle" | "project.engineering.facility.create" | "project.engineering.component.create" | "project.engineering.monitoring_section.create" | "project.engineering.borehole.create" | "project.engineering.point.create" | "project.engineering.channel.create" | "project.engineering.catalog.read" | "device.category.read" | "device.category.manage" | "device.definition.read" | "device.manufacturer.manage" | "device.product.edit" | "device.product.publish" | "device.product.state" | "tenant.device.catalog.read" | "tenant.device.definition.read" | "tenant.device.manufacturer.manage" | "tenant.device.product.edit" | "tenant.device.product.publish" | "tenant.device.product.state" | "tenant.device.read" | "tenant.device.manage" | "tenant.device.install" | "tenant.device.state" | "tenant.device.output.manage" | "tenant.device.history.read" | "tenant.monitoring.source.manage" | "tenant.device.authorization.read" | "tenant.device.authorization.manage" | "project.device.read" | "project.device.history.read" | "project.device.output.use" | "project.monitoring.source.manage" | "tenant.monitoring.data.read" | "tenant.monitoring.data.history.read" | "tenant.monitoring.data.export" | "tenant.monitoring.imports.read" | "tenant.monitoring.imports.manage" | "tenant.monitoring.batches.revoke" | "tenant.monitoring.source.read" | "tenant.monitoring.authorization.read" | "tenant.monitoring.authorization.manage" | "tenant.monitoring.jobs.read" | "tenant.monitoring.jobs.manage" | "project.monitoring.data.read" | "project.monitoring.data.history.read" | "project.monitoring.data.export" | "project.monitoring.imports.read" | "project.monitoring.imports.manage" | "project.monitoring.batches.revoke" | "project.monitoring.source.read" | "project.monitoring.jobs.read" | "project.monitoring.jobs.manage" | "tenant.derived.metrics.read" | "tenant.derived.metrics.manage" | "tenant.derived.metrics.publish" | "tenant.derived.channels.read" | "tenant.derived.channels.manage" | "tenant.derived.channels.control" | "tenant.derived.channels.backfill" | "tenant.derived.runs.read" | "tenant.derived.runs.manage" | "tenant.derived.results.history" | "tenant.derived.analysis.read" | "tenant.derived.analysis.manage" | "tenant.derived.analysis.run" | "tenant.derived.analysis.results.read" | "tenant.derived.analysis.export" | "project.derived.metrics.read" | "project.derived.channels.read" | "project.derived.channels.manage" | "project.derived.channels.control" | "project.derived.channels.backfill" | "project.derived.runs.read" | "project.derived.runs.manage" | "project.derived.results.history" | "project.derived.analysis.read" | "project.derived.analysis.manage" | "project.derived.analysis.run" | "project.derived.analysis.results.read" | "project.derived.analysis.export" | "tenant.spatial.read" | "tenant.spatial.manage" | "tenant.spatial.placement.manage" | "tenant.spatial.publish" | "tenant.spatial.source.download" | "tenant.project.spatial_access.read" | "tenant.project.spatial_access.manage" | "project.spatial.view" | "project.spatial.source.download" | "project.spatial.views.manage" | "project.display.view" | "project.display.settings" | "project.display.manage" | "project.display.upload" | "project.display.configure" | "project.display.grant" | "project.display.preview" | "project.display.publish" | "project.display.terminals" | "tenant.attachments.read" | "tenant.attachments.download" | "tenant.attachments.manage" | "project.attachments.read" | "project.attachments.download" | "project.attachments.manage" | "platform.audit.export" | "platform.audit.technical.read" | "platform.audit.exports.manage" | "tenant.audit.export" | "tenant.audit.technical.read" | "tenant.audit.exports.manage" | "project.audit.export" | "project.audit.technical.read" | "project.audit.exports.manage";
         Permission: {
             name: string;
             group: string;
@@ -27667,6 +27925,149 @@ export interface components {
             /** @description Current deployment admission limit in bytes; existing uploads retain their accepted size. */
             display_max_package_bytes: string;
         };
+        LoginAuthenticated: {
+            /** @enum {string} */
+            status: "authenticated";
+            account: components["schemas"]["Account"];
+            recovery_codes?: string[];
+            /** Format: uuid */
+            operation_id?: string;
+        };
+        LoginChallenge: {
+            /** @enum {string} */
+            status: "mfa_required" | "mfa_enrollment_required" | "mfa_recovery_required" | "none";
+            /** Format: uuid */
+            challenge_id?: string;
+            account_label?: string;
+            /** Format: date-time */
+            expires_at?: string;
+            methods?: ("totp" | "recovery_code")[];
+            policy_required: boolean;
+        };
+        LoginResult: components["schemas"]["LoginAuthenticated"] | components["schemas"]["LoginChallenge"];
+        EnrollmentSetup: {
+            /** Format: uuid */
+            enrollment_id: string;
+            issuer: string;
+            account_label: string;
+            secret: string;
+            qr_png_base64: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        MFAStatus: {
+            /** @enum {string} */
+            state: "disabled" | "enabled" | "reset_required";
+            factor_version: string;
+            recovery_generation: string;
+            recovery_codes_remaining: number;
+            /** Format: date-time */
+            enabled_at: string | null;
+            policy_required: boolean;
+            can_disable: boolean;
+        };
+        MFAResult: {
+            /** @enum {string} */
+            state: "disabled" | "enabled" | "reset_required";
+            factor_version: string;
+            recovery_generation: string;
+            recovery_codes_remaining: number;
+            /** Format: date-time */
+            enabled_at: string | null;
+            policy_required: boolean;
+            can_disable: boolean;
+            recovery_codes?: string[];
+            /** Format: uuid */
+            operation_id?: string;
+            secret_unavailable?: boolean;
+            /** Format: uri */
+            recovery_url?: string;
+            /** Format: date-time */
+            expires_at?: string;
+        };
+        AccountMFA: {
+            /** @enum {string} */
+            state: "disabled" | "enabled" | "reset_required";
+            factor_version: string;
+            /** Format: date-time */
+            enabled_at: string | null;
+        };
+        SecurityPolicy: {
+            require_mfa: boolean;
+            revision: string;
+            updated_by: string;
+            /** Format: date-time */
+            updated_at: string;
+            updated_by_label: string;
+        };
+        MFAImpact: {
+            active_accounts: number;
+            enabled_accounts: number;
+            unenrolled_accounts: number;
+            reset_required_accounts: number;
+            potential_password_sessions: number;
+            /** Format: date-time */
+            computed_at: string;
+        };
+        SecurityPolicyResult: {
+            policy: components["schemas"]["SecurityPolicy"];
+            changed: boolean;
+            /** @enum {string} */
+            session_action: "keep" | "sign_in_again";
+            /** Format: uuid */
+            operation_id: string;
+        };
+        MFAChallengeInput: {
+            /** Format: uuid */
+            challenge_id: string;
+        };
+        MFAVerifyInput: {
+            /** Format: uuid */
+            challenge_id: string;
+            /** @enum {string} */
+            method: "totp" | "recovery_code";
+            code: string;
+        };
+        MFALoginConfirmInput: {
+            /** Format: uuid */
+            challenge_id: string;
+            new_totp_code: string;
+        };
+        MFARecoveryClaimInput: {
+            /** Format: uuid */
+            challenge_id: string;
+            recovery_token: string;
+        };
+        MFAEnrollmentStartInput: {
+            /** @enum {string} */
+            mode: "enable" | "replace";
+            expected_factor_version: string;
+        };
+        MFAEnrollmentConfirmInput: {
+            /** Format: uuid */
+            enrollment_id: string;
+            new_totp_code: string;
+        };
+        MFAEnrollmentCancelInput: {
+            /** Format: uuid */
+            enrollment_id: string;
+        };
+        MFADisableInput: {
+            expected_factor_version: string;
+        };
+        MFARegenerateInput: {
+            expected_factor_version: string;
+            expected_recovery_generation: string;
+        };
+        MFAResetInput: {
+            expected_factor_version: string;
+            reason: string;
+        };
+        SecurityPolicyInput: {
+            require_mfa: boolean;
+            expected_version: string;
+            reason: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -28024,13 +28425,22 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Success */
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Account"];
+                    "application/json": components["schemas"]["LoginAuthenticated"];
+                };
+            };
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginChallenge"];
                 };
             };
             /** @description Invalid input */
@@ -128024,6 +128434,1541 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginChallenge"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaVerify: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAVerifyInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginAuthenticated"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaLoginEnrollmentStart: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAChallengeInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentSetup"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaLoginEnrollmentConfirm: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFALoginConfirmInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginAuthenticated"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaRecoveryClaim: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFARecoveryClaimInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginChallenge"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaCancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAChallengeInput"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAStatus"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaEnrollmentStart: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAEnrollmentStartInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentSetup"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaEnrollmentConfirm: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAEnrollmentConfirmInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAResult"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaEnrollmentCancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAEnrollmentCancelInput"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaDisable: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+                "X-Command-ID": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFADisableInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAResult"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    mfaRecoveryRegenerate: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+                "X-Command-ID": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFARegenerateInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAResult"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    securityPolicyRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecurityPolicy"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    securityPolicyUpdate: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+                "X-Command-ID": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecurityPolicyInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecurityPolicyResult"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    securityPolicyImpact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAImpact"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    accountMfaRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountMFA"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    accountMfaReset: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+                "X-Command-ID": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MFAResetInput"];
+            };
+        };
+        responses: {
+            /** @description Success; secret-bearing responses are no-store and delivered once. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MFAResult"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 此入口需要稳定的命令编号。 */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditError"];
                 };
             };
             /** @description Rate limited */

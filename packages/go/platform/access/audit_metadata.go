@@ -9,16 +9,21 @@ import (
 // AuditMetadataTx resolves only the finite governance references owned by the
 // authorization graph. A historical fact does not grant a current detail route.
 func AuditMetadataTx(ctx context.Context, tx pgx.Tx, a Actor, scope ar.Scope, kind, id string) (string, error) {
-	if a.ReadSubject() != nil || !ValidID(id) {
+	if a.ReadSubject() != nil || (!ValidID(id) && !(kind == "platform_security_policy" && id == "1")) {
 		return "", ErrDenied
 	}
 	var op Operation
 	switch kind {
-	case "account":
+	case "account", "account_mfa":
 		if scope.Kind != "platform" {
 			return "", ErrDenied
 		}
 		op = OpAccountRead
+	case "platform_security_policy":
+		if scope.Kind != "platform" {
+			return "", ErrDenied
+		}
+		op = OpSecurityPolicyRead
 	case "role":
 		if scope.Kind != "platform" {
 			return "", ErrDenied
@@ -62,8 +67,10 @@ func AuditMetadataTx(ctx context.Context, tx pgx.Tx, a Actor, scope ar.Scope, ki
 	var name string
 	var e error
 	switch kind {
-	case "account":
+	case "account", "account_mfa":
 		e = tx.QueryRow(ctx, `SELECT COALESCE(NULLIF(display_name,''),username) FROM accounts WHERE id=$1`, id).Scan(&name)
+	case "platform_security_policy":
+		name = "平台安全策略"
 	case "role":
 		e = tx.QueryRow(ctx, `SELECT name FROM roles WHERE id=$1 AND binding_scope='platform' AND deleted_at IS NULL`, id).Scan(&name)
 	case "tenant":

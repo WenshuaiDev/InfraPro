@@ -9,7 +9,23 @@ x-env: &env
   INFRAPRO_TRUSTED_PROXIES: 172.30.43.0/24
   INFRAPRO_SUPPORT_CONTACT: HTTP 验收维护员
   INFRAPRO_HTTP_ADDR: 0.0.0.0:8080
+  INFRAPRO_MFA_KEYRING_FILE: /run/infrapro-mfa/keyring.json
 services:
+  mfa-keys:
+    build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
+    image: infrapro-ops:account-http-test
+    user: '0'
+    entrypoint: [/bin/sh, -ec]
+    command:
+      - |
+        umask 077
+        if [ ! -f /run/infrapro-mfa/keyring.json ]; then
+          key=$$(head -c 32 /dev/urandom | base64)
+          printf '{"format_version":1,"active_key_id":"http-fixture","keys":[{"id":"http-fixture","key_base64":"%s"}]}\n' "$$key" > /run/infrapro-mfa/keyring.json
+        fi
+        chown infrapro:infrapro /run/infrapro-mfa/keyring.json
+        chmod 600 /run/infrapro-mfa/keyring.json
+    volumes: [mfa_test:/run/infrapro-mfa]
   postgres:
     image: postgres:17-alpine
     environment:
@@ -49,11 +65,14 @@ services:
     profiles: [ops]
     image: infrapro-ops:account-http-test
     environment: *env
+    volumes: [mfa_test:/run/infrapro-mfa:ro]
   api:
     build: {context: ../.., dockerfile: deploy/docker/api.Dockerfile}
     image: infrapro-api:account-http-test
     environment: *env
+    volumes: [mfa_test:/run/infrapro-mfa:ro]
     depends_on:
+      mfa-keys: {condition: service_completed_successfully}
       access-sync: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
     healthcheck:
@@ -73,5 +92,6 @@ networks:
       config: [{subnet: 172.30.43.0/24}]
 
 volumes:
+  mfa_test:
   postgres_test:
   redis_test:

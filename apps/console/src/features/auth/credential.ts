@@ -1,11 +1,11 @@
 // The bearer token is memory-only; consume URL fragments before any page is rendered.
 const listeners = new Set<() => void>();
-type Purpose = 'invitation' | 'reset' | 'tenant';
-const credentials: Record<Purpose, string> = { invitation: '', reset: '', tenant: '' };
-const generations: Record<Purpose, number> = { invitation: 0, reset: 0, tenant: 0 };
+type Purpose = 'invitation' | 'reset' | 'tenant' | 'mfa-recovery';
+const credentials: Record<Purpose, string> = { invitation: '', reset: '', tenant: '', 'mfa-recovery': '' };
+const generations: Record<Purpose, number> = { invitation: 0, reset: 0, tenant: 0, 'mfa-recovery': 0 };
 let lastAccount: string | undefined;
 export function observeCredentialIdentity(account: string | undefined) {
-  if (lastAccount && lastAccount !== account) forgetCredential('tenant');
+  if (lastAccount && lastAccount !== account) { forgetCredential('tenant'); forgetCredential('mfa-recovery'); }
   lastAccount = account;
 }
 function captureCredential() {
@@ -13,7 +13,7 @@ function captureCredential() {
   const token = fragment.get('token');
   if (token !== null) {
     const path = window.location.pathname;
-    const purpose: Purpose = path.endsWith('/tenant-invite') ? 'tenant' : path.endsWith('/reset-password') ? 'reset' : 'invitation';
+    const purpose: Purpose = path.endsWith('/mfa-recovery') ? 'mfa-recovery' : path.endsWith('/tenant-invite') ? 'tenant' : path.endsWith('/reset-password') ? 'reset' : 'invitation';
     credentials[purpose] = token;
     generations[purpose]++;
     window.history.replaceState(null, '', window.location.pathname + window.location.search);

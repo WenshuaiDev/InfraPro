@@ -6,6 +6,13 @@ import { Permissions as P } from '../../packages/ts/api-client/src/permissions.g
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200) {
+    const signedIn = await current.json();
+    if (signedIn.account.username === 'e2e_owner') return { headers, id: signedIn.account.id as string };
+  }
+  if (current.status() === 200) expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const account = (await (await request.get(`${api}/access/accounts?q=e2e_owner`)).json()).items[0];
   return { headers, id: account.id as string };

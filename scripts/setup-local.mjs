@@ -1,7 +1,12 @@
+import { createMFAKeyring } from './mfa-keyring.mjs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { existsSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 if (!existsSync('.env')) {
+  const mfaKeyring = join(homedir(), '.local/share/infrapro/development/mfa-keyring.json');
+  if (!existsSync(mfaKeyring)) createMFAKeyring(mfaKeyring);
   const databasePassword = randomBytes(24).toString('hex'); const redisPassword = randomBytes(24).toString('hex');
   writeFileSync('.env', [
     `POSTGRES_PASSWORD=${databasePassword}`, `REDIS_PASSWORD=${redisPassword}`,
@@ -9,6 +14,7 @@ if (!existsSync('.env')) {
     `INFRAPRO_REDIS_URL=redis://:${redisPassword}@127.0.0.1:6379/0`,
     'INFRAPRO_REDIS_KEY_PREFIX=infrapro:local:identity:v1:',
     `INFRAPRO_CSRF_AUTH_KEY=${randomBytes(32).toString('hex')}`,
+    `INFRAPRO_MFA_KEYRING_FILE=${mfaKeyring}`,
     'INFRAPRO_SUPPORT_CONTACT="本地开发环境：请联系此电脑的维护人员"',
     'INFRAPRO_PUBLIC_CONSOLE_URL=http://127.0.0.1:5173/',
     'INFRAPRO_TRUSTED_ORIGINS=http://127.0.0.1:5173',

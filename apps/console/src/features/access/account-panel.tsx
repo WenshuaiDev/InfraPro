@@ -1,3 +1,4 @@
+import { AccountMFASection } from './account-mfa';
 import { ObjectHistory } from '../audit/object-history';
 import { useState, type RefObject } from 'react';
 import { Link } from '@tanstack/react-router';
@@ -44,6 +45,7 @@ function AccountDetails({ account, edit }: { account: ManagedAccount; edit: (mod
     <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">用户名</dt><dd className="mt-1 break-all">{account.username}</dd></div><div><dt className="text-muted-foreground">创建时间</dt><dd className="mt-1"><time dateTime={account.created_at}>{new Date(account.created_at).toLocaleString('zh-CN')}</time></dd></div></dl>
     {!enabled && <FormNotice>账号已停用，不能登录或执行操作。恢复账号不会恢复历史会话和邀请链接。</FormNotice>}
     <div className="flex flex-wrap gap-2">{canAssign && <Button variant="outline" onClick={() => edit('roles')}><ShieldCheck aria-hidden="true" />配置角色</Button>}{can(enabled ? P.PlatformAccountDisable : P.PlatformAccountEnable) && <Button variant="outline" className={enabled ? 'text-destructive hover:text-destructive' : undefined} onClick={() => edit('status')}>{enabled ? '停用账号' : '恢复账号'}</Button>}</div>
+    <AccountMFASection key={account.id} id={account.id} />
     <Tabs value={tab === 'tenants' && !canTenants ? 'roles' : tab} onValueChange={setTab} className="gap-4">
       <TabsList className="w-full"><TabsTrigger className="flex-1 max-sm:text-xs" value="roles">绑定角色</TabsTrigger><TabsTrigger className="flex-1 max-sm:text-xs" value="permissions">有效权限</TabsTrigger>{canTenants && <TabsTrigger className="flex-1 max-sm:text-xs" value="tenants">租户任职</TabsTrigger>}</TabsList>
       <TabsContent value="roles" className="space-y-4">

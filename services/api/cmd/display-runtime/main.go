@@ -43,7 +43,7 @@ func run() (resultErr error) {
 		return e
 	}
 	defer host.Close()
-	business := runtime.Compose(host.Identity.Access(), host.Monitoring).Configure(cfg)
+	business := runtime.Compose(host.Access, host.Monitoring).Configure(cfg)
 	servers := []*http.Server{}
 	listeners := []net.Listener{}
 	defer func() {

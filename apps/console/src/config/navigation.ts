@@ -2,7 +2,7 @@ import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollT
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
-export const workspacePaths = ['/', '/profile', '/security', '/invitations', '/access/accounts', '/access/roles', '/access/permissions', '/access/audit', '/tenants', '/platform/tenants', '/projects'] as const;
+export const workspacePaths = ['/', '/profile', '/security', '/invitations', '/access/accounts', '/access/roles', '/access/permissions', '/access/audit', '/tenants', '/platform/tenants', '/platform/security-policy', '/projects'] as const;
 export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
@@ -28,6 +28,8 @@ export function relativePath(path: string) {
   return base && (path === base || path.startsWith(`${base}/`)) ? path.slice(base.length) || '/' : path;
 }
 export function allowedPath(path: string, can: (permission: PermissionCode) => boolean) {
+  if (path === '/security') return true;
+  if (path === '/platform/security-policy') return can(P.PlatformSecurityPolicyRead);
   if (path.startsWith('/platform/ingestion')) return can(P.IngestionSourceRead)||can(P.IngestionQuarantineRead);
   if (path.startsWith('/platform/parsing')) return can(P.ParsingMethodRead)||can(P.ParsingRunRead);
   if (path==='/platform/device-categories') return can(P.DeviceCategoryRead);
@@ -72,6 +74,7 @@ export function platformNavigation(path: string, can: (permission: PermissionCod
       { title: '公共监测模板', href: '/platform/engineering/monitoring-templates', icon: ClipboardList, active: path === '/platform/engineering/monitoring-templates' },
     ] }, {title:'设备接入',href:'/platform/ingestion',icon:Cpu,active:path.startsWith('/platform/ingestion')}, {title:'协议与解析方法',href:'/platform/parsing',icon:Cpu,active:path.startsWith('/platform/parsing')}, {title:'设备分类字典',href:'/platform/device-categories',icon:Blocks,active:path==='/platform/device-categories'}, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
     { title: '账号与权限', items: [
+      { title: '安全策略', href: '/platform/security-policy', icon: ShieldCheck, active: path === '/platform/security-policy' },
       { title: '账号管理', href: '/access/accounts', icon: Users, active: path === '/access/accounts' },
       { title: '账号开户邀请', href: '/invitations', icon: MailPlus, active: path === '/invitations' },
       { title: '角色管理', href: '/access/roles', icon: KeyRound, active: path === '/access/roles' },

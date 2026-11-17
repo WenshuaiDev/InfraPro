@@ -70,5 +70,5 @@ func (s *Service) resolveMutation(a Actor, op Operation, m Meta, original error)
 // CommandOperations is the finite list of business endpoints introducing the
 // command header. Endpoints with native request IDs retain their original wire protocol.
 func CommandOperations() []Operation {
-	return []Operation{OpRoleCreate, OpRoleUpdate, OpRoleSetPermissions, OpRoleSetStatus, OpRoleDelete, OpAccountAssignRoles, OpAccountDisable, OpAccountEnable, OpTenantRoleUpdate, OpTenantRolePermissions, OpTenantRoleStatus, OpTenantRoleArchive, OpTenantMemberRoles}
+	return []Operation{OpSecurityPolicyUpdate, OpAccountMFAReset, OpMFADisable, OpMFARecoveryRegenerate, OpRoleCreate, OpRoleUpdate, OpRoleSetPermissions, OpRoleSetStatus, OpRoleDelete, OpAccountAssignRoles, OpAccountDisable, OpAccountEnable, OpTenantRoleUpdate, OpTenantRolePermissions, OpTenantRoleStatus, OpTenantRoleArchive, OpTenantMemberRoles}
 }

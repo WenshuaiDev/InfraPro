@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import {readFileSync,writeFileSync,existsSync,mkdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
@@ -13,7 +14,7 @@ try{
  async function call(path,data,method=data===undefined?'GET':'POST'){const r=await client.fetch(api+path,{method,headers,data,timeout:120000});if(!r.ok())throw Error(`${method} ${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();}
  async function wait(path,pick,want){let data;await expect.poll(async()=>{data=await call(path);return pick(data)},{timeout:120000}).toBe(want);return data;}
  const save=state=>{mkdirSync(join(directory,'engineering'),{recursive:true,mode:0o700});writeFileSync(file,JSON.stringify(state,null,2),{mode:0o600});};
- await call('/auth/login',{username:account.username,password:account.password});let state;
+ requireAuthenticatedLogin(await call('/auth/login',{username:account.username,password:account.password}));let state;
  if(existsSync(file))state=JSON.parse(readFileSync(file,'utf8'));
  else{
   const dictionary=await call('/platform/business-dictionaries/device-category');if(dictionary.current_release_id||dictionary.draft.nodes.length)throw Error('Existing classification dictionary requires explicit fixture mapping; nothing was overwritten.');

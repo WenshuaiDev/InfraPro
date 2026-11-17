@@ -17,6 +17,7 @@ import (
 )
 
 type Config struct {
+	MFAKeyringFile, MFAIssuer                                   string
 	Uploads                                                     Uploads
 	IngestionFile                                               string
 	Parsing                                                     Parsing
@@ -41,6 +42,8 @@ type Config struct {
 }
 
 type input struct {
+	MFAKeyringFile             string       `yaml:"mfa_keyring_file"`
+	MFAIssuer                  string       `yaml:"mfa_issuer"`
 	Uploads                    uploadsInput `yaml:"uploads"`
 	IngestionFile              string       `yaml:"ingestion_file"`
 	Parsing                    parsingInput `yaml:"parsing"`
@@ -186,6 +189,13 @@ func Load(path string) (Config, error) {
 		return Config{}, err
 	}
 	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	c.MFAKeyringFile, c.MFAIssuer = raw.MFAKeyringFile, strings.TrimSpace(raw.MFAIssuer)
+	if c.MFAIssuer == "" {
+		c.MFAIssuer = "InfraPro"
+	}
+	if err = ValidateMFAIssuer(c.MFAIssuer); err != nil {
+		return c, err
+	}
 	c.Uploads, err = parseUploads(raw.Uploads)
 	if err != nil {
 		return c, err

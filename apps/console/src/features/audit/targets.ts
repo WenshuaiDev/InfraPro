@@ -9,7 +9,8 @@ export function auditDestination(target:AuditTarget):{to:string;search:Record<st
  switch(target.kind){
  case 'task':if(!target.generation||!/^[1-9][0-9]*$/.test(target.generation))return;to=`/tasks/${target.id}`;search.execution=target.generation;break;
  case 'audit_export':to=auditPath(s);search.export_id=target.id;search.execution=target.generation??'';search.tab='exports';break;
- case 'account':if(s.kind!=='platform')return;to='/access/accounts';search.account=target.id;break;
+ case 'platform_security_policy':if(s.kind!=='platform')return;to='/platform/security-policy';break;
+ case 'account_mfa':case 'account':if(s.kind!=='platform')return;to='/access/accounts';search.account=target.id;break;
  case 'tenant_role':case 'project_role':case 'role':to=s.kind==='platform'?'/access/roles':`${base}/roles/${target.id}`;if(s.kind==='platform')search.role=target.id;break;
  case 'tenant':to=s.kind==='platform'?`/platform/tenants/${target.id}`:`${base}/profile`;break;
  case 'project':to=s.kind==='tenant'?`${base}/projects/${target.id}`:`${base}/profile`;break;

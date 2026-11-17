@@ -34,12 +34,12 @@ func run() (result error) {
 	slog.SetDefault(logger)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	resources, e := runtime.Open(ctx, cfg, logger, false)
+	resources, e := runtime.OpenWorker(ctx, cfg, logger)
 	if e != nil {
 		return e
 	}
 	defer resources.Close()
-	b := runtime.Compose(resources.Identity.Access(), resources.Monitoring).Configure(cfg)
+	b := runtime.Compose(resources.Access, resources.Monitoring).Configure(cfg)
 	if e = b.Ingestion.Ready(ctx); e != nil {
 		return e
 	}

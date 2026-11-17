@@ -10,6 +10,9 @@ import (
 type Code string
 
 const (
+	SecurityPolicyRead       Code = "platform.security_policy.read"
+	SecurityPolicyUpdate     Code = "platform.security_policy.update"
+	AccountMFAReset          Code = "platform.account.mfa.reset"
 	TenantPermissionRead     Code = "tenant.permission.read"
 	TenantRoleRead           Code = "tenant.role.read"
 	TenantRoleCreate         Code = "tenant.role.create"
@@ -74,6 +77,9 @@ type Permission struct {
 
 func baseCatalog() []Permission {
 	return []Permission{
+		{SecurityPolicyRead, "查看安全策略", "平台安全", "platform", "查看全平台 MFA 策略及影响统计。", "normal", "active", false, false},
+		{SecurityPolicyUpdate, "修改安全策略", "平台安全", "platform", "修改全平台 MFA 要求；需查看权限及密码复验。", "high", "active", false, false},
+		{AccountMFAReset, "重置账号 MFA", "平台安全", "platform", "受控重置他人验证器；需账号查看权限及密码复验。", "high", "active", false, false},
 		{TenantDisable, "停用租户", "租户治理", "platform", "关闭租户业务访问，保留身份与历史；同时需要租户查看权限。", "high", "active", false, false},
 		{TenantEnable, "恢复租户", "租户治理", "platform", "核验当前管理员后恢复租户；同时需要租户查看权限。", "high", "active", false, false},
 		{TenantPermissionRead, "查看租户权限目录", "租户授权管理", "tenant", "仅当前租户管理员持有，不可下放。", "high", "active", false, false},

@@ -7,6 +7,10 @@ import { test, expect, login, consoleURL, password, csrf } from './fixtures';
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === 'e2e_owner') return headers;
+  if (current.status() === 200) expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   return headers;
 }
@@ -163,24 +167,29 @@ test('account status confirms password when required and revokes existing sessio
 });
 
 test('account editing rejects stale versions and reloads the real binding', async ({ page, request }) => {
+  test.setTimeout(60_000);
   const target = await createManaged(request), role = await makeRole(request, `冲突验收_${randomBytes(4).toString('hex')}`);
   await openAccount(page, target);
   const panel = page.getByRole('dialog'); await panel.getByRole('button', { name: '配置角色', exact: true }).click();
-  await panel.getByRole('checkbox', { name: new RegExp(role.name) }).check();
+  const option = async (name: RegExp) => {
+    await expect(panel.getByRole('checkbox').first()).toBeVisible();
+    while (await panel.getByRole('checkbox', { name }).count() === 0) {
+      const count = await panel.getByRole('checkbox').count();
+      await panel.getByRole('button', { name: '加载更多可选角色', exact: true }).click();
+      await expect.poll(() => panel.getByRole('checkbox').count()).toBeGreaterThan(count);
+    }
+    return panel.getByRole('checkbox', { name });
+  };
+  await (await option(new RegExp(role.name))).check();
   const headers = await owner(request);
   expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], reason: '模拟另一位管理员修改' } })).status()).toBe(200);
   await panel.getByLabel('变更原因', { exact: true }).fill('过期草稿不能覆盖'); await panel.getByRole('button', { name: '保存角色绑定', exact: true }).click();
   await expect(panel.getByRole('button', { name: '重新加载并比较', exact: true })).toBeVisible(); await expect(panel.getByRole('button', { name: '保存角色绑定', exact: true })).toBeDisabled();
   await panel.getByRole('button', { name: '重新加载并比较', exact: true }).click(); await expect(panel.getByText('尚未绑定平台角色', { exact: true })).toBeVisible();
-  await panel.getByRole('button', { name: '配置角色', exact: true }).click(); await expect(panel.getByRole('checkbox', { name: new RegExp(role.name) })).not.toBeChecked();
+  await panel.getByRole('button', { name: '配置角色', exact: true }).click(); await expect(await option(new RegExp(role.name))).not.toBeChecked();
   // The full suite creates enough roles to move built-ins beyond the first page.
   // Load the option before asserting its binding; absence is not an unchecked state.
-  while (await panel.getByRole('checkbox', { name: /^基础成员/ }).count() === 0) {
-    const count = await panel.getByRole('checkbox').count();
-    await panel.getByRole('button', { name: '加载更多可选角色', exact: true }).click();
-    await expect.poll(() => panel.getByRole('checkbox').count()).toBeGreaterThan(count);
-  }
-  await expect(panel.getByRole('checkbox', { name: /^基础成员/ })).not.toBeChecked();
+  await expect(await option(/^基础成员/)).not.toBeChecked();
 });
 
 test('account readers see allowed authorization without fetching protected directories', async ({ page, request }) => {

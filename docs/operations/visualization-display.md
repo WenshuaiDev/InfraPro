@@ -121,6 +121,6 @@ build/bin/infrapro display restore-invalidate
 build/bin/infrapro display verify-storage
 ```
 
-restore-invalidate 更换环境代次、撤销运行会话/订阅并清除终端续期/配对状态；旧码、许可、游标不能复活。verify-storage 逐文件验证；缺失/不符包标记 missing，不能启动。全部文件恢复且验证通过后才恢复包的 ready。随后启动 worker、运行进程、API/代理；普通人员重新登录，终端重新配对。生产恢复演练和具体项目上线仍需要部署方独立执行与确认。
+restore-invalidate 更换环境代次、撤销运行会话/订阅并清除终端续期/配对状态；旧码、许可、游标不能复活。verify-storage 逐文件验证；缺失/不符包标记 missing，不能启动。全部文件恢复且验证通过后才恢复包的 ready。schema 56 起，`account revoke-access` 同时强制 MFA 并撤销恢复出的全部人员因素和恢复凭据；先按 [MFA 受控恢复流程](mfa.md)恢复平台管理员，再恢复其他账号并绑定新因素。随后启动 worker、运行进程、API/代理；完成人员认证恢复后重新登录，终端重新配对。生产恢复演练和具体项目上线仍需要部署方独立执行与确认。
 
 命名范围、配置及固定成员属于必须备份的业务元数据；临时 read queries/jobs/cursors/selections 可清理，不能作为正式监测数据恢复来源。restore-invalidate 同时过期所有读查询、取消后台任务并推进 fence；旧 worker、缓存、SSE、游标和下钻选择不能复活。`pnpm test:display:restore` 在独立目标 PostgreSQL／ClickHouse／对象存储中恢复，暂停测试源存储后核对包摘要、旧终端失效和重新配对后的授权计数。它会临时暂停 `monitoring-contract` 测试存储，勿与其他使用同一测试存储的测试并行执行。

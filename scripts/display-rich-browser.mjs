@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync,appendFileSync,rmSync} from 'node:fs';
 import {join,resolve} from 'node:path';
@@ -24,7 +25,7 @@ try{
  client=await request.newContext();const csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:consoleOrigin,'X-CSRF-Token':csrf.token};
  const wm=(revision='0')=>({request_id:randomUUID(),expected_revision:revision,reason:'隔离 SDK 真实查看浏览器自验'});
  const call=async(path,data,method=data===undefined?'GET':'POST')=>{const r=await client.fetch(api+path,{method,headers,data});if(!r.ok())throw Error(`${method} ${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();};
- await call('/auth/login',{username:login.username,password:login.password});
+ requireAuthenticatedLogin(await call('/auth/login',{username:login.username,password:login.password}));
  const deviceAccess=await call(pb+'/device-access'),grantDevice={request_id:randomUUID(),reason:'隔离 SDK 真实查看浏览器自验',expected_device_access_revision:deviceAccess.device_access_revision,expected_project_revision:deviceAccess.project_revision,add:[{kind:'device',target_id:state.devices[1].id,use_source:false}],update:[],end:[]},dp=await call(pb+'/device-access/preview',grantDevice);await call(pb+'/device-access/changes',{...grantDevice,preview_hash:dp.preview_hash});
  const spatialAccess=await call(pb+'/spatial-access'),grantLayer={...wm(spatialAccess.revision),add:[{version_id:state.assets.REGION.versions[0].id,source_download:false,is_default:true}],end:[]},sp=await call(pb+'/spatial-access/preview',grantLayer);await call(pb+'/spatial-access',{...grantLayer,preview_hash:sp.preview_hash},'PUT');
  const displays=pb+'/displays',listing=await call(displays);await call(displays+'/settings',{...wm(listing.settings.revision),enabled:true},'PUT');

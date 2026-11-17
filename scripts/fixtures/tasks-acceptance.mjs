@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from '../login-result.mjs';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -10,7 +11,7 @@ export async function taskClient(origin, login) {
  const client=await request.newContext(),api=origin+'/api/v1';
  const csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token};
  const call=async(path,data,method=data===undefined?'GET':'POST')=>{const r=await client.fetch(api+path,{method,headers:{...headers,'X-Command-ID':randomUUID()},data});if(!r.ok())throw Error(`${method} ${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();};
- await call('/auth/login',{username:login.username,password:login.password});return {client,call,headers,api};
+ requireAuthenticatedLogin(await call('/auth/login',{username:login.username,password:login.password}));return {client,call,headers,api};
 }
 const wm=(expected_revision='0')=>({request_id:randomUUID(),expected_revision,reason:'统一任务中心独立合成验收'});
 async function wait(fn,predicate,label='task') {const end=Date.now()+120000;while(Date.now()<end){const value=await fn();if(predicate(value))return value;await new Promise(r=>setTimeout(r,100));}throw Error(`Synthetic ${label} timed out`);}

@@ -1,3 +1,4 @@
+import { MFACard } from './mfa-card';
 import { useState } from 'react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -21,7 +22,7 @@ import { AccountSettings } from '../../app/workspace-shell';
 import { date, passwordSchema, setFormError } from '../auth/forms';
 import { useOperation } from './use-operation';
 
-const events: Record<string, string> = { account_authorization_changed: '本人角色权限变化', initial_role_bound: '开户角色绑定', account_roles_changed: '本人角色绑定变化', bootstrap: '首次账号创建', login: '登录', logout: '退出登录', logout_all: '退出全部设备', session_revoked: '会话撤销', password_changed: '修改密码', password_reset: '密码重置', reset_link_created: '生成重置链接', reauthentication: '密码确认', invitation_created: '创建邀请', invitation_revoked: '撤销邀请', invitation_accepted: '邀请已被接受', account_created: '账号创建', account_disabled: '账号停用', account_emergency_disabled: '应急停用', account_enabled: '账号恢复', profile_updated: '资料修改' };
+const events: Record<string, string> = { mfa_enabled: '启用 MFA', mfa_replaced: '更换验证器', mfa_disabled: '关闭 MFA', mfa_recovery_codes_regenerated: '重建恢复码', mfa_recovery_code_used: '使用恢复码登录', mfa_reset: '重置 MFA', mfa_recovered: '完成 MFA 恢复', mfa_verification: 'MFA 验证', mfa_policy_changed: '修改 MFA 策略', account_authorization_changed: '本人角色权限变化', initial_role_bound: '开户角色绑定', account_roles_changed: '本人角色绑定变化', bootstrap: '首次账号创建', login: '登录', logout: '退出登录', logout_all: '退出全部设备', session_revoked: '会话撤销', password_changed: '修改密码', password_reset: '密码重置', reset_link_created: '生成重置链接', reauthentication: '密码确认', invitation_created: '创建邀请', invitation_revoked: '撤销邀请', invitation_accepted: '邀请已被接受', account_created: '账号创建', account_disabled: '账号停用', account_emergency_disabled: '应急停用', account_enabled: '账号恢复', profile_updated: '资料修改' };
 const outcomes: Record<string, string> = { success: '成功', failure: '失败', rate_limited: '尝试受限' };
 
 function PasswordForm() {
@@ -69,7 +70,7 @@ export function SecurityPage() {
     onError: async () => { await queryClient.invalidateQueries({ queryKey: sessionsKey }); },
   });
   const sessionColumns: ColumnDef<Session>[] = [
-    { id: 'device', size: 320, header: '会话', cell: ({ row: { original: session } }) => <div className="min-w-48 max-w-sm space-y-2 whitespace-normal break-words"><Badge variant={session.current ? 'secondary' : 'outline'}>{session.current ? '当前会话' : '其他会话'}</Badge><p className="text-sm">{session.user_agent || '未知浏览器'}</p><p className="text-xs text-muted-foreground">IP：{session.ip}</p></div> },
+    { id: 'device', size: 320, header: '会话', cell: ({ row: { original: session } }) => <div className="min-w-48 max-w-sm space-y-2 whitespace-normal break-words"><Badge variant={session.current ? 'secondary' : 'outline'}>{session.current ? '当前会话' : '其他会话'}</Badge><p className="text-xs text-muted-foreground">{session.authentication_method === 'password_totp' ? '密码 + 验证器' : session.authentication_method === 'password_recovery_code' ? '密码 + 恢复码' : '密码登录'}</p><p className="text-sm">{session.user_agent || '未知浏览器'}</p><p className="text-xs text-muted-foreground">IP：{session.ip}</p></div> },
     { id: 'time', size: 272, header: '活动时间', cell: ({ row: { original: session } }) => <dl className="space-y-1 text-xs"><div><dt className="inline text-muted-foreground">创建：</dt><dd className="inline">{date(session.created_at)}</dd></div><div><dt className="inline text-muted-foreground">最近活动：</dt><dd className="inline">{date(session.last_activity_at)}</dd></div><div><dt className="inline text-muted-foreground">最晚到期：</dt><dd className="inline">{date(session.expires_at)}</dd></div></dl> },
     { id: 'actions', size: 176, header: '操作', cell: ({ row: { original: session } }) => (session.current || can(P.AccountSessionRevoke)) ? <Button variant="outline" size="sm" className="text-destructive" disabled={action.isPending} onClick={() => action.mutate(session.current ? { kind: 'current' } : { kind: 'revoke', id: session.id })}>{session.current ? '退出当前会话' : '撤销会话'}</Button> : null },
   ];
@@ -80,6 +81,7 @@ export function SecurityPage() {
     { id: 'source', size: 320, header: '来源', cell: ({ row }) => <div className="min-w-56 max-w-sm whitespace-normal break-words"><p>{row.original.source_ip || '服务器维护操作'}</p><p className="mt-1 text-xs text-muted-foreground">{row.original.user_agent}</p></div> },
   ];
   return <><PageHeader title="账号安全" description="管理密码、登录会话与近期安全记录。" /><AccountSettings>
+ <MFACard /><Separator />
     {can(P.AccountPasswordUpdate) && <><PasswordForm /><Separator /></>}
     {can(P.AccountSessionRead) && <section className="space-y-4" aria-labelledby="sessions-title"><div className="flex flex-wrap items-center justify-between gap-3"><h2 id="sessions-title" className="text-lg font-medium">登录会话</h2><Button variant="outline" disabled={sessions.isFetching || records.isFetching || action.isPending} onClick={() => { if (can(P.AccountSessionRead)) void sessions.refetch(); if (can(P.AccountSecurityEventRead)) void records.refetch(); }}><RefreshCw />刷新会话与记录</Button></div><p className="text-sm text-muted-foreground">以下浏览器和 IP 信息仅用于辨认会话，不能准确识别物理设备或定位。</p>
       <FormNotice error>{!confirmAll && action.error?.message}</FormNotice>

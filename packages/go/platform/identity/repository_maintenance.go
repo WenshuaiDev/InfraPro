@@ -177,6 +177,21 @@ func (r *Repository) RevokeAfterRestore(ctx context.Context, m Meta) error {
 		if _, e := access.Lock(ctx, tx, true); e != nil {
 			return e
 		}
+		// A restored snapshot cannot prove the latest factor or policy. Conservatively
+		// require controlled re-enrollment for every account and retain enforcement.
+		if _, e := lockSecurityPolicy(ctx, tx, true); e != nil {
+			return e
+		}
+		for _, q := range []string{
+			"UPDATE platform_security_policy SET require_mfa=true,revision=revision+1,enforcement_generation=enforcement_generation+1,updated_at=now() WHERE id=1",
+			"UPDATE account_mfa SET state='reset_required',factor_version=factor_version+1,secret_ciphertext=NULL,secret_nonce=NULL,key_id=NULL,last_used_step=NULL,enabled_at=NULL,updated_at=now()",
+			"UPDATE account_mfa_recovery_codes SET revoked_at=COALESCE(revoked_at,now())",
+			"UPDATE account_auth_challenges SET state='revoked',revoked_at=now(),secret_ciphertext=NULL,secret_nonce=NULL,key_id=NULL WHERE state='pending'",
+		} {
+			if _, e := tx.Exec(ctx, q); e != nil {
+				return e
+			}
+		}
 		// Exclusive maintenance transaction; callers must stop API traffic during backup restoration.
 		if _, e := tx.Exec(ctx, "LOCK TABLE accounts IN EXCLUSIVE MODE"); e != nil {
 			return e

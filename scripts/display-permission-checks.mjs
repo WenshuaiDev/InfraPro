@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import { expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 
@@ -20,7 +21,7 @@ export async function checkDisplayPermissions({ page, call, tenant, project, ins
   try {
     const invitation = await call('/invitations', { note: '大屏查看者合成测试' });
     await read('/public/invitations/accept', { token: new URLSearchParams(new URL(invitation.url).hash.slice(1)).get('token'), username, display_name: '大屏只读验收', password });
-    await read('/auth/login', { username, password });
+    requireAuthenticatedLogin(await read('/auth/login', { username, password }));
     const account = (await call('/access/accounts?q=' + username)).items[0];
     const invite = await call(`/tenants/${tenant}/member-invitations`, { target_account_id: account.id, client_request_id: randomUUID(), reason: '合成权限回归' });
     const joined = await read('/account/tenant-invitations/accept', { token: new URLSearchParams(new URL(invite.link).hash.slice(1)).get('token'), expected_version: invite.invitation.version });

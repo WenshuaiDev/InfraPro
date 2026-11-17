@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import assert from 'node:assert/strict';
 import { request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
@@ -16,7 +17,7 @@ async function check(name,fn){const started=performance.now();await fn();results
 async function spatialChange(project,add,end=[]){const current=await call(project+'/spatial-access'),input={...wm(current.revision),add,end},preview=await call(project+'/spatial-access/preview',input);return call(project+'/spatial-access',{...input,preview_hash:preview.preview_hash},'PUT');}
 const cleanups=[];
 try{
- await call('/auth/login',{username:login.username,password:login.password});
+ requireAuthenticatedLogin(await call('/auth/login',{username:login.username,password:login.password}));
  const pdf=state.assets['BRIDGE-PDF'],v1=pdf.versions[0].id,v2=pdf.versions[1].id,ps=pa+'/spatial',bs=pb+'/spatial';
  await check('SC-01 same identity across PDF, GLB, IFC and geographic position',async()=>{
   for(const key of ['BRIDGE-PDF','BRIDGE-GLB','BRIDGE-IFC4']){const p=await call(tenant+'/versions/'+state.assets[key].versions[0].id+'/placements?owner_id='+state.point);assert(p.items.some(p=>p.point_id===state.point));}

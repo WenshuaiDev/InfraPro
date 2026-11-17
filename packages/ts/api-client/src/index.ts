@@ -1,3 +1,5 @@
+import { mfaMethods } from './mfa';
+export type * from './mfa';
 import { ingestionMethods } from './ingestion';
 export * from './ingestion';
 import { parsingMethods } from './parsing';
@@ -165,7 +167,7 @@ function accountMethods(base: string, timeoutMs: number) {
     if (revision && path !== '/auth/me') authorizationListeners.forEach((listener) => listener(revision));
     if (!response.ok) {
       const error = data && typeof data === 'object' ? data as Partial<Schema<'Error'>> & { dependencies?: Record<string, number>; retryable?: boolean; next_action?: string } : {};
-      if (notifyUnauthorized && error.code === 'unauthenticated') listeners.forEach((listener) => listener());
+      if (notifyUnauthorized && ['unauthenticated', 'mfa_login_required'].includes(error.code ?? '')) listeners.forEach((listener) => listener());
       if(tenant&&spatialRequest&&['permission_denied','authorization_changed','resource_access_changed','project_archived'].includes(error.code??'')){invalidateSpatialScope(tenant,project);spatialListeners.forEach(listener=>listener(tenant,project,error.code!));}
       if(tenant&&monitoringRequest&&['permission_denied','authorization_changed','selection_stale','snapshot_stale','resource_access_changed'].includes(error.code??'')){invalidateMonitoringScope(tenant,project);monitoringListeners.forEach(listener=>listener(tenant,project,error.code!));}
       if (tenant && deviceRequest && ['permission_denied','device_not_found','source_not_found','definition_not_found','device_access_changed','resource_access_changed','project_archived'].includes(error.code ?? '')) {
@@ -325,7 +327,8 @@ function accountMethods(base: string, timeoutMs: number) {
     accountHelp: () => request<AccountHelp>('/public/account-help'),
     uploadLimits: (signal?: AbortSignal) => request<Schema<'UploadLimits'>>('/auth/upload-limits', 'GET', undefined, true, signal),
     me: () => request<Schema<'AuthContext'>>('/auth/me', 'GET', undefined, false),
-    login: (input: Schema<'LoginInput'>) => request<Account>('/auth/login', 'POST', input),
+    ...mfaMethods(request, commandRequest),
+    login: (input: Schema<'LoginInput'>, signal?: AbortSignal) => request<Schema<'LoginResult'>>('/auth/login', 'POST', input, false, signal),
     logout: () => request<void>('/auth/logout', 'POST'),
     logoutAll: () => request<void>('/auth/logout-all', 'POST'),
     activity: () => request<void>('/auth/activity', 'POST'),

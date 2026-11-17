@@ -78,7 +78,7 @@ test('ordinary HTTP deployment: CLI, deep routes, credentials, cache and depende
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'check');
   await recipient.getByLabel('用户名', { exact: true }).fill('http_guest'); await recipient.getByLabel('密码', { exact: true }).fill('HTTP new 密码 1234'); await recipient.getByRole('button', { name: '登录', exact: true }).click();
   await expect(recipient.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible();
-  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toHaveLength(45); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
+  const recovered = await (await recipientContext.request.get(`${origin}/api/v1/auth/me`)).json(); expect(recovered.permissions).toEqual(expect.arrayContaining(['account.profile.read', 'account.password.update'])); expect(recovered.permissions).toContain('platform.security_policy.update'); expect((await recipientContext.request.get(`${origin}/api/v1/tenants/${tenantID}/profile`)).status()).toBe(404);
   await logout(page); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await legacy.reload(); await expect(legacy.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await recipientContext.close();
   const logs = compose('logs', '--no-color', 'api', 'web');

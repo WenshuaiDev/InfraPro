@@ -9,6 +9,9 @@ const origin = new URL(consoleURL).origin;
 const api = `${origin}/api/v1`;
 async function signIn(request: APIRequestContext, username: string) {
   const headers = { Origin: origin, 'X-CSRF-Token': await csrf(request, origin) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === username) return headers;
+  expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username, password } })).status()).toBe(200); return headers;
 }
 async function prepare(request: APIRequestContext) {

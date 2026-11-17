@@ -369,11 +369,21 @@
         "security": [],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Account"
+                  "$ref": "#/components/schemas/LoginAuthenticated"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginChallenge"
                 }
               }
             }
@@ -149910,6 +149920,2002 @@
         },
         "summary": "读取当前部署的整文件上传限额"
       }
+    },
+    "/api/v1/auth/mfa/challenge": {
+      "get": {
+        "operationId": "mfaChallenge",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginChallenge"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/v1/auth/mfa/verify": {
+      "post": {
+        "operationId": "mfaVerify",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginAuthenticated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAVerifyInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/enrollment/start": {
+      "post": {
+        "operationId": "mfaLoginEnrollmentStart",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentSetup"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAChallengeInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/enrollment/confirm": {
+      "post": {
+        "operationId": "mfaLoginEnrollmentConfirm",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginAuthenticated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFALoginConfirmInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/recovery/claim": {
+      "post": {
+        "operationId": "mfaRecoveryClaim",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginChallenge"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFARecoveryClaimInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/cancel": {
+      "post": {
+        "operationId": "mfaCancel",
+        "security": [
+          {
+            "challengeCookie": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAChallengeInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/mfa": {
+      "get": {
+        "operationId": "mfaRead",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/v1/account/mfa/enrollment/start": {
+      "post": {
+        "operationId": "mfaEnrollmentStart",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentSetup"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAEnrollmentStartInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/mfa/enrollment/confirm": {
+      "post": {
+        "operationId": "mfaEnrollmentConfirm",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAEnrollmentConfirmInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/mfa/enrollment/cancel": {
+      "post": {
+        "operationId": "mfaEnrollmentCancel",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAEnrollmentCancelInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/mfa/disable": {
+      "post": {
+        "operationId": "mfaDisable",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "此入口需要稳定的命令编号。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "X-Command-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFADisableInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/mfa/recovery-codes/regenerate": {
+      "post": {
+        "operationId": "mfaRecoveryRegenerate",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "此入口需要稳定的命令编号。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "X-Command-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFARegenerateInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/platform/security-policy": {
+      "get": {
+        "operationId": "securityPolicyRead",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityPolicy"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      },
+      "put": {
+        "operationId": "securityPolicyUpdate",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityPolicyResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "此入口需要稳定的命令编号。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "X-Command-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecurityPolicyInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/platform/security-policy/mfa-impact": {
+      "get": {
+        "operationId": "securityPolicyImpact",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAImpact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/api/v1/access/accounts/{id}/mfa": {
+      "get": {
+        "operationId": "accountMfaRead",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountMFA"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/access/accounts/{id}/mfa-reset": {
+      "post": {
+        "operationId": "accountMfaReset",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success; secret-bearing responses are no-store and delivered once.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MFAResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Origin, CSRF or recent password confirmation required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource or credential unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "此入口需要稳定的命令编号。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Command-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MFAResetInput"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -149918,6 +151924,11 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "infrapro_session"
+      },
+      "challengeCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "infrapro_auth_challenge"
       }
     },
     "schemas": {
@@ -149932,7 +151943,7 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "Membership errors: member_already_exists, member_suspended, invitation_pending_exists, invitation_already_accepted, invitation_not_pending, member_state_conflict, target_account_unavailable, tenant_admin_transfer_required, administrator_membership_suspended, tenant_invitation_unavailable, tenant_invitation_not_found, member_not_found, version_conflict, idempotency_conflict, operation_busy."
+            "description": "Membership errors: member_already_exists, member_suspended, invitation_pending_exists, invitation_already_accepted, invitation_not_pending, member_state_conflict, target_account_unavailable, tenant_admin_transfer_required, administrator_membership_suspended, tenant_invitation_unavailable, tenant_invitation_not_found, member_not_found, version_conflict, idempotency_conflict, operation_busy. MFA errors: mfa_login_required, mfa_challenge_invalid, mfa_code_invalid, mfa_challenge_completed, self_mfa_reset_forbidden, mfa_required_by_policy, mfa_state_conflict."
           },
           "message": {
             "type": "string"
@@ -150038,7 +152049,8 @@
           "expires_at",
           "user_agent",
           "ip",
-          "current"
+          "current",
+          "authentication_method"
         ],
         "properties": {
           "id": {
@@ -150065,6 +152077,14 @@
           },
           "current": {
             "type": "boolean"
+          },
+          "authentication_method": {
+            "type": "string",
+            "enum": [
+              "password",
+              "password_totp",
+              "password_recovery_code"
+            ]
           }
         }
       },
@@ -150396,6 +152416,9 @@
           "tenant.parsing.test.execute",
           "tenant.parsing.run.read",
           "tenant.parsing.sample.read",
+          "platform.security_policy.read",
+          "platform.security_policy.update",
+          "platform.account.mfa.reset",
           "platform.tenant.disable",
           "platform.tenant.enable",
           "tenant.permission.read",
@@ -201803,10 +203826,576 @@
             "description": "Current deployment admission limit in bytes; existing uploads retain their accepted size."
           }
         }
+      },
+      "LoginAuthenticated": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "account"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "authenticated"
+            ]
+          },
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "recovery_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "LoginChallenge": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "policy_required"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "mfa_required",
+              "mfa_enrollment_required",
+              "mfa_recovery_required",
+              "none"
+            ]
+          },
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "account_label": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "totp",
+                "recovery_code"
+              ]
+            }
+          },
+          "policy_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LoginResult": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LoginAuthenticated"
+          },
+          {
+            "$ref": "#/components/schemas/LoginChallenge"
+          }
+        ]
+      },
+      "EnrollmentSetup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enrollment_id",
+          "issuer",
+          "account_label",
+          "secret",
+          "qr_png_base64",
+          "expires_at"
+        ],
+        "properties": {
+          "enrollment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "account_label": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "qr_png_base64": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MFAStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "state",
+          "factor_version",
+          "recovery_generation",
+          "recovery_codes_remaining",
+          "enabled_at",
+          "policy_required",
+          "can_disable"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "enabled",
+              "reset_required"
+            ]
+          },
+          "factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "recovery_generation": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "recovery_codes_remaining": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "enabled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "policy_required": {
+            "type": "boolean"
+          },
+          "can_disable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MFAResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "state",
+          "factor_version",
+          "recovery_generation",
+          "recovery_codes_remaining",
+          "enabled_at",
+          "policy_required",
+          "can_disable"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "enabled",
+              "reset_required"
+            ]
+          },
+          "factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "recovery_generation": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "recovery_codes_remaining": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "enabled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "policy_required": {
+            "type": "boolean"
+          },
+          "can_disable": {
+            "type": "boolean"
+          },
+          "recovery_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "secret_unavailable": {
+            "type": "boolean"
+          },
+          "recovery_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AccountMFA": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "state",
+          "factor_version",
+          "enabled_at"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "enabled",
+              "reset_required"
+            ]
+          },
+          "factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "enabled_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "SecurityPolicy": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "require_mfa",
+          "revision",
+          "updated_by",
+          "updated_at",
+          "updated_by_label"
+        ],
+        "properties": {
+          "require_mfa": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "updated_by": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_by_label": {
+            "type": "string"
+          }
+        }
+      },
+      "MFAImpact": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "active_accounts",
+          "enabled_accounts",
+          "unenrolled_accounts",
+          "reset_required_accounts",
+          "potential_password_sessions",
+          "computed_at"
+        ],
+        "properties": {
+          "active_accounts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "enabled_accounts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unenrolled_accounts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "reset_required_accounts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "potential_password_sessions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SecurityPolicyResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "policy",
+          "changed",
+          "session_action",
+          "operation_id"
+        ],
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/SecurityPolicy"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "session_action": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "sign_in_again"
+            ]
+          },
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MFAChallengeInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "challenge_id"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MFAVerifyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "challenge_id",
+          "method",
+          "code"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "totp",
+              "recovery_code"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      },
+      "MFALoginConfirmInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "challenge_id",
+          "new_totp_code"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "new_totp_code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$"
+          }
+        }
+      },
+      "MFARecoveryClaimInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "challenge_id",
+          "recovery_token"
+        ],
+        "properties": {
+          "challenge_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recovery_token": {
+            "type": "string",
+            "maxLength": 256
+          }
+        }
+      },
+      "MFAEnrollmentStartInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "expected_factor_version"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "enable",
+              "replace"
+            ]
+          },
+          "expected_factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          }
+        }
+      },
+      "MFAEnrollmentConfirmInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enrollment_id",
+          "new_totp_code"
+        ],
+        "properties": {
+          "enrollment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "new_totp_code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$"
+          }
+        }
+      },
+      "MFAEnrollmentCancelInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "enrollment_id"
+        ],
+        "properties": {
+          "enrollment_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MFADisableInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_factor_version"
+        ],
+        "properties": {
+          "expected_factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          }
+        }
+      },
+      "MFARegenerateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_factor_version",
+          "expected_recovery_generation"
+        ],
+        "properties": {
+          "expected_factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "expected_recovery_generation": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          }
+        }
+      },
+      "MFAResetInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_factor_version",
+          "reason"
+        ],
+        "properties": {
+          "expected_factor_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      },
+      "SecurityPolicyInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "require_mfa",
+          "expected_version",
+          "reason"
+        ],
+        "properties": {
+          "require_mfa": {
+            "type": "boolean"
+          },
+          "expected_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
       }
     }
   },
   "x-audit-command-operations": [
+    "SecurityPolicyUpdate",
+    "AccountMFAReset",
+    "MFADisable",
+    "MFARecoveryRegenerate",
     "RoleCreate",
     "RoleUpdate",
     "RoleSetPermissions",

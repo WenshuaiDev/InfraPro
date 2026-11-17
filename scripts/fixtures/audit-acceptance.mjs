@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from '../login-result.mjs';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {writeFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -6,7 +7,7 @@ export const auditOwner={username:'e2e_owner',password:'Real browser 河流 secr
 export async function auditClient(origin,login=auditOwner){
  const client=await request.newContext(),api=origin+'/api/v1';const csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token};
  const call=async(path,data,method=data===undefined?'GET':'POST',command=randomUUID())=>{const r=await client.fetch(api+path,{method,headers:{...headers,'X-Command-ID':command},data});if(!r.ok())throw Error(`${method} ${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();};
- await call('/auth/login',{username:login.username,password:login.password});return {client,api,headers,call};
+ requireAuthenticatedLogin(await call('/auth/login',{username:login.username,password:login.password}));return {client,api,headers,call};
 }
 const reason='审计与操作追踪隔离合成验收';
 export async function seedAuditAcceptance(lab){

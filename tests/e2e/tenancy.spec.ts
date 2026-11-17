@@ -4,7 +4,11 @@ import { test, expect, createAccount, login, password, consoleURL, csrf } from '
 import { navigateTo } from '../helpers/navigation';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
 const api = new URL('/api/v1', consoleURL).href;
-async function owner(request: APIRequestContext) { const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) }; expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200); return headers; }
+async function owner(request: APIRequestContext) { const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === 'e2e_owner') return headers;
+  if (current.status() === 200) expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+ expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200); return headers; }
 async function accountID(request: APIRequestContext, username: string) { const response = await request.get(`${api}/access/accounts?q=${username}`); expect(response.status()).toBe(200); return (await response.json()).items[0] as { id: string; management_version: string }; }
 async function create(request: APIRequestContext, headers: Record<string, string>, admin: string, label: string) { const code = `t-${randomBytes(5).toString('hex')}`; const response = await request.post(`${api}/platform/tenants`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: label, code, description: '', reason: '浏览器租户验收', administrator_account_id: admin, client_request_id: randomUUID() } }); expect(response.status()).toBe(201); return { ...(await response.json()) as { tenant_id: string; version: string }, code }; }
 async function refresh(page: Page) { const response = page.waitForResponse((r) => r.url().endsWith('/auth/me')); await page.evaluate(() => window.dispatchEvent(new Event('focus'))); await response; }

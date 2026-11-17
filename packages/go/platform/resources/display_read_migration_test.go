@@ -90,7 +90,7 @@ func TestDisplayReadMigrationFormatsAndDowngrade(t *testing.T) {
 	v.ScopeID = "r"
 	named := createReadDisplay(t, f, p, b, []dr.Definition{d}, map[string]dr.Definition{"r": v}, []string{"views.read", "queries.read", "resources.directory"})
 	_, e = provider.DownTo(ctx, 45)
-	if e == nil || !strings.Contains(e.Error(), "requires restore of a verified backup") {
+	if e == nil || (!strings.Contains(e.Error(), "requires restore of a verified backup") && !strings.Contains(e.Error(), "MFA migration is irreversible")) {
 		t.Fatal("destructive rollback was not refused", e)
 	}
 	must(t, migrations.Up(ctx, f.env.Config.DatabaseURL))

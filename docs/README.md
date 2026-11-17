@@ -11,7 +11,7 @@
 
 ## 开发规格
 
-- [平台 MFA 开发规格](development/mfa-development-spec.md)：平台强制开关、个人验证器管理、多步登录及会话、恢复与重置、安全存储与审计；明确登录后敏感操作不再要求 TOTP，包含现有系统改动地图、接口与迁移约定及 60 项验收用例。范围已确认，尚未编码或功能验收。
+- [平台 MFA 开发规格](development/mfa-development-spec.md)：平台强制开关、个人验证器管理、多步登录及会话、恢复与重置、安全存储与审计；明确登录后敏感操作不再要求 TOTP，包含现有系统改动地图、接口与迁移约定及 60 项验收用例。实现与逐项证据见[验证账本](verification/mfa.md)；人工接受单独记录。
 - [解析服务与解析方法配置](development/parsing-service-and-method-binding-spec.md)：两端职责、产品配置、设备继承与特化、固定版本、权限、DDP 样本及验收条件。完整实现已落地，PAR-001—PAR-076 自验通过；[人工验收与证据](verification/parsing-service.md)另行记录。
 - [设备数据接入与原始报文管理](development/device-ingestion-and-raw-message-spec.md)：云端统一接收转发、内网主动接管、来源识别、终端关联、自动解析和原文隔离，共 136 项验收条件。[逐项自验与人工接受](verification/device-ingestion-and-raw-messages.md)分开记录。
 - [大屏 SDK 监测目录、详情与统计扩展](development/display-sdk-monitoring-read-spec.md)：工程与设备目录、地图与空间资料、三类统计、命名读取范围、后端授权及兼容迁移；不含传感器分类和断面管理。[100 项实施与验收账本](verification/display-sdk-monitoring-read.md)记录当前自验及独立的人工接受状态；[独立验收工程](../examples/display-monitoring-read/README.md)说明安装、配置和运行。
@@ -19,6 +19,7 @@
 
 ## 运行维护
 
+- [MFA：配置、密钥轮换、受控恢复与隔离验收](operations/mfa.md)
 - [当前生产版本基线](operations/production-version-2026-11-17.md)：Git 标签 `production-2026-11-17` 与实机发行包、运行程序及数据库版本的对应关系。
 - [解析服务、固定产物发布与联合恢复](operations/parsing-service.md)
 - [设备接入与原始报文：启动、模拟、部署和恢复](operations/device-ingestion-and-raw-messages.md)

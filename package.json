@@ -108,7 +108,9 @@
     "test:display:compatibility": "node scripts/test-display-compatibility.mjs",
     "display:mock:browser": "node scripts/display-read-mock-browser.mjs",
     "display:rich:browser": "node scripts/display-rich-browser.mjs",
-    "test:uploads": "node scripts/test-uploads.mjs"
+    "test:uploads": "node scripts/test-uploads.mjs",
+    "test:mfa": "node scripts/test-mfa.mjs",
+    "mfa:lab": "node scripts/mfa-lab.mjs"
   },
   "devDependencies": {
     "@infrapro/eslint-config": "workspace:*",

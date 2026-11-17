@@ -155,6 +155,9 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	for _, table := range tables {
 		var s string
 		projection := "to_jsonb(t)"
+		if table == "account_sessions" {
+			projection += "-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'"
+		}
 		if table == "roles" {
 			projection += "-'owner_project_id'"
 		}
@@ -180,6 +183,9 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	for _, table := range tables {
 		var s string
 		projection := "to_jsonb(t)"
+		if table == "account_sessions" {
+			projection += "-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'"
+		}
 		if table == "roles" {
 			projection += "-'owner_project_id'"
 		}

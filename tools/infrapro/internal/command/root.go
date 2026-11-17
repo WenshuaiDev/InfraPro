@@ -50,6 +50,9 @@ const accountHelp = `账号维护：infrapro account <子命令> [选项]
   disable         --username <用户名> --reason <原因> [--emergency]
   enable          --username <用户名> --reason <原因>
   audit           [--cursor <分页位置>]，本地维护有限安全摘要（非人员空间查询）
+  mfa-reset       --username <用户名> --reason <原因> --operator <维护员>，仅终端输出恢复授权
+  mfa-keys        仅输出数据库引用的 key_id 与计数
+  mfa-rotate      按当前 keyring 有界重加密；先分发新旧密钥再运行
   revoke-access   --reason <原因>，备份恢复后撤销历史访问能力
 `
 

@@ -100,7 +100,7 @@ func TestCatalogPolicy(t *testing.T) {
 		}
 		codes[p.Code] = true
 	}
-	if len(codes) != 238 {
+	if len(codes) != 241 {
 		t.Fatal(len(codes))
 	}
 	routes := map[string]bool{}

@@ -29,8 +29,8 @@ function useScopeState<T>(key: readonly unknown[]) {
 }
 
 export function WorkspaceShell({ children }: { children?: ReactNode }) {
-  const { account } = useIdentity();
-  if (!account) return null;
+  const { account, phase } = useIdentity();
+  if (!account || phase === 'anonymous' || phase === 'authenticating') return null;
   return <WorkspacePickerProvider key={account.id}><NotificationProvider><TaskProvider><WorkspaceContent>{children}</WorkspaceContent></TaskProvider></NotificationProvider></WorkspacePickerProvider>;
 }
 

@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import assert from 'node:assert/strict';
 import {chromium,request,expect} from '@playwright/test';
 import {randomUUID} from 'node:crypto';
@@ -7,7 +8,7 @@ const sessions='.artifacts/spatial-tests',directory=process.env.SPATIAL_SESSION?
 const client=await request.newContext(),csrf=await(await client.get(origin+'/api/v1/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token},results=[],errors=[];
 const wm=(r='0')=>({request_id:randomUUID(),expected_revision:r,reason:'空间交互自验'});
 async function call(path,data,method=data===undefined?'GET':'POST'){const r=await client.fetch(origin+'/api/v1'+path,{method,headers,data});assert(r.ok(),path+': '+r.status()+' '+await r.text());return r.json();}
-await call('/auth/login',{username:login.username,password:login.password});
+requireAuthenticatedLogin(await call('/auth/login',{username:login.username,password:login.password}));
 const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-webgl']}),context=await browser.newContext({viewport:{width:1600,height:1000}});await context.addCookies((await client.storageState()).cookies);const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
 async function check(name,fn){const start=performance.now();await fn();results.push({name,passed:true,duration_ms:Math.round(performance.now()-start)});console.log('PASS '+name);}
 let draftID;

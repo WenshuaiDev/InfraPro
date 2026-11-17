@@ -18,6 +18,8 @@ import (
 )
 
 type Service struct {
+	mfa            *mfaKeyring
+	now            func() time.Time
 	access         *access.Service
 	repo           *Repository
 	cache          *Cache
@@ -29,11 +31,21 @@ type Service struct {
 }
 
 func NewService(pool *pgxpool.Pool, client *redis.Client, cfg config.Config, logger *slog.Logger) (*Service, error) {
+	keys, e := loadMFAKeyring(cfg.MFAKeyringFile)
+	if e != nil {
+		return nil, e
+	}
+	if cfg.MFAIssuer == "" {
+		cfg.MFAIssuer = "InfraPro"
+	}
+	if e = config.ValidateMFAIssuer(cfg.MFAIssuer); e != nil {
+		return nil, e
+	}
 	dummy, e := HashPassword("InfraPro internal timing placeholder 492")
 	if e != nil {
 		return nil, e
 	}
-	return &Service{access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger, dummy: dummy, passwordSlots: make(chan struct{}, 4)}, nil
+	return &Service{mfa: keys, now: time.Now, access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger, dummy: dummy, passwordSlots: make(chan struct{}, 4)}, nil
 }
 func (s *Service) Ready(ctx context.Context) error {
 	if e := s.repo.pool.Ping(ctx); e != nil {
@@ -43,6 +55,9 @@ func (s *Service) Ready(ctx context.Context) error {
 		return e
 	}
 	if e := s.access.Check(ctx); e != nil {
+		return e
+	}
+	if e := s.mfaReady(ctx); e != nil {
 		return e
 	}
 	return s.cache.Ping(ctx)
@@ -102,36 +117,19 @@ func (s *Service) Rate(ctx context.Context, scope, ip, key string) error {
 func (s *Service) Limit(ctx context.Context, scope, key string, max int) error {
 	return s.cache.Rate(ctx, scope, key, max, time.Minute)
 }
+
+// Login retains the internal optional-mode calling convention. It never converts
+// a pending challenge into a personnel session; adapters use BeginLogin instead.
 func (s *Service) Login(ctx context.Context, username, password string, m Meta) (Account, string, time.Time, error) {
-	if e := s.Rate(ctx, "login", m.IP, strings.ToLower(username)); e != nil {
-		return Account{}, "", time.Time{}, e
-	}
-	if len(username) > 128 {
-		return Account{}, "", time.Time{}, ErrCredentials
-	}
-	token, e := newToken()
+	d, e := s.BeginLogin(ctx, username, password, "", m)
 	if e != nil {
 		return Account{}, "", time.Time{}, e
 	}
-	var p Principal
-	e = s.passwordWork(ctx, func() error {
-		var err error
-		p, err = s.repo.Login(ctx, username, password, s.dummy, digest(token), s.cfg.SessionAbsolute, s.cfg.PasswordFailures, m)
-		return err
-	})
-	if e != nil {
-		return Account{}, "", time.Time{}, e
+	if d.Result.Status != "authenticated" {
+		_ = s.CancelChallenge(ctx, d.ChallengeToken, d.Result.ID)
+		return Account{}, "", time.Time{}, ErrMFALogin
 	}
-	if e = s.cache.Put(ctx, p, s.cacheTTL(p)); e != nil {
-		// Independent bounded context persists revocation even if the client disconnected during cache write.
-		clean, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := s.repo.RevokeToken(clean, p.TokenHash, m); err != nil {
-			s.logger.Error("failed to revoke undispatched session")
-		}
-		return Account{}, "", time.Time{}, e
-	}
-	return p.Account, token, p.Session.ExpiresAt, nil
+	return *d.Result.Account, d.SessionToken, d.ExpiresAt, nil
 }
 func (s *Service) cacheTTL(p Principal) time.Duration {
 	return min(s.cfg.SessionCacheTTL, time.Until(p.Session.LastActivityAt.Add(s.cfg.SessionIdle)), time.Until(p.Session.ExpiresAt))
@@ -403,6 +401,14 @@ func (s *Service) RunJobs(ctx context.Context) {
 			}
 			if e = s.DrainInvalidations(job); e != nil {
 				s.logger.Warn("cache invalidation retry pending")
+			}
+			if n%2 == 0 {
+				if e = s.repo.CleanupMFA(job); e != nil {
+					s.logger.Warn("MFA challenge cleanup pending")
+				}
+				if e = s.LogMFACounts(job); e != nil {
+					s.logger.Warn("MFA count observation unavailable")
+				}
 			}
 			if n%20 == 0 {
 				if e = s.repo.Cleanup(job, s.cfg.AuditRetention); e != nil {

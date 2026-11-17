@@ -20,16 +20,23 @@ type Resources struct {
 	Pool       *pgxpool.Pool
 	Redis      *redis.Client
 	Identity   *identity.Service
+	Access     *access.Service
 	Monitoring *monitoring.Storage
 }
 
 func Open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool) (*Resources, error) {
-	return open(ctx, cfg, logger, requireRedis, 12)
+	return open(ctx, cfg, logger, requireRedis, 12, true)
+}
+
+// OpenWorker omits personnel authentication and its decryption keys. Workers
+// still share the database/catalog checks and transaction authorization rules.
+func OpenWorker(ctx context.Context, cfg config.Config, logger *slog.Logger) (*Resources, error) {
+	return open(ctx, cfg, logger, false, 12, false)
 }
 func OpenDisplay(ctx context.Context, cfg config.Config, logger *slog.Logger) (*Resources, error) {
-	return open(ctx, cfg, logger, false, int32(cfg.Display.PoolSize))
+	return open(ctx, cfg, logger, false, int32(cfg.Display.PoolSize), false)
 }
-func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool, poolSize int32) (*Resources, error) {
+func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRedis bool, poolSize int32, personnelIdentity bool) (*Resources, error) {
 	pc, e := pgxpool.ParseConfig(cfg.DatabaseURL)
 	if e != nil {
 		return nil, fmt.Errorf("invalid database configuration")
@@ -48,7 +55,8 @@ func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRe
 	if e = migrations.Check(ctx, pool); e != nil {
 		return fail(e)
 	}
-	if e = access.New(pool, logger).Check(ctx); e != nil {
+	authorization := access.New(pool, logger)
+	if e = authorization.Check(ctx); e != nil {
 		return fail(e)
 	}
 	ro, e := redis.ParseURL(cfg.RedisURL)
@@ -67,10 +75,14 @@ func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRe
 			return fail(fmt.Errorf("Redis unavailable"))
 		}
 	}
-	service, e := identity.NewService(pool, client, cfg, logger)
-	if e != nil {
-		client.Close()
-		return fail(e)
+	var service *identity.Service
+	if personnelIdentity {
+		service, e = identity.NewService(pool, client, cfg, logger)
+		if e != nil {
+			client.Close()
+			return fail(e)
+		}
+		authorization = service.Access()
 	}
 	var storage *monitoring.Storage
 	if len(cfg.Monitoring.Replicas) > 0 {
@@ -90,6 +102,6 @@ func open(ctx context.Context, cfg config.Config, logger *slog.Logger, requireRe
 			return fail(fmt.Errorf("derived result storage not ready; run infrapro monitoring storage init: %w", e))
 		}
 	}
-	return &Resources{Pool: pool, Redis: client, Identity: service, Monitoring: storage}, nil
+	return &Resources{Pool: pool, Redis: client, Identity: service, Access: authorization, Monitoring: storage}, nil
 }
 func (r *Resources) Close() { r.Monitoring.Close(); _ = r.Redis.Close(); r.Pool.Close() }

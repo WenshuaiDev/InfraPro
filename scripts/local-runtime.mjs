@@ -1,3 +1,4 @@
+import { createMFAKeyring } from './mfa-keyring.mjs';
 import { execFileSync, spawn } from 'node:child_process';
 import { randomBytes, createHash, createHmac } from 'node:crypto';
 import { mkdirSync, existsSync, readFileSync, writeFileSync, openSync, closeSync, chmodSync } from 'node:fs';
@@ -38,11 +39,14 @@ async function bucket(name, endpoint, secret) {
 async function init() {
   mkdirSync(directory, { recursive: true, mode: 0o700 }); chmodSync(directory, 0o700);
   if (!existsSync(join(directory, 'environment.json'))) {
+    const mfaKeyring = join(directory, 'private/mfa-keyring.json');
+    if (!existsSync(mfaKeyring)) createMFAKeyring(mfaKeyring);
     const passwords = Object.fromEntries(['postgres', 'redis', 's3'].map(k => [k, randomBytes(24).toString('hex')]));
     privateJSON('service-secrets.json', passwords);
     const env = {
       INFRAPRO_DATABASE_URL: `postgres://infrapro:${passwords.postgres}@127.0.0.1:5432/infrapro`,
       INFRAPRO_REDIS_URL: `redis://:${passwords.redis}@127.0.0.1:6379/0`, INFRAPRO_REDIS_KEY_PREFIX: 'infrapro:local:identity:v1:',
+      INFRAPRO_MFA_KEYRING_FILE: mfaKeyring, INFRAPRO_MFA_ISSUER: 'InfraPro',
       INFRAPRO_CSRF_AUTH_KEY: randomBytes(32).toString('hex'), INFRAPRO_HTTP_ADDR: '127.0.0.1:28080',
       INFRAPRO_PUBLIC_CONSOLE_URL: origin + '/', INFRAPRO_TRUSTED_ORIGINS: origin, INFRAPRO_COOKIE_SECURE: 'false',
       INFRAPRO_SUPPORT_CONTACT: '江南交通基础设施监测中心信息运维室',

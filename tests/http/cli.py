@@ -55,3 +55,10 @@ elif sys.argv[1] == 'reset':
         raise RuntimeError('Reset link not found')
     # Caller captures this synthetic one-time test credential in memory, never in logs.
     print(json.dumps({'url': match.group(0)}))
+
+elif sys.argv[1] == 'mfa-reset':
+    result = run(['mfa-reset', '--username', sys.argv[2], '--reason', 'HTTP 合成快照恢复核验', '--operator', '隔离维护员'])
+    match = re.search(r'http://[^\s"\x1b]+/mfa-recovery#token=[A-Za-z0-9_-]+', result)
+    if not match:
+        raise RuntimeError('MFA recovery link missing')
+    print(json.dumps({'url': match.group(0)}))

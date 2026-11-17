@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/testkeyring"
 	"io"
 	"log/slog"
 	"net/url"
@@ -110,6 +111,12 @@ func setup(t *testing.T) *testSystem {
 	cache := redis.NewClient(options)
 	t.Cleanup(func() { cache.Close() })
 	cfg := config.Config{DatabaseURL: dbURL, RedisURL: redisURL, RedisKeyPrefix: "infrapro:test-" + schema + ":identity:v1:", PublicConsoleURL: "http://127.0.0.1:15173/", TrustedOrigins: []string{"http://127.0.0.1:15173"}, SupportContact: "测试维护员", CSRFKey: []byte("0123456789abcdef0123456789abcdef"), SessionIdle: 2 * time.Hour, SessionAbsolute: 12 * time.Hour, SessionCacheTTL: 5 * time.Minute, InvitationTTL: 24 * time.Hour, ResetTTL: 30 * time.Minute, AuditRetention: 90 * 24 * time.Hour, InvitationRate: 100, InvitationLimit: 20, IPRequestLimit: 10000, CredentialRequestLimit: 1000, PasswordFailures: 5}
+	keyfile, cleanupKey, e := testkeyring.Create()
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(cleanupKey)
+	cfg.MFAKeyringFile = keyfile
 	s, e := NewService(pool, cache, cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if e != nil {
 		t.Fatal(e)
