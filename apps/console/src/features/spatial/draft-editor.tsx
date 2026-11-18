@@ -1,11 +1,8 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { DomainFiles } from "../files/domain-files";
 import { lazy, Suspense, useEffect, useState } from "react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   SpatialDraft,
   SpatialPlacement,
@@ -112,10 +109,7 @@ function Editor({
     [localError, setLocalError] = useState<unknown>();
   const kind = initial.asset.kind,
     geolayer = kind === "geolayer";
-  const targets = useInfiniteQuery({
-    initialPageParam: "",
-    queryKey: [...m.prefix, "edit-targets", initial.asset.id, mode, query],
-    queryFn: ({ signal, pageParam }) =>
+  const targets = usePagedQuery({ initialPageSize: 50, queryKey: [...m.prefix, "edit-targets", initial.asset.id, mode, query], enabled: m.available, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialObjects(
         m.scope,
         {
@@ -123,16 +117,12 @@ function Editor({
           facility_id: initial.asset.facility_id,
           q: query,
           state: "normal",
-          cursor: pageParam,
-          limit: 50,
+          cursor,
+          limit,
         },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: m.available,
-    retry: false,
-  });
-  const targetItems = targets.data?.pages.flatMap((p) => p.items) ?? [];
+      ) });
+  const targetItems = targets.data?.items ?? [];
   const selectedTarget = useQuery({
     queryKey: [...m.prefix, "edit-target", mode, selected, geolayer],
     queryFn: ({ signal }) =>
@@ -490,15 +480,8 @@ function Editor({
               ))}
             </select>
           </Field>
-          {targets.hasNextPage && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={targets.isFetchingNextPage}
-              onClick={() => void targets.fetchNextPage()}
-            >
-              载入更多可关联对象
-            </Button>
+          {targets.data && (
+            <ListPagination label="可关联对象" {...targets.pagination} />
           )}
           <Failure error={targets.error ?? selectedTarget.error} />
           <div className="max-h-72 space-y-2 overflow-auto border-t pt-3">

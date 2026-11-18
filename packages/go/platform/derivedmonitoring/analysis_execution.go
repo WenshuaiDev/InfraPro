@@ -176,7 +176,10 @@ func (s *Service) publishAnalysis(ctx context.Context, lease monitoring.TaskLeas
 			}
 		}
 		var number int64
-		if e = tx.QueryRow(ctx, `SELECT latest_version FROM analysis_artifacts WHERE tenant_id=$1 AND id=$2 AND scope_key=$3 AND status='active' FOR UPDATE`, run.Scope.Tenant, manifest.Artifact, run.Scope.key()).Scan(&number); e != nil {
+		if e = tx.QueryRow(ctx, `SELECT latest_version FROM analysis_artifacts WHERE tenant_id=$1 AND id=$2 AND scope_key=$3 AND status='active' AND deleted_at IS NULL FOR UPDATE`, run.Scope.Tenant, manifest.Artifact, run.Scope.key()).Scan(&number); e != nil {
+			if e == pgx.ErrNoRows {
+				return problem("analysis_unavailable", "成果已删除或归档，无法发布新版本。", 409)
+			}
 			return e
 		}
 		output, _ := run.OutputRange.rangeValue()

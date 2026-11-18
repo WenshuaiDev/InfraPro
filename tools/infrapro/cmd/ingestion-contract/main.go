@@ -91,6 +91,7 @@ func structure(t reflect.Type) schema {
 }
 
 type page[T any] struct {
+	Total      *int   `json:"total,omitempty"`
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }

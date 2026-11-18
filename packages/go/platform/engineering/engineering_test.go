@@ -408,3 +408,50 @@ func TestFailedAuditRollsBackWholePublication(t *testing.T) {
 	_, e = f.s.Publish(ctx, a, scope, v.DefinitionID, in, access.Meta{})
 	must(t, e)
 }
+
+func TestUnitListUsesVisibleContent(t *testing.T) {
+	f := setup(t)
+	actor := f.actor(f.p)
+	platform := eng.Scope{Kind: eng.UnitDefinition}
+	publicUnit := eng.Unit{Symbol: "m", Category: "length"}
+	for _, k := range []string{"length", "height"} {
+		_, err := f.s.SaveCategory(ctx, actor, eng.CategoryInput{WriteMeta: f.wm(t), Key: k, Name: k, Description: k}, access.Meta{})
+		must(t, err)
+	}
+	content := simple("米")
+	content.Unit = &publicUnit
+	published := f.publish(t, platform.Kind, f.create(t, platform.Kind, "meter", content))
+	draft, err := f.s.NewDraft(ctx, actor, platform, published.DefinitionID, eng.NewDraftInput{
+		RevisionInput: eng.RevisionInput{WriteMeta: f.wm(t), Revision: published.Revision}, VersionID: published.VersionID,
+	}, access.Meta{})
+	must(t, err)
+	draftUnit := eng.Unit{Symbol: "hm", Category: "height"}
+	content.Unit = &draftUnit
+	content.Name = "高度单位"
+	_, err = f.s.Save(ctx, actor, platform, published.DefinitionID, eng.SaveInput{WriteMeta: f.wm(t), Revision: draft.Revision, Content: content}, access.Meta{})
+	must(t, err)
+	member := f.member(t, "Reader")
+	tenants := tenancy.New(f.env.Service.Access())
+	tenant, err := tenants.Create(ctx, actor, tenancy.CreateInput{Fields: tenancy.Fields{Name: "目录测试", Code: "catalog-test"}, AdministratorID: member.Account.ID, RequestID: f.wm(t).RequestID, Reason: "目录验证"}, access.Meta{})
+	must(t, err)
+	for _, view := range []struct {
+		scope eng.Scope
+		actor access.Actor
+		unit  eng.Unit
+		name  string
+		draft bool
+	}{
+		{platform, actor, draftUnit, content.Name, true},
+		{eng.Scope{Tenant: tenant.TenantID, Kind: platform.Kind, Catalog: true}, f.actor(member), publicUnit, "米", false},
+	} {
+		page, err := f.s.List(ctx, view.actor, view.scope, eng.Filter{Query: "meter"})
+		must(t, err)
+		if len(page.Items) != 1 {
+			t.Fatalf("expected one visible unit, got %d", len(page.Items))
+		}
+		item := page.Items[0]
+		if item.Unit == nil || *item.Unit != view.unit || item.Name != view.name || item.HasDraft != view.draft || !item.Usable {
+			t.Fatalf("wrong visible unit summary: %+v, unit %+v", item, item.Unit)
+		}
+	}
+}

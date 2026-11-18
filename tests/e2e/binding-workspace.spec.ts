@@ -63,12 +63,15 @@ test('binding workbench preserves complete paths, paged selection and real bind/
     if (failMore && new URL(route.request().url()).searchParams.get('cursor')) return route.fulfill({ status: 503, json: { code: 'unavailable', message: '后续通道暂时无法读取' } });
     return route.continue();
   });
-  await page.getByRole('button', { name: '加载更多业务通道', exact: true }).click();
+  await page.getByRole('navigation', { name: '业务通道分页' }).getByRole('button', { name: '下一页' }).click();
   await expect(tree.getByText('更多通道暂时无法读取', { exact: true })).toBeVisible();
   await expect(tree.locator(`[data-binding-channel="${deep.id}"]`)).toBeVisible();
   failMore = false;
   await tree.getByRole('button', { name: '重新加载', exact: true }).click();
-  await expect(page.getByText('已加载 53 / 53 个', { exact: true })).toBeVisible();
+  const pager = page.getByRole('navigation', { name: '业务通道分页' });
+  await pager.getByRole('button', { name: '下一页' }).click();
+  await expect(pager.getByRole('button', { name: '第 2 页' })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByText('共 53 条', { exact: true })).toBeVisible();
   await expect(tree.getByText('当前定位 · 不在已加载结果中', { exact: true })).toHaveCount(0);
   await page.unroute('**/monitoring-source-bindings?**');
 

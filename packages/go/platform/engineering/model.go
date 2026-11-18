@@ -86,13 +86,14 @@ type Unit struct {
 	Category string `json:"category"`
 }
 type Metric struct {
-	Shape        string   `json:"shape"`
-	Category     string   `json:"category"`
-	StandardUnit string   `json:"standard_unit"`
-	AllowedUnits []string `json:"allowed_units"`
-	Minimum      *float64 `json:"minimum,omitempty"`
-	Maximum      *float64 `json:"maximum,omitempty"`
-	Options      []Option `json:"options"`
+	FacilityTopics *[]string `json:"facility_topics,omitempty"`
+	Shape          string    `json:"shape"`
+	Category       string    `json:"category"`
+	StandardUnit   string    `json:"standard_unit"`
+	AllowedUnits   []string  `json:"allowed_units"`
+	Minimum        *float64  `json:"minimum,omitempty"`
+	Maximum        *float64  `json:"maximum,omitempty"`
+	Options        []Option  `json:"options"`
 }
 type Group struct {
 	Key         string `json:"key"`
@@ -213,24 +214,43 @@ type Definition struct {
 	Dependencies  []Version `json:"dependencies"`
 }
 type Summary struct {
-	ID            string `json:"id"`
-	Kind          Kind   `json:"kind"`
-	Code          string `json:"code"`
-	Name          string `json:"name"`
-	Latest        int    `json:"latest"`
-	HasDraft      bool   `json:"has_draft"`
-	Usable        bool   `json:"usable"`
-	SourceVersion string `json:"source_version"`
+	ID            string       `json:"id"`
+	Kind          Kind         `json:"kind"`
+	Code          string       `json:"code"`
+	Name          string       `json:"name"`
+	Latest        int          `json:"latest"`
+	HasDraft      bool         `json:"has_draft"`
+	Usable        bool         `json:"usable"`
+	SourceVersion string       `json:"source_version"`
+	Unit          *Unit        `json:"unit,omitempty"`
+	MetricIndex   *MetricIndex `json:"metric_index,omitempty"`
+	UnitVersions  []UnitChoice `json:"unit_versions,omitempty"`
+}
+type MetricIndex struct {
+	LatestUsable   bool     `json:"latest_usable"`
+	Shape          string   `json:"shape"`
+	StandardSymbol string   `json:"standard_symbol"`
+	FacilityTopics []string `json:"facility_topics"`
+}
+type UnitChoice struct {
+	ID       string `json:"id"`
+	Number   int    `json:"number"`
+	Name     string `json:"name"`
+	Symbol   string `json:"symbol"`
+	Category string `json:"category"`
 }
 type Filter struct {
-	Query, Status string
-	Offset, Limit int
+	Query, Status               string
+	FacilityTopic, UnitCategory string
+	UnitChoices                 bool
+	Offset, Limit               int
 }
 type Page struct {
-	Items  []Summary `json:"items"`
-	Total  int       `json:"total"`
-	Offset int       `json:"offset"`
-	Limit  int       `json:"limit"`
+	FacilityCounts map[string]int `json:"facility_counts,omitempty"`
+	Items          []Summary      `json:"items"`
+	Total          int            `json:"total"`
+	Offset         int            `json:"offset"`
+	Limit          int            `json:"limit"`
 }
 type WriteMeta struct {
 	RequestID string `json:"request_id"`

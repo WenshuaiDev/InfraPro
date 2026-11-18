@@ -74,6 +74,9 @@ func TestAnalysisSelectionRequiresOnlyCompleteSelectedDependencies(t *testing.T)
 	if _, e = s.AnalysisArtifactRows(ctx, project.actor, scope, artifact, dm.AnalysisArtifactQuery{VersionID: version, Outputs: []string{"point"}}); e == nil {
 		t.Fatal("partial grant allowed entire artifact range")
 	}
+	if _, e = s.DeleteAnalysisArtifact(ctx, project.actor, scope, artifact, restoreMeta(page.Detail.Artifact.Revision), access.Meta{}); e == nil {
+		t.Fatal("partial input permission permitted deletion of a complete artifact")
+	}
 	if _, e = s.AnalysisArtifactRows(ctx, project.actor, scope, artifact, dm.AnalysisArtifactQuery{VersionID: version, Range: &part, Outputs: []string{"delta"}}); e == nil {
 		t.Fatal("difference omitted the unauthorized original predecessor")
 	}

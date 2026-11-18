@@ -13,14 +13,7 @@ func (s *Storage) read(ctx context.Context, q rawRead, consume func(rawObservati
 	if q.Manifest == nil {
 		return s.readOne(ctx, q, consume)
 	}
-	groups := map[string][]selectedChunk{}
-	for _, c := range q.Manifest {
-		name := c.Physical
-		if name == "" {
-			name = "local"
-		}
-		groups[name] = append(groups[name], c)
-	}
+	groups := physicalManifests(q.Manifest)
 	if len(groups) == 0 {
 		return nil
 	}
@@ -145,4 +138,16 @@ func compareRead(a, b rawObservation, order string) int {
 		}
 	}
 	return 0
+}
+
+func physicalManifests(manifest []selectedChunk) map[string][]selectedChunk {
+	groups := map[string][]selectedChunk{}
+	for _, c := range manifest {
+		name := c.Physical
+		if name == "" {
+			name = "local"
+		}
+		groups[name] = append(groups[name], c)
+	}
+	return groups
 }

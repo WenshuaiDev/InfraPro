@@ -63,9 +63,11 @@ test('invitation creation, manual copy, recipient validation, one-use and member
 
 test('session revocation and changing password sign out other devices', async ({ page, account, browser }, testInfo) => {
   await login(page, account); const otherContext = await browser.newContext(); const other = await otherContext.newPage(); await login(other, account);
-  await navigateTo(page, '账号安全'); await expect(page.getByText('其他会话', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '退出其他设备', exact: true }).click(); await expect(page.getByText('其他会话', { exact: true })).toHaveCount(0);
+  await navigateTo(page, '账号安全'); await page.getByRole('button', { name: '管理会话', exact: true }).click(); await expect(page.getByText('其他会话', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '退出其他设备', exact: true }).click(); await page.getByRole('alertdialog').getByRole('button', { name: '确认退出其他设备' }).click(); await expect(page.getByText('其他会话', { exact: true })).toHaveCount(0);
   await other.reload(); await expect(other.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await login(other, account);
+  await page.getByRole('dialog', { name: '登录会话' }).getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByRole('button', { name: '修改密码', exact: true }).click();
   await page.getByLabel('当前密码', { exact: true }).fill(account.password); const next = 'Updated 河流 long passphrase';
   await page.getByLabel('新密码', { exact: true }).fill(next); await page.getByLabel('确认新密码', { exact: true }).fill(next);
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -73,6 +75,7 @@ test('session revocation and changing password sign out other devices', async ({
   await page.getByRole('button', { name: '修改密码并退出', exact: true }).click(); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await other.reload(); await expect(other.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
   await login(page, { username: account.username, password: next }); await navigateTo(page, '账号安全');
+  await page.getByRole('button', { name: '管理会话', exact: true }).click();
   await page.getByRole('button', { name: '退出全部设备', exact: true }).click(); await page.getByRole('alertdialog').getByRole('button', { name: '确认退出全部设备', exact: true }).click(); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await otherContext.close();
 });
 

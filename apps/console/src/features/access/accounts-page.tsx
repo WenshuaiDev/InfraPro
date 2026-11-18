@@ -23,7 +23,7 @@ export function AccountsPage() {
   const close=()=>{setSelected(undefined);if(target)void navigate({to:'/access/accounts',search:{account:undefined}});};
   const returnFocus = useRef<HTMLElement | null>(null);
   const roleFilter = can(P.PlatformRoleRead) ? role : '';
-  const list = useCursorList({ queryKey: ['access', account?.id, 'accounts', q, status, roleFilter, pageSize], load: (cursor, signal) => client.accounts({ q, status, role_id: roleFilter, cursor, limit: pageSize }, signal) });
+  const list = useCursorList({ pageSize, queryKey: ['access', account?.id, 'accounts', q, status, roleFilter, pageSize], load: (cursor, signal) => client.accounts({ q, status, role_id: roleFilter, cursor, limit: pageSize }, signal) });
   const open = (target: ManagedAccount, mode: AccountMode, trigger: HTMLElement | null) => {
     returnFocus.current = trigger;
     setSelected({ id: target.id, mode, viewer: account?.id ?? '' });
@@ -41,7 +41,7 @@ export function AccountsPage() {
           {can(P.PlatformRoleRead) && <AccountRoleFilter value={roleFilter} onChange={setRole} />}
           {(q || status || roleFilter) && <Button variant="ghost" className="h-9 max-sm:h-11" onClick={reset}>重置<X aria-hidden="true" /></Button>}
         </>} />
-        <ListPagination label="账号列表" unit="个账号" count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+        <ListPagination label="账号列表" {...list.pagination} setPageSize={setPageSize} />
       </TabsContent>
     </Tabs>
     {selected && selected.viewer === account?.id && <AccountPanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={close} returnFocus={returnFocus} />}

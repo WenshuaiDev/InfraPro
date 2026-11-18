@@ -51,6 +51,7 @@ func (f *Filter) Validate() error {
 }
 
 type Page[T any] struct {
+	Total      *int   `json:"total,omitempty"`
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }

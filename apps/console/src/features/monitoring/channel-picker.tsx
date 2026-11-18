@@ -1,3 +1,4 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { MonitoringChannel, MonitoringPoint } from '@infrapro/api-client';
@@ -5,7 +6,7 @@ import { Button } from '@infrapro/ui/components/button';
 import { Input } from '@infrapro/ui/components/input';
 import { useCursorList } from '../../hooks/use-cursor-list';
 import { useMonitoring } from './context';
-import { CursorButtons, MonitoringError } from './common';
+import { MonitoringError } from './common';
 import { rangeLabel } from './format';
 import { PositionView } from '../location-fields/position-editor';
 
@@ -63,7 +64,7 @@ function DirectoryChannels({ selected, onChange, maximum = 50, initialChannel, s
       </label>;
     })}</div>
     {!channels.isPending && !channels.error && !channels.items.length && <p className="text-sm text-muted-foreground">没有符合条件的可读通道。</p>}
-    <CursorButtons previous={channels.page > 0 ? () => channels.go(channels.page - 1) : undefined} next={channels.hasNext ? () => void channels.next() : undefined} busy={channels.isFetching} caption={`通道第 ${channels.page + 1} 页`} />
+    <ListPagination label="通道" {...channels.pagination} />
   </div>;
 }
 function PointPicker({ selected, onChange, maximum = 50, autoSelect = false, initialPoint, initialChannel, sourceKind }: PickerProps) {
@@ -80,7 +81,7 @@ function PointPicker({ selected, onChange, maximum = 50, autoSelect = false, ini
     {points.isPending && <p role="status">正在加载测点…</p>}
     <div className="max-h-72 space-y-1 overflow-y-auto" aria-label="测点列表">{points.items.map(p => <Button key={p.id} variant={point?.id === p.id ? 'secondary' : 'ghost'} className="h-auto min-h-11 w-full justify-start whitespace-normal px-3 py-2 text-left" aria-pressed={point?.id === p.id} onClick={() => setPoint(p)}><span className="min-w-0"><span className="block break-words font-medium">{p.name} <span className="text-xs text-muted-foreground">{p.code}</span></span><span className="block break-words text-xs text-muted-foreground">{p.facility_name}{p.status !== 'normal' ? ' · 历史资源' : ''}</span></span></Button>)}</div>
     {!points.isPending && !points.items.length && !points.error && <p className="text-sm text-muted-foreground">没有符合条件的可读测点。</p>}
-    <CursorButtons previous={points.page > 0 ? () => points.go(points.page - 1) : undefined} next={points.hasNext ? () => void points.next() : undefined} busy={points.isFetching} caption={`测点第 ${points.page + 1} 页`} />
+    <ListPagination label="测点" {...points.pagination} />
     {point && <PointChannels key={point.id} point={point} selected={selected} onChange={onChange} maximum={maximum} autoSelect={autoSelect} initialChannel={point.id === initialPoint ? initialChannel : undefined} sourceKind={sourceKind} />}
   </div>;
 }
@@ -99,5 +100,5 @@ function PointChannels({ point, selected, onChange, maximum, autoSelect, initial
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channels.data,linkedChannel.data]);
   const items = channels.items.filter(c => (!sourceKind || c.source_kind === sourceKind) && `${c.name} ${c.code} ${c.metric_name}`.toLowerCase().includes(search.toLowerCase()));
-  return <section className="min-w-0 space-y-3 rounded-lg border p-3"><h3 className="break-words text-sm font-semibold">{point.name} 的通道</h3><details className="text-xs"><summary className="cursor-pointer">测点位置</summary><PositionView position={point.position}/></details><Input aria-label="筛选本页通道" placeholder="筛选本页通道" value={search} onChange={e => setSearch(e.target.value)} /><MonitoringError error={linkedChannel.error}/>{initialChannel&&linkedChannel.data&&!linkedChannel.data.items.length&&<p className="text-xs">链接通道在当前范围不可读，请重新选择。</p>}<MonitoringError error={channels.error} retry={() => void channels.refetch()} />{channels.isPending && <p role="status">正在加载通道…</p>}<div className="max-h-80 space-y-2 overflow-y-auto">{items.map(c => { const checked = selected.some(v => v.id === c.id); return <label key={c.id} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"><input type="checkbox" className="mt-1 size-4 accent-primary" checked={checked} disabled={!checked && selected.length >= maximum} onChange={() => onChange(checked ? selected.filter(v => v.id !== c.id) : [...selected, withPoint(c)])} /><span className="min-w-0 text-sm"><span className="block break-words font-medium">{c.name} · {c.code}</span><span className="block break-words text-xs text-muted-foreground">{c.metric_name} · {c.unit || '枚举'} · {c.timestamp_meaning === 'observation_time' ? '观测时刻' : '区间结束时刻'}</span><span className="block break-words text-xs text-muted-foreground">{c.observation_direction || '方向未填'} · {c.reference_basis || '基准未填'}</span>{c.read_ranges.some(r => r.from || r.to) && <span className="block break-words text-xs">可读：{c.read_ranges.map(rangeLabel).join('；')}</span>}</span></label>; })}</div><CursorButtons previous={channels.page > 0 ? () => channels.go(channels.page - 1) : undefined} next={channels.hasNext ? () => void channels.next() : undefined} busy={channels.isFetching} caption={`通道第 ${channels.page + 1} 页`} /></section>;
+  return <section className="min-w-0 space-y-3 rounded-lg border p-3"><h3 className="break-words text-sm font-semibold">{point.name} 的通道</h3><details className="text-xs"><summary className="cursor-pointer">测点位置</summary><PositionView position={point.position}/></details><Input aria-label="筛选本页通道" placeholder="筛选本页通道" value={search} onChange={e => setSearch(e.target.value)} /><MonitoringError error={linkedChannel.error}/>{initialChannel&&linkedChannel.data&&!linkedChannel.data.items.length&&<p className="text-xs">链接通道在当前范围不可读，请重新选择。</p>}<MonitoringError error={channels.error} retry={() => void channels.refetch()} />{channels.isPending && <p role="status">正在加载通道…</p>}<div className="max-h-80 space-y-2 overflow-y-auto">{items.map(c => { const checked = selected.some(v => v.id === c.id); return <label key={c.id} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"><input type="checkbox" className="mt-1 size-4 accent-primary" checked={checked} disabled={!checked && selected.length >= maximum} onChange={() => onChange(checked ? selected.filter(v => v.id !== c.id) : [...selected, withPoint(c)])} /><span className="min-w-0 text-sm"><span className="block break-words font-medium">{c.name} · {c.code}</span><span className="block break-words text-xs text-muted-foreground">{c.metric_name} · {c.unit || '枚举'} · {c.timestamp_meaning === 'observation_time' ? '观测时刻' : '区间结束时刻'}</span><span className="block break-words text-xs text-muted-foreground">{c.observation_direction || '方向未填'} · {c.reference_basis || '基准未填'}</span>{c.read_ranges.some(r => r.from || r.to) && <span className="block break-words text-xs">可读：{c.read_ranges.map(rangeLabel).join('；')}</span>}</span></label>; })}</div><ListPagination label="通道" {...channels.pagination} /></section>;
 }

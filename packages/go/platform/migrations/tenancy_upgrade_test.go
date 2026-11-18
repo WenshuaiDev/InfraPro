@@ -89,7 +89,7 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 	before := map[string]string{}
 	for _, table := range []string{"accounts", "account_passwords", "account_sessions", "account_invitations", "system_initialization"} {
 		var value string
-		must(pool.QueryRow(ctx, `SELECT jsonb_agg(to_jsonb(t)-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation')::text FROM `+table+` t`).Scan(&value))
+		must(pool.QueryRow(ctx, `SELECT jsonb_agg(to_jsonb(t)-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'-'avatar_object_id'-'avatar_revision')::text FROM `+table+` t`).Scan(&value))
 		before[table] = value
 	}
 	// A bad pre-existing cross-scope permission must stop and roll back all migration DDL.
@@ -107,9 +107,10 @@ func TestTenantUpgradePreservesLegacyAndRollsBackIncompatibility(t *testing.T) {
 	exec(`DELETE FROM permission_catalog WHERE code=$1`, access.TenantProfileRead)
 	must(Up(ctx, u.String()))
 	must(Check(ctx, pool))
+	assertAvatarDefaults(t, ctx, pool)
 	for table, want := range before {
 		var value string
-		must(pool.QueryRow(ctx, `SELECT jsonb_agg(to_jsonb(t)-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation')::text FROM `+table+` t`).Scan(&value))
+		must(pool.QueryRow(ctx, `SELECT jsonb_agg(to_jsonb(t)-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'-'avatar_object_id'-'avatar_revision')::text FROM `+table+` t`).Scan(&value))
 		if value != want {
 			t.Fatal("legacy data changed", table)
 		}

@@ -254,6 +254,7 @@ type RunDetail struct {
 	CanReadSample  bool        `json:"can_read_sample"`
 }
 type ResultView struct {
+	Total        int         `json:"total"`
 	ResultDigest string      `json:"result_digest,omitempty"`
 	State        string      `json:"state"`
 	Response     *c.Response `json:"response"`

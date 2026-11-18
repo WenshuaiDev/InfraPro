@@ -1,6 +1,5 @@
 import { useId, type ReactNode } from 'react';
 import { ApiError } from '@infrapro/api-client';
-import { Button } from '@infrapro/ui/components/button';
 import { Input } from '@infrapro/ui/components/input';
 import { Label } from '@infrapro/ui/components/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@infrapro/ui/components/select';
@@ -16,7 +15,4 @@ export function Choice({ label, value, onChange, options, disabled }: { label: s
 export function MonitoringError({ error, retry }: { error: Error | null; retry?: () => void }) {
   if (!error || error.name === 'AbortError') return null;
   return <ErrorState title={error instanceof ApiError && ['snapshot_stale', 'selection_stale'].includes(error.code ?? '') ? '数据范围已变化，请重新查询' : '未能完成请求'} message={error.message} onRetry={retry} />;
-}
-export function CursorButtons({ previous, next, busy, caption }: { previous?: () => void; next?: () => void; busy?: boolean; caption?: string }) {
-  return <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm text-muted-foreground" role="status">{caption}</span><div className="flex gap-2"><Button variant="outline" disabled={busy || !previous} onClick={previous}>上一页</Button><Button variant="outline" disabled={busy || !next} onClick={next}>下一页</Button></div></div>;
 }

@@ -1,6 +1,8 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowDown, CalendarRange, Link2, LockKeyhole, RefreshCw, Search, ShieldCheck, X } from 'lucide-react';
 import { Permissions as P, type TenantInvitation, type TenantInvitationCreated } from '@infrapro/api-client';
@@ -35,7 +37,7 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
   useEffect(() => { const timer = setTimeout(() => setQ(search.trim()), 250); return () => clearTimeout(timer); }, [search]);
   const allowed = ctx.permissions.includes(P.TenantInvitationRead);
   const rangeError = from && to && from > to ? '创建开始时间不能晚于结束时间。' : '';
-  const list = useInfiniteQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'invitations', q, status, from, to], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.tenantInvitations(ctx.tenant.id, { q, status: status === 'all' ? '' : status, from: from ? new Date(`${from}+08:00`).toISOString() : '', to: to ? new Date(`${to}+08:00`).toISOString() : '', cursor: pageParam }, signal), getNextPageParam: (page) => page.next_cursor || undefined, enabled: allowed && ctx.available && !rangeError, refetchInterval: 30_000 });
+  const list = usePagedQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'invitations', q, status, from, to], enabled: allowed && ctx.available && !rangeError, refetchInterval: 30_000, queryFn: ({ cursor, signal }) => client.tenantInvitations(ctx.tenant.id, { q, status: status === 'all' ? '' : status, from: from ? new Date(`${from}+08:00`).toISOString() : '', to: to ? new Date(`${to}+08:00`).toISOString() : '', cursor }, signal) });
   const done = useCallback((value: TenantInvitationCreated) => { setLink(value); void cache.invalidateQueries({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id] }); }, [account?.id, cache, ctx.tenant.id, ctx.membership_id]);
   const open = useCallback((id: string, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelection(id); }, []);
   const close = () => { setSelection(undefined); if (invitationId) void navigate({ to: '/t/$tenantId/invitations', params: { tenantId: ctx.tenant.id } }); };
@@ -50,7 +52,7 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
     { id: 'actions', size: 64, header: '操作', cell: ({ row }) => <InvitationActions item={row.original} done={done} details={(trigger) => open(row.original.id, trigger)} /> },
   ], [done, open]);
   if (!allowed) return <FormNotice error>无权查看本租户成员邀请。</FormNotice>;
-  const items = list.data?.pages.flatMap((page) => page.items) ?? [];
+  const items = list.data?.items ?? [];
   const filtered = !!search.trim() || status !== 'all' || !!from || !!to;
   return <>
     <PageHeader title="成员邀请" description={`${ctx.tenant.name} · 邀请已有账号加入，并管理本租户的邀请。`} actions={ctx.permissions.includes(P.TenantInvitationCreate) ? <CreateMemberInvitation done={done} /> : undefined} />
@@ -64,7 +66,7 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
           {filtered && <Button variant="ghost" onClick={reset}>重置<X aria-hidden="true" /></Button>}
           <Button className="sm:ml-auto" variant="outline" disabled={list.isFetching || !!rangeError} onClick={() => void list.refetch()}><RefreshCw className={list.isFetching ? 'animate-spin' : undefined} aria-hidden="true" />刷新列表</Button>
         </div>
-        {rangeError ? <FormNotice error>{rangeError}</FormNotice> : list.isPending ? <LoadingState label="正在读取邀请…" /> : list.error && !items.length ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !items.length ? <InvitationEmpty filtered={filtered} reset={reset} /> : <DataTable label="租户邀请列表" columns={columns} data={items} getRowId={(item) => item.id} error={list.error?.message} onRetry={() => void list.refetch()} hasMore={list.hasNextPage} loadingMore={list.isFetchingNextPage} onLoadMore={() => void list.fetchNextPage()} loadMoreLabel="加载更多邀请" />}
+        {rangeError ? <FormNotice error>{rangeError}</FormNotice> : list.isPending ? <LoadingState label="正在读取邀请…" /> : list.error && !items.length ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !items.length ? <><InvitationEmpty filtered={filtered} reset={reset} /><ListPagination label="租户邀请列表" {...list.pagination} /></> : <DataTable label="租户邀请列表" columns={columns} data={items} getRowId={(item) => item.id} error={list.error?.message} onRetry={() => void list.refetch()} pagination={<ListPagination label="租户邀请列表" {...list.pagination} />} />}
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground"><span role="status">已显示 {items.length} 条{filtered ? '符合条件的邀请' : '邀请'}</span><span className="flex items-center gap-1.5"><LockKeyhole className="size-3" aria-hidden="true" />仅显示本租户邀请 · 时间为北京时间</span></div>
       </TabsContent>
     </Tabs>

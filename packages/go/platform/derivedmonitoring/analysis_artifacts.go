@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring/internal/compute"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring/internal/resultstore"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/jackc/pgx/v5"
@@ -41,6 +42,7 @@ type AnalysisArtifactVersion struct {
 	CreatedAt       time.Time       `json:"created_at"`
 }
 type AnalysisArtifactDetail struct {
+	LatestOutputs    []AnalysisArtifactRow   `json:"latest_outputs,omitempty"`
 	Run              AnalysisRunInfo         `json:"run"`
 	Artifact         AnalysisArtifact        `json:"artifact"`
 	Version          AnalysisArtifactVersion `json:"version"`
@@ -65,14 +67,17 @@ type AnalysisArtifactVersions struct {
 	NextCursor string                    `json:"next_cursor"`
 }
 type AnalysisArtifactQuery struct {
-	VersionID string           `json:"version_id"`
-	Range     *NanosecondRange `json:"output_range,omitempty"`
-	Outputs   []string         `json:"outputs,omitempty"`
-	Cursor    string           `json:"cursor,omitempty"`
-	Limit     int              `json:"limit,omitempty"`
+	IncludeSamples bool             `json:"include_samples,omitempty"`
+	VersionID      string           `json:"version_id"`
+	Range          *NanosecondRange `json:"output_range,omitempty"`
+	Outputs        []string         `json:"outputs,omitempty"`
+	Cursor         string           `json:"cursor,omitempty"`
+	Limit          int              `json:"limit,omitempty"`
 }
 type AnalysisArtifactRow struct {
-	ResultID string `json:"result_id"`
+	InputFirst *int64 `json:"input_first_ns,string,omitempty"`
+	InputLast  *int64 `json:"input_last_ns,string,omitempty"`
+	ResultID   string `json:"result_id"`
 	TrialValue
 	Lineage string `json:"lineage_ref"`
 }
@@ -87,11 +92,12 @@ type analysisArtifactRecord struct {
 	Manifest, Lineage string
 }
 type analysisArtifactProof struct {
-	Selection  *analysisSelection
-	WholeRange bool
-	Detail     AnalysisArtifactDetail
-	Version    analysisArtifactRecord
-	Manifest   resultManifest
+	PreviewPlan *compute.Plan
+	Selection   *analysisSelection
+	WholeRange  bool
+	Detail      AnalysisArtifactDetail
+	Version     analysisArtifactRecord
+	Manifest    resultManifest
 }
 
 const analysisArtifactSelect = `SELECT id::text,config_id::text,name,status,revision::text,latest_version::text,created_at,updated_at FROM analysis_artifacts`
@@ -102,7 +108,7 @@ func analysisArtifactTx(ctx context.Context, tx pgx.Tx, scope Scope, id string) 
 	if !access.ValidID(id) {
 		return out, notFound()
 	}
-	e := tx.QueryRow(ctx, analysisArtifactSelect+` WHERE tenant_id=$1 AND scope_key=$2 AND id=$3`, scope.Tenant, scope.key(), id).Scan(&out.ID, &out.ConfigID, &out.Name, &out.Status, &out.Revision, &out.LatestVersion, &out.CreatedAt, &out.UpdatedAt)
+	e := tx.QueryRow(ctx, analysisArtifactSelect+` WHERE tenant_id=$1 AND scope_key=$2 AND id=$3 AND deleted_at IS NULL`, scope.Tenant, scope.key(), id).Scan(&out.ID, &out.ConfigID, &out.Name, &out.Status, &out.Revision, &out.LatestVersion, &out.CreatedAt, &out.UpdatedAt)
 	if e == pgx.ErrNoRows {
 		e = notFound()
 	}
@@ -129,7 +135,7 @@ func (s *Service) analysisArtifactIdentityTx(ctx context.Context, tx pgx.Tx, a a
 	if version != "" && !access.ValidID(version) {
 		return out, notFound()
 	}
-	out.Version, e = scanAnalysisArtifactVersion(tx.QueryRow(ctx, analysisArtifactVersionSelect+` WHERE v.tenant_id=$1 AND a.scope_key=$2 AND v.artifact_id=$3 AND ($4::uuid IS NULL AND v.version_no=a.latest_version OR v.id=$4)`, scope.Tenant, scope.key(), artifact, nullable(version)))
+	out.Version, e = scanAnalysisArtifactVersion(tx.QueryRow(ctx, analysisArtifactVersionSelect+` WHERE v.tenant_id=$1 AND a.scope_key=$2 AND a.deleted_at IS NULL AND v.artifact_id=$3 AND ($4::uuid IS NULL AND v.version_no=a.latest_version OR v.id=$4)`, scope.Tenant, scope.key(), artifact, nullable(version)))
 	if e != nil {
 		return out, e
 	}
@@ -316,10 +322,36 @@ func (s *Service) AnalysisArtifact(ctx context.Context, a access.Actor, scope Sc
 	if e != nil {
 		return AnalysisArtifactDetail{}, e
 	}
+	latest := map[string]resultstore.Row{}
+	consider := func(row resultstore.Row) error {
+		if row.Artifact == nil || *row.Artifact != id || row.Generation != proof.Version.ID || row.Config != proof.Version.ConfigVersionID || row.Run != proof.Version.RunID || row.Lineage != proof.Version.Lineage {
+			return problem("result_integrity_unavailable", "固定成果行的身份不一致。", 503)
+		}
+		if previous, ok := latest[row.Output]; !ok || row.At > previous.At {
+			latest[row.Output] = row
+		}
+		return nil
+	}
+	for _, block := range proof.Manifest.Blocks {
+		if block.Endpoints != nil {
+			e = consider(block.Endpoints.Last)
+		} else {
+			// Older sealed blocks predate endpoint indexes.
+			e = s.results.ReadBlock(ctx, block, consider)
+		}
+		if e != nil {
+			return AnalysisArtifactDetail{}, e
+		}
+	}
 	e = s.transact(ctx, a, scope, "analysis.artifacts.detail", false, func(tx pgx.Tx) error {
 		current, e := s.analysisArtifactProofTx(ctx, tx, a, scope, id, proof.Version.ID)
 		if e == nil {
 			current.Detail.Outputs = proof.Detail.Outputs
+			for _, output := range current.Detail.Outputs {
+				if row, ok := latest[output.Key]; ok {
+					current.Detail.LatestOutputs = append(current.Detail.LatestOutputs, *artifactRow(&row))
+				}
+			}
 			proof.Detail = current.Detail
 		}
 		return e
@@ -416,12 +448,7 @@ func (s *Service) AnalysisArtifactRows(ctx context.Context, a access.Actor, scop
 				more = true
 				return nil
 			}
-			value := TrialValue{Output: row.Output, At: strconv.FormatInt(row.At, 10), Value: row.Decimal(), Scale: int(row.Scale), Rounded: row.Rounded, Status: row.Status, Quality: row.Quality, Reasons: row.Reasons, Count: strconv.FormatUint(row.Count, 10), Excluded: strconv.FormatUint(row.Excluded, 10), Matches: []TrialMatch{}}
-			if row.Start != nil {
-				r := rangeDTO(*row.Start, row.End)
-				value.Interval = &r
-			}
-			out.Items = append(out.Items, AnalysisArtifactRow{ResultID: row.Result, TrialValue: value, Lineage: row.Lineage})
+			out.Items = append(out.Items, *artifactRow(&row))
 			return nil
 		})
 		if e != nil {

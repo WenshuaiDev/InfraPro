@@ -6,11 +6,13 @@
 | --- | --- |
 | [软件需求规格说明书](requirements.md) | 业务范围、身份与授权、数据规则及可观察行为 |
 | [架构设计](architecture.md) | 模块、数据、事务、接口、前端与部署 |
+| [整体架构审查（2026-11-18）](development/system-architecture-review-2026-11-18.md) | 四机运行现状、后端进程分工、三个前端入口及消息队列适用场景 |
 | [技术选型](technology-selection.md) | 语言、框架、存储与固定依赖的用途 |
 | [本机工程环境与人工验收](operations/local-environment.md) | 当前入口、账号位置、工程资料、检查范围和人工步骤 |
 
 ## 开发规格
 
+- [架构重构实施与验收规格](development/system-architecture-refactor-spec.md)与[逐操作路由归属清单](development/system-architecture-refactor-routes.json)规定服务和后台进程的代码改动、消息交付、业务及页面等价验证、切换与回退条件。
 - [平台 MFA 开发规格](development/mfa-development-spec.md)：平台强制开关、个人验证器管理、多步登录及会话、恢复与重置、安全存储与审计；明确登录后敏感操作不再要求 TOTP，包含现有系统改动地图、接口与迁移约定及 60 项验收用例。实现与逐项证据见[验证账本](verification/mfa.md)；人工接受单独记录。
 - [解析服务与解析方法配置](development/parsing-service-and-method-binding-spec.md)：两端职责、产品配置、设备继承与特化、固定版本、权限、DDP 样本及验收条件。完整实现已落地，PAR-001—PAR-076 自验通过；[人工验收与证据](verification/parsing-service.md)另行记录。
 - [设备数据接入与原始报文管理](development/device-ingestion-and-raw-message-spec.md)：云端统一接收转发、内网主动接管、来源识别、终端关联、自动解析和原文隔离，共 136 项验收条件。[逐项自验与人工接受](verification/device-ingestion-and-raw-messages.md)分开记录。
@@ -19,6 +21,7 @@
 
 ## 运行维护
 
+- [生产设施类型目录](operations/production-facility-types-2026-11-17.md)：桥梁、隧道、边坡、路基路面、涵洞与气象站的结构范围、属性边界和验收方式。
 - [MFA：配置、密钥轮换、受控恢复与隔离验收](operations/mfa.md)
 - [当前生产版本基线](operations/production-version-2026-11-17.md)：Git 标签 `production-2026-11-17` 与实机发行包、运行程序及数据库版本的对应关系。
 - [解析服务、固定产物发布与联合恢复](operations/parsing-service.md)

@@ -1,3 +1,4 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Info, Link2, LocateFixed } from 'lucide-react';
@@ -25,7 +26,7 @@ export function BindingWorkspace({ search, change }: { search: BindingSearch; ch
   const [locateVersion, setLocateVersion] = useState(0);
   const treeScroll = useRef<HTMLDivElement>(null);
   const list = useBindingTreeDirectory({ q: search.q?.trim(), facility_id: search.facility, parent_id: search.point, state: search.state });
-  const rows = list.data?.pages.flatMap(page => page.items) ?? [];
+  const rows = list.data?.items ?? [];
   const selected = useQuery({ queryKey: [...prefix, 'binding-row', search.channel], enabled: !!search.channel && can(P.TenantEngineeringResourceRead), queryFn: async ({ signal }) => {
     if (scope.kind !== 'tenant') throw new Error('需要租户工作台');
     const page = await client.deviceBindingDirectory(scope, { channel_id: search.channel, limit: 1 }, signal);
@@ -36,8 +37,7 @@ export function BindingWorkspace({ search, change }: { search: BindingSearch; ch
   const current = useQuery({ queryKey: [...prefix, 'source', row ? targetOf(row) : null], enabled: !!row, queryFn: ({ signal }) => client.deviceSource(scope, targetOf(row!), signal) });
   const source = !current.error ? current.data : undefined;
   const output = selection?.channel === search.channel && selection?.sourceRevision === source?.source_revision ? selection?.output : undefined;
-  const counts = list.data?.pages[0]?.counts;
-  const count = counts?.[search.state ?? 'all'];
+  const counts = list.data?.counts;
   const currentOutput = source ? visibleOutput(source.source) : undefined;
   const updateFilter = (next: Partial<BindingSearch>) => { setSelection(undefined); change({ ...search, ...next, channel: undefined }); };
   const canReview = available && canRead && canSource && !!output && !!row && !!source && !current.isFetching && !selected.isFetching && (source.source.configured ? source.actions.switch : source.actions.bind);
@@ -62,10 +62,9 @@ export function BindingWorkspace({ search, change }: { search: BindingSearch; ch
           <div ref={treeScroll} className="binding-tree-scroll" tabIndex={0} role="region" aria-label="业务通道层级列表">
             {row && !rows.some(item => item.channel_id === row.channel_id) && <div className="border-b"><p className="px-3 pt-3 text-xs text-muted-foreground">当前定位 · 不在已加载结果中</p><BindingTree key={`selected:${row.channel_id}:${locateVersion}`} rows={[row]} selected={row.channel_id} choose={next => change({ ...search, channel: next.channel_id })} expandMatches /></div>}
             {list.isPending ? <LoadingState /> : list.error && !rows.length ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !rows.length ? <EmptyState title="没有符合条件的业务通道" description="可调整搜索或状态筛选；派生通道无需绑定设备。" /> : <BindingTree key={`${search.q ?? ''}:${search.state ?? ''}:${search.facility ?? ''}:${search.point ?? ''}:${locateVersion}`} rows={rows} selected={search.channel} choose={next => { setSelection(undefined); change({ ...search, channel: next.channel_id }); }} expandMatches={!!search.q || !!search.state || !!search.point} />}
-            {list.error && !!rows.length && <ErrorState title="更多通道暂时无法读取" message={list.error.message} onRetry={() => void (list.isFetchNextPageError ? list.fetchNextPage() : list.refetch())} />}
-            {list.hasNextPage && !list.isFetchNextPageError && <div className="p-3 pt-1"><Button className="min-h-10 w-full" variant="outline" disabled={list.isFetching} onClick={() => void list.fetchNextPage()}>{list.isFetchingNextPage ? '正在加载…' : '加载更多业务通道'}</Button></div>}
+            {list.error && !!rows.length && <ErrorState title="更多通道暂时无法读取" message={list.error.message} onRetry={() => void list.refetch()} />}
           </div>
-          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t bg-muted/20 px-3 py-2 text-xs text-muted-foreground"><span>设施 → 构件 → 测点 → 通道</span><span>已加载 {rows.length}{count !== undefined && ` / ${count}`} 个</span></div>
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t bg-muted/20 px-3 py-2 text-xs text-muted-foreground">{list.data && <div className="w-full"><ListPagination label="业务通道" {...list.pagination} /></div>}</div>
         </section>
         <section className="binding-device-panel" aria-label="设备通道配对">
           <div className="binding-panel-heading"><h2 className="flex items-center gap-2 text-sm font-semibold"><span className="binding-step">2</span>选择设备通道</h2>{row && <BindingStatus state={row.state} />}</div>

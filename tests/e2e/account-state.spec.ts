@@ -27,6 +27,7 @@ test('switching accounts clears profile drafts, invitation credentials and secur
   const security = await context.newPage();
   await security.goto(`${consoleURL}/security`);
   await expect(security.getByText('创建邀请', { exact: true })).toBeVisible();
+  await security.getByRole('button', { name: '修改密码', exact: true }).click();
   await security.getByLabel('当前密码', { exact: true }).fill(account.password);
   await security.getByLabel('新密码', { exact: true }).fill('前一账号的新密码草稿 2026');
   await security.getByLabel('确认新密码', { exact: true }).fill('前一账号的新密码草稿 2026');
@@ -53,10 +54,15 @@ test('switching accounts clears profile drafts, invitation credentials and secur
 
   await revisit(security);
   await expectIdentity(security, nextAccount.username, '浏览器验收');
+  await expect(security.getByRole('dialog')).toHaveCount(0);
+  await security.getByRole('button', { name: '修改密码', exact: true }).click();
   await expect(security.getByLabel('当前密码', { exact: true })).toHaveValue('');
   await expect(security.getByLabel('新密码', { exact: true })).toHaveValue('');
   await expect(security.getByLabel('确认新密码', { exact: true })).toHaveValue('');
+  await security.keyboard.press('Escape');
+  await security.getByRole('button', { name: '管理会话', exact: true }).click();
   await expect(security.getByRole('button', { name: '退出当前会话', exact: true })).toBeVisible();
+  await security.keyboard.press('Escape');
   await expect(security.getByText('创建邀请', { exact: true })).toHaveCount(0);
 });
 
@@ -67,6 +73,7 @@ test('current-session logout revokes a replacement cookie and keeps other device
     const devicePage = await otherDevice.newPage();
     await login(devicePage, account);
     await navigateTo(page, '账号安全');
+    await page.getByRole('button', { name: '管理会话', exact: true }).click();
     await expect(page.getByRole('button', { name: '退出当前会话', exact: true })).toBeVisible();
 
     const otherTab = await context.newPage();
@@ -79,6 +86,7 @@ test('current-session logout revokes a replacement cookie and keeps other device
     if (!currentCookie) throw new Error('The replacement session cookie is missing');
 
     await page.getByRole('button', { name: '退出当前会话', exact: true }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: '确认退出当前会话' }).click();
     await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible();
     expect((await context.request.get(`${consoleURL}/api/v1/auth/me`)).status()).toBe(401);
     // Replaying the credential must fail too, independently of the cleared browser cookie.

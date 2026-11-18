@@ -447,8 +447,18 @@ func (s *Service) SetMapping(ctx context.Context, a access.Actor, scope Scope, i
 		if strings.TrimPrefix(strings.ToLower(filepath.Ext(b.Name)), ".") != in.Mapping.Format {
 			return invalid("mapping.format", "映射格式与文件扩展名不一致。")
 		}
-		if _, e = authorizedWindowsTx(ctx, tx, auth, channelsOf(in.Mapping), "import"); e != nil {
+		ids := channelsOf(in.Mapping)
+		if _, e = authorizedWindowsTx(ctx, tx, auth, ids, "import"); e != nil {
 			return e
+		}
+		semantics, e := semanticsTx(ctx, tx, scope.Tenant, ids, false)
+		if e != nil {
+			return e
+		}
+		for i, binding := range in.Mapping.Channels {
+			if binding.Unit != semantics[binding.Channel].Symbol {
+				return invalid(fmt.Sprintf("mapping.channels[%d].unit", i), "映射单位须与目标通道的固定单位一致。")
+			}
 		}
 		raw, _ := json.Marshal(in.Mapping)
 		rev, _ := revisionNumber(b.MappingRevision)

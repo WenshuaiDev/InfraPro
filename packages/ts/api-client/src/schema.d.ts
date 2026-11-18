@@ -8823,6 +8823,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenants/{tenant_id}/monitoring/derived/analysis/artifacts/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 删除整份历史分析成果及其全部版本 */
+        post: operations["Derived:tenant:analysis.artifacts.delete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/archive": {
         parameters: {
             query?: never;
@@ -8834,6 +8851,23 @@ export interface paths {
         put?: never;
         /** analysis.artifacts.archive */
         post: operations["Derived:project:analysis.artifacts.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/monitoring/derived/analysis/artifacts/{id}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 删除整份历史分析成果及其全部版本 */
+        post: operations["Derived:project:analysis.artifacts.delete"];
         delete?: never;
         options?: never;
         head?: never;
@@ -16025,6 +16059,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readAvatar"];
+        put: operations["updateAvatar"];
+        post?: never;
+        delete: operations["removeAvatar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/access/accounts/{id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readAccountAvatar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/members/{membership_id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readTenantMemberAvatar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/members/{membership_id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readProjectMemberAvatar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -16048,6 +16146,9 @@ export interface components {
             status: "active" | "disabled";
             /** Format: date-time */
             created_at: string;
+            /** @description Monotonic avatar revision; use as expected_revision for changes. */
+            avatar_revision?: string;
+            has_avatar?: boolean;
         };
         AccountHelp: {
             support_contact: string;
@@ -16213,6 +16314,9 @@ export interface components {
             created_at: string;
             management_version: string;
             roles: components["schemas"]["Role"][];
+            /** @description Monotonic avatar revision; use as expected_revision for changes. */
+            avatar_revision?: string;
+            has_avatar?: boolean;
         };
         AccessAuditEvent: {
             id: string;
@@ -16236,10 +16340,12 @@ export interface components {
         Roles: {
             items: components["schemas"]["Role"][];
             next_cursor: string;
+            total?: number;
         };
         ManagedAccounts: {
             items: components["schemas"]["ManagedAccount"][];
             next_cursor: string;
+            total?: number;
         };
         AccessAuditEvents: {
             items: components["schemas"]["AccessAuditEvent"][];
@@ -16282,6 +16388,9 @@ export interface components {
             id: string;
             username: string;
             display_name: string;
+            /** @description Monotonic avatar revision; use as expected_revision for changes. */
+            avatar_revision?: string;
+            has_avatar?: boolean;
         };
         TenantSummary: {
             /** Format: uuid */
@@ -16927,6 +17036,9 @@ export interface components {
             status_reason: string;
             ended_at: string;
             is_current_administrator: boolean;
+            /** @description Monotonic avatar revision; use as expected_revision for changes. */
+            avatar_revision?: string;
+            has_avatar?: boolean;
         };
         ProjectResult: {
             project_id: string;
@@ -17138,6 +17250,7 @@ export interface components {
         ProjectRoles: {
             items: components["schemas"]["Role"][];
             next_cursor: string;
+            total?: number;
         };
         ProjectAuditEvents: {
             items: components["schemas"]["AccessAuditEvent"][];
@@ -17309,6 +17422,8 @@ export interface components {
             suggested_category?: components["schemas"]["EngineeringCategorySuggestion"];
         };
         EngineeringMetric: {
+            /** @description Optional directory tags, not adoption restrictions. An explicit empty array means unclassified. */
+            facility_topics?: string[];
             allowed_units: string[];
             category: string;
             maximum?: number;
@@ -17341,6 +17456,10 @@ export interface components {
             name: string;
         };
         EngineeringPage: {
+            /** @description Metric directory counts after text/status filters and before facility filtering; __all and __unassigned are reserved. */
+            facility_counts?: {
+                [key: string]: number;
+            };
             items: components["schemas"]["EngineeringSummary"][];
             limit: number;
             offset: number;
@@ -17400,6 +17519,19 @@ export interface components {
             revision: number;
         };
         EngineeringSummary: {
+            metric_index?: {
+                shape: string;
+                standard_symbol: string;
+                latest_usable: boolean;
+                facility_topics: string[];
+            };
+            unit_versions?: {
+                id: string;
+                number: number;
+                name: string;
+                symbol: string;
+                category: string;
+            }[];
             code: string;
             has_draft: boolean;
             id: string;
@@ -17408,6 +17540,7 @@ export interface components {
             latest: number;
             name: string;
             source_version: string;
+            unit?: components["schemas"]["EngineeringUnit"];
             usable: boolean;
         };
         EngineeringTarget: {
@@ -20695,6 +20828,7 @@ export interface components {
             view_range?: components["schemas"]["MonitoringRange"];
             /** @description Optional lower per-curve point budget for a complete trend tile. Cannot increase the server pixel or total-curve budgets. */
             plot_point_budget?: number;
+            include_total?: boolean;
         };
         MonitoringSnapshot: {
             /** Format: uuid */
@@ -20738,6 +20872,7 @@ export interface components {
             next_cursor: string;
             prev_cursor: string;
             coverage?: components["schemas"]["DerivedCoverage"][];
+            total?: number;
         };
         MonitoringBatchCoverage: {
             /** Format: uuid */
@@ -21673,6 +21808,16 @@ export interface components {
             derived_input_examples: components["schemas"]["DerivedObservation"][];
         };
         DerivedRun: {
+            /**
+             * Format: uuid
+             * @description 本次自动运行发布且当前允许查看的派生结果代次。
+             */
+            published_generation_id?: string;
+            /**
+             * @description 本次自动运行在当前工作空间获准执行的操作。
+             * @enum {string}
+             */
+            control_action?: "cancel" | "retry";
             /** Format: uuid */
             id: string;
             /** Format: uuid */
@@ -21978,6 +22123,7 @@ export interface components {
             dependencies?: components["schemas"]["DerivedBackfillPreview"][];
         };
         DerivedBackfillResult: {
+            task_ref?: components["schemas"]["TaskRef"];
             runs: components["schemas"]["DerivedRun"][];
             replayed: boolean;
         };
@@ -22294,6 +22440,7 @@ export interface components {
             changes: components["schemas"]["AnalysisChange"][];
             changes_truncated: boolean;
             run: components["schemas"]["AnalysisRunInfo"];
+            latest_outputs?: components["schemas"]["AnalysisArtifactRow"][];
         };
         AnalysisArtifactPage: {
             items: components["schemas"]["AnalysisArtifactDetail"][];
@@ -22310,6 +22457,8 @@ export interface components {
             outputs?: string[];
             cursor?: string;
             limit?: number;
+            /** @description 只在读取所选输出的固定来源时请求样本预览。 */
+            include_samples?: boolean;
         };
         AnalysisArtifactRow: {
             preview_issue?: string;
@@ -22328,6 +22477,8 @@ export interface components {
             /** Format: uuid */
             result_id: string;
             lineage_ref: string;
+            input_first_ns?: string;
+            input_last_ns?: string;
         };
         AnalysisArtifactRows: {
             version: components["schemas"]["AnalysisArtifactVersion"];
@@ -22354,6 +22505,19 @@ export interface components {
             output_range: components["schemas"]["DerivedNanosecondRange"];
             source_range: components["schemas"]["DerivedNanosecondRange"] | null;
             outputs: string[];
+            samples?: {
+                /** @description Present when direct operand matching was reproduced from the fixed snapshot and agreed with the stored output. */
+                matched?: boolean;
+                /** Format: uuid */
+                channel_id: string;
+                at_ns: string;
+                value: string | null;
+                quality: string;
+                /** @enum {string} */
+                source_kind: "direct" | "derived";
+                sample_id: string;
+            }[];
+            samples_truncated?: boolean;
         };
         AnalysisOutputMapping: {
             left: string;
@@ -22976,7 +23140,9 @@ export interface components {
             authorization_revision: string;
             items: components["schemas"]["NotificationItem"][];
             next_cursor?: string;
+            page_cursors?: string[];
             revision: string;
+            total?: number | null;
             watermark: string;
         };
         NotificationPreferences: {
@@ -24271,6 +24437,7 @@ export interface components {
             response: components["schemas"]["ParsingWireResponse"] | null;
             result_digest?: string;
             state: string;
+            total: number;
         };
         ParsingStateInput: {
             expected_revision: string;
@@ -24567,6 +24734,7 @@ export interface components {
         IngestionMetadataPage: {
             items: unknown[] | null;
             next_cursor: string;
+            total?: number | null;
         };
         IngestionPlan: {
             adoption_id: string;
@@ -25034,6 +25202,7 @@ export interface components {
         IngestionSourcePage: {
             items: components["schemas"]["IngestionSource"][] | null;
             next_cursor: string;
+            total?: number | null;
         };
         IngestionSourceRevision: {
             command_id: string;
@@ -25074,6 +25243,7 @@ export interface components {
         IngestionTerminalPage: {
             items: components["schemas"]["IngestionTerminal"][] | null;
             next_cursor: string;
+            total?: number | null;
         };
         IngestionTransform: {
             input_sha256: string;
@@ -28067,6 +28237,11 @@ export interface components {
             require_mfa: boolean;
             expected_version: string;
             reason: string;
+        };
+        AnalysisArtifactDeleteResult: {
+            /** Format: uuid */
+            artifact_id: string;
+            replayed: boolean;
         };
     };
     responses: never;
@@ -42051,6 +42226,8 @@ export interface operations {
     Engineering_metrics_list: {
         parameters: {
             query?: {
+                /** @description Facility browsing tag; __unassigned selects definitions without tags. */
+                facility_topic?: string;
                 q?: string;
                 status?: string;
                 offset?: number;
@@ -42600,6 +42777,10 @@ export interface operations {
     Engineering_units_list: {
         parameters: {
             query?: {
+                /** @description List only adoptable published unit versions, grouped by definition. */
+                unit_choices?: "1";
+                /** @description Restrict published unit choices to this frozen category. */
+                unit_category?: string;
                 q?: string;
                 status?: string;
                 offset?: number;
@@ -72629,6 +72810,7 @@ export interface operations {
         parameters: {
             query?: {
                 channel_id?: string;
+                mode?: "automatic";
                 state?: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "needs_action" | "retry_wait";
                 cursor?: string;
                 limit?: number;
@@ -73130,6 +73312,7 @@ export interface operations {
         parameters: {
             query?: {
                 channel_id?: string;
+                mode?: "automatic";
                 state?: "queued" | "running" | "succeeded" | "failed" | "cancelled" | "needs_action" | "retry_wait";
                 cursor?: string;
                 limit?: number;
@@ -79474,6 +79657,114 @@ export interface operations {
             };
         };
     };
+    "Derived:tenant:analysis.artifacts.delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成果已删除，原始观测、方案和审计记录保留。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactDeleteResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
     "Derived:project:analysis.artifacts.archive": {
         parameters: {
             query?: never;
@@ -79498,6 +79789,115 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalysisArtifactArchiveResult"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+            /** @description 操作未完成，保留输入并按错误定位。 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedError"];
+                };
+            };
+        };
+    };
+    "Derived:project:analysis.artifacts.delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisWriteMeta"];
+            };
+        };
+        responses: {
+            /** @description 成果已删除，原始观测、方案和审计记录保留。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisArtifactDeleteResult"];
                 };
             };
             /** @description 操作未完成，保留输入并按错误定位。 */
@@ -84611,6 +85011,8 @@ export interface operations {
                 scope?: "account" | "platform" | "tenant" | "project";
                 status?: "all" | "unread" | "archived";
                 tenant_id?: string;
+                /** @description 只返回当前账号和筛选条件下的总数与各后续页的起始游标。 */
+                page_index_only?: boolean;
             };
             header?: never;
             path?: never;
@@ -129969,6 +130371,535 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditError"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readAvatar: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized normalized avatar; private, no-store. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateAvatar: {
+        parameters: {
+            query: {
+                expected_revision: string;
+            };
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/octet-stream": string;
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    removeAvatar: {
+        parameters: {
+            query: {
+                expected_revision: string;
+            };
+            header: {
+                "X-CSRF-Token": string;
+                Origin: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readAccountAvatar: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized normalized avatar; private, no-store. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readTenantMemberAvatar: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                membership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized normalized avatar; private, no-store. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Rate limited */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readProjectMemberAvatar: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                tenant_id: string;
+                project_id: string;
+                membership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized normalized avatar; private, no-store. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/png": string;
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Origin, CSRF or recent password confirmation required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Resource or credential unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Rate limited */

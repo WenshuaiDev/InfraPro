@@ -130,6 +130,11 @@ func TestTransactionalDeliveryWatermarkIsolationAndPreferences(t *testing.T) {
 	if len(page.Items) != 1 || page.Items[0].ReadAt != nil {
 		t.Fatalf("unexpected inbox %#v", page)
 	}
+	index, e := f.s.List(ctx, f.a, notifications.Filter{Category: "security", PageIndexOnly: true, Limit: 1})
+	must(t, e)
+	if index.Total == nil || *index.Total != len(page.Items) || len(index.Items) != 0 || len(index.PageCursors) != 0 {
+		t.Fatal("incorrect personal notification index")
+	}
 	item := page.Items[0]
 	if _, e = f.s.Get(ctx, f.b, item.ID); e != access.ErrNotFound {
 		t.Fatalf("cross-account read %v", e)
@@ -236,6 +241,11 @@ func TestPersonalInvitationAndRevocationProjection(t *testing.T) {
 	}
 	filtered, e := f.s.List(ctx, f.b, notifications.Filter{Tenant: tenant.TenantID})
 	must(t, e)
+	index, e := f.s.List(ctx, f.b, notifications.Filter{Tenant: tenant.TenantID, PageIndexOnly: true})
+	must(t, e)
+	if index.Total == nil || *index.Total != 0 || len(index.PageCursors) != 0 {
+		t.Fatal("scoped index counted revoked receipts")
+	}
 	if len(filtered.Items) != 0 {
 		t.Fatal("scope filter disclosed revoked receipt")
 	}
@@ -265,6 +275,16 @@ func TestLateCommitBatchedSnapshotsConditionCyclesAndSourceFailure(t *testing.T)
 	must(t, e)
 	if len(after.Items) != 2 || after.Items[0].Sequence == before {
 		t.Fatal("late committed candidate was skipped", after)
+	}
+	index, e := f.s.List(ctx, f.a, notifications.Filter{Category: "security", Limit: 1, PageIndexOnly: true})
+	must(t, e)
+	if index.Total == nil || *index.Total != 2 || len(index.PageCursors) != 1 {
+		t.Fatal("expected a cursor for the second page")
+	}
+	last, e := f.s.List(ctx, f.a, notifications.Filter{Category: "security", Limit: 1, Cursor: index.PageCursors[0]})
+	must(t, e)
+	if len(last.Items) != 1 || last.Items[0].ID != after.Items[1].ID || last.NextCursor != "" {
+		t.Fatal("index cursor did not reopen the last page")
 	}
 	var recipients, expanded int
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*),count(expanded_at) FROM notification_recipients r JOIN notification_events e ON e.id=r.event_id WHERE e.source_key=$1`, early.Key).Scan(&recipients, &expanded))

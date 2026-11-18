@@ -55,7 +55,7 @@ export type DerivedControlInput = Schema<'DerivedControlInput'>;
 export type DerivedSaveConfigInput = Schema<'DerivedSaveConfigInput'>;
 export type DerivedConfigPreviewInput = Schema<'DerivedConfigPreviewInput'>;
 export type DerivedConfigPreview = Schema<'DerivedConfigPreview'>;
-export type DerivedRunFilter = { channel_id?: string; state?: Schema<'MonitoringJob'>['state']; cursor?: string; limit?: number };
+export type DerivedRunFilter = { mode?: 'automatic'; channel_id?: string; state?: Schema<'MonitoringJob'>['state']; cursor?: string; limit?: number };
 export type DerivedChannelFilter = { q?: string; cursor?: string; limit?: number; facility_id?: string; owner_kind?: 'facility' | 'component' | 'monitoring_section' | 'borehole' | 'point'; owner_id?: string; control_state?: 'draft' | 'enabled' | 'paused' | 'retired' };
 export type DerivedFilter = { q?: string; state?: 'published' | 'draft'; cursor?: string; limit?: number };
 type TenantScope = Extract<DerivedScope, { kind: 'tenant' }>;
@@ -104,6 +104,7 @@ export function derivedMonitoringMethods(request: Request, base: string) {
     analysisArtifactVersions: (scope: DerivedScope, artifact: string, filter: {cursor?: string} = {}, signal?: AbortSignal) => call<Schema<'AnalysisArtifactVersions'>>(scope, `/analysis/artifacts/${id(artifact)}/versions${query(filter)}`, 'GET', undefined, signal),
     analysisArtifactRows: (scope: DerivedScope, artifact: string, input: AnalysisArtifactQuery, signal?: AbortSignal) => call<AnalysisArtifactRows>(scope, `/analysis/artifacts/${id(artifact)}/query`, 'POST', input, signal),
     analysisArtifactLineage: (scope: DerivedScope, artifact: string, input: AnalysisArtifactQuery, signal?: AbortSignal) => call<Schema<'AnalysisLineage'>>(scope, `/analysis/artifacts/${id(artifact)}/lineage`, 'POST', input, signal),
+    analysisDeleteArtifact: (scope: DerivedScope, artifact: string, input: Schema<'AnalysisWriteMeta'>, signal?: AbortSignal) => call<Schema<'AnalysisArtifactDeleteResult'>>(scope, `/analysis/artifacts/${id(artifact)}/delete`, 'POST', input, signal),
     analysisArchiveArtifact: (scope: DerivedScope, artifact: string, input: Schema<'AnalysisWriteMeta'>, signal?: AbortSignal) => call<Schema<'AnalysisArtifactArchiveResult'>>(scope, `/analysis/artifacts/${id(artifact)}/archive`, 'POST', input, signal),
     derivedReplayGeneration: (scope: DerivedScope, generation: string, input: Schema<'DerivedReplayInput'>, signal?: AbortSignal) => call<DerivedRun>(scope, `/generations/${id(generation)}/replay`, 'POST', input, signal),
     derivedGenerations: (scope: DerivedScope, channel: string, filter: DerivedGenerationFilter, signal?: AbortSignal) => call<Schema<'DerivedGenerationPage'>>(scope, `/channels/${id(channel)}/generations${query(filter)}`, 'GET', undefined, signal),

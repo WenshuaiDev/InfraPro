@@ -43,7 +43,7 @@ test('audit explains real permission changes and preserves filtered pagination a
   await page.getByRole('button', { name: '下一页', exact: true }).click(); await expect(records).toHaveCount(4);
   for (const next of await records.evaluateAll(nodes => nodes.map(n => n.getAttribute('data-audit-record')))) expect(ids).not.toContain(next);
   await page.reload(); await expect(records).toHaveCount(4); await expect(page.getByLabel('搜索当前获准内容')).toHaveValue(prefix);
-  await page.getByLabel('每页', { exact: true }).selectOption('25'); await expect(records).toHaveCount(14);
+  await page.getByRole('combobox', { name: '每页条数' }).click(); await page.getByRole('option', { name: '25', exact: true }).click(); await expect(records).toHaveCount(14);
   await page.getByLabel('操作结果', { exact: true }).selectOption('failure'); await expect(page.getByText('当前筛选下没有可见记录。', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '重置', exact: true }).click(); await expect(records.first()).toBeVisible();
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色', exact: true }).click();

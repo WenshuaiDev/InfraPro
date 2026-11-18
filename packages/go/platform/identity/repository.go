@@ -39,10 +39,10 @@ func (r *Repository) transact(ctx context.Context, fn func(pgx.Tx) error) error 
 	return err
 }
 
-const accountColumns = "id::text,username,display_name,status,created_at"
+const accountColumns = "id::text,username,display_name,status,created_at,avatar_revision::text,avatar_object_id IS NOT NULL"
 
 func scanAccount(row pgx.Row) (a Account, err error) {
-	err = row.Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.CreatedAt)
+	err = row.Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.CreatedAt, &a.AvatarRevision, &a.HasAvatar)
 	return
 }
 func (r *Repository) Account(ctx context.Context, id string) (Account, error) {

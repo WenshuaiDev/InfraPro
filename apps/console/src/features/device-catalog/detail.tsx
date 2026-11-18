@@ -1,11 +1,13 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { ClassificationCard } from '../classification/assignment';
 import { ProductParsing } from '../parsing/configs';
 import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Copy, FilePenLine, GitBranch, Info, Package, Plus } from 'lucide-react';
-import type { DeviceProductIdentity, DeviceProductVersionPage, DeviceProductVersion } from '@infrapro/api-client';
+import type { DeviceProductVersion } from '@infrapro/api-client';
 import { PageHeader } from '@infrapro/layouts';
 import { Button } from '@infrapro/ui/components/button';
 import { Badge } from '@infrapro/ui/components/badge';
@@ -39,17 +41,19 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
   const [tab, setTab] = useState('outputs');
   const [panel, setPanel] = useState<Panel>();
   const returnFocus = useRef<HTMLElement | null>(null);
-  const query = useInfiniteQuery({
-    queryKey: [...c.prefix, 'product', id], initialPageParam: '',
-    queryFn: async ({ signal, pageParam }): Promise<DeviceProductIdentity | DeviceProductVersionPage> => c.owned
-      ? c.client.deviceProduct(c.writeScope, id, { cursor: pageParam, limit: 25 }, signal)
-      : c.client.devicePublicVersions(c.tenant!.tenant.id, id, { cursor: pageParam, limit: 25 }, signal),
-    getNextPageParam: (page) => page.next_cursor || undefined,
+  const query = usePagedQuery({
+    queryKey: [...c.prefix, 'product', id], initialPageSize: 25,
+    queryFn: async ({ signal, cursor, limit }) => {
+      if (c.owned) {
+        const product = await c.client.deviceProduct(c.writeScope, id, { cursor, limit }, signal);
+        return { product, items: product.versions, next_cursor: product.next_cursor };
+      }
+      const result = await c.client.devicePublicVersions(c.tenant!.tenant.id, id, { cursor, limit }, signal);
+      return { ...result, product: undefined };
+    },
   });
-  const pages = query.data?.pages ?? [];
-  const first = pages[0];
-  const product = first && 'versions' in first ? first : undefined;
-  const versions = pages.flatMap((page) => 'versions' in page ? page.versions : page.items);
+  const product = query.data?.product;
+  const versions = query.data?.items ?? [];
   const viewingDraft = !!product?.draft && (selected === 'draft' || !versions.length);
   const version = versions.find((item) => item.id === selected) ?? versions[0];
   const content = viewingDraft ? product!.draft!.content : version?.content;
@@ -74,9 +78,9 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
           <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><GitBranch className="size-4" aria-hidden="true" />产品版本</h2>
           <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col">
             {product?.draft && <Button variant={viewingDraft ? 'secondary' : 'ghost'} className="h-auto min-w-36 justify-start whitespace-normal px-3 py-3 text-left lg:min-w-0" aria-pressed={viewingDraft} onClick={() => setSelected('draft')} aria-label="查看当前草稿"><span className="w-full space-y-2"><span className="flex items-center justify-between gap-2"><span>当前草稿</span><Badge variant="outline">未发布</Badge></span><span className="block text-xs font-normal text-muted-foreground">尚未发布的修改</span></span></Button>}
-            {versions.map((item, index) => <Button key={item.id} variant={!viewingDraft && version?.id === item.id ? 'secondary' : 'ghost'} aria-pressed={!viewingDraft && version?.id === item.id} aria-label={`查看发布版本 v${item.number}`} onClick={() => setSelected(item.id)} className="h-auto min-w-36 justify-start whitespace-normal px-3 py-3 text-left lg:min-w-0"><span className="w-full space-y-2"><span className="flex items-center justify-between gap-2"><span>v{item.number}{index === 0 ? ' · 最新' : ''}</span><Badge variant="outline">{item.enabled ? '启用' : '停用'}</Badge></span><span className="block text-xs font-normal text-muted-foreground">{formatDate(item.published_at)}</span></span></Button>)}
+            {versions.map((item, index) => <Button key={item.id} variant={!viewingDraft && version?.id === item.id ? 'secondary' : 'ghost'} aria-pressed={!viewingDraft && version?.id === item.id} aria-label={`查看发布版本 v${item.number}`} onClick={() => setSelected(item.id)} className="h-auto min-w-36 justify-start whitespace-normal px-3 py-3 text-left lg:min-w-0"><span className="w-full space-y-2"><span className="flex items-center justify-between gap-2"><span>v{item.number}{query.pagination.page === 0 && index === 0 ? ' · 最新' : ''}</span><Badge variant="outline">{item.enabled ? '启用' : '停用'}</Badge></span><span className="block text-xs font-normal text-muted-foreground">{formatDate(item.published_at)}</span></span></Button>)}
           </div>
-          {query.hasNextPage && <Button variant="outline" size="sm" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>加载更早版本</Button>}
+          {query.data && <ListPagination label="版本" {...query.pagination} />}
           <p className="hidden text-xs leading-relaxed text-muted-foreground lg:block">发布时间：北京时间<br />发布内容固定保留。</p>
         </aside>
         <div className="min-w-0 space-y-6 p-4 sm:p-6">
@@ -126,11 +130,11 @@ function ProductBody({ id, source }: { id: string; source: 'public' | 'private' 
 
 function CatalogHistory({ product }: { product: string }) {
   const c = useDeviceCatalog();
-  const query = useInfiniteQuery({ queryKey: [...c.prefix, 'history', product], initialPageParam: '', queryFn: ({ signal, pageParam }) => c.client.deviceCatalogChanges(c.writeScope, { product_id: product, cursor: pageParam, limit: 25 }, signal), getNextPageParam: (page) => page.next_cursor || undefined });
-  const events = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const query = usePagedQuery({ initialPageSize: 25, queryKey: [...c.prefix, 'history', product], queryFn: ({ signal, cursor , limit}) => c.client.deviceCatalogChanges(c.writeScope, { product_id: product, cursor, limit }, signal) });
+  const events = query.data?.items ?? [];
   return <section className="space-y-4" aria-label="产品变更记录"><h3 className="font-semibold">产品变更记录</h3>
     {query.isPending ? <LoadingState label="正在读取变更记录…" /> : query.error ? <ErrorState message={query.error.message} onRetry={() => void query.refetch()} /> : events.length ? <ol className="space-y-4">{events.map((event) => <li key={event.id} className="space-y-2 rounded-lg border p-4"><p className="break-words text-sm font-medium">{catalogOperationNames[event.operation.split(':').at(-1) ?? ''] ?? '产品变更'} · {event.actor_name}</p><p className="text-xs text-muted-foreground">{formatDate(event.changed_at)}（北京时间）</p><p className="whitespace-pre-wrap break-words text-sm">{event.reason || '未填写原因'}</p><details><summary className="cursor-pointer text-sm text-muted-foreground">查看变更前后</summary><pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-all text-xs">{JSON.stringify({ operation: event.operation, before: event.before, after: event.after }, null, 2)}</pre></details></li>)}</ol> : <EmptyState title="暂无产品变更记录" />}
-    {query.hasNextPage && <Button variant="outline" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>加载更早记录</Button>}
-    {query.isFetchingNextPage && <FormNotice>正在读取更早记录…</FormNotice>}
+    {query.data && <ListPagination label="记录" {...query.pagination} />}
+    {query.isFetching && <FormNotice>正在读取更早记录…</FormNotice>}
   </section>;
 }

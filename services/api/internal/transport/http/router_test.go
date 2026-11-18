@@ -255,6 +255,7 @@ func TestE2EServer(t *testing.T) {
 	defer cleanupMonitoring()
 	cleanupDisplay := browserDisplay(t, ctx, env, storage)
 	defer cleanupDisplay()
+	browserAvatars(t, ctx, env)
 	cleanupFiles := browserFiles(t, ctx, env)
 	defer cleanupFiles()
 	cleanupSpatial := browserSpatial(t, ctx, env, storage)

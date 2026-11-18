@@ -36,7 +36,7 @@ function PlatformRoleList() {
   const selected=selection??(target&&account?.id?{id:target,mode:'details' as const}:undefined);
   const close=()=>{setSelected(undefined);if(target)void navigate({to:'/access/roles',search:{role:undefined}});};
   const returnFocus = useRef<HTMLElement | null>(null);
-  const list = useRoleList({ queryKey: ['access', account?.id, 'roles', q, status, pageSize], load: (cursor, signal) => client.roles({ q, status, cursor, limit: pageSize }, signal) });
+  const list = useRoleList({ pageSize: pageSize, queryKey: ['access', account?.id, 'roles', q, status, pageSize], load: (cursor, signal) => client.roles({ q, status, cursor, limit: pageSize }, signal) });
   const open = (role: Role, mode: PlatformRoleMode, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelected({ id: role.id, mode }); };
   const actions = (role: Role): RoleAction[] => [
     { label: '查看详情', run: (trigger) => open(role, 'details', trigger) },
@@ -46,7 +46,7 @@ function PlatformRoleList() {
     ...(!role.builtin_key && can(P.PlatformRoleDelete) ? [{ label: '删除角色', run: (trigger: HTMLElement | null) => open(role, 'archive', trigger), disabled: role.account_count > 0, destructive: true }] : []),
   ];
   return <>
-    <RoleTable label="角色列表" items={list.items} q={q} setQ={setQ} status={status} setStatus={setStatus} sourceName={(role) => role.builtin_key ? '内置' : '自定义'} boundCount={(role) => role.account_count} renderName={(role) => <Button id={`role-${role.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" onClick={(event) => open(role, 'details', event.currentTarget)}>{role.name}</Button>} actions={actions} loading={list.isPending} error={list.error} retry={() => void list.refetch()} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+    <RoleTable pagination={list.pagination} label="角色列表" items={list.items} q={q} setQ={setQ} status={status} setStatus={setStatus} sourceName={(role) => role.builtin_key ? '内置' : '自定义'} boundCount={(role) => role.account_count} renderName={(role) => <Button id={`role-${role.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" onClick={(event) => open(role, 'details', event.currentTarget)}>{role.name}</Button>} actions={actions} loading={list.isPending} error={list.error} retry={() => void list.refetch()} setPageSize={setPageSize} />
     {selected && <PlatformRolePanel key={`${selected.id}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={close} returnFocus={returnFocus} />}
   </>;
 }

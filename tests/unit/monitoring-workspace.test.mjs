@@ -94,7 +94,7 @@ test('facility and component channel deep links retain their identity without in
 
 
 const comparisonRange = { from: '2020-01-01T00:00:00Z', to: '2020-01-02T00:00:00Z' };
-const comparisonChannel = (id, patch = {}) => ({ id, name: `通道 ${id}`, source_kind: 'direct', unit: 'mm', value_kind: 'decimal', owner_name: '测点', facility_name: '设施', observation_direction: '向下为正', reference_basis: '初始观测', timestamp_meaning: 'observation_time', ...patch });
+const comparisonChannel = (id, patch = {}) => ({ id, name: `通道 ${id}`, source_kind: 'direct', unit_version_id: patch.value_kind === 'enum' ? null : patch.unit === '°C' ? 'celsius-v1' : 'mm-v1', unit: 'mm', value_kind: 'decimal', owner_name: '测点', facility_name: '设施', observation_direction: '向下为正', reference_basis: '初始观测', timestamp_meaning: 'observation_time', ...patch });
 const comparisonSeries = (channel, values = ['1', '3'], patch = {}) => ({ channel_id: channel.id, range: comparisonRange, summary: false, buckets: [{ range: comparisonRange, discontinuous: false, states: [], points: values.map((value, i) => ({ source_kind: channel.source_kind, value, value_kind: channel.value_kind, quality: 'good', data_quality: 'good', calculation_status: value === null ? 'no_result' : 'valid', observed_at: `2020-01-01T00:00:0${i}Z`, output_at: `2020-01-01T00:00:0${i}Z` })) }], ...patch });
 
 test('every selected channel is represented in one plot up to fifty, regardless of metadata or missing samples', () => {
@@ -146,4 +146,14 @@ test('relative amplitude uses only the current window, keeps constant signals an
   assert.equal(model.lines[0].data[3].value[1], 100);
   const constant = buildTrendModel([channel], [comparisonSeries(channel, ['5', '5'])], comparisonRange, 'relative');
   assert.deepEqual(constant.lines[0].data.map(point => point.value[1]), [50, 50]);
+});
+
+test('absolute axes distinguish fixed versions with the same symbol and compound derived units', () => {
+  const channels = [
+    comparisonChannel('mm'), comparisonChannel('other', { unit_version_id: 'another-mm' }),
+    comparisonChannel('derived', { source_kind: 'derived', unit_version_id: null, quantity_spec: { base_unit_version_id: 'mm-v1', base_power: 1, time_power: 0 } }),
+    comparisonChannel('rate', { source_kind: 'derived', unit_version_id: null, quantity_spec: { base_unit_version_id: 'mm-v1', base_power: 1, time_power: -1, time_unit: 'hour' } }),
+  ];
+  const model = buildTrendModel(channels, [], comparisonRange);
+  assert.deepEqual(model.lines.map(line => line.axisIndex), [0, 1, 0, 2]);
 });

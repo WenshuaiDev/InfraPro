@@ -1,5 +1,8 @@
 # InfraPro 首期全功能试运行部署方案（2026-11-17）
 
+2026-11-17 部署更新：四机生产部署和自验已完成，状态为 **Awaiting acceptance**；实际服务、访问入口、备份恢复及人工验收见 [生产部署交接](production-deployment-2026-11-17.md)。
+
+
 后续状态：业务生产实例已启动，当前版本映射和实机检查见[生产版本基线](production-version-2026-11-17.md)。下文为安装前确认的方案；不能用方案中的计划能力替代实际运行与验收结果。
 
 状态：**部署方案 Accepted；用户已确认主机准备完成，基础运行依赖已安装并实测，正式生产实例尚未初始化。** ClickHouse 单节点支持、三项部署适配及回归收尾已完成。主机重启、校时、数据卷、兼容软件包和跨机连通性以[离线环境交接记录](../../.artifacts/offline-env-preparation-20261117/reports/environment-handover.md)为最新依据；此前清理见[历史记录](production-server-preparation-2026-11-17.md)。下一步制作正式发行包，随后配置并启动生产实例。

@@ -356,7 +356,7 @@ func validateResource(ctx context.Context, tx pgx.Tx, t scopedTarget, r, facilit
 			}
 			return nil
 		}
-		if r.UnitVersionID == nil || !slices.Contains(m.AllowedUnits, *r.UnitVersionID) {
+		if r.UnitVersionID == nil || !m.AllowsUnit(*r.UnitVersionID) {
 			return invalid("/unit_version_id", "metric_unit_mismatch", "请选择该指标固定允许的单位版本。")
 		}
 		u, _, e := engineering.ResolvePublicTx(ctx, tx, *r.UnitVersionID, engineering.UnitDefinition, newUse)

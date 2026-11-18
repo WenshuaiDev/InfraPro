@@ -28,22 +28,23 @@ type Selection struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 type QueryInput struct {
-	Selection  string   `json:"selection_id"`
-	Snapshot   string   `json:"snapshot_id"`
-	Range      *Range   `json:"range"`
-	ViewRange  *Range   `json:"view_range,omitempty"`
-	AllHistory bool     `json:"all_history"`
-	Qualities  []string `json:"qualities"`
-	Timezone   string   `json:"timezone"`
-	Status     string   `json:"status"`
-	ValueKind  string   `json:"value_kind"`
-	Cursor     string   `json:"cursor"`
-	Limit      int      `json:"limit"`
-	Direction  string   `json:"direction"`
-	PlotWidth  int      `json:"plot_width_px"`
-	PlotBudget int      `json:"plot_point_budget,omitempty"`
-	Period     string   `json:"period"`
-	Digits     *int     `json:"digits"`
+	IncludeTotal bool     `json:"include_total,omitempty"`
+	Selection    string   `json:"selection_id"`
+	Snapshot     string   `json:"snapshot_id"`
+	Range        *Range   `json:"range"`
+	ViewRange    *Range   `json:"view_range,omitempty"`
+	AllHistory   bool     `json:"all_history"`
+	Qualities    []string `json:"qualities"`
+	Timezone     string   `json:"timezone"`
+	Status       string   `json:"status"`
+	ValueKind    string   `json:"value_kind"`
+	Cursor       string   `json:"cursor"`
+	Limit        int      `json:"limit"`
+	Direction    string   `json:"direction"`
+	PlotWidth    int      `json:"plot_width_px"`
+	PlotBudget   int      `json:"plot_point_budget,omitempty"`
+	Period       string   `json:"period"`
+	Digits       *int     `json:"digits"`
 }
 type Snapshot struct {
 	ID            string    `json:"id"`
@@ -68,6 +69,7 @@ type Observation struct {
 	Revoked       bool                   `json:"revoked"`
 }
 type DetailPage struct {
+	Total      *uint64               `json:"total,omitempty"`
 	Items      []Observation         `json:"items"`
 	Snapshot   Snapshot              `json:"snapshot"`
 	HasMore    bool                  `json:"has_more"`
@@ -534,6 +536,18 @@ func (s *Service) Details(ctx context.Context, a access.Actor, scope Scope, inpu
 	if len(raw) > 0 {
 		out.NextCursor = signCursor(plan, raw[len(raw)-1], "forward")
 		out.PrevCursor = signCursor(plan, raw[0], "backward")
+	}
+	if in.IncludeTotal && in.Cursor == "" {
+		if !out.HasMore {
+			total := uint64(len(out.Items))
+			out.Total = &total
+		} else if len(plan.vector.Calculated) == 0 {
+			total, err := s.storage.countRows(ctx, rawRead{Manifest: plan.manifest, Tenant: scope.Tenant, Windows: plan.windows, Qualities: in.Qualities, Range: queryWindow(in)})
+			if err != nil {
+				return DetailPage{}, storageError(err)
+			}
+			out.Total = &total
+		}
 	}
 	in.Snapshot = plan.snapshot.ID
 	_, e = s.queryPlan(ctx, a, scope, in, "details", "read")

@@ -2,7 +2,7 @@ import type { ResourceTreeNode, ResourceTreeRef } from '@infrapro/api-client';
 import { Badge } from '@infrapro/ui/components/badge';
 import { ErrorState, FormNotice, LoadingState } from '@infrapro/ui/patterns/feedback';
 import { resourceLabels } from './resource-labels';
-import { ResourceIcon, TreeMore } from './resource-tree';
+import { ResourceIcon, ResourcePagination } from './resource-tree';
 import { childFilter, useResourceTree } from './resource-tree-query';
 import { ChildrenList, ResourceBreadcrumb } from './workspace-detail';
 
@@ -15,10 +15,10 @@ export function WorkspaceContext({ node, select }: { node: ResourceTreeNode; sel
     <FormNotice>仅用于定位已授权资源；未授予完整{resourceLabels[node.kind]}资料。</FormNotice>
     <section className="space-y-3 border-t pt-4">
       <h3 className="text-sm font-semibold">已授权下级资源</h3>
-      {children.isPending ? <LoadingState /> : children.error && !children.isFetchNextPageError ? <ErrorState message={children.error.message} onRetry={() => void children.refetch()} /> : <>
+      {children.isPending ? <LoadingState /> : children.error && !children.items.length ? <ErrorState message={children.error.message} onRetry={() => void children.refetch()} /> : <>
         <ChildrenList items={children.items} select={select} empty="暂无可查看的下级资源" />
-        <p role="status" className="text-xs text-muted-foreground">已显示 {children.items.length} / {children.summary?.total ?? 0} 项</p>
-        <TreeMore query={children} />
+
+        <ResourcePagination query={children} />
       </>}
     </section>
   </article>;

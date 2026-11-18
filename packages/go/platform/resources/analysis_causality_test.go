@@ -69,6 +69,25 @@ func TestAnalysisNearestAndFutureFixedBasisRetainEvidence(t *testing.T) {
 	if first.Value == nil || *first.Value != "4.000000000000000000" || !slices.Contains(first.Reasons, "noncausal_alignment") || len(first.Matches) != 1 || first.Matches[0].Offset != "30000000000" || second.Value == nil || *second.Value != "4.000000000000000000" || second.Matches[0].Offset != "-30000000000" {
 		t.Fatal("nearest direction or equal-distance tie lost", first, second)
 	}
+	sealed := run(nearest, false)
+	end := strconv.FormatInt(start.Add(time.Minute).UnixNano()+1, 10)
+	lineage, e := s.AnalysisArtifactLineage(ctx, f.actor, scope, sealed.Analysis.ArtifactID, dm.AnalysisArtifactQuery{VersionID: sealed.Analysis.ArtifactVersionID, Range: &dm.NanosecondRange{From: ns(1), To: &end}, Outputs: []string{second.Output}, IncludeSamples: true})
+	must(t, e)
+	var candidates []struct {
+		At      string `json:"at_ns"`
+		Matched *bool  `json:"matched"`
+	}
+	encoded, e := json.Marshal(lineage["samples"])
+	must(t, e)
+	must(t, json.Unmarshal(encoded, &candidates))
+	if len(candidates) != 2 {
+		t.Fatal("expected both fixed nearest candidates", candidates)
+	}
+	for _, c := range candidates {
+		if c.Matched == nil || *c.Matched != (c.At == second.Matches[0].At) {
+			t.Fatal("fixed nearest tie must select the same sample as the trial", candidates, second.Matches)
+		}
+	}
 	rule.Clock = dm.Clock{Kind: "primary_input", Input: "x"}
 	rule.Nodes = []dm.Node{{ID: "baseline", Op: "baseline_delta", Inputs: []string{"input:x"}, Params: dm.NodeParams{Baseline: &dm.Baseline{Kind: "reference_window", Reference: "origin", Method: "mean", FromNS: ns(2), ToNS: ns(3)}}}}
 	rule.Outputs[0].Node = "baseline"

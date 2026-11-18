@@ -1,0 +1,20 @@
+.unit-category-card [data-slot="scroll-area-scrollbar"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .unit-category-card:hover [data-slot="scroll-area-scrollbar"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.unit-category-card [data-slot="scroll-area-thumb"] {
+  background-color: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+}
+
+/* Radix measures the inner wrapper as a table by default. Keep long names inside the card. */
+.unit-category-card [data-slot="scroll-area-viewport"] > div {
+  display: block !important;
+}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import type { ResourceAccessFilter, ResourceKind } from '@infrapro/api-client';
 import { Building2, ChevronDown, ChevronRight, Layers, MapPin, Waves } from 'lucide-react';
-import { Button } from '@infrapro/ui/components/button';
 import { Checkbox } from '@infrapro/ui/components/checkbox';
 import { ErrorState } from '@infrapro/ui/patterns/feedback';
 import { cn } from '@infrapro/ui/lib/utils';
@@ -136,41 +136,26 @@ function CandidateList({
     candidate_owner_kind: ownerKind,
     candidate_owner_id: ownerID,
   };
-  const query = useInfiniteQuery({
+  const query = usePagedQuery({
     queryKey: [...prefix, 'facility', props.facility, props.revision, props.generation, 'tree', filter],
-    initialPageParam: '',
-    queryFn: async ({ pageParam, signal }) =>
-      assertAccessRevision(
-        await client.resourceAccess(
-          tenant.tenant.id,
-          props.project,
-          props.facility,
-          { ...filter, candidate_cursor: pageParam },
-          signal,
-        ),
-        props.revision,
-      ),
-    getNextPageParam: (p) => p.candidates.next_cursor || undefined,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
+    queryFn: async ({ cursor, limit, signal }) => {
+      const page = assertAccessRevision(await client.resourceAccess(
+        tenant.tenant.id, props.project, props.facility,
+        { ...filter, candidate_limit: limit, candidate_cursor: cursor }, signal,
+      ), props.revision);
+      const items = page.candidates.items.map(r => {
+        const grant = page.candidate_grants.find(g => g.resource_id === r.id);
+        return {
+          kind: r.kind, id: r.id, name: r.name, code: r.code, status: r.status,
+          source_kind: 'source_kind' in r ? r.source_kind : undefined,
+          grant, capabilities: grant?.capabilities ?? ['read'],
+        } satisfies Choice;
+      });
+      return { items, next_cursor: page.candidates.next_cursor };
+    },
+    refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity,
   });
-  const items =
-    query.data?.pages.flatMap((p) =>
-      p.candidates.items.map(
-        (r) =>
-          ({
-            kind: r.kind,
-            id: r.id,
-            name: r.name,
-            code: r.code,
-            status: r.status,
-            source_kind: 'source_kind' in r ? r.source_kind : undefined,
-            grant: p.candidate_grants.find((g) => g.resource_id === r.id),
-            capabilities: p.candidate_grants.find((g) => g.resource_id === r.id)?.capabilities ?? ['read'],
-          }) satisfies Choice,
-      ),
-    ) ?? [];
+  const items = query.data?.items ?? [];
   return (
     <>
       {query.error && (
@@ -196,16 +181,8 @@ function CandidateList({
           {kinds[kind]}
         </p>
       )}
-      {query.hasNextPage && (
-        <Button
-          variant="ghost"
-          className="m-2"
-          disabled={query.isFetchingNextPage}
-          onClick={() => void query.fetchNextPage()}
-        >
-          {query.isFetchingNextPage ? '读取中…' : `加载更多${kinds[kind]}`}
-        </Button>
-      )}
+      {query.data && (flat || query.pagination.hasNext || query.pagination.page > 0) &&
+        <ListPagination label={kinds[kind]} {...query.pagination} />}
     </>
   );
 }
@@ -234,34 +211,21 @@ function ResourceBranch({ value, depth = 0, ...props }: SelectorProps & { value:
 }
 function SelectedList({ q, kind, ...props }: SelectorProps & { q: string; kind: ResourceKind | 'all' }) {
   const { client, tenant, prefix } = useResourceAccess(props.project);
-  const query = useInfiniteQuery({
-    queryKey: [...prefix, 'facility', props.facility, props.revision, props.generation, 'selected'],
-    initialPageParam: '',
-    queryFn: async ({ pageParam, signal }) =>
-      assertAccessRevision(
-        await client.resourceAccess(
-          tenant.tenant.id,
-          props.project,
-          props.facility,
-          { grant_cursor: pageParam, limit: 100 },
-          signal,
-        ),
-        props.revision,
-      ),
-    getNextPageParam: (p) => p.grant_next_cursor || undefined,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
+  const query = usePagedQuery({
+    queryKey: [...prefix, 'facility', props.facility, props.revision, props.generation, 'selected', kind, q, props.draft],
+    queryFn: async ({ cursor, signal }) => {
+      const page = assertAccessRevision(await client.resourceAccess(
+        tenant.tenant.id, props.project, props.facility, { grant_cursor: cursor, limit: 100 }, signal,
+      ), props.revision);
+      const grants = page.grants.map(grant => props.draft[grant.resource_id] ?? asChoice(grant));
+      const added = cursor ? [] : Object.values(props.draft).filter(choice => !choice.grant);
+      const items = [...added, ...grants].filter(choice => !choice.end &&
+        (kind === 'all' || kind === choice.kind) && `${choice.name} ${choice.code}`.toLowerCase().includes(q.toLowerCase()));
+      return { items, next_cursor: page.grant_next_cursor };
+    },
+    refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity,
   });
-  const original = query.data?.pages.flatMap((p) => p.grants.map(asChoice)) ?? [];
-  const merged = new Map(original.map((v) => [v.id, v]));
-  Object.values(props.draft).forEach((v) => merged.set(v.id, v));
-  const values = [...merged.values()].filter(
-    (v) =>
-      !v.end &&
-      (kind === 'all' || v.kind === kind) &&
-      `${v.name} ${v.code}`.toLowerCase().includes(q.toLowerCase()),
-  );
+  const values = query.data?.items ?? [];
   return (
     <>
       {query.error && (
@@ -279,19 +243,10 @@ function SelectedList({ q, kind, ...props }: SelectorProps & { q: string; kind: 
       ))}
       {!query.isPending && !values.length && (
         <p className="p-5 text-sm text-muted-foreground">
-          本批次没有匹配的已选资源。{query.hasNextPage ? '请继续加载更多。' : ''}
+          没有匹配的已选资源。
         </p>
       )}
-      {query.hasNextPage && (
-        <Button
-          variant="ghost"
-          className="m-2"
-          disabled={query.isFetchingNextPage}
-          onClick={() => void query.fetchNextPage()}
-        >
-          加载更多已选资源
-        </Button>
-      )}
+      {query.data && <ListPagination label="已选资源" {...query.pagination} />}
     </>
   );
 }
@@ -306,7 +261,7 @@ export function ResourceSelector({
     <section aria-label="资源选择" className="min-w-0 overflow-hidden rounded-lg border">
       <div className="border-b bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
         勾选开放查看 · 点名称设置权限
-        {onlySelected ? ' · 已选资源按批次读取' : q || kind !== 'all' ? ' · 搜索整个设施' : ''}
+        {onlySelected ? ' · 已选资源' : q || kind !== 'all' ? ' · 搜索整个设施' : ''}
       </div>
       <div className="max-h-[560px] overflow-y-auto">
         {onlySelected ? (

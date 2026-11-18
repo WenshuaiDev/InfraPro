@@ -55,7 +55,8 @@ func (s *Service) Messages(ctx context.Context, a access.Actor, scope Scope, f F
 		if e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT u.id::text,jsonb_build_object('id',u.id,'receipt_id',r.id,'relay_receipt_id',r.receipt_id,'source_id',r.source_id,'source_project_id',r.project_id,'terminal_id',u.terminal_id,'terminal_key',u.terminal_key,'child_key',u.child_key,'device_id',u.device_id,'state',u.state,'error_code',u.error_code,'message_kind',u.message_kind,'received_at',r.received_at,'stored_at',r.stored_at,'byte_length',u.view->>'byte_length','sha256',u.view->>'sha256','synthetic',s.synthetic,'ingress_protocol',r.envelope->>'ingress_protocol_id','ingress_version',r.envelope->>'ingress_protocol_version','method_version',(SELECT snapshot->'parsing'->'entry'->>'method_version' FROM ingestion_parse_plans WHERE unit_id=u.id LIMIT 1),'acknowledgement',(SELECT state FROM ingestion_ack_outbox WHERE receipt_id=r.id)) FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id JOIN ingestion_sources s ON s.id=r.source_id JOIN devices d ON d.id=u.device_id AND d.tenant_id=u.tenant_id JOIN projects p ON p.id=s.project_id WHERE u.tenant_id=$1 AND d.status='enabled' AND d.deleted_at IS NULL AND p.status='active' AND EXISTS(SELECT 1 FROM project_device_grants g WHERE g.tenant_id=u.tenant_id AND g.project_id=s.project_id AND g.device_id=u.device_id AND g.kind='device' AND g.ended_at IS NULL) AND ($2::uuid IS NULL OR s.id=$2) AND ($3::uuid IS NULL OR s.project_id=$3) AND ($4::uuid IS NULL OR u.terminal_id=$4) AND ($5::uuid IS NULL OR u.device_id=$5) AND ($6::uuid IS NULL OR r.receipt_id=$6 OR r.id=$6) AND ($7='' OR u.state=$7) AND ($8='' OR u.error_code=$8) AND ($9::timestamptz IS NULL OR r.received_at>=$9) AND ($10::timestamptz IS NULL OR r.received_at<$10) AND ($11::uuid IS NULL OR u.id>$11) AND ($12='' OR EXISTS(SELECT 1 FROM ingestion_parse_plans x WHERE x.unit_id=u.id AND x.snapshot->'parsing'->'entry'->>'method_version'=$12)) ORDER BY u.id LIMIT $13`, scope.Tenant, k.Nullable(f.SourceID), k.Nullable(f.ProjectID), k.Nullable(f.TerminalID), k.Nullable(f.DeviceID), k.Nullable(f.ReceiptID), f.State, f.ErrorCode, f.From, f.Until, k.Nullable(cur.ID), f.MethodVersion, f.Limit+1)
+		const filtered = ` FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id JOIN ingestion_sources s ON s.id=r.source_id JOIN devices d ON d.id=u.device_id AND d.tenant_id=u.tenant_id JOIN projects p ON p.id=s.project_id WHERE u.tenant_id=$1 AND d.status='enabled' AND d.deleted_at IS NULL AND p.status='active' AND EXISTS(SELECT 1 FROM project_device_grants g WHERE g.tenant_id=u.tenant_id AND g.project_id=s.project_id AND g.device_id=u.device_id AND g.kind='device' AND g.ended_at IS NULL) AND ($2::uuid IS NULL OR s.id=$2) AND ($3::uuid IS NULL OR s.project_id=$3) AND ($4::uuid IS NULL OR u.terminal_id=$4) AND ($5::uuid IS NULL OR u.device_id=$5) AND ($6::uuid IS NULL OR r.receipt_id=$6 OR r.id=$6) AND ($7='' OR u.state=$7) AND ($8='' OR u.error_code=$8) AND ($9::timestamptz IS NULL OR r.received_at>=$9) AND ($10::timestamptz IS NULL OR r.received_at<$10) AND ($11='' OR EXISTS(SELECT 1 FROM ingestion_parse_plans x WHERE x.unit_id=u.id AND x.snapshot->'parsing'->'entry'->>'method_version'=$11))`
+		rows, e := tx.Query(ctx, `SELECT u.id::text,jsonb_build_object('id',u.id,'receipt_id',r.id,'relay_receipt_id',r.receipt_id,'source_id',r.source_id,'source_project_id',r.project_id,'terminal_id',u.terminal_id,'terminal_key',u.terminal_key,'child_key',u.child_key,'device_id',u.device_id,'state',u.state,'error_code',u.error_code,'message_kind',u.message_kind,'received_at',r.received_at,'stored_at',r.stored_at,'byte_length',u.view->>'byte_length','sha256',u.view->>'sha256','synthetic',s.synthetic,'ingress_protocol',r.envelope->>'ingress_protocol_id','ingress_version',r.envelope->>'ingress_protocol_version','method_version',(SELECT snapshot->'parsing'->'entry'->>'method_version' FROM ingestion_parse_plans WHERE unit_id=u.id LIMIT 1),'acknowledgement',(SELECT state FROM ingestion_ack_outbox WHERE receipt_id=r.id))`+filtered+` AND ($12::uuid IS NULL OR u.id>$12) ORDER BY u.id LIMIT $13`, scope.Tenant, k.Nullable(f.SourceID), k.Nullable(f.ProjectID), k.Nullable(f.TerminalID), k.Nullable(f.DeviceID), k.Nullable(f.ReceiptID), f.State, f.ErrorCode, f.From, f.Until, f.MethodVersion, k.Nullable(cur.ID), f.Limit+1)
 		if e != nil {
 			return e
 		}
@@ -74,7 +75,20 @@ func (s *Service) Messages(ctx context.Context, a access.Actor, scope Scope, f F
 			last = id
 			out.Items = append(out.Items, raw)
 		}
-		return rows.Err()
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+		if f.Cursor == "" {
+			total := len(out.Items)
+			if out.NextCursor != "" {
+				if err := tx.QueryRow(ctx, "SELECT count(*)"+filtered, scope.Tenant, k.Nullable(f.SourceID), k.Nullable(f.ProjectID), k.Nullable(f.TerminalID), k.Nullable(f.DeviceID), k.Nullable(f.ReceiptID), f.State, f.ErrorCode, f.From, f.Until, f.MethodVersion).Scan(&total); err != nil {
+					return err
+				}
+			}
+			out.Total = &total
+		}
+		return nil
 	})
 	return out, e
 }

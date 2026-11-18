@@ -3,7 +3,7 @@ import { ObjectHistory } from '../audit/object-history';
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Factory, Layers, Package, Plus, Settings2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Factory, Layers, Package, Plus, Settings2 } from 'lucide-react';
 import type { DeviceManufacturer } from '@infrapro/api-client';
 import { PageHeader } from '@infrapro/layouts';
 import { Button } from '@infrapro/ui/components/button';
@@ -38,15 +38,15 @@ function CatalogBody({ search, onSearch }: { search: CatalogSearch; onSearch: (v
   const [size, setSize] = useState(25);
   const [panel, setPanel] = useState<Panel>();
   const returnFocus = useRef<HTMLElement | null>(null);
-  const manufacturers = useCursorList({
+  const manufacturers = useCursorList({ initialPageSize: 25,
     queryKey: [...c.prefix, 'manufacturers', manufacturerSearch],
-    load: (cursor, signal) => c.client.deviceManufacturers(c.scope, { q: manufacturerSearch, cursor, limit: 25 }, signal),
+    load: (cursor, signal, limit) => c.client.deviceManufacturers(c.scope, { q: manufacturerSearch, cursor, limit }, signal),
   });
-  const products = useCursorList({
+  const products = useCursorList({ pageSize: size,
     queryKey: [...c.prefix, 'products', search, size],
     load: (cursor, signal) => c.client.deviceProducts(c.scope, { q: search.q, manufacturer_id: search.manufacturer, status: search.status, cursor, limit: size }, signal),
   });
-  const manufacturer = manufacturers.data?.pages.flatMap((page) => page.items).find((item) => item.id === search.manufacturer);
+  const manufacturer = manufacturers.items.find((item) => item.id === search.manufacturer);
   const manufacturerName = manufacturer?.name ?? products.items.find((item) => item.manufacturer_id === search.manufacturer)?.manufacturer_name;
   const editManufacturer = (initial?: DeviceManufacturer, mode: ManufacturerMode = 'edit') => setPanel({ kind: 'manufacturer', initial, mode });
   const selectManufacturer = (id?: string) => onSearch({ ...search, manufacturer: id });
@@ -72,11 +72,7 @@ function CatalogBody({ search, onSearch }: { search: CatalogSearch; onSearch: (v
             <Factory className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /><span className="min-w-0 space-y-1"><span className="block break-words">{item.name}</span><span className="block break-all text-xs font-normal text-muted-foreground">{item.status === 'archived' ? '已停用 · 既有产品保留' : item.code}</span></span>
           </Button>) : <p className="px-3 py-5 text-sm text-muted-foreground">{manufacturerSearch ? '没有匹配的厂家。' : '暂无厂家。'}</p>}
         </div>}
-        <div className="flex items-center justify-between gap-2 border-t pt-3">
-          <Button variant="ghost" size="icon" aria-label="上一页厂家" disabled={!manufacturers.page || manufacturers.isFetching} onClick={() => manufacturers.go(manufacturers.page - 1)}><ChevronLeft aria-hidden="true" /></Button>
-          <span className="text-xs text-muted-foreground" role="status">第 {manufacturers.page + 1} 页</span>
-          <Button variant="ghost" size="icon" aria-label="下一页厂家" disabled={!manufacturers.hasNext || manufacturers.isFetching} onClick={() => void manufacturers.next()}><ChevronRight aria-hidden="true" /></Button>
-        </div>
+        <ListPagination label="厂家" {...manufacturers.pagination} />
       </aside>
       <section className="min-w-0 space-y-4" aria-label="设备产品">
         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -98,7 +94,7 @@ function CatalogBody({ search, onSearch }: { search: CatalogSearch; onSearch: (v
             </Card>
           </Link>)}
         </div> : !products.error && <EmptyState title="没有符合条件的产品" description={c.owned ? '可以调整搜索与筛选条件，或新建产品。' : '公共目录仅显示可采用的已发布产品版本。'} />}
-        <ListPagination pageSizes={[25, 50, 100]} label="产品" count={products.items.length} page={products.page} pageCount={products.pageCount} hasNext={!!products.hasNext} fetching={products.isFetching} go={products.go} next={() => void products.next()} pageSize={size} setPageSize={setSize} />
+        <ListPagination label="产品" {...products.pagination} pageSizes={[25, 50, 100]} setPageSize={setSize} />
       </section>
     </div>
     <ResponsivePanel open={!!panel} onOpenChange={(open) => { if (!open) setPanel(undefined); }} title={panelTitle}

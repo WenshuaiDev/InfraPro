@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { test, expect, login, createAccount, csrf, consoleURL } from './fixtures';
 import { expectIdentity, logout, navigateTo } from '../helpers/navigation';
 
-test('cursor tables retain rows on failure and append real invitation and event pages', async ({ page, context, account }) => {
+test('numbered tables retain rows on failure and page through real invitations and events', async ({ page, context, account }) => {
   test.setTimeout(90_000);
   await login(page, account);
   const api = new URL('/api/v1', consoleURL).href;
@@ -19,6 +19,8 @@ test('cursor tables retain rows on failure and append real invitation and event 
   await page.goto(`${consoleURL}/invitations`);
   const rows = page.getByRole('table', { name: '我的邀请', exact: true }).locator('tbody tr');
   await expect(rows).toHaveCount(50);
+  await expect(page.getByText('共 51 条', { exact: true })).toBeVisible();
+  const firstNotes = await rows.locator('td:first-child').allTextContents();
   let failNext = true;
   await page.route('**/api/v1/invitations?cursor=*', async (route) => {
     if (new URL(route.request().url()).searchParams.get('cursor') && failNext) {
@@ -26,26 +28,30 @@ test('cursor tables retain rows on failure and append real invitation and event 
       await route.fulfill({ status: 503, json: { code: 'unavailable', message: '下一页暂时不可用。', request_id: 'cursor-test' } });
     } else await route.continue();
   });
-  await page.getByRole('button', { name: '加载更多邀请', exact: true }).click();
+  await page.getByRole('button', { name: '下一页', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('下一页暂时不可用');
   await expect(rows).toHaveCount(50);
   await page.getByRole('button', { name: '重新加载', exact: true }).click();
   await expect(page.getByRole('alert')).toHaveCount(0);
-  await page.getByRole('button', { name: '加载更多邀请', exact: true }).click();
-  await expect(rows).toHaveCount(51);
+  await page.getByRole('button', { name: '下一页', exact: true }).click();
+  await expect(rows).toHaveCount(1);
   const notes = await rows.locator('td:first-child').allTextContents();
-  expect(new Set(notes).size).toBe(51);
-  await expect(page.getByRole('button', { name: '加载更多邀请', exact: true })).toHaveCount(0);
+  expect(new Set([...firstNotes, ...notes]).size).toBe(51);
+  await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeDisabled();
   await expect(page.getByRole('tab', { name: '已撤销 51', exact: true })).toBeVisible();
   await page.getByLabel('搜索用途备注').fill('游标验收-0');
   await expect(rows).toHaveCount(1);
   await expect(rows).toContainText('游标验收-0');
   await expect(page.getByRole('tab', { name: '全部邀请 51', exact: true })).toBeVisible();
   await navigateTo(page, '账号安全');
-  const records = page.getByRole('table', { name: '近期安全记录', exact: true }).locator('tbody tr');
+  await page.getByRole('button', { name: '查看记录', exact: true }).click();
+  const records = page.getByRole('list', { name: '近期安全记录', exact: true }).getByRole('listitem');
   await expect(records).toHaveCount(50);
-  await page.getByRole('button', { name: '加载更多记录', exact: true }).click();
-  await expect(records).toHaveCount(100);
+  const firstEvents = await records.allTextContents();
+  await page.getByRole('navigation', { name: '近期安全记录分页' }).getByRole('button', { name: '下一页' }).click();
+  await expect(page.getByRole('button', { name: '第 2 页' })).toHaveAttribute('aria-current', 'page');
+  await expect(records).toHaveCount(50);
+  expect(await records.allTextContents()).not.toEqual(firstEvents);
 });
 
 test('a late invitation query cannot populate the next account cache', async ({ page, context, request, account }) => {

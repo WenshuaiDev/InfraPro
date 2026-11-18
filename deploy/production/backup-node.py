@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+"""Dedicated SSH forced command. No arbitrary paths, shells or commands."""
+import datetime,hashlib,json,os,pathlib,re,shutil,subprocess,sys,tarfile,tempfile
+os.umask(0o077);os.nice(10);subprocess.run(['ionice','-c','3','-p',str(os.getpid())],check=True);base=pathlib.Path.home()/'env/infrapro';host=json.loads((base/'config/environment.json').read_text())['ip'];parts=os.environ.get('SSH_ORIGINAL_COMMAND','').split();action=parts[0] if parts else '';ident=parts[1] if len(parts)==2 else ''
+if action in ['relay-stop','relay-start'] and len(parts)==1 and host=='10.23.52.151':
+ subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl',action.split('-')[1],'infrapro-ingest-relay.service'],check=True);print(json.dumps({'state':action}));sys.exit()
+if not re.fullmatch(r'checkpoint-\d{8}T\d{6}Z',ident):raise SystemExit('Invalid checkpoint id')
+if action=='export':
+ with tempfile.TemporaryDirectory(dir=base/'data/backups',prefix='export-') as td:
+  d=pathlib.Path(td)
+  if host=='10.23.52.151':
+   with (d/'relay.dump').open('wb') as f:subprocess.run([str(base/'bin/pg_dump'),'-h',str(base/'run/pg'),'-p','55432','-d','infrapro_relay','-Fc','--no-owner','--no-acl'],stdout=f,check=True)
+   release=json.loads((base/'config/release.json').read_text())['release']
+   with (d/'relay-manifest.json').open('wb') as f:subprocess.run([str(base/'releases'/release/'bin/ingest-relay'),'manifest',str(base/'config/ingestion/relay.json')],stdout=f,check=True,env={**os.environ,'SSL_CERT_FILE':str(base/'config/tls/ca.pem')})
+  diagnostics=host=='10.23.56.38'
+  if diagnostics:subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl','stop','infrapro-diagnostics.service'],check=True)
+  try:
+   with tarfile.open(fileobj=sys.stdout.buffer,mode='w|gz',compresslevel=1) as tar:
+    for name in ['config','units','ops']:tar.add(base/name,arcname=name)
+    if diagnostics:tar.add(base/'data/diagnostics',arcname='diagnostics-state')
+    for p in d.iterdir():tar.add(p,arcname=p.name)
+  finally:
+   if diagnostics:subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl','start','infrapro-diagnostics.service'],check=True)
+
+ sys.exit()
+if host!='10.23.56.38':raise SystemExit('Not a repository host')
+repo=base/'data/checkpoints';repo.mkdir(mode=0o700,exist_ok=True);path=repo/(ident+'.tar.gz');receipt=repo/(ident+'.json')
+if action=='receive':
+ if path.exists() or receipt.exists():raise SystemExit('Checkpoint already exists')
+ tmp=repo/(ident+'.incoming');h=hashlib.sha256();n=0;budget=300<<30
+ try:
+  with tmp.open('xb') as f:
+   while chunk:=sys.stdin.buffer.read(1<<20):
+    n+=len(chunk)
+    if n>budget:raise RuntimeError('Checkpoint exceeds repository budget')
+    if n%(64<<20)<(1<<20):
+     disk=shutil.disk_usage(repo)
+     if disk.free<disk.total*.2:raise RuntimeError('Repository must retain 20 percent free space')
+    f.write(chunk);h.update(chunk)
+   f.flush();os.fsync(f.fileno())
+  total=sum(p.stat().st_size for p in repo.glob('*.tar.gz'))+n
+  if total>budget:raise RuntimeError('Repository budget exceeded; old verified checkpoints retained')
+  # Parse the entire archive to detect truncation before sealing.
+  with tarfile.open(tmp,'r:gz') as tar:
+   for member in tar:
+    if member.isfile():
+     with tar.extractfile(member) as f:
+      while f.read(1<<20):pass
+  tmp.rename(path);result={'id':ident,'bytes':n,'sha256':h.hexdigest(),'received_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'archive_verified':True};receipt.write_text(json.dumps(result,indent=2));print(json.dumps(result))
+  complete=sorted([p for p in repo.glob('checkpoint-*.tar.gz') if p.with_suffix('').with_suffix('.json').exists()])
+  for old in complete[:-2]:old.unlink();old.with_suffix('').with_suffix('.json').unlink()
+ finally:
+  if tmp.exists():tmp.unlink()
+elif action=='fetch':
+ if not receipt.exists():raise SystemExit('No verified checkpoint')
+ with path.open('rb') as f:shutil.copyfileobj(f,sys.stdout.buffer,1<<20)
+elif action=='status':print(receipt.read_text())
+else:raise SystemExit('Unsupported backup command')

@@ -1,3 +1,4 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Monitor, Plus, Search, Settings2, ArrowUpRight, Package, CircleAlert } from 'lucide-react';
@@ -18,7 +19,7 @@ export function DisplaysWorkspace({ instanceID, packageID, onSelect }: { instanc
   const scope = { tenantId: project.project.tenant_id, projectId: project.project.id }, key = [...project.key, 'displays'];
   const [dialog, setDialog] = useState<'create' | 'settings' | null>(null);
   const [name, setName] = useState(''), [error, setError] = useState(''), [busy, setBusy] = useState(false);
-  const [search, setSearch] = useState(''), [filter, setFilter] = useState<DisplayFilter>('all'), [limit, setLimit] = useState(12);
+  const [search, setSearch] = useState(''), [filter, setFilter] = useState<DisplayFilter>('all'), [pageSize, setPageSize] = useState(12), [page, setPage] = useState(0);
   const [view, setView] = useState<DisplayView>('概览');
   const returnFocus = useRef<HTMLElement | null>(null);
   const state = useQuery({ queryKey: key, queryFn: ({ signal }) => client.displayList(scope, signal), enabled: project.available && project.can(P.ProjectDisplayView), refetchInterval: 15000, staleTime: 0, refetchOnWindowFocus: 'always', retry: false });
@@ -53,13 +54,13 @@ export function DisplaysWorkspace({ instanceID, packageID, onSelect }: { instanc
     {state.error ? <ErrorState message={state.error.message} onRetry={() => void state.refetch()} /> : !data ? <LoadingState label="正在读取大屏…" /> : <>
       {!data.settings.enabled && <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/50 p-4 text-sm"><span className="flex items-center gap-2"><CircleAlert className="size-4" aria-hidden="true" />项目大屏已停用</span>{project.can(P.ProjectDisplaySettings) && <Button variant="outline" size="sm" disabled={!active} onClick={() => openDialog('settings')}>启用项目大屏</Button>}</div>}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-48 flex-1 sm:max-w-xs"><Search className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" aria-hidden="true" /><Input id="display-search" className="h-10 pl-9" aria-label="搜索大屏名称" placeholder="搜索大屏名称" value={search} onChange={e => { setSearch(e.target.value); setLimit(12); }} /></div>
-        <select aria-label="筛选大屏状态" className="h-10 min-w-32 rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-ring" value={filter} onChange={e => { setFilter(e.target.value as DisplayFilter); setLimit(12); }}>
+        <div className="relative min-w-48 flex-1 sm:max-w-xs"><Search className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" aria-hidden="true" /><Input id="display-search" className="h-10 pl-9" aria-label="搜索大屏名称" placeholder="搜索大屏名称" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} /></div>
+        <select aria-label="筛选大屏状态" className="h-10 min-w-32 rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-ring" value={filter} onChange={e => { setFilter(e.target.value as DisplayFilter); setPage(0); }}>
           <option value="all">全部状态</option><option value="published">已发布</option><option value="unpublished">未发布</option><option value="disabled">已停用</option><option value="archived">已归档</option>
         </select><p className="text-xs text-muted-foreground sm:ml-auto">共 {items.length} 个大屏</p>
       </div>
-      {items.length ? <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-5">{items.slice(0, limit).map(item => <DisplayCard key={item.id} instance={item} list={data} selected={instanceID === item.id} onOpen={open} />)}</div> : <div className="rounded-xl border border-dashed"><EmptyState title={data.items.length ? '没有匹配的大屏' : '还没有大屏'} description={data.items.length ? '试试其他名称或状态。' : undefined}>{data.items.length ? <Button variant="outline" onClick={() => { setSearch(''); setFilter('all'); }}>清除筛选</Button> : createAllowed && <Button onClick={() => openDialog('create')}><Plus aria-hidden="true" />新建大屏</Button>}</EmptyState></div>}
-      {items.length > limit && <div className="text-center"><Button variant="outline" onClick={() => setLimit(limit + 12)}>加载更多大屏</Button></div>}
+      {items.length ? <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-5">{items.slice(page * pageSize, (page + 1) * pageSize).map(item => <DisplayCard key={item.id} instance={item} list={data} selected={instanceID === item.id} onOpen={open} />)}</div> : <div className="rounded-xl border border-dashed"><EmptyState title={data.items.length ? '没有匹配的大屏' : '还没有大屏'} description={data.items.length ? '试试其他名称或状态。' : undefined}>{data.items.length ? <Button variant="outline" onClick={() => { setSearch(''); setFilter('all'); }}>清除筛选</Button> : createAllowed && <Button onClick={() => openDialog('create')}><Plus aria-hidden="true" />新建大屏</Button>}</EmptyState></div>}
+      {data && <ListPagination label="大屏" total={items.length} page={page} go={setPage} pageSize={pageSize} pageSizes={[12, 24, 48]} setPageSize={size => { setPageSize(size); setPage(0); }} />}
       {instanceID && <InstancePanel key={`${instanceID}:${packageID ?? ''}`} id={instanceID} list={data} packageID={packageID} initialView={view} close={() => onSelect()} returnFocus={returnFocus} />}
     </>}
     <Dialog open={dialog !== null} onOpenChange={open => { if (!open && !busy) setDialog(null); }}><DialogContent>

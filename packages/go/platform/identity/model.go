@@ -77,11 +77,13 @@ func PublicError(err error) *Error {
 }
 
 type Account struct {
-	ID          string    `json:"id"`
-	Username    string    `json:"username"`
-	DisplayName string    `json:"display_name"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	AvatarRevision string    `json:"avatar_revision"`
+	HasAvatar      bool      `json:"has_avatar"`
+	ID             string    `json:"id"`
+	Username       string    `json:"username"`
+	DisplayName    string    `json:"display_name"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 type Session struct {
 	AuthenticationMethod string    `json:"authentication_method"`

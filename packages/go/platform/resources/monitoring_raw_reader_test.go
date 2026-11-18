@@ -82,6 +82,15 @@ func TestCalculationRawReaderRealIntervalSnapshotAndReplay(t *testing.T) {
 	must(t, e)
 	_, e = reader.FreezeUser(ctx, project.actor, projectScope, input)
 	must(t, e)
+	rows = nil
+	_, e = reader.ReadSelectedPartUser(ctx, project.actor, projectScope, multi.ID, input.Needs, false, budget, func(r md.RawSample) error {
+		rows = append(rows, r)
+		return nil
+	})
+	must(t, e)
+	if len(rows) != 1 || rows[0].Observation != original.Observation {
+		t.Fatal("current evidence preview must qualify only its selected input", rows)
+	}
 	must(t, checkParts(project.actor, projectScope, "read"))
 	if checkParts(project.actor, projectScope, "export") == nil {
 		t.Fatal("batched qualification widened read-only project grants to export")
@@ -99,6 +108,8 @@ func TestCalculationRawReaderRealIntervalSnapshotAndReplay(t *testing.T) {
 	_, e = f.service.RevokeBatch(ctx, f.actor, f.scope, batch.ID, md.RevokeInput{WriteMeta: f.meta(batch.Revision), PreviewHash: preview.Hash})
 	must(t, e)
 	_, e = reader.ReadUser(ctx, f.actor, f.scope, snapshot.ID, budget, func(md.RawSample) error { t.Fatal("revoked value escaped current reader"); return nil })
+	monitoringCode(t, e, "snapshot_stale")
+	_, e = reader.ReadSelectedPartUser(ctx, project.actor, projectScope, multi.ID, input.Needs, false, budget, func(md.RawSample) error { t.Fatal("revoked sample preview escaped current read"); return nil })
 	monitoringCode(t, e, "snapshot_stale")
 	monitoringCode(t, checkParts(f.actor, f.scope, "read"), "snapshot_stale")
 	rows = nil

@@ -50,7 +50,7 @@ export function FacilityUsage({ facility }: { facility: string }) {
   const { client, tenant, canRead, canWrite, prefix } = useResourceAccess();
   const [adding, setAdding] = useState(false);
   const [pageSize, setPageSize] = useState(20);
-  const state = useCursorList({
+  const state = useCursorList({ pageSize,
     queryKey: [...prefix, 'usage', facility, pageSize],
     load: (cursor, signal) =>
       client.resourceUsage(tenant.tenant.id, facility, { cursor, limit: pageSize }, signal),
@@ -117,18 +117,7 @@ export function FacilityUsage({ facility }: { facility: string }) {
           },
         ]}
         pagination={
-          <ListPagination
-            label="使用项目"
-            count={state.items.length}
-            page={state.page}
-            pageCount={state.pageCount}
-            hasNext={state.hasNext}
-            fetching={state.isFetching}
-            go={state.go}
-            next={() => void state.next()}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-          />
+          <ListPagination label="使用项目" {...state.pagination} setPageSize={setPageSize} />
         }
       />
       <Hint>收回某个项目的授权不会删除设施，也不会影响其他项目的授权。</Hint>
@@ -149,7 +138,7 @@ function ProjectPicker({ facility }: { facility?: string }) {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<'all' | 'active' | 'archived'>('all');
   const [pageSize, setPageSize] = useState(20);
-  const state = useCursorList({
+  const state = useCursorList({ pageSize,
     queryKey: [...prefix, 'projects', q, status, pageSize],
     load: (cursor, signal) =>
       client.projectGovernance(tenant.tenant.id, { q, status, cursor, limit: pageSize }, signal),
@@ -293,18 +282,7 @@ function ProjectPicker({ facility }: { facility?: string }) {
           },
         ]}
         pagination={
-          <ListPagination
-            label="项目资源授权"
-            count={state.items.length}
-            page={state.page}
-            pageCount={state.pageCount}
-            hasNext={state.hasNext}
-            fetching={state.isFetching}
-            go={state.go}
-            next={() => void state.next()}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
-          />
+          <ListPagination label="项目资源授权" {...state.pagination} setPageSize={setPageSize} />
         }
       />
       {!facility && (
@@ -333,7 +311,7 @@ export function ProjectResourceAccessPage({ project }: { project: string }) {
       client.resourceAccess(tenant.tenant.id, project, undefined, { limit: 1 }, signal),
     enabled: canRead,
   });
-  const state = useCursorList({
+  const state = useCursorList({ pageSize,
     queryKey: [...prefix, 'links', q, pageSize],
     load: async (cursor, signal) => {
       const v = await client.resourceAccess(
@@ -494,18 +472,7 @@ export function ProjectResourceAccessPage({ project }: { project: string }) {
               },
             ]}
             pagination={
-              <ListPagination
-                label="已授权设施"
-                count={state.items.length}
-                page={state.page}
-                pageCount={state.pageCount}
-                hasNext={state.hasNext}
-                fetching={state.isFetching}
-                go={state.go}
-                next={() => void state.next()}
-                pageSize={pageSize}
-                setPageSize={setPageSize}
-              />
+              <ListPagination label="已授权设施" {...state.pagination} setPageSize={setPageSize} />
             }
           />
           <Hint>
@@ -567,7 +534,7 @@ function FacilityPicker({ project }: { project: string }) {
   const [q, setQ] = useState('');
   const [selected, setSelected] = useState('');
   const [pageSize, setPageSize] = useState(20);
-  const list = useCursorList({
+  const list = useCursorList({ pageSize,
     queryKey: [...prefix, 'facilities', q, pageSize],
     load: (cursor, signal) =>
       client.resourceList(
@@ -613,18 +580,7 @@ function FacilityPicker({ project }: { project: string }) {
           <p className="py-6 text-center text-sm text-muted-foreground">没有匹配的设施。</p>
         )
       )}
-      <ListPagination
-        label="选择设施"
-        count={list.items.length}
-        page={list.page}
-        pageCount={list.pageCount}
-        hasNext={list.hasNext}
-        fetching={list.isFetching}
-        go={list.go}
-        next={() => void list.next()}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-      />
+      <ListPagination label="选择设施" {...list.pagination} setPageSize={setPageSize} />
       <Hint>
         设施基本档案会一并开放。构件、测点和通道在下一步独立勾选；已加入的设施会打开现有授权供调整。
       </Hint>

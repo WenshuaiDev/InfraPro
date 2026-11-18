@@ -241,8 +241,13 @@ func TestIngestionEndToEnd(t *testing.T) {
 	}
 	page, e := f.s.Messages(ctx, f.owner, scope, ig.Filter{Filter: c.Filter{Limit: 100}})
 	must(t, e)
-	if len(page.Items) != 5 {
-		t.Fatalf("verified units=%d", len(page.Items))
+	if len(page.Items) != 5 || page.Total == nil || *page.Total != 5 {
+		t.Fatalf("verified units=%d total=%v", len(page.Items), page.Total)
+	}
+	limited, e := f.s.Messages(ctx, f.owner, scope, ig.Filter{Filter: c.Filter{Limit: 2}})
+	must(t, e)
+	if len(limited.Items) != 2 || limited.NextCursor == "" || limited.Total == nil || *limited.Total != 5 {
+		t.Fatal("raw message total must cover all matching pages")
 	}
 	for _, raw := range page.Items {
 		var v struct {

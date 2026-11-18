@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { lazy, Suspense, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -417,13 +419,11 @@ function ChannelSummary({ value }: { value: Summary }) {
 function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
   const m = useSpatial(),
     [descendants, setDescendants] = useState(false),
-    [cursor, setCursor] = useState(""),
     [from, setFrom] = useState(""),
     [to, setTo] = useState("");
-  const q = useQuery({
-    queryKey: [...m.prefix, "related", owner, descendants, cursor, from, to],
-    queryFn: ({ signal }) =>
-      m.client.spatialRelated(
+  const q = usePagedQuery({ initialPageSize: 20,
+    queryKey: [...m.prefix, "related", owner, descendants, from, to],
+    queryFn: ({ cursor, signal, limit }) => m.client.spatialRelated(
         m.scope,
         {
           owner,
@@ -431,7 +431,7 @@ function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
           cursor,
           from: from || undefined,
           to: to || undefined,
-          limit: 20,
+          limit,
         },
         signal,
       ),
@@ -451,8 +451,7 @@ function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
             checked={descendants}
             onChange={(e) => {
               setDescendants(e.target.checked);
-              setCursor("");
-            }}
+              }}
           />
           明确包含下级对象
         </label>
@@ -466,16 +465,14 @@ function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
           value={from}
           onChange={(v) => {
             setFrom(v);
-            setCursor("");
-          }}
+            }}
         />
         <TextField
           label="结束时间（带时区）"
           value={to}
           onChange={(v) => {
             setTo(v);
-            setCursor("");
-          }}
+            }}
         />
       </details>
       <Failure error={q.error} />
@@ -509,19 +506,8 @@ function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
         </div>
       ))}
       <div className="flex gap-2">
-        {cursor && (
-          <Button variant="ghost" onClick={() => setCursor("")}>
-            首页
-          </Button>
-        )}
-        {q.data?.next_cursor && (
-          <Button
-            variant="outline"
-            onClick={() => setCursor(q.data!.next_cursor)}
-          >
-            更多成果
-          </Button>
-        )}
+
+        <ListPagination label="记录" {...q.pagination} />
       </div>
     </section>
   );
@@ -529,8 +515,7 @@ function RelatedArtifacts({ owner }: { owner: SpatialObjectRef }) {
 function OwnerSources({ object }: { object: SpatialObject }) {
   const m = useSpatial(),
     [channel, setChannel] = useState(""),
-    [history, setHistory] = useState(false),
-    [cursor, setCursor] = useState("");
+    [history, setHistory] = useState(false);
   const list = useQuery({
     queryKey: [...m.prefix, "source-channels", object.id],
     queryFn: ({ signal }) =>
@@ -561,13 +546,12 @@ function OwnerSources({ object }: { object: SpatialObject }) {
       enabled: !!target && m.available,
       retry: false,
     }),
-    past = useQuery({
-      queryKey: [...m.prefix, "source-history", target, cursor],
-      queryFn: ({ signal }) =>
-        m.client.deviceSourceHistory(
+    past = usePagedQuery({ initialPageSize: 10,
+      queryKey: [...m.prefix, "source-history", target],
+      queryFn: ({ cursor, signal, limit }) => m.client.deviceSourceHistory(
           m.scope,
           target!,
-          { cursor, limit: 10 },
+          { cursor, limit },
           signal,
         ),
       enabled: history && !!target && m.available,
@@ -586,8 +570,7 @@ function OwnerSources({ object }: { object: SpatialObject }) {
         value={selected?.id ?? ""}
         onChange={(e) => {
           setChannel(e.target.value);
-          setCursor("");
-        }}
+          }}
       >
         <option value="">选择通道</option>
         {list.data?.items.map((c) => (
@@ -671,14 +654,7 @@ function OwnerSources({ object }: { object: SpatialObject }) {
               )}
             </div>
           ))}
-          {past.data?.next_cursor && (
-            <Button
-              variant="outline"
-              onClick={() => setCursor(past.data!.next_cursor)}
-            >
-              更早记录
-            </Button>
-          )}
+          <ListPagination label="记录" {...past.pagination} />
         </>
       )}
     </section>

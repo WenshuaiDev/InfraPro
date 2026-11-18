@@ -123,7 +123,7 @@ func ResolveSemanticsTx(ctx context.Context, tx pgx.Tx, s Semantics, newUse bool
 			return s, defs, k.Invalid("/unit_version_id", "enum_unit", "枚举指标不使用单位。")
 		}
 	} else {
-		if s.UnitVersionID == nil || !slices.Contains(m.AllowedUnits, *s.UnitVersionID) {
+		if s.UnitVersionID == nil || !m.AllowsUnit(*s.UnitVersionID) {
 			return s, defs, k.Invalid("/unit_version_id", "unit", "单位不在指标允许的固定版本集合中。")
 		}
 		unit, _, e := engineering.ResolvePublicTx(ctx, tx, *s.UnitVersionID, engineering.UnitDefinition, newUse)

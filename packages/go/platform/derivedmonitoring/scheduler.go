@@ -57,35 +57,53 @@ func (s *Service) ScheduleTenantAt(ctx context.Context, tenant string, clock tim
 		if e := s.stageSchedulesTx(ctx, tx, tenant, graph, now); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `SELECT DISTINCT d.channel_id::text FROM derived_dirty_ranges d JOIN derived_channels c USING(tenant_id,channel_id) WHERE d.tenant_id=$1 AND c.control_state='enabled' AND lower(d.affected)<=$2 AND NOT EXISTS(SELECT 1 FROM derived_runs r JOIN monitoring_jobs j ON j.id=r.job_id WHERE r.tenant_id=d.tenant_id AND r.channel_id=d.channel_id AND r.mode='automatic' AND j.state IN ('queued','running','retry_wait')) ORDER BY d.channel_id::text LIMIT $3`, tenant, now, s.options.ScheduleBatch)
+		// Subtract explicitly cancelled coverage from each current assignment.
+		// The dirty input is retained for an authorized retry. Other intervals and
+		// changed inputs or mandates remain eligible for automatic scheduling.
+		rows, e := tx.Query(ctx, `
+			SELECT DISTINCT ON (c.channel_id) c.channel_id::text, d.affected * eligible.r,
+			       a.config_id::text,c.config_revision::text,c.control_revision::text,
+			       c.mandate_revision::text,d.required_position::text,lower(eligible.r)
+			FROM derived_dirty_ranges d
+			JOIN derived_channels c USING (tenant_id,channel_id)
+			JOIN derived_execution_mandates m ON m.tenant_id=c.tenant_id AND m.id=c.active_mandate_id
+			JOIN LATERAL unnest(m.output_ranges) allowed(r) ON allowed.r && d.affected
+			JOIN derived_config_assignments a ON a.tenant_id=c.tenant_id AND a.channel_id=c.channel_id
+			  AND a.superseded_revision IS NULL AND a.effective_range && d.affected AND a.effective_range && allowed.r
+			CROSS JOIN LATERAL unnest(int8multirange(a.effective_range * allowed.r) - COALESCE((
+			  SELECT range_agg(r.output_range) FROM derived_runs r
+			  JOIN derived_run_publication_targets t ON t.tenant_id=r.tenant_id AND t.run_id=r.id
+			  JOIN monitoring_jobs j ON j.id=r.job_id
+			  WHERE r.tenant_id=c.tenant_id AND r.channel_id=c.channel_id AND r.mode='automatic'
+			    AND r.config_id=a.config_id AND r.config_revision=c.config_revision
+			    AND r.control_revision=c.control_revision AND r.mandate_revision=c.mandate_revision
+			    AND t.required_position=d.required_position AND j.state='cancelled'
+			    AND r.output_range && (a.effective_range * allowed.r)
+			), '{}'::int8multirange)) eligible(r)
+			WHERE d.tenant_id=$1 AND c.control_state='enabled' AND d.affected && eligible.r
+			  AND lower(d.affected * eligible.r)<=$2
+			  AND NOT EXISTS(SELECT 1 FROM derived_runs r JOIN monitoring_jobs j ON j.id=r.job_id
+			    WHERE r.tenant_id=d.tenant_id AND r.channel_id=d.channel_id AND r.mode='automatic'
+			      AND j.state IN ('queued','running','retry_wait'))
+			ORDER BY c.channel_id,lower(d.affected * eligible.r),d.required_position DESC
+			LIMIT $3`, tenant, now, s.options.ScheduleBatch)
 		if e != nil {
 			return e
 		}
-		ids := []string{}
-		for rows.Next() {
-			var id string
-			if e = rows.Scan(&id); e != nil {
-				rows.Close()
-				return e
-			}
-			ids = append(ids, id)
+		type candidate struct {
+			Channel                                                            string
+			Interval                                                           pgtype.Range[int64]
+			Config, ConfigRevision, ControlRevision, MandateRevision, Position string
+			AssignedFrom                                                       int64
 		}
-		e = rows.Err()
-		rows.Close()
+		candidates, e := pgx.CollectRows(rows, pgx.RowToStructByPos[candidate])
 		if e != nil {
 			return e
 		}
-		for _, channel := range ids {
-			var interval pgtype.Range[int64]
-			var config, configRevision, controlRevision, mandateRevision, position string
-			var assignedFrom int64
-			e = tx.QueryRow(ctx, `SELECT (d.affected * a.effective_range * allowed.r),a.config_id::text,c.config_revision::text,c.control_revision::text,c.mandate_revision::text,d.required_position::text,lower(a.effective_range * allowed.r) FROM derived_dirty_ranges d JOIN derived_channels c USING(tenant_id,channel_id) JOIN derived_execution_mandates m ON m.tenant_id=c.tenant_id AND m.id=c.active_mandate_id JOIN LATERAL unnest(m.output_ranges) allowed(r) ON allowed.r && d.affected JOIN derived_config_assignments a ON a.tenant_id=c.tenant_id AND a.channel_id=c.channel_id AND a.superseded_revision IS NULL AND a.effective_range && d.affected AND a.effective_range && allowed.r WHERE d.tenant_id=$1 AND d.channel_id=$2 AND lower(d.affected * a.effective_range * allowed.r)<=$3 ORDER BY lower(d.affected * a.effective_range * allowed.r),d.required_position DESC LIMIT 1`, tenant, channel, now).Scan(&interval, &config, &configRevision, &controlRevision, &mandateRevision, &position, &assignedFrom)
-			if e == pgx.ErrNoRows {
-				continue
-			}
-			if e != nil {
-				return e
-			}
+		for _, target := range candidates {
+			channel, interval, config := target.Channel, target.Interval, target.Config
+			configRevision, controlRevision, mandateRevision := target.ConfigRevision, target.ControlRevision, target.MandateRevision
+			position, assignedFrom := target.Position, target.AssignedFrom
 			cfg, e := scanConfig(tx.QueryRow(ctx, configSelect+` WHERE tenant_id=$1 AND channel_id=$2 AND id=$3`, tenant, channel, config))
 			if e != nil {
 				return e
@@ -151,14 +169,9 @@ func (s *Service) ScheduleTenantAt(ctx context.Context, tenant string, clock tim
 				return e
 			}
 			if exists {
-				// Cancelling an automatic run retains its dirty coverage. A current
-				// mandate may requeue that same target; pausing fences its mandate
-				// and prevents this path. No duplicate generation identity is made.
-				tag, e := tx.Exec(ctx, `UPDATE monitoring_jobs j SET state='queued',attempts=0,cancel_requested=false,fence=fence+1,lease_owner=NULL,lease_until=NULL,error_code=NULL,available_at=clock_timestamp(),revision=j.revision+1,updated_at=clock_timestamp() FROM derived_runs r JOIN derived_run_publication_targets t ON t.tenant_id=r.tenant_id AND t.run_id=r.id WHERE j.id=r.job_id AND t.tenant_id=$1 AND t.target_hash=$2 AND j.state='cancelled'`, tenant, hash)
-				if e != nil {
-					return e
-				}
-				queued += int(tag.RowsAffected())
+				// This exact target already has a run. Keep a cancellation or failure
+				// visible until an authorized retry. A changed input position,
+				// assignment or mandate produces a distinct target hash.
 				continue
 			}
 			runID, jobID, generation := uuid.NewString(), uuid.NewString(), uuid.NewString()

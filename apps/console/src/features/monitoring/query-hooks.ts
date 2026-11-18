@@ -1,3 +1,5 @@
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
+import type { MonitoringDetailPage, MonitoringChannelStatistic, MonitoringCalendarStatistic } from '@infrapro/api-client';
 import { mergeTrendTiles } from './tiles';
 import { viewportTiles } from './format';
 import { useEffect, useState } from 'react';
@@ -99,4 +101,36 @@ export function useTrendTiles(query: MonitoringQuery, range: MonitoringRange, wi
     tiles: plan.tiles.filter(t => t.visible), cached: visible.filter(r => r.data?.state === 'ready').length,
     retry: () => { for (const r of visible) void r.refetch(); },
   };
+}
+
+export function useMonitoringDetailPages(input: MonitoringQuery | undefined, initialPageSize = 200) {
+  const { client, scope, prefix, available } = useMonitoring();
+  return usePagedQuery<MonitoringDetailPage>({
+    queryKey: [...prefix, 'details', input], initialPageSize,
+    enabled: available && !!input, staleTime: 120_000, gcTime: 120_000, retry: false,
+    getSnapshot: result => result.snapshot.id,
+    queryFn: async ({ cursor, signal, limit, snapshot }) => {
+      const response = await querySlot(signal, () => client.monitoringDetails(scope, {
+        ...input!, include_total: true, snapshot_id: snapshot ?? input!.snapshot_id, cursor, limit, direction: 'forward',
+      }, signal));
+      return { ...response, next_cursor: response.has_more ? response.next_cursor : '' };
+    },
+  });
+}
+
+export function useMonitoringResultPages(action: 'overview' | 'latest' | 'statistics' | 'trends', input: MonitoringQuery) {
+  const { client, scope, prefix, available } = useMonitoring();
+  return usePagedQuery<MonitoringAnalyticResult & { items: (MonitoringChannelStatistic | MonitoringCalendarStatistic)[] }>({
+    queryKey: [...prefix, 'analytic-pages', action, input], initialPageSize: input.limit ?? 50,
+    enabled: available, staleTime: 120_000, gcTime: 120_000, retry: false,
+    refetchInterval: query => query.state.data?.state === 'pending' ? 1500 : false,
+    resumeSnapshot: result => result.state === 'pending' ? result.snapshot.id : undefined,
+    getSnapshot: result => result.snapshot.id,
+    queryFn: async ({ cursor, limit, signal, snapshot }) => {
+      const result = await querySlot(signal, () => client.monitoringQuery(scope, action, {
+        ...input, limit, cursor, snapshot_id: snapshot ?? input.snapshot_id,
+      }, signal));
+      return { ...result, items: result.groups ?? result.channels ?? [], next_cursor: result.has_more ? result.next_cursor : '' };
+    },
+  });
 }

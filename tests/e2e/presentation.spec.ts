@@ -16,10 +16,24 @@ test('real pages share responsive layouts, keyboard navigation and themes', asyn
   await expect(page.locator('html')).toHaveClass('dark');
   await page.screenshot({ path: info.outputPath('login-dark.png'), fullPage: true });
   await login(page, account);
-  for (const title of ['个人资料', '账号安全', '账号开户邀请']) {
-    await navigateTo(page, title);
+  for (const title of ['个人资料', '账号安全', '通知中心', '账号开户邀请']) {
+    if (title === '通知中心') await page.getByRole('navigation', { name: '账号设置' }).getByRole('link', { name: title }).click();
+    else await navigateTo(page, title);
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
-    if (title === '账号安全') await expect(page.getByRole('button', { name: '退出当前会话' })).toBeVisible();
+    if (title !== '账号开户邀请') {
+      const active = page.getByRole('navigation', { name: '账号设置' }).getByRole('link', { name: title, exact: true });
+      await expect(active).toHaveAttribute('aria-current', 'page');
+    }
+    if (title === '个人资料') {
+      await expect(page.getByRole('region', { name: '平台角色' }).getByRole('listitem').first()).toBeVisible();
+      await expect(page.getByRole('main')).not.toContainText('account.profile.read');
+      await expect(page.getByRole('region', { name: '有效权限及来源' })).toHaveCount(0);
+    }
+    if (title === '账号安全') await expect(page.getByRole('button', { name: '管理会话' })).toBeVisible();
+    if (title === '通知中心') {
+      await expect(page.getByRole('region', { name: '通知列表' })).toBeVisible();
+      await expect(page.getByRole('region', { name: '通知详情' })).toHaveCount(0);
+    }
     if (title === '账号开户邀请') await expect(page.getByRole('heading', { name: '从第一条邀请开始' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => window.scrollTo(0, 0));

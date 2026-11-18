@@ -82,9 +82,9 @@ test('project facility tree searches authorized paths, pages children and preser
   await expect(tree.getByRole('treeitem', { name: '未授权通道，业务通道', exact: true })).toHaveCount(0);
   await page.goto(`${url}/${facility.id}?tab=components`);
   await expect(page.getByRole('tab', { name: '下级资源', exact: true })).toHaveAttribute('data-state', 'active');
-  await expect(page.getByText('已显示 25 / 28 项', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '加载更多下级资源', exact: true }).click();
-  await expect(page.getByText('已显示 28 / 28 项', { exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel').getByText('共 28 条', { exact: true })).toBeVisible();
+  await page.getByRole('tabpanel').getByRole('navigation', { name: '下级资源分页' }).getByRole('button', { name: '下一页' }).click();
+  await expect(page.getByRole('tabpanel').getByRole('button', { name: '第 2 页' })).toHaveAttribute('aria-current', 'page');
   await page.goto(`${url}/${facility.id}?point=${rootPoints.at(-1)}`);
   await expect(page.getByRole('heading', { name: '直属测点26', exact: true })).toBeVisible();
   await directory();

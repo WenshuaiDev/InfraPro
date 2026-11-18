@@ -1,3 +1,4 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { ResourceKind, ResourceTreeRef, ResourceTreeNode } from '@infrapro/api-client';
 import { Blocks, Box, ChevronDown, ChevronRight, ChevronsDownUp, CircleDot, FolderTree, LocateFixed, Radio } from 'lucide-react';
@@ -88,10 +89,10 @@ export function ResourceTree({ query, searching, filtered, selected, path, selec
       <Button variant="ghost" size="icon" className="size-9" aria-label="收起全部资源" onClick={() => { setExpanded(new Set()); setFocusId(roots[0]?.id); }}><ChevronsDownUp className="size-4" /></Button>
     </div>
     <div ref={tree} className="min-h-0 flex-1 overflow-y-auto p-2" data-resource-tree-scroll>
-      {query.isPending ? <LoadingState label="正在读取资源目录…" /> : query.error && !query.isFetchNextPageError ? <ErrorState message={query.error.message} onRetry={() => void query.refetch()} /> : !roots.length ? <EmptyState title={filtered ? '没有符合条件的资源' : scope.kind === 'project' ? '当前项目暂无可用设施' : '尚未创建设施'} description={filtered ? '调整搜索或筛选条件后再试。' : scope.kind === 'project' ? '请联系租户授权人员开放设施，或按已有权限新建设施。' : '创建设施后，可以逐层添加构件、测点和通道。'} /> : <div role="tree" aria-label={leafKind ? "设施、构件与测点" : "设施、构件、测点与通道"} onKeyDown={keyboard}>
+      {query.isPending ? <LoadingState label="正在读取资源目录…" /> : query.error && !query.items.length ? <ErrorState message={query.error.message} onRetry={() => void query.refetch()} /> : !roots.length ? <EmptyState title={filtered ? '没有符合条件的资源' : scope.kind === 'project' ? '当前项目暂无可用设施' : '尚未创建设施'} description={filtered ? '调整搜索或筛选条件后再试。' : scope.kind === 'project' ? '请联系租户授权人员开放设施，或按已有权限新建设施。' : '创建设施后，可以逐层添加构件、测点和通道。'} /> : <div role="tree" aria-label={leafKind ? "设施、构件与测点" : "设施、构件、测点与通道"} onKeyDown={keyboard}>
         {roots.map((node) => <Branch key={node.id} node={node} level={1} catalog={catalog} expanded={expanded} toggle={toggle} selected={selected} focusId={focusId ?? roots[0]?.id} onFocus={setFocusId} path={path} searching={searching} select={select} expandOnSelect={expandOnSelect} leafKind={leafKind} />)}
       </div>}
-      <TreeMore query={query} label={searching ? '加载更多匹配资源' : '加载更多设施'} />
+      <ResourcePagination query={query} label={searching ? '匹配资源' : '设施'} />
     </div>
     <div className="flex shrink-0 flex-wrap gap-x-3 gap-y-2 border-t bg-muted/20 px-3 py-3 text-xs text-muted-foreground">{(Object.keys(resourceLabels) as ResourceKind[]).filter(kind => !leafKind || kind !== "channel").map((kind) => <span key={kind} className="flex items-center gap-0.5"><ResourceIcon kind={kind} small />{resourceLabels[kind]}</span>)}</div>
   </>;
@@ -110,15 +111,18 @@ function Branch({ node, catalog, level, expanded, toggle, selected, focusId, onF
       {node.deleted_at || node.status === 'retired' ? <span className="text-xs font-normal text-muted-foreground">{node.deleted_at ? '已删除' : '退役'}</span> : node.kind === 'facility' && node.type_name && !leafKind ? <span className="max-w-16 truncate text-xs font-normal text-muted-foreground" title={node.type_name}>{node.type_name}</span> : null}
     </div>
     {open && hasChildren && <div role="group">
-      {!searching && query.error && !query.isFetchNextPageError ? <div className="px-4 py-2"><p role="alert" className="text-xs text-destructive">{query.error.message}</p><Button size="sm" variant="ghost" onClick={() => void query.refetch()}>重试下级目录</Button></div> : <>
+      {!searching && query.error && !query.items.length ? <div className="px-4 py-2"><p role="alert" className="text-xs text-destructive">{query.error.message}</p><Button size="sm" variant="ghost" onClick={() => void query.refetch()}>重试下级目录</Button></div> : <>
         {children.map((child) => <Branch key={child.id} node={child} catalog={catalog} level={level + 1} expanded={expanded} toggle={toggle} selected={selected} focusId={focusId} onFocus={onFocus} path={path} searching={searching} select={select} expandOnSelect={expandOnSelect} leafKind={leafKind} />)}
         {!searching && query.isPending && <p role="status" className="px-5 py-2 text-xs text-muted-foreground">正在读取下级…</p>}
-        {!searching && <TreeMore query={query} label={`加载更多${node.name}的下级`} />}
+        {!searching && <ResourcePagination query={query} nested label={`${node.name}的下级`} />}
       </>}
     </div>}
   </div>;
 }
 
-export function TreeMore({ query, label = '加载更多下级资源' }: { query: Query; label?: string }) {
-  return <>{query.isFetchNextPageError && <p role="alert" className="p-2 text-xs text-destructive">{query.error?.message}</p>}{query.hasNextPage && <Button className="my-2 w-full" variant="ghost" size="sm" disabled={query.isFetching} onClick={() => void query.fetchNextPage()}>{query.isFetchingNextPage ? '正在加载…' : query.isFetchNextPageError ? '重试加载更多' : label}</Button>}</>;
+export function ResourcePagination({ query, label = '下级资源', nested = false }: { query: Query; label?: string; nested?: boolean }) {
+  if (!query.data) return null;
+  const { page, hasNext, pageSize } = query.pagination;
+  return <>{query.error && <p role="alert" className="text-sm text-destructive">{query.error.message}</p>}
+    {(!nested || page > 0 || hasNext || pageSize !== 25) && <ListPagination label={label} {...query.pagination} />}</>;
 }

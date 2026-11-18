@@ -10,6 +10,7 @@
   },
   "scripts": {
     "prototype:spatial": "node scripts/spatial-prototype.mjs",
+    "prototype:metrics": "node scripts/metric-catalog-prototype.mjs",
     "dev": "node scripts/dev.mjs",
     "dev:api": "node scripts/dev.mjs --api-only",
     "dev:console": "pnpm --filter @infrapro/console dev",

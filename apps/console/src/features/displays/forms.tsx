@@ -1,5 +1,6 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useIdentity } from "@infrapro/api-client/react";
 import type {
   DisplaySchema,
@@ -166,23 +167,21 @@ export function ObjectPicker({
     projectId: project.project.id,
   };
   const [search, setSearch] = useState(""),
-    [cursor, setCursor] = useState(""),
     [facility, setFacility] = useState(""),
     [asset, setAsset] = useState(""),
     [resourceKind, setResourceKind] = useState<ResourceKind>("facility");
-  const state = useQuery({
+  const state = usePagedQuery({ initialPageSize: 30,
     queryKey: [
       ...project.key,
       "display-picker",
       kind,
       search,
-      cursor,
       facility,
       asset,
       resourceKind,
     ],
     enabled: project.available,
-    queryFn: async ({ signal }) => {
+    queryFn: async ({ signal, cursor, limit }) => {
       if (kind === "channels") {
         const r = await client.monitoringDirectory(
           scope,
@@ -195,14 +194,14 @@ export function ObjectPicker({
             name: `${v.name} · ${v.code}`,
             next: "",
           })),
-          next: r.next_cursor,
+          next_cursor: r.next_cursor,
         };
       }
       if (kind === "resources") {
         const r = await client.resourceList(
           scope,
           { kind: resourceKind, facility: facility || undefined },
-          { q: search, cursor, limit: 30 },
+          { q: search, cursor, limit },
           signal,
         );
         return {
@@ -211,7 +210,7 @@ export function ObjectPicker({
             name: `${v.name} · ${v.kind}`,
             next: v.kind === "facility" ? v.id : "",
           })),
-          next: r.next_cursor,
+          next_cursor: r.next_cursor,
         };
       }
       if (kind === "artifacts") {
@@ -222,14 +221,14 @@ export function ObjectPicker({
             name: `${v.artifact.name} · v${v.version.version_no}`,
             next: "",
           })),
-          next: r.next_cursor,
+          next_cursor: r.next_cursor,
         };
       }
       if (asset) {
         const r = await client.spatialVersions(
           scope,
           asset,
-          { cursor, limit: 30 },
+          { cursor, limit },
           signal,
         );
         return {
@@ -240,17 +239,17 @@ export function ObjectPicker({
               name: `${v.format} · v${v.number}`,
               next: "",
             })),
-          next: r.next_cursor,
+          next_cursor: r.next_cursor,
         };
       }
       const r = await client.spatialAssets(
         scope,
-        { q: search, cursor, limit: 30 },
+        { q: search, cursor, limit },
         signal,
       );
       return {
         items: r.items.map((v) => ({ id: v.id, name: v.name, next: v.id })),
-        next: r.next_cursor,
+        next_cursor: r.next_cursor,
       };
     },
     retry: false,
@@ -267,8 +266,7 @@ export function ObjectPicker({
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setCursor("");
-          }}
+            }}
         />
         {kind === "resources" && facility && (
           <select
@@ -277,8 +275,7 @@ export function ObjectPicker({
             value={resourceKind}
             onChange={(e) => {
               setResourceKind(e.target.value as ResourceKind);
-              setCursor("");
-            }}
+              }}
           >
             <option value="facility">设施</option>
             <option value="component">构件</option>
@@ -293,8 +290,7 @@ export function ObjectPicker({
               setFacility("");
               setAsset("");
               setResourceKind("facility");
-              setCursor("");
-            }}
+              }}
           >
             返回目录
           </Button>
@@ -337,8 +333,7 @@ export function ObjectPicker({
                     setFacility(item.next);
                   }
                   if (kind === "resources") setResourceKind("component");
-                  setCursor("");
-                }}
+                  }}
               >
                 展开
               </Button>
@@ -351,24 +346,7 @@ export function ObjectPicker({
           </p>
         )}
       </div>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!cursor}
-          onClick={() => setCursor("")}
-        >
-          首页
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!state.data?.next}
-          onClick={() => setCursor(state.data?.next ?? "")}
-        >
-          下一页
-        </Button>
-      </div>
+      <ListPagination label={label} {...state.pagination} />
       {ids.length > 0 && (
         <details>
           <summary className="cursor-pointer text-xs text-muted-foreground">

@@ -1,0 +1,26 @@
+.task-counts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.65rem }
+.task-counts button { display:flex; align-items:center; justify-content:space-between; gap:.5rem; border:1px solid var(--border); border-radius:.65rem; padding:.8rem 1rem; text-align:start; background:var(--card) }
+.task-counts button span { display:flex; align-items:center; gap:.45rem; font-size:.8rem; color:var(--muted-foreground) }
+.task-counts strong { font-size:1.4rem; line-height:1.1; font-variant-numeric:tabular-nums }
+.task-counts button[aria-pressed=true] { border-color:var(--primary); background:var(--muted) }
+.task-panes { display:grid; grid-template-columns:minmax(17rem,.85fr) minmax(0,1.5fr); min-width:0; border:1px solid var(--border); border-radius:.75rem; overflow:hidden; background:var(--card) }
+.task-inbox,.task-inspector { min-width:0 }
+.task-inbox { border-right:1px solid var(--border) }
+.task-pane-heading { display:flex; align-items:center; justify-content:space-between; gap:.5rem; min-height:3.25rem; padding:.45rem 1rem; border-bottom:1px solid var(--border); background:var(--muted) }
+.task-pane-heading h2 { font-weight:600; font-size:.9rem }
+.task-items,.task-detail-body { max-height:clamp(28rem,65vh,58rem); overflow-y:auto; scrollbar-gutter:stable; overscroll-behavior:contain }
+.task-detail-body { padding:1.15rem }
+.task-list-item { width:100%; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.65rem; padding:.8rem 1rem; text-align:start; border-bottom:1px solid var(--border); border-inline-start:3px solid transparent }
+.task-list-item:last-child { border-bottom:0 }
+.task-list-item:hover,.task-counts button:hover { background:var(--accent) }
+.task-list-item[aria-pressed=true] { background:var(--muted); border-inline-start-color:var(--primary) }
+.task-list-item:focus-visible,.task-counts button:focus-visible { outline:2px solid var(--ring); outline-offset:-3px }
+.task-type-icon { display:grid; place-items:center; align-self:start; padding:.55rem; background:var(--secondary); border-radius:.5rem }
+.task-list-item>svg { color:var(--muted-foreground) }
+@media(max-width:767px) {
+ .task-counts { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.45rem }
+ .task-counts button { min-height:2.8rem; padding:.55rem .7rem }
+ .task-panes { display:block }
+ .task-inbox { border-right:0 }
+ .task-items { max-height:none; overflow:visible }
+}

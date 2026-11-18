@@ -14,6 +14,7 @@ export function notificationMethods(request: Request) {
  const id = encodeURIComponent;
  return {
   notifications: (filter: NotificationFilter = {}, signal?: AbortSignal) => request<NotificationPage>(`/me/notifications?${query(filter)}`, 'GET', undefined, true, signal),
+  notificationPageIndex: (filter: NotificationFilter, signal?: AbortSignal) => request<NotificationPage>(`/me/notifications?${query({ ...filter, cursor: undefined, page_index_only: true })}`, 'GET', undefined, true, signal),
   notificationSummary: (signal?: AbortSignal) => request<NotificationSummary>('/me/notifications/summary', 'GET', undefined, true, signal),
   notification: (value: string, signal?: AbortSignal) => request<NotificationItem>(`/me/notifications/${id(value)}`, 'GET', undefined, true, signal),
   changeNotification: (value: string, input: NotificationChange, signal?: AbortSignal) => request<NotificationItem>(`/me/notifications/${id(value)}`, 'PATCH', input, true, signal),

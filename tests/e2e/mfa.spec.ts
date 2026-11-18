@@ -9,7 +9,7 @@ test.afterEach(async ({ page }) => { await page.goto('about:blank'); });
 
 test('MFA enrollment, login, recovery, replacement and password-only management', async ({ page, account }, testInfo) => {
   test.setTimeout(90_000);
-  await login(page, account); await page.goto(`${consoleURL}/security`);
+  await login(page, account); await page.goto(`${consoleURL}/security`); await page.getByRole('button', { name: '管理验证器', exact: true }).click();
   await page.getByRole('button', { name: '启用多因素认证', exact: true }).click();
   const dialog = page.getByRole('dialog'); await dialog.getByRole('button', { name: '开始设置', exact: true }).click();
   await expect(dialog.locator('code')).toBeVisible(); const secret = (await dialog.locator('code').textContent())!;
@@ -17,6 +17,7 @@ test('MFA enrollment, login, recovery, replacement and password-only management'
   await expect(dialog.getByRole('alert')).toContainText('验证码无效');
   await dialog.getByLabel('新验证器动态码').fill(syntheticTOTP(secret, -1)); await dialog.getByRole('button', { name: '确认新验证器', exact: true }).click();
   const recovery = page.getByRole('list', { name: '一次性恢复码' }); await expect(recovery).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(recovery).toBeVisible();
   const oldCodes = await recovery.locator('li').allTextContents(); expect(oldCodes.length).toBe(10);
   // Verify an explicit copy without placing test secrets on the OS clipboard.
   await page.evaluate(() => {
@@ -35,25 +36,26 @@ test('MFA enrollment, login, recovery, replacement and password-only management'
   expect(oldCodes.every(code => Buffer.concat(chunks).toString('utf8').includes(code))).toBe(true);
   await download.delete(); chunks.forEach(chunk => chunk.fill(0));
   await page.getByRole('button', { name: '我已保存，继续', exact: true }).click(); await expect(recovery).toHaveCount(0);
-  await expect(page.getByText('本人已启用', { exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click(); await expect(dialog).toHaveCount(0);
+  await expect(page.getByText('多因素认证已启用', { exact: true })).toBeVisible();
   await logout(page);
   await page.getByLabel('用户名', { exact: true }).fill(account.username); await page.getByLabel('密码', { exact: true }).fill(account.password); await page.getByRole('button', { name: '登录', exact: true }).click();
   await expect(page.getByRole('heading', { name: '验证登录' })).toBeVisible(); await page.reload(); await expect(page.getByRole('heading', { name: '验证登录' })).toBeVisible();
   expect((await page.request.get(`${new URL(consoleURL).origin}/api/v1/auth/me`)).status()).toBe(401);
   await page.getByLabel('动态码', { exact: true }).fill(syntheticTOTP(secret)); await page.getByRole('button', { name: '验证并登录', exact: true }).click();
-  await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible(); await page.goto(`${consoleURL}/security`);
+  await expect(page.getByRole('button', { name: '账号菜单', exact: true })).toBeVisible(); await page.goto(`${consoleURL}/security`); await page.getByRole('button', { name: '管理验证器', exact: true }).click();
   await page.getByRole('button', { name: '重建恢复码', exact: true }).click(); await expect(dialog.getByLabel('动态码', { exact: true })).toHaveCount(0); await expect(dialog.getByLabel('新验证器动态码')).toHaveCount(0);
   await dialog.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(recovery).toBeVisible(); const codes = await recovery.locator('li').allTextContents(); expect(codes.every((code) => !oldCodes.includes(code))).toBe(true);
   await page.getByRole('button', { name: '我已保存，继续' }).click();
   await page.getByRole('button', { name: '更换验证器', exact: true }).click(); await dialog.getByRole('button', { name: '开始设置' }).click(); await expect(dialog.locator('code')).toBeVisible();
-  await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0); await expect(page.getByText('本人已启用', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0); await expect(page.getByText('多因素认证已启用', { exact: true })).toBeVisible();
   await logout(page); await page.getByLabel('用户名', { exact: true }).fill(account.username); await page.getByLabel('密码', { exact: true }).fill(account.password); await page.getByRole('button', { name: '登录', exact: true }).click();
   await page.getByRole('button', { name: '使用恢复码', exact: true }).click(); await page.getByLabel('恢复码', { exact: true }).fill(oldCodes[0]!); await page.getByRole('button', { name: '验证并登录' }).click(); await expect(page.getByRole('alert')).toContainText('验证码无效');
   await page.getByLabel('恢复码', { exact: true }).fill(codes[0]!.toLowerCase()); await page.getByRole('button', { name: '验证并登录' }).click(); await expect(page.getByRole('button', { name: '账号菜单' })).toBeVisible();
-  await page.goto(`${consoleURL}/security`); await page.getByRole('button', { name: '更换验证器', exact: true }).click(); await dialog.getByRole('button', { name: '开始设置' }).click();
+  await page.goto(`${consoleURL}/security`); await page.getByRole('button', { name: '管理验证器', exact: true }).click(); await page.getByRole('button', { name: '更换验证器', exact: true }).click(); await dialog.getByRole('button', { name: '开始设置' }).click();
   await expect(dialog.locator('code')).toBeVisible(); const nextSecret = (await dialog.locator('code').textContent())!; expect(nextSecret !== secret).toBe(true);
   await dialog.getByLabel('新验证器动态码').fill(syntheticTOTP(nextSecret, -1)); await dialog.getByRole('button', { name: '确认新验证器', exact: true }).click(); await expect(recovery).toBeVisible(); await page.getByRole('button', { name: '我已保存，继续' }).click();
-  await page.getByRole('button', { name: '关闭 MFA', exact: true }).click(); await expect(dialog.getByLabel('动态码', { exact: true })).toHaveCount(0); await dialog.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(page.getByText('本人未启用', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '关闭 MFA', exact: true }).click(); await expect(dialog.getByLabel('动态码', { exact: true })).toHaveCount(0); await dialog.getByRole('button', { name: '确认操作', exact: true }).click(); await expect(dialog.getByRole('button', { name: '启用多因素认证', exact: true })).toBeEnabled(); await page.keyboard.press('Escape'); await expect(page.getByText('多因素认证未启用', { exact: true })).toBeVisible();
   await page.emulateMedia({ colorScheme: 'dark' }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('mfa-security-safe.png'), fullPage: true });
   await logout(page); await expect(page.getByRole('heading', { name: '欢迎回来' })).toBeVisible(); await login(page, account);

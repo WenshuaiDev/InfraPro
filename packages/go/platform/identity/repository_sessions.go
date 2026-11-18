@@ -47,7 +47,7 @@ func (r *Repository) LoadSession(ctx context.Context, hash string) (Principal, e
 		if _, _, e = lockAuthAccount(ctx, tx, account); e != nil {
 			return e
 		}
-		e = tx.QueryRow(ctx, `SELECT s.id::text,s.account_id::text,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.reauthenticated_at,s.user_agent,s.ip,a.username,a.display_name,a.status,a.created_at FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND a.status='active' AND a.auth_version=s.auth_version`, hash).Scan(&p.Session.ID, &p.Account.ID, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt, &p.Session.UserAgent, &p.Session.IP, &p.Account.Username, &p.Account.DisplayName, &p.Account.Status, &p.Account.CreatedAt)
+		e = tx.QueryRow(ctx, `SELECT s.id::text,s.account_id::text,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.reauthenticated_at,s.user_agent,s.ip,a.username,a.display_name,a.status,a.created_at,a.avatar_revision::text,a.avatar_object_id IS NOT NULL FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND a.status='active' AND a.auth_version=s.auth_version`, hash).Scan(&p.Session.ID, &p.Account.ID, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt, &p.Session.UserAgent, &p.Session.IP, &p.Account.Username, &p.Account.DisplayName, &p.Account.Status, &p.Account.CreatedAt, &p.Account.AvatarRevision, &p.Account.HasAvatar)
 		if errors.Is(e, pgx.ErrNoRows) {
 			return ErrUnauthorized
 		}

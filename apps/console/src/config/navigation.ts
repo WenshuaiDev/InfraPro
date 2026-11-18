@@ -1,4 +1,4 @@
-import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, ListChecks, MapPinned, LayoutDashboard, Files } from 'lucide-react';
+import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, MapPinned, LayoutDashboard, Files } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
@@ -159,9 +159,7 @@ function monitoringNavigation(base: string, path: string, can: (permission: Perm
  return [
  ...(read?[{title:"监测浏览",href:`${base}/monitoring`,icon:Activity,active:path===`${base}/monitoring`||path===`${base}/monitoring/`}]:[]),
  ...(imports?[{title:"导入与批次",href:`${base}/monitoring/imports`,icon:Upload,active:path.startsWith(`${base}/monitoring/imports`)||path.startsWith(`${base}/monitoring/batches`)}]:[]),
- ...(read||imports?[{title:"监测任务",href:`${base}/monitoring/jobs`,icon:ListChecks,active:path===`${base}/monitoring/jobs`}]:[]),
  ...(can(tenant?P.TenantDerivedChannelsRead:P.ProjectDerivedChannelsRead)||can(tenant?P.TenantDerivedMetricsRead:P.ProjectDerivedMetricsRead)?[{title:"派生监测",href:`${base}/monitoring/derived`,icon:Activity,active:path===`${base}/monitoring/derived`||path.startsWith(`${base}/monitoring/derived/`)||path===`${base}/monitoring/derived-definitions`}]:[]),
  ...(can(tenant?P.TenantDerivedAnalysisRead:P.ProjectDerivedAnalysisRead)||can(tenant?P.TenantDerivedAnalysisResultsRead:P.ProjectDerivedAnalysisResultsRead)?[{title:"历史分析",href:`${base}/monitoring/analysis`,icon:ClipboardList,active:path.startsWith(`${base}/monitoring/analysis`)}]:[]),
- ...((can(tenant?P.TenantDerivedRunsRead:P.ProjectDerivedRunsRead)||can(tenant?P.TenantDerivedAnalysisExport:P.ProjectDerivedAnalysisExport))?[{title:"计算运行",href:`${base}/monitoring/derived-runs`,icon:ListChecks,active:path===`${base}/monitoring/derived-runs`}]:[]),
  ];
 }

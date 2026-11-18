@@ -24,9 +24,11 @@ export async function verifyMFALabUI(session, directory) {
           const account = await context.request.get(target), mfa = await context.request.get(target + '/mfa');
           if (account.status() !== 200 || mfa.status() !== 200 || (await account.json()).status !== 'disabled' || (await mfa.json()).state !== 'enabled') throw Error('disabled MFA fixture incomplete');
         } else {
-          await expect(page.getByRole('button', { name: '启用多因素认证', exact: true })).toBeVisible();
-          await expect(page.getByRole('heading', { name: '修改密码', exact: true })).toHaveCount(0);
-          await expect(page.getByRole('heading', { name: '登录会话', exact: true })).toHaveCount(0);
+          await expect(page.getByRole('button', { name: '修改密码', exact: true })).toHaveCount(0);
+          await expect(page.getByRole('button', { name: '管理会话', exact: true })).toHaveCount(0);
+          await page.getByRole('button', { name: '管理验证器', exact: true }).click();
+          await expect(page.getByRole('dialog').getByRole('button', { name: '启用多因素认证', exact: true })).toBeVisible();
+          await page.keyboard.press('Escape');
         }
         await page.screenshot({ path: directory + '/manual-' + label.toLowerCase() + '-safe.png', fullPage: true });
       } finally { await context.close(); }

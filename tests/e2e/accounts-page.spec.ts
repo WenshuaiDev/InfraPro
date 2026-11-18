@@ -173,11 +173,7 @@ test('account editing rejects stale versions and reloads the real binding', asyn
   const panel = page.getByRole('dialog'); await panel.getByRole('button', { name: '配置角色', exact: true }).click();
   const option = async (name: RegExp) => {
     await expect(panel.getByRole('checkbox').first()).toBeVisible();
-    while (await panel.getByRole('checkbox', { name }).count() === 0) {
-      const count = await panel.getByRole('checkbox').count();
-      await panel.getByRole('button', { name: '加载更多可选角色', exact: true }).click();
-      await expect.poll(() => panel.getByRole('checkbox').count()).toBeGreaterThan(count);
-    }
+    await panel.getByLabel('搜索可选角色').fill(name.source);
     return panel.getByRole('checkbox', { name });
   };
   await (await option(new RegExp(role.name))).check();
@@ -205,6 +201,41 @@ test('account readers see allowed authorization without fetching protected direc
   await expect(panel.getByRole('button', { name: '配置角色', exact: true })).toHaveCount(0); await expect(panel.getByRole('button', { name: '停用账号', exact: true })).toHaveCount(0); await expect(panel.getByRole('tab', { name: '租户任职', exact: true })).toHaveCount(0);
   await panel.getByRole('tab', { name: '有效权限', exact: true }).click(); await expect(panel.getByText(P.PlatformAccountRead, { exact: true })).toBeVisible(); await expect(panel.getByText(`来自：${role.name}`, { exact: true })).toBeVisible();
   expect(protectedReads).toEqual([]);
+});
+
+test('account overview respects read-only profiles and independent session grants', async ({ page, request }) => {
+  const target = await createManaged(request);
+  const role = await makeRole(request, '账号概览_' + randomBytes(4).toString('hex'), [P.AccountProfileRead, P.AccountSessionRevoke]);
+  const headers = await owner(request);
+  const assign = (version: string, ids: string[]) => request.put(api + '/access/accounts/' + target.id + '/roles', {
+    headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: version, role_ids: ids, reason: '自验账号中心独立权限' },
+  });
+  expect((await assign(target.management_version, [role.id])).status()).toBe(200);
+  const reads: string[] = [];
+  page.on('request', req => {
+    const path = new URL(req.url()).pathname;
+    if (req.method() === 'GET' && ['/api/v1/account/sessions', '/api/v1/account/security-events', '/api/v1/access/permissions'].includes(path)) reads.push(path);
+  });
+  await login(page, { username: target.username, password });
+  await page.goto(consoleURL + '/profile');
+  await expect(page.getByRole('region', { name: '平台角色' })).toContainText(role.name);
+  await expect(page.getByLabel('显示名称', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '更换头像' })).toHaveCount(0);
+  const nav = page.getByRole('navigation', { name: '账号设置' });
+  await nav.getByRole('link', { name: '账号安全' }).click();
+  await page.getByRole('button', { name: '管理会话' }).click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: '退出全部设备' })).toBeVisible();
+  await expect(page.getByRole('list', { name: '登录会话' })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  const latest = await (await request.get(api + '/access/accounts/' + target.id)).json();
+  expect((await assign(latest.management_version, [])).status()).toBe(200);
+  await page.reload();
+  await page.getByRole('button', { name: '管理验证器' }).click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: '启用多因素认证' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: '管理会话' })).toHaveCount(0);
+  await expect(nav.getByRole('link', { name: '个人资料' })).toHaveCount(0);
+  expect(reads).toEqual([]);
 });
 
 test('partial role options retain existing disabled bindings and recover later pages without losing edits', async ({ page, request }) => {
@@ -239,13 +270,53 @@ test('partial role options retain existing disabled bindings and recover later p
   await expect(existing).toBeChecked(); await expect(existing).toBeEnabled();
   await expect(panel.getByRole('checkbox', { name: new RegExp(unbound.name) })).toBeDisabled();
   await existing.uncheck(); await panel.getByLabel('变更原因', { exact: true }).fill('保留编辑中的原因');
-  await panel.getByRole('button', { name: '加载更多可选角色' }).click(); await expect(panel.getByRole('alert')).toContainText('后续角色暂时不可用');
+  await expect(panel.getByRole('alert')).toContainText('后续角色暂时不可用');
   await expect(panel.getByRole('button', { name: '保存角色绑定' })).toBeDisabled(); await expect(existing).not.toBeChecked();
   unavailable = false; await panel.getByRole('button', { name: '重新加载', exact: true }).click(); await expect(panel.getByRole('alert')).toHaveCount(0);
-  await panel.getByRole('button', { name: '加载更多可选角色' }).click(); await panel.getByRole('checkbox', { name: new RegExp(available.name) }).check();
+  await panel.getByRole('checkbox', { name: new RegExp(available.name) }).check();
   await expect(existing).not.toBeChecked(); await expect(panel.getByLabel('变更原因', { exact: true })).toHaveValue('保留编辑中的原因');
   expect(saves).toBe(0);
   await saveRoles(page); await expect(panel.getByRole('heading', { name: available.name, exact: true })).toBeVisible(); await expect(panel.getByRole('heading', { name: bound.name, exact: true })).toHaveCount(0);
   expect(saves).toBe(1);
   await panel.getByRole('tab', { name: '有效权限', exact: true }).click(); await expect(panel.getByText(`来自：${available.name}`, { exact: true })).toBeVisible();
+});
+
+test('numbered pagination jumps to the last page, resizes and handles empty results', async ({ page, request }) => {
+  await owner(request);
+  const template: ManagedAccount = (await (await request.get(`${api}/access/accounts?limit=1`)).json()).items[0];
+  const accounts = Array.from({ length: 83 }, (_, i) => ({
+    ...template, id: randomUUID(), username: `pager_${i + 1}`, display_name: `分页账号 ${i + 1}`,
+  }));
+  await login(page, { username: 'e2e_owner', password });
+  await page.route('**/api/v1/access/accounts?*', route => {
+    const params = new URL(route.request().url()).searchParams;
+    const filtered = accounts.filter(row => row.display_name.includes(params.get('q') ?? ''));
+    const offset = Number(params.get('cursor') || 0), size = Number(params.get('limit') || 10);
+    return route.fulfill({ json: {
+      items: filtered.slice(offset, offset + size), total: filtered.length,
+      next_cursor: offset + size < filtered.length ? String(offset + size) : '',
+    } });
+  });
+  await page.goto(`${consoleURL}/access/accounts`);
+  const pager = page.getByRole('navigation', { name: '账号列表分页' });
+  const table = page.getByRole('table', { name: '账号列表', exact: true });
+  const rows = table.locator('tbody tr');
+  await expect(page.getByText('共 83 条', { exact: true })).toBeVisible();
+  await expect(pager.getByRole('button', { name: '上一页' })).toBeDisabled();
+  await expect(pager.locator('[data-slot="pagination-ellipsis"]')).toHaveCount(1);
+  await pager.getByRole('button', { name: '第 9 页' }).click();
+  await expect(pager.getByRole('button', { name: '第 9 页' })).toHaveAttribute('aria-current', 'page');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.last()).toContainText('分页账号 83');
+  await expect(pager.getByRole('button', { name: '下一页' })).toBeDisabled();
+  await pager.getByRole('button', { name: '上一页' }).click();
+  await expect(rows.first()).toContainText('分页账号 71');
+  await page.getByRole('combobox', { name: '每页条数' }).click();
+  await page.getByRole('option', { name: '20', exact: true }).click();
+  await expect(rows).toHaveCount(20);
+  await expect(pager.getByRole('button', { name: '第一页' })).toHaveAttribute('aria-current', 'page');
+  await page.getByLabel('搜索用户名或显示名称').fill('空结果分页');
+  await expect(page.getByText('共 0 条', { exact: true })).toBeVisible();
+  await expect(pager.getByRole('button', { name: '下一页' })).toBeDisabled();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

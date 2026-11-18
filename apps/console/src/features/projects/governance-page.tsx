@@ -1,6 +1,7 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useRef } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Permissions as P } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
@@ -23,15 +24,9 @@ export function ProjectGovernancePage(props: Props) {
 function GovernanceWorkspace({ search, onSearch }: Props) {
   const ctx = useTenant(), { client, account } = useIdentity();
   const returnFocus = useRef<HTMLElement | null>(null), status = search.status ?? 'all';
-  const list = useInfiniteQuery({
-    queryKey: ['project-governance', account?.id, ctx.tenant.id, ctx.membership_id, 'list', search.q ?? '', status, search.unavailable ?? false, search.owner ?? ''],
-    initialPageParam: '',
-    queryFn: ({ pageParam, signal }) => client.projectGovernance(ctx.tenant.id, { q: search.q, status, cursor: pageParam, administrator_unavailable: search.unavailable, owner_tenant_membership_id: search.owner }, signal),
-    getNextPageParam: page => page.next_cursor || undefined,
-    enabled: ctx.available, staleTime: 0, retry: retryScopeRead, refetchInterval: 30_000, refetchOnWindowFocus: 'always',
-  });
-  const pages = ctx.available && !list.error ? list.data?.pages : undefined;
-  const overview = pages?.[0]?.overview, projects = pages?.flatMap(page => page.items.map(item => item.project)) ?? [];
+  const list = usePagedQuery({ queryKey: ['project-governance', account?.id, ctx.tenant.id, ctx.membership_id, 'list', search.q ?? '', status, search.unavailable ?? false, search.owner ?? ''], enabled: ctx.available, staleTime: 0, retry: retryScopeRead, refetchInterval: 30_000, refetchOnWindowFocus: 'always', queryFn: async ({ cursor, limit, signal }) => { const response = await client.projectGovernance(ctx.tenant.id, { q: search.q, status, cursor, limit, administrator_unavailable: search.unavailable, owner_tenant_membership_id: search.owner }, signal); return { ...response, total: response.overview?.filtered_total }; } });
+  const data = ctx.available && !list.error ? list.data : undefined;
+  const overview = data?.overview, projects = data?.items.map(item => item.project) ?? [];
   const create = ctx.permissions.includes(P.TenantProjectCreate), access = hasGovernanceAccess(ctx.permissions);
   const filtered = !!search.q || status !== 'all' || !!search.owner || !!search.unavailable;
   const update = (next: Partial<GovernanceSearch>) => onSearch({ ...search, ...next });
@@ -52,9 +47,9 @@ function GovernanceWorkspace({ search, onSearch }: Props) {
       </div>
       {filtered && <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground"><span>{overview ? '匹配 ' + overview.filtered_total + ' 个项目' : '正在筛选项目'}</span>{search.owner && selectedOwner && <span>负责人：{selectedOwner.display_name}</span>}<Button variant="ghost" size="sm" onClick={clear}><X className="size-3.5" aria-hidden="true" />清除筛选</Button></div>}
     </div>
-    {list.error ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !pages ? <LoadingState label="正在加载项目…" /> : !projects.length ? <div className="rounded-xl border bg-card"><EmptyState title={filtered ? '没有匹配的项目' : '从第一个项目开始'} description={filtered ? '试试其他名称、编号或筛选条件。' : '创建项目并指定负责人和管理员，建立项目业务空间。'}>{filtered ? <Button variant="outline" onClick={clear}>清除全部筛选</Button> : createButton}</EmptyState></div> : <>
-      <div className={'grid gap-5 md:grid-cols-2 ' + (projects.length > 2 || list.hasNextPage ? '2xl:grid-cols-3' : '')}>{projects.map(project => <GovernanceCard key={project.id} project={project} hasAccess={access} onOpen={open} onOwner={owner => update({ owner })} />)}</div>
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground"><p role="status">已显示 {projects.length} / {overview?.filtered_total ?? projects.length} 个项目 · 按创建时间排序</p>{list.hasNextPage && <Button variant="outline" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>{list.isFetchingNextPage ? '正在加载…' : '加载更多项目'}</Button>}</div>
+    {list.error ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !data ? <LoadingState label="正在加载项目…" /> : !projects.length ? <><div className="rounded-xl border bg-card"><EmptyState title={filtered ? '没有匹配的项目' : '从第一个项目开始'} description={filtered ? '试试其他名称、编号或筛选条件。' : '创建项目并指定负责人和管理员，建立项目业务空间。'}>{filtered ? <Button variant="outline" onClick={clear}>清除全部筛选</Button> : createButton}</EmptyState></div><ListPagination label="项目治理" {...list.pagination} /></> : <>
+      <div className={'grid gap-5 md:grid-cols-2 ' + (projects.length > 2 || list.pagination.hasNext ? '2xl:grid-cols-3' : '')}>{projects.map(project => <GovernanceCard key={project.id} project={project} hasAccess={access} onOpen={open} onOwner={owner => update({ owner })} />)}</div>
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground"><p role="status">已显示 {projects.length} / {overview?.filtered_total ?? projects.length} 个项目 · 按创建时间排序</p>{list.data && <ListPagination label="项目治理" {...list.pagination} />}</div>
       <p className="text-xs leading-6 text-muted-foreground">规模按各项目的有效授权范围展示，跨项目可能重复；“—”表示无查看权限。计划周期不代表完成进度。</p>
     </>}
     {search.project && <ProjectGovernancePanel key={search.project} project={search.project} view={search.view ?? 'summary'} setView={view => update({ view })} close={() => update({ project: undefined, view: undefined })} returnFocus={returnFocus} />}

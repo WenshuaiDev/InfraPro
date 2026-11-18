@@ -105,6 +105,7 @@ func (h *Handler) PublicReady(c *gin.Context) {
 }
 func (h *Handler) Register(r *gin.Engine) {
 	h.registerMFA(r)
+	h.registerAvatars(r)
 	pub := r.Group("/api/v1", h.PublicReady)
 	pub.GET("/public/account-help", func(c *gin.Context) {
 		c.JSON(200, gin.H{"support_contact": h.config.SupportContact, "console_url": h.config.PublicConsoleURL, "password_min": identity.PasswordMin, "password_max": identity.PasswordMax, "username_pattern": "^[A-Za-z0-9_-]{3,32}$"})

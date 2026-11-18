@@ -123,6 +123,8 @@ type Context struct {
 	CanEnter               bool                        `json:"can_enter"`
 }
 type Member struct {
+	AvatarRevision         string    `json:"avatar_revision"`
+	HasAvatar              bool      `json:"has_avatar"`
 	ID                     string    `json:"id"`
 	TenantMembershipID     string    `json:"tenant_membership_id"`
 	AccountID              string    `json:"account_id"`

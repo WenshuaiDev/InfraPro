@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, type KeyboardEvent } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { ChevronDown, ChevronRight, Factory, Box, Cpu, Radio } from 'lucide-react';
 import type { DeviceFilter, DeviceTreeNode } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
@@ -13,10 +14,10 @@ const nextLevel={manufacturer:'product',product:'device',device:'output'} as con
 const icons={manufacturer:Factory,product:Box,device:Cpu,output:Radio};
 function Branch({selection,onSelect,filter={},level,parent,focus,onFocus,autoFocus,onFocused}:BranchProps){
  const {client,scope,prefix}=useDevices();const group=useRef<HTMLUListElement>(null);
- const q=useInfiniteQuery({queryKey:[...prefix,'tree',level,parent,filter],initialPageParam:'',queryFn:({pageParam,signal})=>client.deviceTree(scope,{...filter,level,parent_id:parent,limit:25,cursor:pageParam},signal),getNextPageParam:p=>p.next_cursor||undefined});
- const items=q.data?.pages.flatMap(p=>p.items)??[];
+ const q=usePagedQuery({queryKey:[...prefix,'tree',level,parent,filter],initialPageSize:25,queryFn:({cursor,limit,signal})=>client.deviceTree(scope,{...filter,level,parent_id:parent,limit,cursor},signal)});
+ const items=q.data?.items??[];
  useEffect(()=>{if(autoFocus&&items.length){group.current?.querySelector<HTMLElement>('[role=treeitem]')?.focus();onFocused?.();}},[autoFocus,items.length,onFocused]);
- return <ul ref={group} role={parent?'group':'tree'} aria-label={parent?undefined:'厂家、产品、设备与输出目录'} className={parent?'ml-4 border-l pl-2':'space-y-1'}>{items.map((node,index)=><TreeItem key={node.id} {...{node,selection,onSelect,filter,focus,onFocus,level}} first={!parent&&index===0}/>)}{q.isPending&&<li role="none"><p className="p-3 text-sm" role="status">正在读取目录…</p></li>}{q.error&&<li role="none"><p role="alert" className="p-2 text-sm text-destructive">{q.error.message}</p><Button variant="ghost" onClick={()=>void q.refetch()}>重试目录</Button></li>}{!q.isPending&&!q.error&&!items.length&&<li role="none"><p className="p-3 text-sm text-muted-foreground">暂无可见项目</p></li>}{q.hasNextPage&&<li role="none"><Button type="button" variant="ghost" className="my-1 w-full" disabled={q.isFetchingNextPage} onClick={()=>void q.fetchNextPage()}>加载更多{({manufacturer:'厂家',product:'产品',device:'设备',output:'输出'})[level]}</Button></li>}</ul>;
+ return <ul ref={group} role={parent?'group':'tree'} aria-label={parent?undefined:'厂家、产品、设备与输出目录'} className={parent?'ml-4 border-l pl-2':'space-y-1'}>{items.map((node,index)=><TreeItem key={node.id} {...{node,selection,onSelect,filter,focus,onFocus,level}} first={!parent&&index===0}/>)}{q.isPending&&<li role="none"><p className="p-3 text-sm" role="status">正在读取目录…</p></li>}{q.error&&<li role="none"><p role="alert" className="p-2 text-sm text-destructive">{q.error.message}</p><Button variant="ghost" onClick={()=>void q.refetch()}>重试目录</Button></li>}{!q.isPending&&!q.error&&!items.length&&<li role="none"><p className="p-3 text-sm text-muted-foreground">暂无可见项目</p></li>}{q.data && (!parent || q.pagination.hasNext || q.pagination.page > 0 || q.pagination.pageSize !== 25) && <li role="none"><ListPagination label="设备目录" {...q.pagination} /></li>}</ul>;
 }
 function TreeItem({node,selection,onSelect,filter,focus,onFocus,level,first}:{node:DeviceTreeNode;first:boolean}&Omit<BranchProps,'parent'|'autoFocus'|'onFocused'>){
  const initially=Object.values(selection).includes(node.id);const [open,setOpen]=useState(initially&&node.has_visible_children);const [focusChild,setFocusChild]=useState(false);const element=useRef<HTMLLIElement>(null);const Icon=icons[level];const selected=selection.output?selection.output===node.id:selection.device?selection.device===node.id:selection.product?selection.product===node.id:selection.manufacturer===node.id;

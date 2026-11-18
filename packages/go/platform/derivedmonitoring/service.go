@@ -281,11 +281,10 @@ func publicReferences(ctx context.Context, tx pgx.Tx, p *compute.Plan, newUse bo
 			if metric == nil || metric.Shape == "enum" {
 				return nil, invalid("/rule/inputs", "派生输入必须是数值指标。")
 			}
-			found := false
-			for _, unit := range metric.AllowedUnits {
-				found = found || unit == in.Quantity.BaseUnitVersionID
+			if newUse && (in.Quantity.BasePower != 1 || in.Quantity.TimePower != 0) {
+				return nil, invalid("/rule/inputs", "限定公共指标的输入按目录单位原样采用，不能额外添加单位或时间幂次。")
 			}
-			if !found {
+			if !metric.AllowsUnit(in.Quantity.BaseUnitVersionID) {
 				return nil, invalid("/rule/inputs", "输入单位不在固定指标允许单位中。")
 			}
 		}

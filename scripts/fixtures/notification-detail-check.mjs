@@ -25,13 +25,22 @@ export async function checkNotificationTargetSwitch(page,first,second,origin) {
  let release,started=false,settled=false;
  const gate=new Promise(resolve=>{release=resolve;});
  const pattern='**/api/v1/me/notifications/'+first.id+'/target';
- await page.route(pattern,async route=>{const response=await route.fetch();started=true;await gate;try{await route.fulfill({response});}finally{settled=true;}});
+ let deliveryError;
+ await page.route(pattern,async route=>{
+  const response=await route.fetch();started=true;await gate;
+  try{await route.fulfill({response});}
+  catch(error){
+   // Leaving the detail aborts its target request. Chromium may dispose the intercepted route before release.
+   if(!route.request().failure() && !String(error).includes('Route is already handled'))deliveryError=error;
+  }finally{settled=true;}
+ });
  try {
   await detail.getByRole('button',{name:'打开业务页面',exact:true}).click();
   await expect.poll(()=>started).toBe(true);
+  await detail.getByRole('link',{name:'返回通知列表',exact:true}).click();
   await page.getByRole('region',{name:'通知列表',exact:true}).locator(`[data-notification-id="${second.id}"] a`).click();
   await page.waitForURL(v=>v.pathname==='/notifications/'+second.id);
-  release();await expect.poll(()=>settled).toBe(true);
+  release();await expect.poll(()=>settled).toBe(true);if(deliveryError)throw deliveryError;
   await expect(detail.getByRole('heading',{name:second.object_name||second.title,exact:true})).toBeVisible();
   await expect(page).toHaveURL(new RegExp('/notifications/'+second.id+'\\?category=tasks$'));
  }finally{release();await page.unroute(pattern);}

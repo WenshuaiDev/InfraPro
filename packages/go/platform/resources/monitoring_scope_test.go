@@ -60,10 +60,10 @@ func TestMonitoringPartialProjectMetadataAndDownloadRevocation(t *testing.T) {
 	}
 	selection, e := f.service.Select(ctx, project.actor, scope, md.SelectionInput{Channels: []string{f.channel}})
 	must(t, e)
-	query := md.QueryInput{Selection: selection.ID, AllHistory: true, Limit: 1000}
+	query := md.QueryInput{Selection: selection.ID, AllHistory: true, Limit: 1000, IncludeTotal: true}
 	page, e := f.service.Details(ctx, project.actor, scope, query)
 	must(t, e)
-	if len(page.Items) != 1000 || !page.HasMore || page.Items[0].At != base.Add(1999*time.Nanosecond).Format(time.RFC3339Nano) {
+	if page.Total == nil || *page.Total != 2000 || len(page.Items) != 1000 || !page.HasMore || page.Items[0].At != base.Add(1999*time.Nanosecond).Format(time.RFC3339Nano) {
 		t.Fatal(page)
 	}
 	stats := f.analyticAs(t, project.actor, scope, "statistics", query)

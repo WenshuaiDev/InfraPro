@@ -46,7 +46,7 @@ export function parsingMethods(request:Request){
  parsingCompare:(s:ParsingScope,input:S<'ParsingCompareInput'>)=>change<S<'ParsingCompareResult'>>(`${base(s)}/runs/compare`,input),
  parsingRuns:(s:ParsingScope,cursor='',signal?:AbortSignal,filters:{q?:string;state?:string;device_id?:string}={})=>request<S<'ParsingRunPage'>>(`${base(s)}/runs?${q({cursor,...filters})}`,'GET',undefined,true,signal),
  parsingRun:(s:ParsingScope,run:string,signal?:AbortSignal)=>request<S<'ParsingRunDetail'>>(`${base(s)}/runs/${id(run)}`,'GET',undefined,true,signal),
- parsingResult:(s:ParsingScope,run:string,generation:string,offset=0,signal?:AbortSignal)=>request<S<'ParsingResultView'>>(`${base(s)}/runs/${id(run)}/executions/${id(generation)}/result?${q({offset,limit:100})}`,'GET',undefined,true,signal),
+ parsingResult:(s:ParsingScope,run:string,generation:string,offset=0,signal?:AbortSignal,limit=100)=>request<S<'ParsingResultView'>>(`${base(s)}/runs/${id(run)}/executions/${id(generation)}/result?${q({offset,limit})}`,'GET',undefined,true,signal),
  parsingRawResponse:(s:ParsingScope,run:string,generation:string,signal?:AbortSignal)=>request<Blob>(`${base(s)}/runs/${id(run)}/executions/${id(generation)}/response`,'GET',undefined,true,signal,{responseType:'blob'}),
  };
 }

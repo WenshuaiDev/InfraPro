@@ -79,8 +79,8 @@ func (s *Service) readInputs(ctx context.Context, auth inputAccess, id string, p
 		var e error
 		if auth.Permit != nil {
 			count, e = s.raw.ReadPartSystem(ctx, *auth.Permit, id, part.Direct, budget, callback)
-		} else if auth.History {
-			count, e = s.raw.ReplayPartUser(ctx, auth.Actor, auth.Scope, id, part.Direct, budget, callback)
+		} else if auth.History || auth.SelectedPart {
+			count, e = s.raw.ReadSelectedPartUser(ctx, auth.Actor, auth.Scope, id, part.Direct, auth.History, budget, callback)
 		} else {
 			count, e = s.raw.ReadPartUser(ctx, auth.Actor, auth.Scope, id, part.Direct, budget, callback)
 		}

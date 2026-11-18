@@ -1,23 +1,23 @@
+import { ListPagination, type ListPage } from '@infrapro/ui/patterns/list-controls';
 import { useMemo, useState, type ReactNode } from 'react';
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef, type VisibilityState } from '@tanstack/react-table';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useIdentity } from '@infrapro/api-client/react';
 import type { TaskFilter, TaskView } from '@infrapro/api-client';
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, ChevronsLeft, Copy, ExternalLink, Inbox, MoreHorizontal, RotateCcw, SlidersHorizontal, Square } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, ExternalLink, Inbox, MoreHorizontal, RotateCcw, SlidersHorizontal, Square } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@infrapro/ui/components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@infrapro/ui/components/table';
 import { Skeleton } from '@infrapro/ui/components/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@infrapro/ui/components/select';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuItem, DropdownMenuSeparator } from '@infrapro/ui/components/dropdown-menu';
 import { TaskStatus, TaskProgress, TaskResult, taskDestination } from './common';
 import { TaskToolbar } from './toolbar';
 
-type Props = { items: TaskView[]; filter: TaskFilter; types: { type: string; title: string }[]; loading: boolean; fetching: boolean; error: boolean; next: boolean; previous: boolean; page?: number; notice?: ReactNode; onChange: (value: Partial<TaskFilter>) => void; onOpen: (task: TaskView, action?: 'cancel' | 'retry') => void; onNext: () => void; onPrevious: () => void };
+type Props = { items: TaskView[]; filter: TaskFilter; types: { type: string; title: string }[]; loading: boolean; fetching: boolean; error: boolean; pagination: ListPage; notice?: ReactNode; onChange: (value: Partial<TaskFilter>) => void; onOpen: (task: TaskView, action?: 'cancel' | 'retry') => void };
 const labels: Record<string, string> = { scope: '工作空间', progress: '阶段与进度', created_at: '提交时间', result: '结果' };
 const cellClass: Record<string, string> = { title: 'w-auto', scope: 'hidden w-[22%] lg:table-cell', state: 'w-28 sm:w-32', progress: 'hidden w-[17%] xl:table-cell', created_at: 'hidden w-36 md:table-cell', result: 'hidden w-28 lg:table-cell', actions: 'w-12' };
-export function TaskTable({ items, filter, types, loading, fetching, error, next, previous, page, notice, onChange, onOpen, onNext, onPrevious }: Props) {
+export function TaskTable({items, filter, types, loading, fetching, error, notice, onChange, onOpen, pagination }: Props) {
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const columns = useMemo<ColumnDef<TaskView>[]>(() => [
     { id: 'title', header: '任务', enableHiding: false, cell: ({ row: { original: item } }) => <div className="min-w-0"><div className="flex items-center gap-2"><Button id={`task-${item.id}`} variant="link" className="h-auto min-h-8 min-w-0 justify-start whitespace-normal px-0 py-0 text-left text-sm leading-5" onClick={() => onOpen(item)}>{item.title}</Button></div><p className="truncate font-mono text-[10px] leading-4 text-muted-foreground" title={item.id}>{item.id.slice(0, 8).toUpperCase()}</p><p className="truncate text-xs text-muted-foreground lg:hidden">{item.scope_label}</p>{filter.mode === 'managed' && <p className="truncate text-xs text-muted-foreground">{item.actor_label || '发起人未知'}</p>}<p className="mt-1 text-[10px] text-muted-foreground md:hidden">{new Date(item.created_at).toLocaleString('zh-CN')}</p></div> },
@@ -36,7 +36,7 @@ export function TaskTable({ items, filter, types, loading, fetching, error, next
     {loading ? Array.from({ length: 6 }, (_, n) => <TableRow key={n}>{table.getVisibleLeafColumns().map(column => <TableCell key={column.id} className={`h-20 px-3 ${cellClass[column.id]}`}><Skeleton className="h-4 w-3/4" /></TableCell>)}</TableRow>) : table.getRowModel().rows.map(row => <TableRow key={row.id}>{row.getVisibleCells().map(cell => <TableCell key={cell.id} className={`whitespace-normal px-3 py-2 lg:px-4 ${cellClass[cell.column.id]}`}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>)}</TableRow>)}
     {!loading && !items.length && <TableRow><TableCell colSpan={table.getVisibleLeafColumns().length}><div className="flex min-h-72 flex-col items-center justify-center gap-3 text-center"><Inbox aria-hidden="true" className="size-8 text-muted-foreground/60" /><p className="font-medium">{error ? '暂时无法核实任务' : '没有符合条件的任务'}</p><p className="max-w-72 text-xs leading-5 text-muted-foreground">{error ? '核实成功后将重新显示任务及可用操作。' : '试试调整筛选条件。任务在原业务页面发起，提交后会在这里显示。'}</p></div></TableCell></TableRow>}
     </TableBody></Table></div>
-    <footer className="flex flex-wrap items-center justify-between gap-3 text-xs"><p role="status" className="text-muted-foreground">{loading ? '正在加载任务…' : error ? '任务暂不可用' : `本页 ${items.length} 项任务`}</p><div className="flex flex-wrap items-center gap-3"><Select value={String(filter.limit ?? 10)} onValueChange={value => onChange({ limit: Number(value) })}><SelectTrigger aria-label="每页数量" size="sm" className="w-28"><SelectValue /></SelectTrigger><SelectContent>{[10, 25, 50, 100].map(value => <SelectItem value={String(value)} key={value}>{value} 条 / 页</SelectItem>)}</SelectContent></Select><span className="min-w-12 text-center tabular-nums">{page ? `第 ${page} 页` : '续页'}</span><div className="flex gap-1.5"><Button variant="outline" size="icon" className="size-9" aria-label="回到首页" disabled={!filter.cursor || fetching} onClick={() => onChange({})}><ChevronsLeft aria-hidden="true" /></Button><Button variant="outline" size="icon" className="size-9" aria-label="上一页" disabled={!previous || fetching} onClick={onPrevious}><ChevronLeft aria-hidden="true" /></Button><Button variant="outline" size="icon" className="size-9" aria-label="下一页" disabled={!next || fetching || error} onClick={onNext}><ChevronRight aria-hidden="true" /></Button></div></div></footer>
+    <ListPagination label="任务" {...pagination} pageSizes={[10, 25, 50, 100]} />
   </div>;
 }
 function ResultAction({ task, compact = false }: { task: TaskView; compact?: boolean }) {

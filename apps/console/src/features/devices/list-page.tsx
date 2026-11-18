@@ -78,26 +78,26 @@ function DeviceTable({ search, onSearch }: ListProps) {
   const { client, scope, paths, prefix } = useDevices();
   const [size, setSize] = useState(25);
   const filter: DeviceFilter = { source: search.source, q: search.q, status: search.status, installation: search.installation, manufacturer_id: search.manufacturer, product_id: search.product };
-  const query = useCursorList({ queryKey: [...prefix, 'list', filter, size], load: (cursor, signal) => client.devices(scope, { ...filter, limit: size, cursor }, signal) });
+  const query = useCursorList({ pageSize: size, queryKey: [...prefix, 'list', filter, size], load: (cursor, signal) => client.devices(scope, { ...filter, limit: size, cursor }, signal) });
   return <DirectoryTable label="设备列表" items={query.items} rowId={(value) => value.id} loading={query.isPending} error={query.error?.message} retry={() => void query.refetch()}
     empty="暂无整台设备档案授权；可切换到获准输出。" toolbar={<DeviceFilters search={search} onSearch={onSearch} />}
     columns={[
       { id: 'name', label: '设备', cell: (value) => <div className="space-y-1"><Link to={paths.device(value.id)} className="break-words font-medium underline-offset-4 hover:underline">{value.name}</Link><p className="break-all font-mono text-xs text-muted-foreground">{value.code}</p><p className="text-xs text-muted-foreground lg:hidden">{value.product.name} · v{value.product.number}</p></div> },
       { id: 'product', label: '采用产品', secondary: true, cell: (value) => <div className="space-y-1"><p>{value.product.name} <span className="text-muted-foreground">· v{value.product.number}</span></p><p className="text-xs text-muted-foreground">{value.product.manufacturer_name} · {value.product.model}</p><Badge variant="outline">{value.product.source === 'public' ? '平台公共' : '本租户私有'}</Badge></div> },
       { id: 'status', label: '状态', className: 'w-20 lg:w-24', cell: (value) => <Badge variant={value.status === 'enabled' ? 'secondary' : 'outline'}>{value.status === 'enabled' ? '启用' : '停用'}</Badge> },
-    ]} pagination={<ListPagination pageSizes={[25, 50, 100]} label="设备" count={query.items.length} page={query.page} pageCount={query.pageCount} hasNext={!!query.hasNext} fetching={query.isFetching} go={query.go} next={() => void query.next()} pageSize={size} setPageSize={setSize} />} />;
+    ]} pagination={<ListPagination label="设备" {...query.pagination} pageSizes={[25, 50, 100]} setPageSize={setSize} />} />;
 }
 
 function ProjectOutputs({ search, onSearch }: ListProps) {
   const { client, scope, paths, prefix } = useDevices();
   const [size, setSize] = useState(25);
   const filter = { source: search.source, q: search.q, device_id: search.device, manufacturer_id: search.manufacturer, product_id: search.product, status: search.status };
-  const query = useCursorList({ queryKey: [...prefix, 'outputs', filter, size], load: (cursor, signal) => { if (scope.kind !== 'project') throw new Error('项目范围无效。'); return client.projectDeviceOutputs(scope, { ...filter, cursor, limit: size }, signal); } });
+  const query = useCursorList({ pageSize: size, queryKey: [...prefix, 'outputs', filter, size], load: (cursor, signal) => { if (scope.kind !== 'project') throw new Error('项目范围无效。'); return client.projectDeviceOutputs(scope, { ...filter, cursor, limit: size }, signal); } });
   return <div className="space-y-4"><p className="text-sm text-muted-foreground">仅列出明确授予本项目的输出；设备档案授权不会自动包含输出。</p><DirectoryTable label="获准设备输出" items={query.items} rowId={(value) => value.id} loading={query.isPending} error={query.error?.message} retry={() => void query.refetch()} empty="暂无明确授予本项目的输出。设备档案授权不会自动授予输出。"
     toolbar={<DeviceFilters search={search} onSearch={onSearch} outputs />}
     columns={[
       { id: 'name', label: '输出', cell: (value) => <div className="space-y-1"><Link to={paths.output(value.id)} className="break-words font-medium underline-offset-4 hover:underline">{value.name}</Link><p className="text-xs text-muted-foreground">第 {value.generation} 代</p><p className="text-xs text-muted-foreground lg:hidden">{value.device.name} · {value.device.code}</p></div> },
       { id: 'device', label: '所属设备', secondary: true, cell: (value) => <div className="space-y-1"><p>{value.device.name}</p><p className="break-all font-mono text-xs text-muted-foreground">{value.device.code}</p><p className="text-xs text-muted-foreground">{value.device.product_name} · {value.device.product_model}</p></div> },
       { id: 'state', label: '状态', className: 'w-24 lg:w-32', cell: (value) => <div className="space-y-1"><Badge variant={value.ended_at || value.device_status === 'disabled' ? 'outline' : 'secondary'}>{value.ended_at ? '已结束' : value.device_status === 'disabled' ? '设备停用' : '当前代次'}</Badge>{value.ended_at && <p className="text-xs text-muted-foreground">仅供历史查看</p>}</div> },
-    ]} pagination={<ListPagination pageSizes={[25, 50, 100]} label="输出" count={query.items.length} page={query.page} pageCount={query.pageCount} hasNext={!!query.hasNext} fetching={query.isFetching} go={query.go} next={() => void query.next()} pageSize={size} setPageSize={setSize} />} /></div>;
+    ]} pagination={<ListPagination label="输出" {...query.pagination} pageSizes={[25, 50, 100]} setPageSize={setSize} />} /></div>;
 }

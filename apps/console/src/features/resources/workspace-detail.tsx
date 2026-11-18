@@ -22,7 +22,7 @@ import { ResourceEditor } from './editor';
 import { ResourceHistory } from './history';
 import { LifecycleForm } from './lifecycle';
 import { ObjectActions, ResourceInfo } from './resource-details';
-import { ResourceIcon, TreeMore } from './resource-tree';
+import { ResourceIcon, ResourcePagination } from './resource-tree';
 import { resourceLabels } from './resource-labels';
 import { childFilter, navigationPath, navigationRef, useResourceTree } from './resource-tree-query';
 import type { FacilityWorkspaceSearch } from './workspace-search';
@@ -96,7 +96,7 @@ export function WorkspaceDetail({ resource, facility, view, onView, select, onDe
         <TabsContent value="children" className="space-y-4 p-4 sm:p-5">
           <p className="text-sm text-muted-foreground">直属于「{resource.name}」的{resource.kind === 'point' ? '业务通道' : '构件、断面、孔位、测点与派生通道'}，点击名称继续向下浏览。</p>
           <div className="flex flex-wrap items-center gap-2"><DirectorySearch label="搜索直属资源名称或编号" value={query} onChange={setQuery} /><ListFilter label="直属资源状态" caption="状态" value={status} onChange={(value) => setStatus(value as typeof status)} options={[{ value: 'all', label: '全部状态' }, { value: 'normal', label: '正常' }, { value: 'retired', label: '已退役' }]} />{filtered && <Button variant="ghost" size="sm" onClick={() => { setQuery(''); setStatus('all'); }}>重置下级筛选</Button>}</div>
-          {list.isPending ? <LoadingState /> : list.error && !list.isFetchNextPageError ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : <><ChildrenList items={list.items} select={select} empty={filtered ? '没有符合条件的直属资源' : resource.kind === 'point' ? '暂无业务通道' : '暂无直属资源'} /><div className="text-xs text-muted-foreground" role="status">已显示 {list.items.length} / {list.summary?.total ?? 0} 项</div><TreeMore query={list} /></>}
+          {list.isPending ? <LoadingState /> : list.error && !list.items.length ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : <><ChildrenList items={list.items} select={select} empty={filtered ? '没有符合条件的直属资源' : resource.kind === 'point' ? '暂无业务通道' : '暂无直属资源'} /><ResourcePagination query={list} /></>}
         </TabsContent>
         {bindingEntry && <TabsContent value="bindings" className="p-4 sm:p-5"><FacilityBindings facility={node.facility_id} point={resource.kind === 'point' ? resource.id : undefined} name={resource.name} blocked={blocked} /></TabsContent>}
         {resource.kind === 'channel' && <TabsContent value="source" className="p-4 sm:p-5">{source()}</TabsContent>}

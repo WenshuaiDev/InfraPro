@@ -1,6 +1,6 @@
 import { useRef, type ReactNode } from 'react';
 import { CheckCircle2, CircleDashed, MoreHorizontal, type LucideIcon } from 'lucide-react';
-import type { TenantInvitation, TenantMember } from '@infrapro/api-client';
+import type { AvatarTarget, TenantInvitation, TenantMember } from '@infrapro/api-client';
 import { Badge } from '@infrapro/ui/components/badge';
 import { Button } from '@infrapro/ui/components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@infrapro/ui/components/dropdown-menu';
@@ -8,8 +8,8 @@ import { AccountAvatar } from '../access/account-table';
 import { InvitationStatus } from '../account/invitation-ui';
 import { invitationStatus, memberStatus } from './membership-utils';
 
-export function MembershipIdentity({ name, username, onClick, children }: { name: string; username: string; onClick: (trigger: HTMLElement) => void; children?: ReactNode }) {
-  return <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={name} /></div><div className="min-w-0 flex-1 space-y-1"><Button variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={`${name}（${username}）`} onClick={(event) => onClick(event.currentTarget)}><span className="truncate">{name}</span></Button><p className="truncate text-xs text-muted-foreground" title={username}>{username}</p>{children}</div></div>;
+export function MembershipIdentity({ name, username, onClick, children, avatar, target }: { avatar?: TenantMember['account']; target?: AvatarTarget; name: string; username: string; onClick: (trigger: HTMLElement) => void; children?: ReactNode }) {
+  return <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={name} metadata={avatar} target={target} /></div><div className="min-w-0 flex-1 space-y-1"><Button variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={`${name}（${username}）`} onClick={(event) => onClick(event.currentTarget)}><span className="truncate">{name}</span></Button><p className="truncate text-xs text-muted-foreground" title={username}>{username}</p>{children}</div></div>;
 }
 
 export function MemberStatus({ item }: { item: TenantMember }) {

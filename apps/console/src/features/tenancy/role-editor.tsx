@@ -23,7 +23,7 @@ export function TenantRoleForm({ mode, initial, finish, cancel, onPendingChange 
   const catalog = useQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'permissions'], queryFn: ({ signal }) => client.tenantPermissions(ctx.tenant.id, signal), enabled: withPermissions && ctx.available });
   const action = mode === 'status' || mode === 'archive' ? mode : 'permissions';
   const input = (): TenantRolePreviewInput => action === 'permissions' ? { expected_version: role!.version, permission_codes: selected } : action === 'status' ? { expected_version: role!.version, status: role!.status === 'active' ? 'disabled' : 'active' } : { expected_version: role!.version };
-  const preview = useOperation<void, string>({ mutationFn: async (cursor) => { const epoch = selectionEpoch.current; const value = await client.previewTenantRole(ctx.tenant.id, role!.id, action, input(), { cursor }); if (live.current && epoch === selectionEpoch.current) setImpact((old) => cursor && old?.preview_hash === value.preview_hash ? { ...value, members: { ...value.members, items: [...old.members.items, ...value.members.items] } } : value); } });
+  const preview = useOperation({ mutationFn: async () => { const epoch = selectionEpoch.current; const value = await client.previewTenantRole(ctx.tenant.id, role!.id, action, input(), { limit: 20 }); if (live.current && epoch === selectionEpoch.current) setImpact(value); } });
   const refresh = async () => { if (role) { const current = await client.tenantRole(ctx.tenant.id, role.id); if (live.current) setRole(current); } if (live.current) setImpact(undefined); };
   return <ManagementForm onPendingChange={onPendingChange} stickyActions label={needsPreview ? '确认授权变更' : mode === 'update' ? '保存角色资料' : '创建角色'} disabled={(withPermissions && !catalog.data) || (needsPreview && (!impact || impact.blocked_reasons.length > 0))} refresh={refresh} cancel={<Button type="button" variant="outline" onClick={cancel}>取消</Button>} submit={async (reason) => {
     if (mode === 'create' || mode === 'copy') await client.createTenantRole(ctx.tenant.id, { name, description, permission_codes: selected, client_request_id: requestId, reason, ...(mode === 'copy' ? { source_version: role!.version } : {}) }, mode === 'copy' ? role!.id : undefined);
@@ -37,7 +37,7 @@ export function TenantRoleForm({ mode, initial, finish, cancel, onPendingChange 
     {mode === 'copy' && <FormNotice>复制自 {role?.name} v{role?.version}。副本独立维护，不跟随源角色发布更新，也不复制成员绑定。</FormNotice>}
     {mode === 'status' && <FormNotice>{role?.status === 'active' ? '停用后保留绑定，失去最后邀请来源的链接永久失效。' : '启用只恢复正常账号与有效成员的能力，不恢复失效邀请。'}</FormNotice>}
     {mode === 'archive' && <FormNotice>仅无任何未撤销绑定的角色可删除；暂停成员和不可用账号上的绑定也需先解除。</FormNotice>}
-    {needsPreview && <Button type="button" variant="outline" disabled={preview.isPending} onClick={() => preview.mutate('')}>{preview.isPending ? '正在计算…' : '预览变更影响'}</Button>}
-    {impact && <TenantImpactView value={impact} more={() => preview.mutate(impact.members.next_cursor)} />}
+    {needsPreview && <Button type="button" variant="outline" disabled={preview.isPending} onClick={() => preview.mutate()}>{preview.isPending ? '正在计算…' : '预览变更影响'}</Button>}
+    {impact && <TenantImpactView value={impact} loadMembers={(cursor, limit) => client.previewTenantRole(ctx.tenant.id, role!.id, action, input(), { cursor, limit })} />}
   </ManagementForm>;
 }

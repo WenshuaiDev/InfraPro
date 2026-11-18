@@ -197,7 +197,7 @@ func (s *Service) StartAnalysis(ctx context.Context, a access.Actor, scope Scope
 					return notFound()
 				}
 				var active bool
-				e = tx.QueryRow(ctx, `SELECT status='active' FROM analysis_artifacts WHERE tenant_id=$1 AND scope_key=$2 AND config_id=$3 AND id=$4 FOR UPDATE`, scope.Tenant, scope.key(), config.ID, artifact).Scan(&active)
+				e = tx.QueryRow(ctx, `SELECT status='active' FROM analysis_artifacts WHERE tenant_id=$1 AND scope_key=$2 AND config_id=$3 AND id=$4 AND deleted_at IS NULL FOR UPDATE`, scope.Tenant, scope.key(), config.ID, artifact).Scan(&active)
 				if e == pgx.ErrNoRows {
 					return notFound()
 				}
@@ -266,7 +266,10 @@ func (s *Service) authorizeAnalysisExecutionTx(ctx context.Context, tx pgx.Tx, t
 	}
 	if !target.Trial {
 		var active bool
-		if e = tx.QueryRow(ctx, `SELECT status='active' FROM analysis_artifacts WHERE tenant_id=$1 AND id=$2 AND scope_key=$3`, run.Scope.Tenant, target.ArtifactID, run.Scope.key()).Scan(&active); e != nil {
+		if e = tx.QueryRow(ctx, `SELECT status='active' FROM analysis_artifacts WHERE tenant_id=$1 AND id=$2 AND scope_key=$3 AND deleted_at IS NULL`, run.Scope.Tenant, target.ArtifactID, run.Scope.key()).Scan(&active); e != nil {
+			if e == pgx.ErrNoRows {
+				return problem("analysis_unavailable", "成果已删除，无法继续运行。", 409)
+			}
 			return e
 		}
 		if !active {
@@ -331,6 +334,11 @@ func (s *Service) authorizeAnalysisTaskTx(ctx context.Context, tx pgx.Tx, a acce
 	target, e := analysisRunTargetTx(ctx, tx, scope.Tenant, run.ID)
 	if e != nil {
 		return e
+	}
+	if target.ArtifactID != "" {
+		if _, e = analysisArtifactTx(ctx, tx, scope, target.ArtifactID); e != nil {
+			return e
+		}
 	}
 	v, e := analysisVersionTx(ctx, tx, scope, target.ConfigVersionID)
 	if e != nil {

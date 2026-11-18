@@ -728,7 +728,7 @@ func normalizeInput(in validationInput, j Job, binding ChannelMapping, line uint
 	if binding.Unit != sem.Symbol {
 		return r, fmt.Errorf("映射单位与通道固定单位不一致；不进行隐式换算。")
 	}
-	if in.mapping.UnitColumn != "" && unit.Text == "" {
+	if in.mapping.UnitColumn != "" && unit.Text == "" && sem.Kind != "enum" {
 		return r, fmt.Errorf("已映射单位列的业务行缺少单位。")
 	}
 	if unit.Text != "" && unit.Text != sem.Symbol {

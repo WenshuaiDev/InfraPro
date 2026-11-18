@@ -88,7 +88,7 @@ func Register(r *gin.Engine, identityService *identity.Service, s *dm.Service) {
 			case "channels.list":
 				allowed = []string{"q", "control_state", "facility_id", "owner_kind", "owner_id", "cursor", "limit"}
 			case "runs.list":
-				allowed = []string{"channel_id", "state", "cursor", "limit"}
+				allowed = []string{"channel_id", "state", "mode", "cursor", "limit"}
 			case "metrics.list", "analysis.configs.list", "analysis.artifacts.list":
 				allowed = []string{"q", "state", "cursor", "limit"}
 			case "channels.generations":
@@ -226,7 +226,7 @@ func Register(r *gin.Engine, identityService *identity.Service, s *dm.Service) {
 				}
 				reply(c, status, v, e)
 			case "runs.list":
-				v, e := s.Runs(ctx, a, scope, dm.RunFilter{ChannelID: c.Query("channel_id"), State: f.State, Cursor: f.Cursor, Limit: f.Limit})
+				v, e := s.Runs(ctx, a, scope, dm.RunFilter{Mode: c.Query("mode"), ChannelID: c.Query("channel_id"), State: f.State, Cursor: f.Cursor, Limit: f.Limit})
 				reply(c, 200, v, e)
 			case "runs.detail":
 				v, e := s.Run(ctx, a, scope, id)

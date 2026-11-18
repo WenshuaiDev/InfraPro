@@ -1,5 +1,6 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Permissions as P,
   type IngestionCapability,
@@ -11,7 +12,7 @@ import { ResponsivePanel } from "@infrapro/ui/patterns/responsive-panel";
 import { FormNotice } from "@infrapro/ui/patterns/feedback";
 import { DeviceField, DeviceSelect } from "../parsing/fields";
 import { useParsing, useParsingWrite, WriteFeedback } from "../parsing/context";
-import { Digest, Facts, Pages, State } from "./common";
+import { Digest, Facts, State } from "./common";
 const kinds: { value: IngestionCapabilityKind; label: string }[] = [
   { value: "ingress-protocols", label: "入口协议" },
   { value: "identification-methods", label: "识别与解复用方法" },
@@ -29,18 +30,16 @@ export function Capabilities() {
   const c = useParsing(),
     w = useParsingWrite(),
     [kind, setKind] = useState<IngestionCapabilityKind>("ingress-protocols"),
-    [cursor, setCursor] = useState(""),
     [q, setQ] = useState(""),
     [selected, setSelected] = useState<IngestionCapability>(),
     [state, setState] = useState("enabled"),
     [reason, setReason] = useState("");
-  const query = useQuery({
-    queryKey: [...c.prefix, "ingestion-capabilities", kind, cursor, q],
-    queryFn: ({ signal }) =>
-      c.client.ingestionCapabilities(
+  const query = usePagedQuery({ initialPageSize: 50,
+    queryKey: [...c.prefix, "ingestion-capabilities", kind, q],
+    queryFn: ({ cursor, signal, limit }) => c.client.ingestionCapabilities(
         c.scope,
         kind,
-        { cursor, q, limit: 50 },
+        { cursor, q, limit },
         signal,
       ),
     enabled: c.canMethods,
@@ -57,8 +56,7 @@ export function Capabilities() {
           value={kind}
           onChange={(v) => {
             setKind(v as IngestionCapabilityKind);
-            setCursor("");
-          }}
+            }}
           options={kinds}
         />
         <DeviceField
@@ -67,8 +65,7 @@ export function Capabilities() {
           value={q}
           onChange={(v) => {
             setQ(v);
-            setCursor("");
-          }}
+            }}
         />
       </div>
       {c.scope.kind === "platform" && c.can(P.ParsingMethodManage) && (
@@ -135,11 +132,7 @@ export function Capabilities() {
           },
         ]}
         pagination={
-          <Pages
-            cursor={cursor}
-            next={query.data?.next_cursor}
-            onChange={setCursor}
-          />
+          <ListPagination label="接入能力" {...query.pagination} />
         }
       />
       <ResponsivePanel

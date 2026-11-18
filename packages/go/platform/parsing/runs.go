@@ -539,6 +539,7 @@ func (s *Service) Result(ctx context.Context, a access.Actor, scope Scope, id, g
 	}
 	out.State = "available"
 	total := max(len(response.Steps), len(response.Records), len(response.Fields))
+	out.Total = total
 	if offset+limit < total {
 		out.NextCursor = fmtNumber(offset + limit)
 	}

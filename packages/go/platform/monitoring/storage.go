@@ -456,6 +456,29 @@ type rawRead struct {
 }
 
 func (s *Storage) readOne(ctx context.Context, q rawRead, consume func(rawObservation) error) error {
+	return s.queryRows(ctx, q, consume, nil)
+}
+
+// Counting uses the same replica readiness, manifest, quality and authorization
+// predicates as reading rows. Only the aggregate crosses the storage boundary.
+func (s *Storage) countRows(ctx context.Context, q rawRead) (uint64, error) {
+	var total uint64
+	for name, entries := range physicalManifests(q.Manifest) {
+		shard, err := s.physical(name)
+		if err != nil {
+			return 0, err
+		}
+		q.Manifest = entries
+		var count uint64
+		if err := shard.queryRows(ctx, q, nil, &count); err != nil {
+			return 0, err
+		}
+		total += count
+	}
+	return total, nil
+}
+
+func (s *Storage) queryRows(ctx context.Context, q rawRead, consume func(rawObservation) error, count *uint64) error {
 	if q.Manifest == nil {
 		return fmt.Errorf("missing publication manifest")
 	}
@@ -534,6 +557,10 @@ func (s *Storage) readOne(ctx context.Context, q rawRead, consume func(rawObserv
 			args = append(args, *q.Range.To)
 		}
 	}
+	from := " FROM " + s.config.Database + ".observations r INNER JOIN authorized_windows w ON w.channel_id=r.channel_id"
+	if count != nil {
+		return c.QueryRow(ctx, "SELECT count()"+from+where, args...).Scan(count)
+	}
 	order := "r.observed_at,r.channel_id,r.observation_id,r.adoption_id"
 	if q.Order == "channel" {
 		order = "r.channel_id,r.observed_at,r.observation_id,r.adoption_id"
@@ -551,7 +578,7 @@ func (s *Storage) readOne(ctx context.Context, q rawRead, consume func(rawObserv
 	if q.Reverse {
 		order = strings.ReplaceAll(order, ",", " DESC,") + " DESC"
 	}
-	query := "SELECT r." + strings.ReplaceAll(rowColumns, ",", ",r.") + " FROM " + s.config.Database + ".observations r INNER JOIN authorized_windows w ON w.channel_id=r.channel_id" + where + " ORDER BY " + order
+	query := "SELECT r." + strings.ReplaceAll(rowColumns, ",", ",r.") + from + where + " ORDER BY " + order
 	if q.Limit > 0 {
 		query += " LIMIT ?"
 		args = append(args, q.Limit)

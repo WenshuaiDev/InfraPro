@@ -69,13 +69,14 @@ func (s *Service) transaction(ctx context.Context, a access.Actor, fn func(pgx.T
 }
 
 type Filter struct {
-	Status   string `json:"status,omitempty"`
-	Category string `json:"category,omitempty"`
-	Tenant   string `json:"tenant_id,omitempty"`
-	Project  string `json:"project_id,omitempty"`
-	Scope    string `json:"scope,omitempty"`
-	Cursor   string `json:"cursor,omitempty"`
-	Limit    int    `json:"limit,omitempty"`
+	PageIndexOnly bool   `json:"-"`
+	Status        string `json:"status,omitempty"`
+	Category      string `json:"category,omitempty"`
+	Tenant        string `json:"tenant_id,omitempty"`
+	Project       string `json:"project_id,omitempty"`
+	Scope         string `json:"scope,omitempty"`
+	Cursor        string `json:"cursor,omitempty"`
+	Limit         int    `json:"limit,omitempty"`
 }
 
 func (f Filter) validate() error {
@@ -128,11 +129,13 @@ type Item struct {
 	policy              string
 }
 type Page struct {
-	Items                 []Item `json:"items"`
-	NextCursor            string `json:"next_cursor,omitempty"`
-	Watermark             string `json:"watermark"`
-	Revision              string `json:"revision"`
-	AuthorizationRevision string `json:"authorization_revision"`
+	Total                 *int     `json:"total,omitempty"`
+	PageCursors           []string `json:"page_cursors,omitempty"`
+	Items                 []Item   `json:"items"`
+	NextCursor            string   `json:"next_cursor,omitempty"`
+	Watermark             string   `json:"watermark"`
+	Revision              string   `json:"revision"`
+	AuthorizationRevision string   `json:"authorization_revision"`
 }
 type Summary struct {
 	Unread                int64            `json:"unread"`
@@ -239,9 +242,49 @@ func inboxState(ctx context.Context, tx pgx.Tx, account string) (string, string,
 	return seq, rev, e
 }
 
+// Personal receipts stay in their owner's inbox even when their target is
+// redacted. An unscoped index needs only category, status and sequence for
+// these receipts. All other receipts go through the usual eligibility check.
+func (s *Service) indexItems(ctx context.Context, tx pgx.Tx, account string, batch []Item) ([]Item, error) {
+	var restricted []Item
+	for _, item := range batch {
+		if item.policy != "personal" {
+			restricted = append(restricted, item)
+		}
+	}
+	permitted := map[string]Item{}
+	if len(restricted) > 0 {
+		visible, err := s.disclose(ctx, tx, account, restricted)
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range visible {
+			permitted[item.ID] = item
+		}
+	}
+	index := make([]Item, 0, len(batch))
+	for _, item := range batch {
+		if item.policy == "personal" {
+			definition, ok := ne.Catalog[item.Type]
+			if !ok {
+				return nil, errors.New("unknown notification template")
+			}
+			item.Category = definition.Category
+			index = append(index, item)
+		} else if visible, ok := permitted[item.ID]; ok {
+			index = append(index, visible)
+		}
+	}
+	return index, nil
+}
+
 // walk bounds memory and resolves business eligibility BEFORE pagination/counting.
 // No limit is applied to eligible rows until the same disclosure predicate runs.
 func (s *Service) walk(ctx context.Context, tx pgx.Tx, account string, f Filter, watermark int64, visit func(Item) (bool, error)) error {
+	project := s.disclose
+	if f.PageIndexOnly && f.Tenant == "" && f.Project == "" && f.Scope == "" {
+		project = s.indexItems
+	}
 	before := watermark + 1
 	if f.Cursor != "" {
 		n, _ := number(f.Cursor)
@@ -272,7 +315,7 @@ func (s *Service) walk(ctx context.Context, tx pgx.Tx, account string, f Filter,
 			return nil
 		}
 		before, _ = number(batch[len(batch)-1].Sequence)
-		visible, e := s.disclose(ctx, tx, account, batch)
+		visible, e := project(ctx, tx, account, batch)
 		if e != nil {
 			return e
 		}
@@ -305,6 +348,22 @@ func (s *Service) List(ctx context.Context, a access.Actor, f Filter) (Page, err
 			return e
 		}
 		max, _ := number(out.Watermark)
+		if f.PageIndexOnly {
+			if f.Cursor != "" {
+				return access.Validation("cursor", "请从首页统计通知。")
+			}
+			total, previous := 0, ""
+			err := s.walk(ctx, tx, a.ID, f, max, func(v Item) (bool, error) {
+				if total > 0 && total%f.Limit == 0 {
+					out.PageCursors = append(out.PageCursors, previous)
+				}
+				total++
+				previous = v.Sequence
+				return false, nil
+			})
+			out.Total = &total
+			return err
+		}
 		return s.walk(ctx, tx, a.ID, f, max, func(v Item) (bool, error) {
 			if len(out.Items) == f.Limit {
 				out.NextCursor = out.Items[len(out.Items)-1].Sequence

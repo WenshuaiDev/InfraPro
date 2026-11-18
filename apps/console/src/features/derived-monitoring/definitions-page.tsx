@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from '@tanstack/react-router';
@@ -12,17 +14,15 @@ import { LoadingState } from '@infrapro/ui/patterns/feedback';
 import { DirectoryTable } from '@infrapro/ui/patterns/directory-table';
 import { useOperation } from '../account/use-operation';
 import { useRequestMeta } from '../engineering/use-request-meta';
-import { CursorButtons } from '../monitoring/common';
 import { CommandError, Section, SelectField, TextField, UnsavedChanges, emptyRule, useDerived } from './common';
 import { RuleEditor } from './rule-editor';
-import { useCursor } from './use-cursor';
 import { DirectorySearch } from './directory-search';
 
 const stages = [{value:'basic',label:'基本信息'},{value:'inputs',label:'输入要求'},{value:'nodes',label:'计算规则'},{value:'clock',label:'时间与质量'},{value:'outputs',label:'输出与发布'}] as const;
 type Stage = typeof stages[number]['value'];
 export function DerivedDefinitionsPage({id,view,version}:DerivedSearch) {
- const m=useDerived(),navigate=useNavigate(),[q,setQ]=useState(''),page=useCursor();
- const list=useQuery({queryKey:[...m.prefix,'derived-definitions',q,page.cursor],queryFn:({signal})=>m.client.derivedMetrics(m.scope,{q,cursor:page.cursor},signal),enabled:m.allows('metrics.read')});
+ const m=useDerived(),navigate=useNavigate(),[q,setQ]=useState('');
+ const list=usePagedQuery({queryKey:[...m.prefix, 'derived-definitions', q],queryFn:({ cursor, signal }) => m.client.derivedMetrics(m.scope,{q,cursor},signal),enabled:m.allows('metrics.read')});
  const detail=useQuery({queryKey:[...m.prefix,'derived-definition',id],queryFn:({signal})=>m.client.derivedMetric(m.scope,id!,signal),enabled:!!id&&id!=='new'&&m.allows('metrics.read')});
  const base=useQuery({queryKey:[...m.prefix,'derived-version',version],queryFn:({signal})=>m.client.derivedMetricVersion(m.scope,version!,signal),enabled:!!version&&view==='edit'&&m.allows('metrics.read')});
  const choose=(value:string,edit=false,baseVersion?:string)=>void navigate({to:m.derivedPath,search:{tab:'definitions',id:value||undefined,view:value&&edit?'edit':undefined,version:baseVersion}});
@@ -33,13 +33,13 @@ export function DerivedDefinitionsPage({id,view,version}:DerivedSearch) {
  const editor=(editing:boolean)=>id==='new'?writable?<MetricEditor key="new" editingMode onSelect={value=>choose(value,true)} onUseVersion={useVersion}/>:<p role="status">当前空间仅可查看指标定义。</p>:detail.data?(version&&view==='edit'&&base.isPending?<LoadingState/>:version&&base.data?.definition_id!==id?<CommandError error={base.error??new Error('所选版本不属于此指标，或当前不可读取。')}/>:<MetricEditor key={`${detail.data.id}:${editing}:${version??''}`} definition={detail.data} initialVersion={editing?base.data:undefined} editingMode={editing&&writable} onSelect={value=>choose(value,true)} onEditVersion={v=>choose(id!,true,v?.id)} onUseVersion={useVersion}/>):detail.isFetching?<LoadingState/>:<CommandError error={detail.error}/>;
  return <div className="min-w-0 space-y-4">{full?<><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">{id==='new'?'新建指标定义':'编辑指标定义'}</h2><p className="text-sm text-muted-foreground">按步骤声明规则，保存并校验后发布固定版本。</p></div><Button variant="outline" onClick={()=>choose(id==='new'?'':id??'')}>返回{ id==='new'?'指标目录':'定义详情'}</Button></div>{editor(true)}</>:<>
  <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">指标定义</h2><p className="text-sm text-muted-foreground">维护一次规则，在多个工程对象上复用。{m.scope.kind==='project'?'指标规则由租户维护。':''}</p></div>{writable&&<Button onClick={()=>choose('new',true)}>新建指标定义</Button>}</div>
- <DirectoryTable label="指标定义目录" toolbar={<DirectorySearch label="搜索指标名称或编码" value={q} onChange={v=>{setQ(v);page.reset();}}/>} items={list.data?.items??[]} rowId={v=>v.id} loading={list.isPending} error={list.error?.message} retry={()=>void list.refetch()} empty="暂无匹配的指标定义，可新建规则后发布使用。" columns={[
+ <DirectoryTable label="指标定义目录" toolbar={<DirectorySearch label="搜索指标名称或编码" value={q} onChange={v=>{setQ(v);}}/>} items={list.data?.items??[]} rowId={v=>v.id} loading={list.isPending} error={list.error?.message} retry={()=>void list.refetch()} empty="暂无匹配的指标定义，可新建规则后发布使用。" columns={[
  {id:'name',className:'w-[60%] md:w-[30%]',label:'指标名称',cell:v=><div><Button id={`definition-${v.id}`} variant="link" className="h-auto min-h-11 max-w-full justify-start whitespace-normal break-all px-0 text-left" onClick={()=>choose(v.id)}>{v.name}</Button><p className="text-xs text-muted-foreground">{v.code}</p></div>},
  {id:'rule',className:'hidden md:table-cell md:w-[30%]',label:'计算规则与输出',cell:v=><DefinitionSummary definition={v}/>},
  {id:'state',className:'w-[40%] md:w-[15%]',label:'版本状态',cell:v=><div className="space-y-1 text-sm"><p>{v.latest_version==='0'?'尚未发布':`已发布 V${v.latest_version}`}</p>{v.draft&&<span className="inline-flex rounded-md bg-muted px-2 py-1 text-xs">有草稿</span>}</div>},
  {id:'updated',label:'最近更新',secondary:true,cell:v=><span className="text-xs text-muted-foreground">{new Date(v.updated_at).toLocaleString('zh-CN',{hour12:false})}</span>},
  {id:'actions',className:'hidden md:table-cell md:w-[12%]',label:'操作',cell:v=><Button variant="outline" size="sm" onClick={()=>choose(v.id)}>查看定义</Button>}
- ]} pagination={<CursorButtons previous={page.previous} next={list.data?.next_cursor?()=>page.next(list.data!.next_cursor):undefined} busy={list.isFetching}/>}/>
+ ]} pagination={<ListPagination label="列表" {...list.pagination} />}/>
  <ResponsivePanel open={!!id} onOpenChange={open=>{if(!open)choose('');}} title={detail.data?.name??'指标定义'} description={detail.data?`${detail.data.code} · 固定版本供通道复用`:'正在读取指标定义'} size="wide" fallbackFocusSelector={`#definition-${id}`}>{editor(false)}</ResponsivePanel>
  </>}</div>;
 }
@@ -57,8 +57,8 @@ export function MetricEditor({definition,initialVersion,editingMode=false,onSele
  useIssueReveal(path=>setStage(path.startsWith('/rule/inputs')?'inputs':path.startsWith('/rule/nodes')||path.startsWith('/rule/parameters')?'nodes':path.startsWith('/rule/clock')||path.startsWith('/rule/policies')?'clock':path.startsWith('/rule/outputs')||path==='/reason'?'outputs':'basic'));
  const [fields,setFields]=useState(initial),[saved,setSaved]=useState(JSON.stringify(initial)),[current,setCurrent]=useState(definition),[reason,setReason]=useState(''),[validation,setValidation]=useState<DerivedRuleValidation>(),[notice,setNotice]=useState('');
  const [copyCode,setCopyCode]=useState(''),[copyName,setCopyName]=useState(''),[copyVersion,setCopyVersion]=useState('');
- const pages=useCursor(),[view,setView]=useState<DerivedMetricVersion>();
- const versions=useQuery({queryKey:[...m.prefix,'derived-versions',current?.id,pages.cursor],queryFn:({signal})=>m.client.derivedMetricVersions(m.scope,current!.id,{cursor:pages.cursor},signal),enabled:!!current});
+ const [view,setView]=useState<DerivedMetricVersion>();
+ const versions=usePagedQuery({queryKey:[...m.prefix, 'derived-versions', current?.id],queryFn:({ cursor, signal }) => m.client.derivedMetricVersions(m.scope,current!.id,{cursor},signal),enabled:!!current});
  const writable=m.scope.kind==='tenant'&&m.allows('metrics.manage')&&m.editable;
  const dirty=editing&&JSON.stringify(fields)!==saved;
  useEffect(()=>{onDirtyChange?.(dirty);return ()=>onDirtyChange?.(false);},[dirty,onDirtyChange]);
@@ -101,12 +101,12 @@ export function MetricEditor({definition,initialVersion,editingMode=false,onSele
  </div><RuleSummary rule={fields.rule}/></div>
  <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/95 p-4 shadow-sm backdrop-blur"><p className="text-xs text-muted-foreground" role="status">{busy?'正在处理…':dirty?'有未保存的修改':validation?.valid?'已保存并通过校验':current?'草稿已保存，发布前请校验':'新草稿尚未保存'}</p><div className="flex flex-wrap gap-2">{stage!=='basic'&&<Button variant="ghost" onClick={()=>setStage(stages[stages.findIndex(s=>s.value===stage)-1]!.value)}>上一步</Button>}{stage!=='outputs'&&<Button variant="outline" onClick={()=>setStage(stages[stages.findIndex(s=>s.value===stage)+1]!.value)}>下一步</Button>}{writable&&<><Button variant="outline" disabled={busy} onClick={()=>operation.mutate('save')}>{current?'保存草稿':'创建草稿'}</Button><Button variant="outline" disabled={busy||dirty||!current?.draft} onClick={()=>{setStage('outputs');operation.mutate('validate');}}>校验已保存草稿</Button></>}{m.allows('metrics.publish')&&m.editable&&<Button disabled={busy||dirty||!validation?.valid} onClick={()=>operation.mutate('publish')}>发布固定版本</Button>}</div></div>
  </>:<>{current&&<div className="space-y-3"><p className="text-sm text-muted-foreground">{current.description||'尚未填写业务说明。'}</p>{(view?.rule??published?.rule??versions.data?.items[0]?.rule??current.draft?.rule)&&<RuleSummary rule={(view?.rule??published?.rule??versions.data?.items[0]?.rule??current.draft?.rule)!} compact/>}{writable&&current.draft&&<Button onClick={()=>editVersion()}>继续编辑草稿</Button>}<TextField path="/reason" label="操作原因" value={reason} onChange={setReason} hint="版本启停与复制操作将记录审计原因。"/></div>}</>}
- {current&&!editing&&<Section title="发布历史"><CommandError error={versions.error}/><DirectoryTable tableClassName="max-sm:[&_thead]:hidden max-sm:[&_tr]:block max-sm:[&_td]:block max-sm:[&_td]:w-full" label="指标发布版本" items={published&&!pages.cursor&&!versions.data?.items.some(v=>v.id===published.id)?[published,...versions.data?.items??[]]:versions.data?.items??[]} rowId={v=>v.id} loading={versions.isPending} error={versions.error?.message} retry={()=>void versions.refetch()} columns={[
+ {current&&!editing&&<Section title="发布历史"><CommandError error={versions.error}/><DirectoryTable tableClassName="max-sm:[&_thead]:hidden max-sm:[&_tr]:block max-sm:[&_td]:block max-sm:[&_td]:w-full" label="指标发布版本" items={published&&versions.pagination.page===0&&!versions.data?.items.some(v=>v.id===published.id)?[published,...versions.data?.items??[]]:versions.data?.items??[]} rowId={v=>v.id} loading={versions.isPending} error={versions.error?.message} retry={()=>void versions.refetch()} columns={[
  {id:'version',label:'版本',cell:v=><Button variant="link" className="h-auto min-h-11 max-w-full whitespace-normal break-all px-0 text-left" onClick={()=>setView(v)}>V{v.version_no} · {v.name}</Button>},
  {id:'state',label:'可用情况',cell:v=>v.usable?'可用于新配置':v.enabled?'引用的公共版本不可用':'已停用'},
  {id:'time',label:'发布时间',secondary:true,cell:v=>new Date(v.published_at).toLocaleString('zh-CN',{hour12:false})},
  {id:'actions',label:'操作',cell:v=><div className="flex flex-wrap gap-2">{onUseVersion&&m.allows('channels.manage')&&m.editable&&<Button size="sm" disabled={!v.usable} onClick={()=>onUseVersion(v)}>创建通道</Button>}{writable&&<Button size="sm" variant="outline" disabled={dirty||busy} onClick={()=>editVersion(v)}>基于此版本编辑</Button>}{m.scope.kind==='tenant'&&m.allows('metrics.publish')&&m.editable&&<Button size="sm" variant="ghost" disabled={busy} onClick={()=>state.mutate(v)}>{v.enabled?'停用':'启用'}</Button>}</div>}
- ]} pagination={<CursorButtons previous={pages.previous} next={versions.data?.next_cursor?()=>pages.next(versions.data!.next_cursor):undefined} busy={versions.isFetching}/>}/>
+ ]} pagination={<ListPagination label="版本" {...versions.pagination} />}/>
  {view&&<details open><summary className="cursor-pointer py-3 font-medium">固定版本 V{view.version_no} 的规则</summary><RuleSummary rule={view.rule} compact/><RuleEditor rule={view.rule} onChange={()=>{}} readOnly/></details>}
  {writable&&<details><summary className="cursor-pointer py-3 font-medium">复制为新指标定义</summary><div className="space-y-3"><SelectField label="来源版本" value={copyVersion} onChange={setCopyVersion} options={[{value:'',label:'请选择来源版本'},...(versions.data?.items??[]).map(v=>({value:v.id,label:`V${v.version_no} · ${v.name}`}))]}/><TextField label="新指标编码" value={copyCode} onChange={setCopyCode}/><TextField label="新指标名称" value={copyName} onChange={setCopyName}/><Button variant="outline" disabled={busy||!copyVersion} onClick={()=>operation.mutate('copy')}>复制为独立草稿</Button></div></details>}
  </Section>}

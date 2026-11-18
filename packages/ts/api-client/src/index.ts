@@ -1,3 +1,5 @@
+import { avatarPath, type AvatarTarget } from './avatars';
+export { avatarPath, type AvatarTarget } from './avatars';
 import { mfaMethods } from './mfa';
 export type * from './mfa';
 import { ingestionMethods } from './ingestion';
@@ -333,6 +335,9 @@ function accountMethods(base: string, timeoutMs: number) {
     logoutAll: () => request<void>('/auth/logout-all', 'POST'),
     activity: () => request<void>('/auth/activity', 'POST'),
     reauthenticate: (password: string) => request<void>('/auth/reauthenticate', 'POST', { password } satisfies Schema<'PasswordInput'>),
+    avatarContent: (target: AvatarTarget, version: string, signal?: AbortSignal) => request<Blob>(`${avatarPath(target)}?version=${encodeURIComponent(version)}`, 'GET', undefined, true, signal, { responseType: 'blob' }),
+    updateAvatar: (image: Blob, revision: string) => request<Account>(`/account/avatar?expected_revision=${encodeURIComponent(revision)}`, 'PUT', undefined, true, undefined, { binary: image, timeoutMs: 30_000 }),
+    removeAvatar: (revision: string) => request<Account>(`/account/avatar?expected_revision=${encodeURIComponent(revision)}`, 'DELETE'),
     updateProfile: (display_name: string) => request<Account>('/account/profile', 'PATCH', { display_name } satisfies Schema<'ProfileInput'>),
     changePassword: (input: Schema<'ChangePasswordInput'>) => request<void>('/account/password', 'POST', input),
     sessions: (signal?: AbortSignal) => request<Schema<'Sessions'>>('/account/sessions', 'GET', undefined, true, signal),

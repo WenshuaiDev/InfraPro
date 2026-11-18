@@ -27,7 +27,7 @@ const query = (filter: Record<string, string | number | undefined>) => new URLSe
 export function engineeringMethods(request: Request) {
   return {
     engineeringReceipt: (scope: EngineeringScope, id: string, signal?: AbortSignal) => request<EngineeringResult>(`${base(scope)}/requests/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
-    engineeringList: (scope: EngineeringScope, filter: { q?: string; status?: string; offset?: number; limit?: number } = {}, signal?: AbortSignal) => request<Schema<'EngineeringPage'>>(`${base(scope)}?${query(filter)}`, 'GET', undefined, true, signal),
+    engineeringList: (scope: EngineeringScope, filter: { q?: string; status?: string; offset?: number; limit?: number; facility_topic?: string; unit_choices?: '1'; unit_category?: string } = {}, signal?: AbortSignal) => request<Schema<'EngineeringPage'>>(`${base(scope)}?${query(filter)}`, 'GET', undefined, true, signal),
     engineeringDetail: (scope: EngineeringScope, id: string, signal?: AbortSignal) => request<EngineeringDefinition>(`${base(scope)}/${encodeURIComponent(id)}`, 'GET', undefined, true, signal),
     engineeringCreate: (scope: EngineeringScope, input: Schema<'EngineeringCreateInput'>) => request<EngineeringResult>(base(scope), 'POST', input),
     engineeringSave: (scope: EngineeringScope, id: string, input: Schema<'EngineeringSaveInput'>) => request<EngineeringResult>(`${base(scope)}/${id}/draft`, 'PUT', input),

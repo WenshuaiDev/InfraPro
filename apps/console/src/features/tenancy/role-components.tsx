@@ -1,3 +1,7 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { useIdentity } from '@infrapro/api-client/react';
+import { useTenant } from './context';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from 'react';
 import { Permissions as P, type PermissionCode, type TenantPermission, type TenantAuthorization, type TenantAuthorizationImpact } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
@@ -33,8 +37,22 @@ export function TenantAuthorizationView({ value }: { value: TenantAuthorization 
     {value.inactive_reasons.length > 0 && <p className="break-all text-sm">账号及成员恢复后权限：{names(value.restorable_permissions)}。停用角色仍不生效。</p>}
   </section>;
 }
-export function TenantImpactView({ value, more }: { value: TenantAuthorizationImpact; more?: () => void }) {
+export function TenantImpactView({ value, loadMembers }: {
+  value: TenantAuthorizationImpact;
+  loadMembers?: (cursor: string, limit: number) => Promise<TenantAuthorizationImpact>;
+}) {
+  const { account } = useIdentity();
+  const { tenant, membership_id } = useTenant();
+  const members = usePagedQuery({
+    queryKey: ['tenant', account?.id, tenant.id, membership_id, 'impact-members', value.preview_hash], initialPageSize: 20, staleTime: Infinity,
+    queryFn: async ({ cursor, limit }) => {
+      if (!loadMembers || (!cursor && limit === 20)) return value.members;
+      const result = await loadMembers(cursor, limit);
+      if (result.preview_hash !== value.preview_hash) throw new Error('成员授权已变更，请重新预览影响。');
+      return result.members;
+    },
+  });
   return <section className="min-w-0 space-y-3 rounded-lg border bg-muted/30 p-4" aria-label="变更影响预览"><h3 className="font-semibold">变更影响预览</h3><dl className="grid grid-cols-2 gap-3 text-sm">{[['绑定成员', value.bound_members], ['当前有效成员', value.effective_members], ['实际增权人数', value.gaining_members], ['实际失权人数', value.losing_members], ['恢复后受影响人数', value.restorable_members], ['将失效邀请', value.invalidated_invitations]].map(([name, n]) => <div key={name}><dt className="text-muted-foreground">{name}</dt><dd className="text-lg font-semibold">{n}</dd></div>)}</dl>{value.blocked_reasons.map((r) => <FormNotice error key={r}>{r}</FormNotice>)}
-    {value.members.items.map((m) => <details key={m.before.membership_id} className="min-w-0 rounded border p-3"><summary className="cursor-pointer break-words">{m.before.display_name}（{m.before.username}）</summary><div className="mt-2 space-y-2 break-all text-sm"><p>新增角色：{m.added_role_ids.map((id) => m.after.roles.find((r) => r.id === id)?.name).join('、') || '无'}</p><p>移除角色：{m.removed_role_ids.map((id) => m.before.roles.find((r) => r.id === id)?.name).join('、') || '无'}</p><p>实际新增权限：{m.added_permissions.join('、') || '无'}</p><p>实际失去权限：{m.removed_permissions.join('、') || '无'}</p><p>其他来源保留权限：{m.retained_permissions.join('、') || '无'}</p><p>恢复后权限：{m.after.restorable_permissions.join('、') || '无'}</p></div></details>)}{value.members.next_cursor && more && <Button type="button" variant="outline" onClick={more}>加载更多影响成员</Button>}
+    {(members.data?.items ?? []).map((m) => <details key={m.before.membership_id} className="min-w-0 rounded border p-3"><summary className="cursor-pointer break-words">{m.before.display_name}（{m.before.username}）</summary><div className="mt-2 space-y-2 break-all text-sm"><p>新增角色：{m.added_role_ids.map((id) => m.after.roles.find((r) => r.id === id)?.name).join('、') || '无'}</p><p>移除角色：{m.removed_role_ids.map((id) => m.before.roles.find((r) => r.id === id)?.name).join('、') || '无'}</p><p>实际新增权限：{m.added_permissions.join('、') || '无'}</p><p>实际失去权限：{m.removed_permissions.join('、') || '无'}</p><p>其他来源保留权限：{m.retained_permissions.join('、') || '无'}</p><p>恢复后权限：{m.after.restorable_permissions.join('、') || '无'}</p></div></details>)}{members.error && <FormNotice error>{members.error.message}</FormNotice>}<ListPagination label="影响成员" {...members.pagination} />
   </section>;
 }

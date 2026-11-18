@@ -1,10 +1,7 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useCallback, useMemo, useRef, useState } from "react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   ChevronRight,
@@ -167,25 +164,19 @@ export function FacilitySpatialWorkspace({
     retry: false,
   });
   const path = detail.data ? navigationPath(detail.data) : [];
-  const assetsQuery = useInfiniteQuery({
-    queryKey: [...m.prefix, "facility-assets", facility, sharedGIS],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+  const assetsQuery = usePagedQuery({ initialPageSize: 100, queryKey: [...m.prefix, "facility-assets", facility, sharedGIS], enabled: !!facility && m.available, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialAssets(
         m.scope,
         {
           facility_id: sharedGIS ? undefined : facility,
           kind: sharedGIS ? "geolayer" : undefined,
-          cursor: pageParam,
-          limit: 100,
+          cursor,
+          limit,
         },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: !!facility && m.available,
-  });
+      ) });
   const assets = facilityAssets(
-    assetsQuery.data?.pages.flatMap((p) => p.items) ?? [],
+    assetsQuery.data?.items ?? [],
     facility,
     sharedGIS,
   );
@@ -594,15 +585,8 @@ export function FacilitySpatialWorkspace({
               elementsQuery.error
             }
           />
-          {assetsQuery.hasNextPage && (
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={assetsQuery.isFetchingNextPage}
-              onClick={() => void assetsQuery.fetchNextPage()}
-            >
-              加载更多资料
-            </Button>
+          {assetsQuery.data && (
+            <ListPagination label="资料" {...assetsQuery.pagination} />
           )}
           <div className="spatial-view-content">
             {resourceMap ? (

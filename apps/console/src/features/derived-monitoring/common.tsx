@@ -1,10 +1,8 @@
-import { useEffect, useId, useLayoutEffect, useRef, type ReactNode } from 'react';
-import { useBlocker } from '@tanstack/react-router';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { ApiError, type DerivedRule, type DerivedIssue, type PermissionCode } from '@infrapro/api-client';
 import { Input } from '@infrapro/ui/components/input';
 import { Label } from '@infrapro/ui/components/label';
 import { Textarea } from '@infrapro/ui/components/textarea';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@infrapro/ui/components/alert-dialog';
 import { useMonitoring } from '../monitoring/context';
 import { issueFieldPath } from './workspace-model';
 
@@ -44,15 +42,7 @@ export function CommandError({error,issues:provided}:{error:Error|null;issues?:D
  };
  return <div ref={ref} role="alert" tabIndex={-1} className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4"><h2 className="font-semibold">{error?.message??'规则校验未通过，请修正以下项目'}</h2>{issues.length>0&&<ul className="space-y-2 text-sm">{issues.map((v,i)=><li key={i}><button type="button" className="text-left underline underline-offset-4" onClick={()=>navigate(v.path)}>{v.message} · {v.path}</button></li>)}</ul>}</div>;
 }
-export function UnsavedChanges({dirty}:{dirty:boolean}){
- // A successful create saves and navigates in the same event. The router may
- // still hold its previous callback until its passive effect runs; read the
- // committed value so that a saved draft never raises a false discard prompt.
- const committedDirty=useRef(dirty);
- useLayoutEffect(()=>{committedDirty.current=dirty;},[dirty]);
- const blocker=useBlocker({shouldBlockFn:()=>committedDirty.current,withResolver:true,enableBeforeUnload:dirty});
- return <AlertDialog open={blocker.status==='blocked'}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>离开尚未保存的编辑？</AlertDialogTitle><AlertDialogDescription>本次未保存的修改会丢失。已保存的草稿仍可在原工作空间继续编辑。</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel onClick={()=>blocker.reset?.()}>继续编辑</AlertDialogCancel><AlertDialogAction onClick={()=>blocker.proceed?.()}>放弃修改并离开</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>;
-}
+export { UnsavedChanges } from '../../app/unsaved-changes';
 // eslint-disable-next-line react-refresh/only-export-components
 export function nsISO(ns:string):string{
  if(ns.startsWith('invalid:'))return ns.slice(8);

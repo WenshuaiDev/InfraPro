@@ -13,7 +13,7 @@ func (s *Service) QualifyArtifactVersionTx(ctx context.Context, tx pgx.Tx, a acc
 		return e
 	}
 	var id string
-	if e := tx.QueryRow(ctx, `SELECT a.id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND v.id=$3`, scope.Tenant, scope.key(), version).Scan(&id); e != nil {
+	if e := tx.QueryRow(ctx, `SELECT a.id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND a.deleted_at IS NULL AND v.id=$3`, scope.Tenant, scope.key(), version).Scan(&id); e != nil {
 		return notFound()
 	}
 	_, e := s.analysisArtifactProofTx(ctx, tx, a, scope, id, version)
@@ -28,7 +28,7 @@ func (s *Service) ResolveArtifactVersion(ctx context.Context, a access.Actor, sc
 		return "", notFound()
 	}
 	e := s.transact(ctx, a, scope, "analysis.artifacts.detail", false, func(tx pgx.Tx) error {
-		e := tx.QueryRow(ctx, `SELECT a.id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND v.id=$3`, scope.Tenant, scope.key(), version).Scan(&id)
+		e := tx.QueryRow(ctx, `SELECT a.id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND a.deleted_at IS NULL AND v.id=$3`, scope.Tenant, scope.key(), version).Scan(&id)
 		if e != nil {
 			return notFound()
 		}

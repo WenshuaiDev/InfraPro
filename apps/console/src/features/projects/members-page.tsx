@@ -27,11 +27,11 @@ export function ProjectMembersPage({ membershipId }: { membershipId?: string } =
   const selected = selection ?? (membershipId ? { id: membershipId, mode: 'details' as const } : undefined);
   const returnFocus = useRef<HTMLElement | null>(null);
   const allowed = ctx.can(P.ProjectMemberRead);
-  const list = useCursorList({ queryKey: [...ctx.key, 'members', q, status, pageSize], load: (cursor, signal) => client.projectMembers(tenant, project, { q, status: status === 'current' ? '' : status, cursor, limit: pageSize }, signal), enabled: allowed });
+  const list = useCursorList({ pageSize, queryKey: [...ctx.key, 'members', q, status, pageSize], load: (cursor, signal) => client.projectMembers(tenant, project, { q, status: status === 'current' ? '' : status, cursor, limit: pageSize }, signal), enabled: allowed });
   const open = (member: ProjectMember, mode: MemberMode, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelection({ id: member.id, mode }); };
   const close = () => { setSelection(undefined); if (membershipId) void navigate({ to: '/t/$tenantId/p/$projectId/members', params: { tenantId: tenant, projectId: project } }); };
   const columns: DirectoryColumn<ProjectMember>[] = [
-    { id: 'account', label: '成员账号', className: 'py-3', cell: (member) => <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={member.display_name} /></div><div className="min-w-0 flex-1 space-y-1"><Button id={`project-member-${member.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={member.display_name} onClick={(event) => open(member, 'details', event.currentTarget)}><span className="truncate">{member.display_name}</span></Button><p className="truncate text-xs text-muted-foreground" title={member.username}>{member.username}</p>{member.is_current_administrator && <p className="text-xs text-muted-foreground lg:hidden">当前管理员</p>}</div></div> },
+    { id: 'account', label: '成员账号', className: 'py-3', cell: (member) => <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={member.display_name} metadata={member} target={{ kind: 'project', tenant, project, id: member.id }} /></div><div className="min-w-0 flex-1 space-y-1"><Button id={`project-member-${member.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={member.display_name} onClick={(event) => open(member, 'details', event.currentTarget)}><span className="truncate">{member.display_name}</span></Button><p className="truncate text-xs text-muted-foreground" title={member.username}>{member.username}</p>{member.is_current_administrator && <p className="text-xs text-muted-foreground lg:hidden">当前管理员</p>}</div></div> },
     { id: 'status', label: '成员状态', className: 'w-24', cell: (member) => <div className="space-y-1"><ProjectMemberStatus member={member} />{(member.account_status !== 'active' || member.tenant_membership_status !== 'active') && <p className="text-xs text-muted-foreground">上层资格不可用</p>}</div> },
     { id: 'identity', label: '项目身份', secondary: true, className: 'lg:w-32', cell: (member) => <ProjectMemberIdentity member={member} /> },
     { id: 'eligibility', label: '账号 / 租户状态', secondary: true, className: 'lg:w-32', cell: (member) => <ProjectMemberEligibility member={member} /> },
@@ -48,7 +48,7 @@ export function ProjectMembersPage({ membershipId }: { membershipId?: string } =
           <div className="relative w-full sm:w-72"><Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input data-project-member-search aria-label="搜索项目成员" placeholder="搜索用户名或显示名称…" className="h-9 pl-9 max-sm:h-11" maxLength={200} value={q} onChange={(event) => setQ(event.target.value)} /></div>
           {(q || status !== 'current') && <Button variant="ghost" className="h-9 max-sm:h-11" onClick={() => { setQ(''); setStatus('current'); }}>重置<X aria-hidden="true" /></Button>}
         </>} />
-        <ListPagination label="项目成员列表" unit="位成员" count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+        <ListPagination label="项目成员列表" {...list.pagination} setPageSize={setPageSize} />
         <p className="text-xs text-muted-foreground">时间均为北京时间；已结束的成员关系与授权历史保留。</p>
       </TabsContent>
     </Tabs>

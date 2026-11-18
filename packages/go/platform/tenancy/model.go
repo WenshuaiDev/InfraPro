@@ -13,9 +13,11 @@ import (
 )
 
 type Account struct {
-	ID          string `json:"id"`
-	Username    string `json:"username"`
-	DisplayName string `json:"display_name"`
+	AvatarRevision string `json:"avatar_revision"`
+	HasAvatar      bool   `json:"has_avatar"`
+	ID             string `json:"id"`
+	Username       string `json:"username"`
+	DisplayName    string `json:"display_name"`
 }
 type AdministratorCandidate struct {
 	Account

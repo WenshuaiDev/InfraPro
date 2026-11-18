@@ -155,6 +155,9 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	for _, table := range tables {
 		var s string
 		projection := "to_jsonb(t)"
+		if table == "accounts" {
+			projection += "-'avatar_object_id'-'avatar_revision'"
+		}
 		if table == "account_sessions" {
 			projection += "-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'"
 		}
@@ -174,6 +177,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	must(pool.QueryRow(ctx, `SELECT jsonb_agg(to_jsonb(t) ORDER BY id)::text FROM tenant_memberships t`).Scan(&memberships))
 	must(Up(ctx, u.String()))
 	must(Check(ctx, pool))
+	assertAvatarDefaults(t, ctx, pool)
 	var initial bool
 	must(pool.QueryRow(ctx, `SELECT bool_and(status='active' AND status_changed_at IS NULL AND status_changed_by IS NULL AND status_change_reason IS NULL AND status_notice='') FROM tenants`).Scan(&initial))
 	if !initial {
@@ -183,6 +187,9 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	for _, table := range tables {
 		var s string
 		projection := "to_jsonb(t)"
+		if table == "accounts" {
+			projection += "-'avatar_object_id'-'avatar_revision'"
+		}
 		if table == "account_sessions" {
 			projection += "-'authentication_method'-'mfa_verified_at'-'mfa_factor_version'-'policy_enforcement_generation'"
 		}

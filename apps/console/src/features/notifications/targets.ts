@@ -17,7 +17,7 @@ export function notificationDestination(target: NotificationTarget): { to: strin
   case 'project_access': case 'spatial_access': if (!target.project_id) return; to = `${base}/profile`; break;
   case 'file_job': if (!base || !target.id || !target.generation) return; to = `${base}/files`; search = {tab:'uploads',job:target.id,generation:target.generation}; break;
   case 'monitoring_import': if (!base || !target.id) return; to = `${base}/monitoring/imports/${target.id}`; break;
-  case 'monitoring_job': case 'derived_job': if (!base || !target.id) return; to = `${base}/monitoring/jobs`; search = { job: target.id }; break;
+  case 'monitoring_job': case 'derived_job': if (!base || !target.id) return; to = `${base}/monitoring/jobs`; search = { job: target.id, ...(target.generation ? { execution: target.generation } : {}) }; break;
   case 'derived_channel': if (!base || !target.id) return; to = `${base}/monitoring/derived/${target.id}`; break;
   case 'spatial_version': if (!base || !target.id) return; to = `${base}/spatial`; search = { version: target.id, ...(target.project_id ? {} : { mode: 'manage' }) }; break;
   case 'display': if (!target.project_id || !target.id) return; to = `${base}/displays`; search = { instance: target.id }; break;

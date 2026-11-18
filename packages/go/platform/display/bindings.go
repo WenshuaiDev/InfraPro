@@ -163,7 +163,7 @@ func refsTx(ctx context.Context, tx pgx.Tx, scope Scope, kind string, ids []stri
 	case "spatial":
 		query = `SELECT count(DISTINCT v.id) FROM spatial_asset_versions v JOIN spatial_assets a ON a.tenant_id=v.tenant_id AND a.id=v.asset_id JOIN project_spatial_grants g ON g.tenant_id=v.tenant_id AND g.version_id=v.id LEFT JOIN project_facility_links l ON l.id=g.facility_link_id WHERE v.tenant_id=$1 AND g.project_id=$2 AND v.id=ANY($3::uuid[]) AND v.state='published' AND v.content_available AND g.ended_at IS NULL AND (a.facility_id IS NULL OR l.status='active')`
 	case "artifacts":
-		query = `SELECT count(*) FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.project_id=$2 AND v.id=ANY($3::uuid[])`
+		query = `SELECT count(*) FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.project_id=$2 AND a.deleted_at IS NULL AND v.id=ANY($3::uuid[])`
 	default:
 		return invalid("/kind", "不支持的对象类型。")
 	}

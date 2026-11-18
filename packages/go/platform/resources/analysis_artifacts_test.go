@@ -4,7 +4,9 @@ package resources_test
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -108,6 +110,17 @@ func TestAnalysisAtomicMultiOutputVersionsAndChangedInputs(t *testing.T) {
 	if latest.Version.Number != "2" || latest.Version.OutputRows != "8" || latest.Version.Stale {
 		t.Fatal("rerun did not make an independent complete new version", latest)
 	}
+	if len(latest.LatestOutputs) != 2 || latest.LatestOutputs[0].At != strconv.FormatInt(start.Add(2*time.Minute).UnixNano(), 10) {
+		t.Fatal("latest output must come from each fixed series, independent of pagination", latest.LatestOutputs)
+	}
+	through := strconv.FormatInt(start.Add(2*time.Minute).UnixNano()+1, 10)
+	rowRange := dm.NanosecondRange{From: latest.LatestOutputs[0].At, To: &through}
+	lineage, e := service.AnalysisArtifactLineage(ctx, f.actor, scope, artifact, dm.AnalysisArtifactQuery{VersionID: latest.Version.ID, Outputs: []string{latest.LatestOutputs[0].Output}, Range: &rowRange, IncludeSamples: true})
+	must(t, e)
+	preview, _ := json.Marshal(lineage["samples"])
+	if !strings.Contains(string(preview), `"value":"9.000000000000"`) || lineage["samples_truncated"] != false {
+		t.Fatal("row preview did not use the pinned observation", string(preview))
+	}
 	compare := func(left, right string, mapping []dm.AnalysisOutputMapping) dm.Run {
 		t.Helper()
 		run, e := service.CompareAnalysis(ctx, f.actor, scope, dm.AnalysisCompareInput{WriteMeta: meta(""), LeftVersionID: left, RightVersionID: right, Outputs: mapping}, access.Meta{})
@@ -186,7 +199,7 @@ func TestAnalysisAtomicMultiOutputVersionsAndChangedInputs(t *testing.T) {
 		}
 	}
 	forbidAnalysisExport(t, service, f.actor, scope, artifact, version, false)
-	verifyAnalysisExports(t, f, service, f.actor, scope, artifact, version, "6", "4.000000000000000000", true)
+	historyExports := verifyAnalysisExports(t, f, service, f.actor, scope, artifact, version, "6", "4.000000000000000000", true)
 	verifyAnalysisInputEvidence(t, f, service, artifact, version, true)
 	oldVersion, e := service.AnalysisArtifact(ctx, f.actor, scope, artifact, version)
 	must(t, e)
@@ -198,4 +211,60 @@ func TestAnalysisAtomicMultiOutputVersionsAndChangedInputs(t *testing.T) {
 	if reconciled.State != "passed" || reconciled.Artifacts != 2 || reconciled.Rows != 14 {
 		t.Fatal("artifact evidence reconciliation failed", reconciled)
 	}
+	pending, e := service.StartAnalysis(ctx, f.actor, scope, input(artifact), false, access.Meta{})
+	must(t, e)
+	if _, e = service.DeleteAnalysisArtifact(ctx, f.actor, scope, artifact, meta("0"), access.Meta{}); e == nil {
+		t.Fatal("deleted using an obsolete revision")
+	}
+	noReason := meta(latest.Artifact.Revision)
+	noReason.Reason = ""
+	if _, e = service.DeleteAnalysisArtifact(ctx, f.actor, scope, artifact, noReason, access.Meta{}); e == nil {
+		t.Fatal("deleted without an audit reason")
+	}
+	command := meta(latest.Artifact.Revision)
+	deleted, e := service.DeleteAnalysisArtifact(ctx, f.actor, scope, artifact, command, access.Meta{})
+	must(t, e)
+	replay, e := service.DeleteAnalysisArtifact(ctx, f.actor, scope, artifact, command, access.Meta{})
+	must(t, e)
+	if deleted.ArtifactID != artifact || deleted.Replayed || !replay.Replayed {
+		t.Fatal("delete receipts", deleted, replay)
+	}
+	notFound := func(err error) {
+		t.Helper()
+		var de *dm.Error
+		if !errors.As(err, &de) || de.Status != 404 {
+			t.Fatalf("expected deleted artifact to be unavailable: %v", err)
+		}
+	}
+	list, e := service.AnalysisArtifacts(ctx, f.actor, scope, dm.MetricFilter{})
+	must(t, e)
+	if len(list.Items) != 0 {
+		t.Fatal("deleted artifact in directory", list)
+	}
+	_, e = service.AnalysisArtifactVersions(ctx, f.actor, scope, artifact, "")
+	notFound(e)
+	for _, v := range []string{version, latest.Version.ID} {
+		_, e = service.AnalysisArtifact(ctx, f.actor, scope, artifact, v)
+		notFound(e)
+		_, e = service.AnalysisArtifactRows(ctx, f.actor, scope, artifact, dm.AnalysisArtifactQuery{VersionID: v})
+		notFound(e)
+		_, e = service.AnalysisArtifactLineage(ctx, f.actor, scope, artifact, dm.AnalysisArtifactQuery{VersionID: v})
+		notFound(e)
+	}
+	for _, id := range historyExports {
+		_, e = service.AnalysisExportDownload(ctx, f.actor, scope, id, "1")
+		notFound(e)
+	}
+	_, e = service.StartAnalysis(ctx, f.actor, scope, input(artifact), false, access.Meta{})
+	notFound(e)
+	if _, e = service.AnalysisComparisonRows(ctx, f.actor, scope, mapped.ID, dm.AnalysisComparisonQuery{}); e == nil {
+		t.Fatal("comparison still accessible")
+	}
+	_, _ = f.service.RunTask(ctx, "deleted-before-publication", f.tenant, pending.Job.ID)
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM analysis_artifact_versions WHERE artifact_id=$1`, artifact).Scan(&visible))
+	if visible != 2 {
+		t.Fatal("queued rerun changed a deleted artifact", visible)
+	}
+	_, e = service.AnalysisConfig(ctx, f.actor, scope, published.Config.ID)
+	must(t, e)
 }

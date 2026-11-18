@@ -24,6 +24,7 @@ type RawReader interface {
 	ReadUser(context.Context, access.Actor, Scope, string, RawReadBudget, func(RawSample) error) (RawReadCount, error)
 	ReadSystem(context.Context, RawSystemPermit, string, RawReadBudget, func(RawSample) error) (RawReadCount, error)
 	ReadPartUser(context.Context, access.Actor, Scope, string, []RawNeed, RawReadBudget, func(RawSample) error) (RawReadCount, error)
+	ReadSelectedPartUser(context.Context, access.Actor, Scope, string, []RawNeed, bool, RawReadBudget, func(RawSample) error) (RawReadCount, error)
 	ReadPartSystem(context.Context, RawSystemPermit, string, []RawNeed, RawReadBudget, func(RawSample) error) (RawReadCount, error)
 	ReplayUser(context.Context, access.Actor, Scope, string, RawReadBudget, func(RawSample) error) (RawReadCount, error)
 	ReplayPartUser(context.Context, access.Actor, Scope, string, []RawNeed, RawReadBudget, func(RawSample) error) (RawReadCount, error)
@@ -828,9 +829,16 @@ func (r rawReader) ReplayUser(ctx context.Context, a access.Actor, scope Scope, 
 // including complete source intervals. Unrelated snapshot ranges confer no
 // authority and do not make an otherwise authorized partial replay fail.
 func (r rawReader) ReplayPartUser(ctx context.Context, a access.Actor, scope Scope, id string, needs []RawNeed, budget RawReadBudget, consume func(RawSample) error) (RawReadCount, error) {
+	return r.ReadSelectedPartUser(ctx, a, scope, id, needs, true, budget, consume)
+}
+
+// ReadSelectedPartUser independently qualifies a published result's selected
+// inputs, including any expanded observation intervals. Revoked evidence also
+// requires history permission.
+func (r rawReader) ReadSelectedPartUser(ctx context.Context, a access.Actor, scope Scope, id string, needs []RawNeed, history bool, budget RawReadBudget, consume func(RawSample) error) (RawReadCount, error) {
 	var original rawEvidence
 	e := r.service.transact(ctx, a, scope, "details", false, false, func(tx pgx.Tx, auth authorization) error {
-		if e := authorizeRawNeedsTx(ctx, tx, auth, needs, true); e != nil {
+		if e := authorizeRawNeedsTx(ctx, tx, auth, needs, history); e != nil {
 			return e
 		}
 		var e error
@@ -847,12 +855,12 @@ func (r rawReader) ReplayPartUser(ctx context.Context, a access.Actor, scope Sco
 	part.Needs = slices.Clone(part.Candidates)
 	if e = r.expandIntervals(ctx, scope.Tenant, &part, func(expanded []RawNeed) error {
 		return r.service.transact(ctx, a, scope, "details", false, false, func(tx pgx.Tx, auth authorization) error {
-			return authorizeRawNeedsTx(ctx, tx, auth, expanded, true)
+			return authorizeRawNeedsTx(ctx, tx, auth, expanded, history || part.History)
 		})
 	}); e != nil {
 		return RawReadCount{}, e
 	}
-	check := func() error { _, e := r.checkKnownUser(ctx, a, scope, part, true); return e }
+	check := func() error { _, e := r.checkKnownUser(ctx, a, scope, part, history); return e }
 	if e = check(); e != nil {
 		return RawReadCount{}, e
 	}

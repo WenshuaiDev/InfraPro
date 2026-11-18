@@ -33,7 +33,7 @@ test('tenant audit filters and paginates real history with readable details and 
   await expect(panel.getByRole('heading', { name: /实际变更/ })).toBeVisible(); await page.screenshot({ path: info.outputPath('details.png') });
   await page.keyboard.press('Escape'); await expect(page.locator(`[data-audit-record="${id}"]`)).toBeFocused();
   await page.getByRole('button', { name: '下一页', exact: true }).click(); await expect(records).toHaveCount(2); await page.reload(); await expect(records).toHaveCount(2);
-  await page.getByLabel('每页', { exact: true }).selectOption('25'); await expect(records).toHaveCount(12);
+  await page.getByRole('combobox', { name: '每页条数' }).click(); await page.getByRole('option', { name: '25', exact: true }).click(); await expect(records).toHaveCount(12);
   await page.getByRole('button', { name: '更多筛选', exact: true }).click();
   await panel.getByLabel('开始时间（上海时区）').fill('2099-01-02T00:00'); await panel.getByLabel('结束时间（上海时区）').fill('2099-01-01T00:00');
   await panel.getByRole('button', { name: '应用筛选', exact: true }).click(); await expect(panel.getByRole('alert')).toBeVisible();

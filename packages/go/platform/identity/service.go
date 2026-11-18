@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"log/slog"
 	"strings"
 	"sync/atomic"
@@ -18,6 +19,8 @@ import (
 )
 
 type Service struct {
+	avatars        AvatarStore
+	avatarSlots    chan struct{}
 	mfa            *mfaKeyring
 	now            func() time.Time
 	access         *access.Service
@@ -45,7 +48,15 @@ func NewService(pool *pgxpool.Pool, client *redis.Client, cfg config.Config, log
 	if e != nil {
 		return nil, e
 	}
-	return &Service{mfa: keys, now: time.Now, access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger, dummy: dummy, passwordSlots: make(chan struct{}, 4)}, nil
+	var avatarStore AvatarStore
+	if cfg.Files.ObjectEndpoint != "" {
+		store, err := blobstore.Open(cfg.Files.ObjectEndpoint, cfg.Files.ObjectAccessKey, cfg.Files.ObjectSecretKey, cfg.Files.Bucket, "account-avatars/v1")
+		if err != nil {
+			return nil, err
+		}
+		avatarStore = store
+	}
+	return &Service{avatars: avatarStore, avatarSlots: make(chan struct{}, 2), mfa: keys, now: time.Now, access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger, dummy: dummy, passwordSlots: make(chan struct{}, 4)}, nil
 }
 func (s *Service) Ready(ctx context.Context) error {
 	if e := s.repo.pool.Ping(ctx); e != nil {
@@ -403,6 +414,9 @@ func (s *Service) RunJobs(ctx context.Context) {
 				s.logger.Warn("cache invalidation retry pending")
 			}
 			if n%2 == 0 {
+				if e = s.SweepAvatars(job); e != nil {
+					s.logger.Warn("avatar cleanup pending")
+				}
 				if e = s.repo.CleanupMFA(job); e != nil {
 					s.logger.Warn("MFA challenge cleanup pending")
 				}

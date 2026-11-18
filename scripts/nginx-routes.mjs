@@ -7,6 +7,7 @@ const managed = '/api/v1/(platform|tenants/[^/]+(/projects/[^/]+)?)';
 const uploads = ['proxy_http_version 1.1;', "proxy_set_header Connection '';", 'proxy_request_buffering off;', 'proxy_read_timeout 180s;', 'proxy_send_timeout 120s;', 'client_body_timeout 120s;'];
 const stream = ['proxy_http_version 1.1;', 'proxy_buffering off;', 'proxy_cache off;', 'proxy_read_timeout 120s;', 'send_timeout 120s;'];
 const rules = [
+  ['/api/v1/account/avatar$', '5m', uploads],
   [`${scope}/(files|spatial)/uploads/[^/]+/parts/[0-9]+$`, '8m', uploads],
   [`${scope}/monitoring/imports/[^/]+/upload/parts/[0-9]+$`, '32m', uploads],
   [`${scope}/displays/instances/[^/]+/uploads/[^/]+/parts/[0-9]+$`, '4m', uploads],
