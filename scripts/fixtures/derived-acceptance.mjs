@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from '../login-result.mjs';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -26,14 +27,14 @@ export async function seedDerivedAcceptance(directory, origin, options = {}) {
     throw new Error(`${path} did not reach ${desired}`);
   };
   try {
-    await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' });
+    requireAuthenticatedLogin(await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' }));
     const invitation = await call('/invitations', { note: '方案25.1合成验收账号' });
     const token = new URLSearchParams(new URL(invitation.url).hash.slice(1)).get('token');
     await call('/auth/logout', {});
     const user = { username: `derived_${randomBytes(5).toString('hex')}`, display_name: '派生监测验收', password: randomBytes(24).toString('base64url') };
     await call('/public/invitations/accept', { token, ...user });
     writeFileSync(join(directory, 'login.json'), JSON.stringify({ ...user, url: origin, synthetic: true }, null, 2), { mode: 0o600 });
-    await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' });
+    requireAuthenticatedLogin(await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' }));
     const publish = async (kind, code, content) => {
       const draft = await call(`/platform/engineering/${kind}`, { request_id: randomUUID(), reason: '合成验收量纲', code, content: { metamodel_version: '1', description: '方案25.1独立合成样本', release_notes: '', ...content } });
       return call(`/platform/engineering/${kind}/${draft.definition_id}/publish`, { request_id: randomUUID(), reason: '固定验收版本', revision: draft.revision });
@@ -45,7 +46,7 @@ export async function seedDerivedAcceptance(directory, origin, options = {}) {
     const account = (await call(`/access/accounts?q=${user.username}`)).items.find(v => v.username === user.username);
     const tenant = await call('/platform/tenants', { name: '派生监测 · 方案25.1合成验收', code: 'derived-acceptance', administrator_account_id: account.id, client_request_id: randomUUID(), reason: '独立临时验收空间' });
     state.tenant = tenant.tenant_id;
-    await call('/auth/logout', {}); await call('/auth/login', { username: user.username, password: user.password });
+    await call('/auth/logout', {}); requireAuthenticatedLogin(await call('/auth/login', { username: user.username, password: user.password }));
     const base = `/tenants/${state.tenant}`, monitoring = `${base}/monitoring`, derived = `${monitoring}/derived`;
     const facility = await call(`${base}/engineering/resources/facilities`, { request_id: randomUUID(), code: 'BRIDGE', name: 'A/B位移验收桥', type_version_id: type.version_id, values: {} });
     const point = await call(`${base}/engineering/resources/facilities/${facility.id}/points`, { request_id: randomUUID(), code: 'P1', name: '位移验收测点' });

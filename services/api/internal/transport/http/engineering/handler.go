@@ -77,6 +77,12 @@ func Register(r *gin.Engine, i *identity.Service, s *engineering.Service) {
 		allowed := []string{}
 		if action == "list" && !category {
 			allowed = []string{"q", "status", "offset", "limit"}
+			switch p.Path {
+			case "/api/v1/platform/engineering/metrics":
+				allowed = append(allowed, "facility_topic")
+			case "/api/v1/platform/engineering/units":
+				allowed = append(allowed, "unit_choices", "unit_category")
+			}
 		}
 		if action == "diff" {
 			allowed = []string{"from", "to", "revision"}
@@ -113,7 +119,12 @@ func Register(r *gin.Engine, i *identity.Service, s *engineering.Service) {
 				v, e := s.Receipt(ctx, a, scope, c.Param("request_id"))
 				reply(c, v, e)
 			case "list":
-				v, e := s.List(ctx, a, scope, engineering.Filter{Query: c.Query("q"), Status: c.Query("status"), Offset: integer(c, "offset"), Limit: integer(c, "limit")})
+				choices := c.Query("unit_choices")
+				if (choices != "" && choices != "1") || (choices != "1" && c.Query("unit_category") != "") || (choices == "1" && c.Query("status") != "" && c.Query("status") != "usable") {
+					identityhttp.RespondError(c, access.Validation("unit_choices", "可选单位目录只列出可新采用的已发布版本。"))
+					return
+				}
+				v, e := s.List(ctx, a, scope, engineering.Filter{Query: c.Query("q"), Status: c.Query("status"), Offset: integer(c, "offset"), Limit: integer(c, "limit"), FacilityTopic: c.Query("facility_topic"), UnitCategory: c.Query("unit_category"), UnitChoices: choices == "1"})
 				reply(c, v, e)
 			case "detail":
 				v, e := s.Detail(ctx, a, scope, id)

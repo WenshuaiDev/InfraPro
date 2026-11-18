@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import type { WorkspaceEntry } from '../../packages/ts/api-client/src';
 import { test, expect, login, createAccount, consoleURL } from './fixtures';
 import { browseWorkspaceTenant, navigateTo, openWorkspacePicker, logout, selectWorkspaceType, workspaceTypeLabels } from '../helpers/navigation';
 import { prepareWorkspaces } from '../helpers/workspaces';
@@ -145,43 +146,67 @@ test('business deep links, sidebar preference, body picker focus and same-target
   await expect(page.getByRole('dialog', { name: '编辑项目资料', exact: true })).toBeVisible();
 });
 
-test('authorized lists paginate independently and search beyond loaded pages', async ({ page, request }) => {
+test('workspace picker shows every authorized option without pagination on desktop and mobile', async ({ page, request }) => {
   const f = await prepareWorkspaces(request);
   const api = new URL('/api/v1', consoleURL).href;
   const snapshot = await (await request.get(`${api}/me/workspaces?limit=100`)).json();
-  const tenants = snapshot.items.filter((v: {kind:string}) => v.kind === 'tenant');
-  const projects = snapshot.items.filter((v: {kind:string}) => v.kind === 'project');
+  const entries: WorkspaceEntry[] = snapshot.items;
+  function options(kind: 'tenant' | 'project') {
+    const [first, last] = entries.filter(entry => entry.kind === kind);
+    if (!first || !last) throw new Error(`Expected two authorized ${kind} fixtures`);
+    const extra = Array.from({ length: 19 }, (_, i) => ({ ...first, id: `${kind}-${i}`, name: `测试选项 ${i}`, code: `option-${i}` }));
+    return [first, ...extra, last];
+  }
+  const tenants = options('tenant');
+  const projects = options('project');
+  const lastTenant = tenants.at(-1)!;
+  const lastProject = projects.at(-1)!;
   const calls: URL[] = [];
   await page.route('**/api/v1/me/workspaces?*', (route) => {
-    const url = new URL(route.request().url()); calls.push(url);
-    const kind = url.searchParams.get('kind'); if (!kind) return route.continue();
-    const q = url.searchParams.get('q'); const more = url.searchParams.get('cursor');
-    const source = kind === 'tenant' ? tenants : projects;
-    const items = q ? source.filter((v: {name:string;code:string}) => v.name.includes(q) || v.code.includes(q)) : more ? source.slice(1) : source.slice(0, 1);
-    return route.fulfill({ json: { ...snapshot, items, next_cursor: !q && !more ? 'next-page' : '' } });
+    const url = new URL(route.request().url());
+    calls.push(url);
+    const params = url.searchParams;
+    const kind = params.get('kind');
+    if (!kind) return route.continue();
+    const q = params.get('q') || '';
+    const tenantId = params.get('tenant_id');
+    const status = params.get('status');
+    const matches = (kind === 'tenant' ? tenants : projects).filter(item =>
+      (!tenantId || item.tenant_id === tenantId) && (!status || status === 'all' || item.status === status)
+      && (item.name.includes(q) || item.code.includes(q)));
+    const offset = Number(params.get('cursor'));
+    const items = matches.slice(offset, offset + 20);
+    return route.fulfill({ json: { ...snapshot, items, next_cursor: offset + items.length < matches.length ? String(offset + items.length) : undefined } });
   });
   await login(page, f.account);
   const dialog = await openWorkspacePicker(page);
-  await dialog.getByRole('button', { name: '加载更多租户', exact: true }).click();
-  await expect(dialog.getByRole('button', { name: /^浏览租户：/ }).or(dialog.getByLabel('选择租户'))).not.toHaveCount(0);
+  await browseWorkspaceTenant(page, lastTenant.name);
+  await expect(dialog.getByRole('heading', { name: lastTenant.name, exact: true })).toBeVisible();
+  await expect(dialog.getByRole('navigation', { name: /分页/ })).toHaveCount(0);
+  await expect(dialog.getByLabel('每页条数')).toHaveCount(0);
   const tenantReads = calls.filter((u) => u.searchParams.get('kind') === 'tenant').length;
   await dialog.getByLabel('项目状态').selectOption('archived');
-  await expect(dialog.getByRole('button', { name: '加载更多租户', exact: true })).toHaveCount(0);
+  await expect(dialog.getByText('没有符合筛选条件的项目。', { exact: true })).toBeVisible();
   expect(calls.filter((u) => u.searchParams.get('kind') === 'tenant').length).toBe(tenantReads);
   await selectWorkspaceType(page, 'projects');
-  await dialog.getByRole('button', { name: '加载更多项目', exact: true }).click();
-  await expect(dialog.getByRole('button', { name: /^桥梁健康监测/ })).toHaveCount(1);
-  await expect(dialog.getByRole('button', { name: /^隧道运行监测/ })).toHaveCount(1);
-  await dialog.getByLabel('搜索名称或编号').fill(projects[1].name);
-  await expect(dialog.getByRole('button', { name: new RegExp(`^${projects[0].name}`) })).toHaveCount(0);
-  await expect(dialog.getByRole('button', { name: new RegExp(`^${projects[1].name}`) })).toBeVisible();
-  expect(calls.some((u) => u.searchParams.get('q') === projects[1].name && !u.searchParams.get('cursor'))).toBe(true);
+  await dialog.getByLabel('项目状态').selectOption('all');
+  const projectRows = dialog.getByRole('button', { name: /进入项目$/ });
+  await expect(projectRows).toHaveCount(21);
+  await expect(dialog.getByRole('navigation', { name: /分页/ })).toHaveCount(0);
+  await expect(dialog.getByLabel('每页条数')).toHaveCount(0);
+  await dialog.getByLabel('搜索名称或编号').fill(lastProject.name);
+  await expect(projectRows).toHaveCount(1);
+  await expect(projectRows).toContainText(lastProject.name);
+  expect(calls.some((u) => u.searchParams.get('q') === lastProject.name && !u.searchParams.get('cursor'))).toBe(true);
   await expect(page).toHaveURL(`${consoleURL}/`);
   await page.keyboard.press('Escape');
   const reopened = await openWorkspacePicker(page);
   await expect(reopened.getByLabel('搜索名称或编号')).toHaveValue('');
   await expect(reopened.getByRole('combobox', { name: '工作空间类型' })).toHaveText('全部类型');
   await expect(reopened.getByLabel('项目状态')).toHaveValue('all');
+  await selectWorkspaceType(page, 'projects');
+  await reopened.getByRole('button', { name: new RegExp(`^${lastProject.name}`) }).click();
+  await expect(page).toHaveURL(new URL(lastProject.default_path, consoleURL).href);
 });
 
 test('a failed tenant query does not block authorized projects or fabricate parent access', async ({ page, request }) => {

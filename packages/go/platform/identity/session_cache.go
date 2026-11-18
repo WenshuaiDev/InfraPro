@@ -79,7 +79,7 @@ func (c *Cache) Rate(ctx context.Context, scope, key string, max int, window tim
 	n, e := rateScript.Run(ctx, c.client, []string{key}, window.Milliseconds()).Int()
 	if e != nil {
 		c.failures.Add(1)
-		return e
+		return ErrUnavailable
 	}
 	if n > max {
 		return ErrRate

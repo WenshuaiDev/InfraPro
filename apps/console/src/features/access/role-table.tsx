@@ -6,7 +6,7 @@ import { Badge } from '@infrapro/ui/components/badge';
 import { Input } from '@infrapro/ui/components/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@infrapro/ui/components/table';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuCheckboxItem } from '@infrapro/ui/components/dropdown-menu';
-import { ListFilter, ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { ListFilter, ListPagination, type ListPage } from '@infrapro/ui/patterns/list-controls';
 import { ErrorState, LoadingState } from '@infrapro/ui/patterns/feedback';
 
 export type RoleRow = { id: string; name: string; description: string; status: string; permission_codes: string[] };
@@ -35,8 +35,8 @@ type Props<T extends RoleRow> = {
   sourceName: (row: T) => string; boundCount?: (row: T) => number;
   renderName: (row: T) => ReactNode; actions: (row: T) => RoleAction[];
   loading: boolean; error?: Error | null; retry: () => void;
-  page: number; pageCount: number; hasNext: boolean; fetching: boolean; go: (page: number) => void; next: () => void;
-  pageSize: number; setPageSize: (size: number) => void;
+  pagination: ListPage;
+  setPageSize: (size: number) => void;
 };
 
 // Keep a stable React component type for each cell. Inline column renderers passed
@@ -53,7 +53,7 @@ function RoleCell<T extends RoleRow>({ column, row, sourceName, boundCount, rend
   }
 }
 
-export function RoleTable<T extends RoleRow>({ items, label, q, setQ, status, setStatus, source = '', setSource, sourceName, boundCount, renderName, actions, loading, error, retry, page, pageCount, hasNext, fetching, go, next, pageSize, setPageSize }: Props<T>) {
+export function RoleTable<T extends RoleRow>({ items, label, q, setQ, status, setStatus, source = '', setSource, sourceName, boundCount, renderName, actions, loading, error, retry, pagination, setPageSize }: Props<T>) {
   const [visibility, setVisibility] = useState<VisibilityState>({});
   const columns: ColumnDef<T>[] = [
     { id: 'name', header: '角色', size: 320, enableHiding: false },
@@ -80,11 +80,11 @@ export function RoleTable<T extends RoleRow>({ items, label, q, setQ, status, se
       <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" className="ml-auto hidden h-9 lg:inline-flex"><SlidersHorizontal aria-hidden="true" />显示列</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>显示列</DropdownMenuLabel><DropdownMenuSeparator />{table.getAllColumns().filter((column) => column.getCanHide()).map((column) => <DropdownMenuCheckboxItem key={column.id} checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(value)}>{String(column.columnDef.header)}</DropdownMenuCheckboxItem>)}</DropdownMenuContent></DropdownMenu>
     </div>
     {error && <ErrorState message={error.message} onRetry={retry} />}
-    <div className="overflow-hidden rounded-lg border" aria-busy={loading || fetching}>
+    <div className="overflow-hidden rounded-lg border" aria-busy={loading || pagination.fetching}>
       <Table aria-label={label} className="table-fixed"><TableHeader>{table.getHeaderGroups().map((group) => <TableRow key={group.id}>{group.headers.map((header) => <TableHead key={header.id} className={columnClass(header.id)} style={columnStyle(header.id, header.getSize())}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>)}</TableRow>)}</TableHeader>
         <TableBody>{!loading && table.getRowModel().rows.map((row) => <TableRow key={row.id}>{row.getVisibleCells().map((cell) => <TableCell key={cell.id} className={`py-3 ${columnClass(cell.column.id)}`}><RoleCell column={cell.column.id} row={row.original} sourceName={sourceName} boundCount={boundCount} renderName={renderName} actions={actions} /></TableCell>)}</TableRow>)}{(loading || !items.length) && <TableRow><TableCell colSpan={table.getVisibleLeafColumns().length} className="h-40 text-center">{loading ? <LoadingState /> : error ? '暂时无法读取角色，请重试。' : '没有符合条件的角色。'}</TableCell></TableRow>}</TableBody>
       </Table>
     </div>
-    <ListPagination label={label} count={items.length} unit="个角色" page={page} pageCount={pageCount} hasNext={hasNext} fetching={fetching} go={go} next={next} pageSize={pageSize} setPageSize={setPageSize} />
+    <ListPagination label={label} {...pagination} setPageSize={setPageSize} />
   </section>;
 }

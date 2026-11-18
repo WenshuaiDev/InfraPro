@@ -76,13 +76,18 @@ type fixture struct {
 	tenant, metric, unit string
 }
 
-func (f fixture) actor() access.Actor { return f.env.Service.AccessActor(f.admin) }
+func (f fixture) actor() access.Actor { return f.env.FixtureActor(f.admin) }
 func (f fixture) meta(t *testing.T) c.Meta {
 	var id string
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT gen_random_uuid()::text`).Scan(&id))
 	return c.Meta{RequestID: id, Reason: "设备功能验证"}
 }
 func (f fixture) member(t *testing.T, name string) identity.Principal {
+	if f.env.BaseMigration < 56 {
+		p, e := f.env.LegacyPrincipal(ctx, name, password, false)
+		must(t, e)
+		return p
+	}
 	l, e := f.env.Service.CreateInvitation(ctx, f.admin, "", "", identity.Meta{})
 	must(t, e)
 	u, _ := url.Parse(l.URL)
@@ -107,15 +112,21 @@ func setupAt(t *testing.T, version int64) fixture {
 		env.PreserveSchema()
 	}
 	t.Cleanup(env.Close)
-	_, e = env.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
-	must(t, e)
-	_, token, _, e := env.Service.Login(ctx, "Platform", password, identity.Meta{})
-	must(t, e)
-	p, e := env.Service.Authenticate(ctx, token)
-	must(t, e)
+	var p identity.Principal
+	if version < 56 {
+		p, e = env.LegacyPrincipal(ctx, "Platform", password, true)
+		must(t, e)
+	} else {
+		_, e = env.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
+		must(t, e)
+		_, token, _, e := env.Service.Login(ctx, "Platform", password, identity.Meta{})
+		must(t, e)
+		p, e = env.Service.Authenticate(ctx, token)
+		must(t, e)
+	}
 	f := fixture{env: env, s: c.New(env.Service.Access()), e: eng.New(env.Service.Access()), admin: p}
 	user := f.member(t, "DeviceOwner")
-	f.owner = env.Service.AccessActor(user)
+	f.owner = env.FixtureActor(user)
 	tid, e := tenancy.New(env.Service.Access()).Create(ctx, f.actor(), tenancy.CreateInput{Fields: tenancy.Fields{Name: "设备测试租户", Code: "devices"}, AdministratorID: user.Account.ID, RequestID: f.meta(t).RequestID, Reason: "验证"}, access.Meta{})
 	must(t, e)
 	f.tenant = tid.TenantID

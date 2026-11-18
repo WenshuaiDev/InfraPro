@@ -22,7 +22,7 @@ export function TenantMemberDetails({ id }: { id: string }) {
   if (!q.data) return <LoadingState label="正在读取成员…" />;
   const m = q.data;
   return <section className="space-y-5">
-    <div className="flex flex-wrap items-start gap-3"><AccountAvatar name={m.account.display_name} /><div className="min-w-0 flex-1 space-y-1"><h2 className="break-words font-semibold">{m.account.display_name}</h2><p className="break-all text-sm text-muted-foreground">{m.account.username}</p><MemberStatus item={m} /></div><ObjectHistory objectType="tenant_member" objectId={id} /></div>
+    <div className="flex flex-wrap items-start gap-3"><AccountAvatar name={m.account.display_name} metadata={m.account} target={{ kind: 'tenant', tenant: ctx.tenant.id, id: m.id }} /><div className="min-w-0 flex-1 space-y-1"><h2 className="break-words font-semibold">{m.account.display_name}</h2><p className="break-all text-sm text-muted-foreground">{m.account.username}</p><MemberStatus item={m} /></div><ObjectHistory objectType="tenant_member" objectId={id} /></div>
     <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-2">
       <div className="sm:col-span-2"><dt className="text-muted-foreground">成员关系</dt><dd className="mt-1 break-all text-xs">{m.id}</dd></div>
       <div><dt className="text-muted-foreground">加入时间</dt><dd className="mt-1 tabular-nums">{membershipDate(m.joined_at)}</dd></div>

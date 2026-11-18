@@ -116,6 +116,9 @@ func (s *Service) loadSelectedAnalysis(ctx context.Context, a access.Actor, scop
 		return out, e
 	}
 	p.Rule.Outputs = slices.DeleteFunc(p.Rule.Outputs, func(o Output) bool { return !slices.Contains(keys, o.Key) })
+	if in.IncludeSamples && p.PlanHash == out.Manifest.Plan {
+		out.PreviewPlan = p
+	}
 	cfg := ChannelConfig{ID: out.Detail.Config.ID, Rule: target.Rule, InputBindings: out.Detail.Config.Body.InputBindings, Parameters: out.Detail.Config.Body.Parameters}
 	needs, e := immediateInputNeeds(cfg, p, output, analysisSource(&target))
 	if e != nil {

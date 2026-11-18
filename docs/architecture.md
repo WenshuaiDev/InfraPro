@@ -2686,7 +2686,7 @@ docker compose --env-file .env -f deploy/compose/local.yaml stop
 cp deploy/compose/.env.example deploy/compose/.env
 ```
 
-编辑该文件：`PUBLIC_ORIGIN` 填实际完整 HTTP Origin（无末尾斜杠，例如 `http://192.168.1.100:8088`）；`HTTP_PORT` 与端口一致；`SUPPORT_CONTACT` 填实际维护联系方式。分别生成独立的 `POSTGRES_PASSWORD`、`REDIS_PASSWORD`、`CSRF_AUTH_KEY`，建议前两项用 `openssl rand -hex 24`，CSRF 用 `openssl rand -hex 32`。保存后限制文件权限为 `0600`。不要把这些值放到 VITE 配置、版本库或前端。
+编辑该文件：`PUBLIC_ORIGIN` 填实际完整 HTTP Origin（无末尾斜杠，例如 `http://192.168.1.100:8088`）；`HTTP_PORT` 与端口一致；`SUPPORT_CONTACT` 填实际维护联系方式。分别生成独立的 `POSTGRES_PASSWORD`、`REDIS_PASSWORD`、`CSRF_AUTH_KEY`，建议前两项用 `openssl rand -hex 24`，CSRF 用 `openssl rand -hex 32`。按 [MFA 密钥配置](operations/mfa.md)生成仓库外的私有 keyring，将 `MFA_KEYRING_FILE` 设置为其绝对路径，确认文件存在且所有人员认证实例使用一致密钥。保存后限制配置及 keyring 文件权限为 `0600`。不要把这些值放到 VITE 配置、版本库或前端。
 
 ```bash
 docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml up -d --build --wait
@@ -2797,7 +2797,7 @@ docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml run
 docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml run --rm --no-deps ops account revoke-access --reason '从已验证备份恢复，统一撤销历史访问能力'
 ```
 
-该命令在事务中增加全部账号认证版本，撤销所有会话和未用邀请/重置链接，记录审计，再清除当前环境前缀下的会话和活动缓存。缓存清理未完成时先恢复 Redis 并重试。不要使用 `FLUSHALL`、删除正式数据卷或清空初始化表。用户重新登录；丢失密码仍走维护重置流程。
+该命令在事务中增加全部账号认证版本，撤销所有会话和未用邀请/密码重置链接，记录审计，再清除当前环境前缀下的会话和活动缓存。schema 56 起还将全局策略设为强制并推进代次，将全部账号设为 `reset_required`，撤销恢复出的 MFA 因素、恢复码、挑战及恢复授权，避免备份复活旧安全凭据。缓存清理未完成时先恢复 Redis 并重试。不要使用 `FLUSHALL`、删除正式数据卷或清空初始化表。按 [MFA 备份恢复流程](operations/mfa.md)先受控恢复平台管理员，再逐个恢复用户；账号必须验证密码并绑定新因素，不能直接用备份中的旧因素或仅凭密码登录。丢失密码仍先走维护密码重置流程。
 
 <a id="migrations"></a>
 
@@ -3392,3 +3392,20 @@ schema 45 增量建立目录、入口修订、终端关联区间、机器授权�
 安装、来源、派生、空间及文件继续由各自领域服务维护。新实体关联复用统一身份和当前权限，孔位定位按当前最近孔位解释，几何只保存明确输入的图纸／模型坐标。文件附件固定到附件修订，分块交付复验宿主、附件和文件权限。项目 context 祖先仅供导航，不转为实体授权或统计成员。
 
 `displayread` 的 `structure_model: 2` 范围使用带 kind 的身份，公开契约同步生成 SDK／Bridge／管理端类型。完整树、分类和结构统计、监测分组在固定查询中保存分类版本、设施采用类型、成员及结构路径；旧下钻不混用新依据，但每次交付复验当前权限。旧范围保持 legacy 投影，不可表达的新所有者返回明确升级错误。详细自验、独立恢复与本地历史数据迁移见[验收账本](verification/sensor-classification-and-engineering-structure.md)。
+
+
+## MFA 身份状态与人员会话
+
+`platform/identity` 统一拥有账号因素、登录/绑定挑战、恢复码、平台策略和受控恢复。Go 与 PostgreSQL 实现认证状态机及原子消费，Redis 沿用共享限流与会话缓存；React 控制台和 Go 人员 CLI 通过同一 OpenAPI 登录判别契约接入。算法采用固定 SHA-1／6 位／30 秒 TOTP，二维码由进程本地生成；AES-256-GCM 从仓库外 keyring 装配，AAD 绑定账号、用途和因素版本。
+
+迁移 56 增加 `platform_security_policy`、`account_mfa`、`account_mfa_recovery_codes`、`account_auth_challenges` 及正式会话的认证方式、因素证明和强制代次。开户与状态行同事务，默认 optional/disabled，不自动生成因素。凭证只存用途隔离摘要；因素及未确认因素保存密文、nonce、key_id。校验失败计数和冷却也必须提交，不能随业务错误回滚。
+
+事务锁顺序为授权状态 → 平台安全策略 → 排序账号 → 会话、因素、挑战。消费验证码、结束挑战、创建正式会话和成功审计同事务。现有 `AccessActor`、`lockPrincipal`、数据库会话加载、Redis 命中复核及 `CheckDisplaySessionTx` 共用当前策略/因素证明判断。false→true 递增强制代次；旧密码会话不能通过随后关闭策略恢复。大屏 SSE 每秒重载资格、最长连接 25 秒，撤权后停止交付。
+
+`auth/login` 用 200 `authenticated` 或 202 三种 MFA 挑战明确分流。挑战 Cookie 单独限制在 `/api/v1/auth`，HttpOnly、SameSite=Lax、无 Domain，正式 Cookie 在全部因素成功后签发。所有写接口沿用 Origin、CSRF、小请求体及未知字段拒绝。平台三个权限登记到统一目录；本人 MFA 接口只要求正式人员身份，不依赖可选个人资料/会话列表角色。
+
+前端身份状态含 authenticating；业务工作区在该状态不挂载。挑战刷新只能从受限服务恢复，账号/挑战变更清空表单，迟到结果通过身份代次及组件存活性检查丢弃。秘密响应不进入 Query/Mutation 持久缓存或幂等 intent；恢复码只保存在当前身份的内存中，主动关闭后不可重新读取。恢复 fragment 及时清除且用途隔离。
+
+API/账号维护装配 identity 与 keyring；`runtime.OpenWorker` 和 `OpenDisplay` 只装配授权及业务依赖，人员证明校验不需要解密因素。后台进程和机器终端不持有人员密钥。API readiness 校验数据库版本、目录、策略/状态完整性和密钥引用；旧版本 API 不与新 schema 混跑。
+
+恢复扩展撤销所有访问凭据并采用保守策略：全局强制、所有账号 `reset_required`、撤销并清除历史因素及恢复码。维护 CLI 重建受控授权，随后用户重新绑定。密钥轮换按有界事务重加密，保留因素版本和防重放状态；发布和恢复细节见[MFA 操作手册](operations/mfa.md)。

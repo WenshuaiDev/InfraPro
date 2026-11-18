@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Permissions as P, type IngestionTerminal } from "@infrapro/api-client";
@@ -7,7 +9,7 @@ import { ResponsivePanel } from "@infrapro/ui/patterns/responsive-panel";
 import { FormNotice, ErrorState } from "@infrapro/ui/patterns/feedback";
 import { DeviceField, DeviceSelect } from "../parsing/fields";
 import { useParsing, useParsingWrite, WriteFeedback } from "../parsing/context";
-import { Facts, Pages, State, Time } from "./common";
+import { Facts, State, Time } from "./common";
 export function Terminals({
   source,
   initial,
@@ -16,7 +18,6 @@ export function Terminals({
   initial?: string;
 }) {
   const c = useParsing(),
-    [cursor, setCursor] = useState(""),
     [q, setQ] = useState(""),
     [sourceID, setSource] = useState(source ?? ""),
     [selected, setSelected] = useState(initial),
@@ -27,12 +28,11 @@ export function Terminals({
         c.client.ingestionSources(c.scope, { limit: 100 }, signal),
       enabled: c.can(P.TenantIngestionSourceRead) && c.can(P.TenantProjectRead),
     }),
-    query = useQuery({
-      queryKey: [...c.prefix, "ingestion-terminals", cursor, q, sourceID],
-      queryFn: ({ signal }) =>
-        c.client.ingestionTerminals(
+    query = usePagedQuery({ initialPageSize: 25,
+      queryKey: [...c.prefix, "ingestion-terminals", q, sourceID],
+      queryFn: ({ cursor, signal, limit }) => c.client.ingestionTerminals(
           c.scope,
-          { cursor, q, source_id: sourceID, limit: 25 },
+          { cursor, q, source_id: sourceID, limit },
           signal,
         ),
     });
@@ -45,8 +45,7 @@ export function Terminals({
           value={q}
           onChange={(v) => {
             setQ(v);
-            setCursor("");
-          }}
+            }}
         />
         <DeviceSelect
           name="terminal-source"
@@ -54,8 +53,7 @@ export function Terminals({
           value={sourceID}
           onChange={(v) => {
             setSource(v);
-            setCursor("");
-          }}
+            }}
           options={[
             { value: "", label: "全部获配入口" },
             ...(sources.data?.items ?? []).map((v) => ({
@@ -117,11 +115,7 @@ export function Terminals({
           },
         ]}
         pagination={
-          <Pages
-            cursor={cursor}
-            next={query.data?.next_cursor}
-            onChange={setCursor}
-          />
+          <ListPagination label="终端" {...query.pagination} />
         }
       />
       <ResponsivePanel

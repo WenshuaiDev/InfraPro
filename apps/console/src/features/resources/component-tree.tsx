@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import type { ResourceItem } from '@infrapro/api-client';
@@ -8,8 +9,8 @@ export function ComponentTree({ facility, selected, ancestors = [], selectFullOn
  return <nav aria-label="设施构件" className="min-w-0 space-y-2"><Button type="button" className="w-full justify-start" variant={!selected ? 'secondary' : 'ghost'} aria-current={!selected ? 'true' : undefined} onClick={() => onSelect()}>设施整体</Button><Children facility={facility} parent="root" selected={selected} ancestors={ancestors} selectFullOnly={selectFullOnly} onSelect={onSelect} /></nav>;
 }
 function Children({ facility, parent, selected, ancestors, selectFullOnly, onSelect }: { facility: string; parent: string; selected?: string; ancestors: string[]; selectFullOnly?: boolean; onSelect: (id?: string) => void }) {
- const { client, scope,  prefix } = useResources(); const q = useInfiniteQuery({queryKey:[...prefix,'children',facility,parent],initialPageParam:'',queryFn:({signal,pageParam}) => client.resourceList(scope,{kind:'component',facility},{parent_id:parent,status:'all',cursor:pageParam},signal),getNextPageParam:(page) => page.next_cursor || undefined});
- return <><ul className="space-y-1">{q.data?.pages.flatMap((p) => p.items).map((item) => <Node key={item.id} item={item} facility={facility} selected={selected} ancestors={ancestors} selectFullOnly={selectFullOnly} onSelect={onSelect} />)}</ul>{q.isPending && <p role="status" className="p-2 text-xs">读取构件…</p>}{q.error && <Button type="button" variant="ghost" onClick={() => void q.refetch()}>读取失败，重试</Button>}{q.hasNextPage && <Button type="button" variant="outline" size="sm" disabled={q.isFetchingNextPage} onClick={() => void q.fetchNextPage()}>加载更多构件</Button>}</>;
+ const { client, scope,  prefix } = useResources(); const q = usePagedQuery({queryKey:[...prefix,'children',facility,parent],initialPageSize:25,queryFn:({signal,cursor,limit}) => client.resourceList(scope,{kind:'component',facility},{parent_id:parent,status:'all',cursor,limit},signal)});
+ return <><ul className="space-y-1">{q.data?.items.map((item) => <Node key={item.id} item={item} facility={facility} selected={selected} ancestors={ancestors} selectFullOnly={selectFullOnly} onSelect={onSelect} />)}</ul>{q.isPending && <p role="status" className="p-2 text-xs">读取构件…</p>}{q.error && <Button type="button" variant="ghost" onClick={() => void q.refetch()}>读取失败，重试</Button>}{q.data && (parent === 'root' || q.pagination.hasNext || q.pagination.page > 0 || q.pagination.pageSize !== 25) && <ListPagination label="设施构件" {...q.pagination} />}</>;
 }
 function Node({item,facility,selected,ancestors,selectFullOnly,onSelect}:{item:ResourceItem;facility:string;selected?:string;ancestors:string[];selectFullOnly?:boolean;onSelect:(id?:string)=>void}) {
  const [expanded,setExpanded]=useState(ancestors.includes(item.id));

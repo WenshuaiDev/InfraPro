@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -11,11 +13,10 @@ import { ResponsivePanel } from "@infrapro/ui/patterns/responsive-panel";
 import { FormNotice, ErrorState } from "@infrapro/ui/patterns/feedback";
 import { DeviceField, DeviceSelect } from "../parsing/fields";
 import { useParsing, useParsingWrite, WriteFeedback } from "../parsing/context";
-import { Facts, Pages, State, Time } from "./common";
+import { Facts, State, Time } from "./common";
 export function Unmatched() {
   const c = useParsing(),
     w = useParsingWrite(),
-    [cursor, setCursor] = useState(""),
     [errorCode, setError] = useState(""),
     [selected, setSelected] = useState<IngestionMetadata[]>([]),
     [open, setOpen] = useState(false),
@@ -26,12 +27,11 @@ export function Unmatched() {
         ? P.IngestionQuarantineManage
         : P.TenantIngestionUnmatchedProcess,
     );
-  const query = useQuery({
-    queryKey: [...c.prefix, "ingestion-unmatched", cursor, errorCode],
-    queryFn: ({ signal }) =>
-      c.client.ingestionUnmatched(
+  const query = usePagedQuery({ initialPageSize: 50,
+    queryKey: [...c.prefix, "ingestion-unmatched", errorCode],
+    queryFn: ({ cursor, signal, limit }) => c.client.ingestionUnmatched(
         c.scope,
-        { cursor, error_code: errorCode, limit: 50 },
+        { cursor, error_code: errorCode, limit },
         signal,
       ),
   });
@@ -48,7 +48,6 @@ export function Unmatched() {
         value={errorCode}
         onChange={(v) => {
           setError(v);
-          setCursor("");
           setSelected([]);
         }}
       />
@@ -105,11 +104,7 @@ export function Unmatched() {
           { id: "size", label: "原文字节", cell: (v) => v.byte_length },
         ]}
         pagination={
-          <Pages
-            cursor={cursor}
-            next={query.data?.next_cursor}
-            onChange={setCursor}
-          />
+          <ListPagination label="待匹配记录" {...query.pagination} />
         }
       />
       {manage && (

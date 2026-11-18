@@ -14,6 +14,55 @@ import (
 	"github.com/google/uuid"
 )
 
+func TestDerivedCancelledAutomaticIntervalKeepsLaterWorkRunnable(t *testing.T) {
+	f := monitoringSetup(t)
+	s, channel, cfg := derivedChannelSetup(t, f)
+	s.WithStorage(f.storage)
+	must(t, dm.InitializeStorage(ctx, f.storage))
+	scope := dm.TenantScope(f.tenant)
+	base := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+	from := strconv.FormatInt(base.UnixNano(), 10)
+	end := strconv.FormatInt(base.Add(3*time.Minute).UnixNano(), 10)
+	f.publish(t, f.validate(t, f.upload(t, "observed_at,value,quality\n2024-01-01T00:00:00Z,2,good\n2024-01-01T00:02:00Z,9,good\n")))
+	trial, e := s.ChannelTrial(ctx, f.actor, scope, channel.Resource.ID, dm.TrialInput{WriteMeta: restoreMeta(channel.ConfigRevision), ConfigID: cfg.ID, ConfigHash: cfg.ConfigHash, OutputRange: dm.NanosecondRange{From: from, To: &end}}, access.Meta{})
+	must(t, e)
+	preview, e := s.PreviewControl(ctx, f.actor, scope, channel.Resource.ID, dm.ControlPreviewInput{Revision: channel.ControlRevision, ControlProposal: dm.ControlProposal{Action: "enable", AutoStartNS: &from, StopNS: &end, TrialReceiptID: trial.Trial.ReceiptID}})
+	must(t, e)
+	_, e = s.ControlChannel(ctx, f.actor, scope, channel.Resource.ID, dm.ControlInput{WriteMeta: restoreMeta(channel.ControlRevision), PreviewID: preview.ID, PreviewHash: preview.Hash}, access.Meta{})
+	must(t, e)
+
+	clock := base.Add(time.Minute)
+	queued, e := s.ScheduleTenantAt(ctx, f.tenant, clock)
+	must(t, e)
+	if queued != 1 {
+		t.Fatal("first automatic interval was not queued", queued)
+	}
+	var first string
+	var cutoff int64
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT id::text,upper(output_range) FROM derived_runs WHERE channel_id=$1 AND mode='automatic'`, channel.Resource.ID).Scan(&first, &cutoff))
+	original, e := s.Run(ctx, f.actor, scope, first)
+	must(t, e)
+	cancelled, e := s.ControlRun(ctx, f.actor, scope, first, "cancel", restoreMeta(original.Job.Revision), access.Meta{})
+	must(t, e)
+	queued, e = s.ScheduleTenantAt(ctx, f.tenant, clock)
+	must(t, e)
+	if queued != 0 {
+		t.Fatal("same input and time restarted a cancelled interval", queued)
+	}
+	queued, e = s.ScheduleTenantAt(ctx, f.tenant, base.Add(3*time.Minute))
+	must(t, e)
+	if queued != 1 {
+		t.Fatal("cancelled interval blocked later eligible times", queued)
+	}
+	var nextStart int64
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT lower(output_range) FROM derived_runs WHERE channel_id=$1 AND mode='automatic' AND id<>$2`, channel.Resource.ID, first).Scan(&nextStart))
+	original, e = s.Run(ctx, f.actor, scope, first)
+	must(t, e)
+	if nextStart != cutoff || original.Job.State != "cancelled" || original.Job.Revision != cancelled.Job.Revision {
+		t.Fatal("later target crossed the cancelled interval", cutoff, nextStart, original.Job)
+	}
+}
+
 func TestDerivedFormalPublicationUsesSealedAttempts(t *testing.T) {
 	f := monitoringSetup(t)
 	t.Cleanup(func() { verifyTerminalNotifications(t, f.env) })
@@ -53,12 +102,22 @@ func TestDerivedFormalPublicationUsesSealedAttempts(t *testing.T) {
 	if runView.Mode != "automatic" || runView.Job.State != "queued" {
 		t.Fatal("formal run hidden from qualified viewer", runView)
 	}
-	_, e = service.ControlRun(ctx, f.actor, scope, run, "cancel", meta(runView.Job.Revision), access.Meta{})
+	cancelled, e := service.ControlRun(ctx, f.actor, scope, run, "cancel", meta(runView.Job.Revision), access.Meta{})
 	must(t, e)
 	queued, e = service.ScheduleTenant(ctx, f.tenant)
 	must(t, e)
-	if queued != 1 {
-		t.Fatal("cancelled enabled target lost its pending work", queued)
+	if queued != 0 {
+		t.Fatal("scheduler restarted an explicitly cancelled target", queued)
+	}
+	var retained bool
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM derived_dirty_ranges WHERE tenant_id=$1 AND channel_id=$2 AND affected @> $3::bigint)`, f.tenant, channel.Resource.ID, start).Scan(&retained))
+	if !retained {
+		t.Fatal("cancelled target lost its pending input coverage")
+	}
+	retried, e := service.ControlRun(ctx, f.actor, scope, run, "retry", meta(cancelled.Job.Revision), access.Meta{})
+	must(t, e)
+	if retried.Job.State != "queued" || retried.Job.ID != job {
+		t.Fatal("manual retry did not resume the fixed target", retried.Job)
 	}
 	// A commit failure after physical sealing must expose no generation. The
 	// next fence re-verifies the completed checkpoint rather than replaying its

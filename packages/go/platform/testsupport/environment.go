@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/testkeyring"
 	"github.com/pressly/goose/v3"
 	"log/slog"
 	"net/url"
@@ -26,6 +27,7 @@ import (
 )
 
 type Environment struct {
+	BaseMigration  int64
 	Config         config.Config
 	Pool           *pgxpool.Pool
 	Redis          *redis.Client
@@ -116,7 +118,18 @@ func NewAtMigration(ctx context.Context, logger *slog.Logger, version int64) (*E
 		cleanupDB()
 		return nil, e
 	}
+	keyfile, cleanupKey, e := testkeyring.Create()
+	if e != nil {
+		cache.Close()
+		pool.Close()
+		cleanupDB()
+		return nil, e
+	}
+	cfg.MFAKeyringFile = keyfile
 	service, e := identity.NewService(pool, cache, cfg, logger)
+	if e != nil {
+		cleanupKey()
+	}
 	if e != nil {
 		cache.Close()
 		pool.Close()
@@ -124,9 +137,10 @@ func NewAtMigration(ctx context.Context, logger *slog.Logger, version int64) (*E
 		return nil, e
 	}
 	audit.New(service.Access())
-	return &Environment{Config: cfg, Pool: pool, Redis: cache, Service: service, preserveSchema: func() { preserved = true }, cleanup: func() {
+	return &Environment{BaseMigration: version, Config: cfg, Pool: pool, Redis: cache, Service: service, preserveSchema: func() { preserved = true }, cleanup: func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
+		defer cleanupKey()
 		var cursor uint64
 		for {
 			keys, next, err := cache.Scan(ctx, cursor, cfg.RedisKeyPrefix+"*", 100).Result()

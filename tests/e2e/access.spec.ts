@@ -7,6 +7,10 @@ import { randomBytes, randomUUID } from 'node:crypto';
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === 'e2e_owner') return headers;
+  if (current.status() === 200) expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   return headers;
 }
@@ -72,7 +76,11 @@ test('role UI grants and withdraws invitation capability without logging in agai
     const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
     const old = await request.post(`${api}/public/invitations/inspect`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { token: new URLSearchParams(new URL(link).hash.slice(1)).get('token') } }); expect(old.status()).toBe(404);
     await page.goto(`${consoleURL}/access/permissions`); await expect(page).toHaveURL(`${consoleURL}/access/roles`); await expect(page.getByRole('heading', { name: '角色管理', exact: true })).toBeVisible();
-    await navigateTo(page, '平台审计'); await page.getByLabel('搜索当前获准内容', { exact: true }).fill(reason); await page.getByRole('button', { name: '搜索', exact: true }).click(); await page.locator('[data-audit-record]').first().click(); await expect(page.getByRole('dialog').getByText(reason, { exact: true })).toBeVisible();
+    await navigateTo(page, '平台审计');
+    await page.getByRole('button', { name: '更多筛选' }).click();
+    await page.getByRole('dialog').getByLabel('事件类型', { exact: true }).fill('role_created');
+    await page.getByRole('button', { name: '应用筛选', exact: true }).click();
+    await page.getByLabel('搜索当前获准内容', { exact: true }).fill(reason); await page.getByRole('button', { name: '搜索', exact: true }).click(); await page.locator('[data-audit-record]').first().click(); await expect(page.getByRole('dialog').getByText(reason, { exact: true })).toBeVisible();
   } finally { await guestContext.close(); }
 });
 

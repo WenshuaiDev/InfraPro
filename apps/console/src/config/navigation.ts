@@ -1,8 +1,8 @@
-import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, ListChecks, MapPinned, LayoutDashboard, Files } from 'lucide-react';
+import { Link2, Bell, MailPlus, ShieldCheck, UserRound, Users, KeyRound, ScrollText, Building2, FolderKanban, Blocks, Ruler, ClipboardList, Cpu, Factory, Activity, Upload, MapPinned, LayoutDashboard, Files } from 'lucide-react';
 import type { NavigationGroup, NavigationItem } from '@infrapro/layouts';
 import { Permissions as P, type PermissionCode } from '@infrapro/api-client';
 
-export const workspacePaths = ['/', '/profile', '/security', '/invitations', '/access/accounts', '/access/roles', '/access/permissions', '/access/audit', '/tenants', '/platform/tenants', '/projects'] as const;
+export const workspacePaths = ['/', '/profile', '/security', '/invitations', '/access/accounts', '/access/roles', '/access/permissions', '/access/audit', '/tenants', '/platform/tenants', '/platform/security-policy', '/projects'] as const;
 export type WorkspacePath = typeof workspacePaths[number];
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 export function safeReturn(value: unknown): string {
@@ -28,6 +28,8 @@ export function relativePath(path: string) {
   return base && (path === base || path.startsWith(`${base}/`)) ? path.slice(base.length) || '/' : path;
 }
 export function allowedPath(path: string, can: (permission: PermissionCode) => boolean) {
+  if (path === '/security') return true;
+  if (path === '/platform/security-policy') return can(P.PlatformSecurityPolicyRead);
   if (path.startsWith('/platform/ingestion')) return can(P.IngestionSourceRead)||can(P.IngestionQuarantineRead);
   if (path.startsWith('/platform/parsing')) return can(P.ParsingMethodRead)||can(P.ParsingRunRead);
   if (path==='/platform/device-categories') return can(P.DeviceCategoryRead);
@@ -72,6 +74,7 @@ export function platformNavigation(path: string, can: (permission: PermissionCod
       { title: '公共监测模板', href: '/platform/engineering/monitoring-templates', icon: ClipboardList, active: path === '/platform/engineering/monitoring-templates' },
     ] }, {title:'设备接入',href:'/platform/ingestion',icon:Cpu,active:path.startsWith('/platform/ingestion')}, {title:'协议与解析方法',href:'/platform/parsing',icon:Cpu,active:path.startsWith('/platform/parsing')}, {title:'设备分类字典',href:'/platform/device-categories',icon:Blocks,active:path==='/platform/device-categories'}, {title:'公共设备产品',href:'/platform/device-products',icon:Factory,active:path.startsWith('/platform/device-products')}] },
     { title: '账号与权限', items: [
+      { title: '安全策略', href: '/platform/security-policy', icon: ShieldCheck, active: path === '/platform/security-policy' },
       { title: '账号管理', href: '/access/accounts', icon: Users, active: path === '/access/accounts' },
       { title: '账号开户邀请', href: '/invitations', icon: MailPlus, active: path === '/invitations' },
       { title: '角色管理', href: '/access/roles', icon: KeyRound, active: path === '/access/roles' },
@@ -156,9 +159,7 @@ function monitoringNavigation(base: string, path: string, can: (permission: Perm
  return [
  ...(read?[{title:"监测浏览",href:`${base}/monitoring`,icon:Activity,active:path===`${base}/monitoring`||path===`${base}/monitoring/`}]:[]),
  ...(imports?[{title:"导入与批次",href:`${base}/monitoring/imports`,icon:Upload,active:path.startsWith(`${base}/monitoring/imports`)||path.startsWith(`${base}/monitoring/batches`)}]:[]),
- ...(read||imports?[{title:"监测任务",href:`${base}/monitoring/jobs`,icon:ListChecks,active:path===`${base}/monitoring/jobs`}]:[]),
  ...(can(tenant?P.TenantDerivedChannelsRead:P.ProjectDerivedChannelsRead)||can(tenant?P.TenantDerivedMetricsRead:P.ProjectDerivedMetricsRead)?[{title:"派生监测",href:`${base}/monitoring/derived`,icon:Activity,active:path===`${base}/monitoring/derived`||path.startsWith(`${base}/monitoring/derived/`)||path===`${base}/monitoring/derived-definitions`}]:[]),
  ...(can(tenant?P.TenantDerivedAnalysisRead:P.ProjectDerivedAnalysisRead)||can(tenant?P.TenantDerivedAnalysisResultsRead:P.ProjectDerivedAnalysisResultsRead)?[{title:"历史分析",href:`${base}/monitoring/analysis`,icon:ClipboardList,active:path.startsWith(`${base}/monitoring/analysis`)}]:[]),
- ...((can(tenant?P.TenantDerivedRunsRead:P.ProjectDerivedRunsRead)||can(tenant?P.TenantDerivedAnalysisExport:P.ProjectDerivedAnalysisExport))?[{title:"计算运行",href:`${base}/monitoring/derived-runs`,icon:ListChecks,active:path===`${base}/monitoring/derived-runs`}]:[]),
  ];
 }

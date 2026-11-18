@@ -1,3 +1,4 @@
+import { requireAuthenticatedResponse } from './login-result.mjs';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {chromium,request,expect as baseExpect} from '@playwright/test';
@@ -5,7 +6,7 @@ const expect=baseExpect.configure({timeout:30000}),out='.artifacts/sensor-struct
 const origin='http://display-console.127.0.0.1.nip.io:15573',api='http://127.0.0.1:18580/api/v1',base='/tenants/'+state.tenant,uiBase='/t/'+state.tenant;
 const client=await request.newContext(),csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:origin,'X-CSRF-Token':csrf.token};
 async function call(path){const r=await client.get(api+path,{headers});expect(r.ok()).toBe(true);return r.json();}
-await client.post(api+'/auth/login',{headers,data:{username:'e2e_owner',password:'Real browser 河流 secret 592'}});
+await requireAuthenticatedResponse(await client.post(api+'/auth/login',{headers,data:{username:'e2e_owner',password:'Real browser 河流 secret 592'}}));
 const browser=await chromium.launch({headless:true,args:['--host-resolver-rules=MAP display-console.127.0.0.1.nip.io 127.0.0.1','--no-proxy-server']}),page=await browser.newPage({viewport:{width:1440,height:1000}}),checks=[],errors=[];let passed=false;
 page.on('pageerror',e=>errors.push(e.message));
 try{

@@ -6,12 +6,17 @@ import { Permissions as P } from '../../packages/ts/api-client/src/permissions.g
 const api = new URL('/api/v1', consoleURL).href;
 async function owner(request: APIRequestContext) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === 'e2e_owner') return headers;
+  if (current.status() === 200) expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
+
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   return headers;
 }
 
 
 test('audit explains real permission changes and preserves filtered pagination and focus', async ({ page, request }, info) => {
+  const from = new Date(Date.now() - 1000).toISOString();
   const headers = await owner(request), prefix = `审计界面_${randomBytes(4).toString('hex')}`;
   for (let i = 0; i < 12; i++) {
     const response = await request.post(`${api}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `${prefix}_${i}`, description: '审计回归', reason: prefix } });
@@ -22,7 +27,7 @@ test('audit explains real permission changes and preserves filtered pagination a
       expect((await request.put(`${api}/access/roles/${role.id}/permissions`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: role.version, permission_codes: [P.PlatformInvitationRead, P.PlatformAuditRead], reason: prefix } })).status()).toBe(200);
     }
   }
-  await login(page, { username: 'e2e_owner', password }); await page.goto(`${consoleURL}/access/audit`);
+  await login(page, { username: 'e2e_owner', password }); await page.goto(`${consoleURL}/access/audit?from=${encodeURIComponent(from)}`);
   await page.getByLabel('搜索当前获准内容').fill(prefix); await page.getByRole('button', { name: '搜索', exact: true }).click();
   const records = page.locator('[data-audit-record]'); await expect(records).toHaveCount(10);
   const trigger = records.first(), id = await trigger.getAttribute('data-audit-record');
@@ -38,7 +43,7 @@ test('audit explains real permission changes and preserves filtered pagination a
   await page.getByRole('button', { name: '下一页', exact: true }).click(); await expect(records).toHaveCount(4);
   for (const next of await records.evaluateAll(nodes => nodes.map(n => n.getAttribute('data-audit-record')))) expect(ids).not.toContain(next);
   await page.reload(); await expect(records).toHaveCount(4); await expect(page.getByLabel('搜索当前获准内容')).toHaveValue(prefix);
-  await page.getByLabel('每页', { exact: true }).selectOption('25'); await expect(records).toHaveCount(14);
+  await page.getByRole('combobox', { name: '每页条数' }).click(); await page.getByRole('option', { name: '25', exact: true }).click(); await expect(records).toHaveCount(14);
   await page.getByLabel('操作结果', { exact: true }).selectOption('failure'); await expect(page.getByText('当前筛选下没有可见记录。', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '重置', exact: true }).click(); await expect(records.first()).toBeVisible();
   await page.getByRole('button', { name: '切换主题', exact: true }).click(); await page.getByRole('menuitemradio', { name: '深色', exact: true }).click();
@@ -46,11 +51,12 @@ test('audit explains real permission changes and preserves filtered pagination a
 });
 
 test('audit presents failed login without attributing the visitor to the target account', async ({ page, request, browser }) => {
+  const from = new Date(Date.now() - 1000).toISOString();
   const account = await createAccount(request, false), guest = await browser.newContext();
   try {
     const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(guest.request) };
     expect((await guest.request.post(`${api}/auth/login`, { headers, data: { username: account.username, password: 'wrong audit password' } })).status()).toBe(401);
-    await login(page, { username: 'e2e_owner', password }); await page.goto(`${consoleURL}/access/audit`);
+    await login(page, { username: 'e2e_owner', password }); await page.goto(`${consoleURL}/access/audit?from=${encodeURIComponent(from)}`);
     await page.getByLabel('搜索当前获准内容').fill(account.username); await page.getByRole('button', { name: '搜索', exact: true }).click();
     await page.getByLabel('操作结果', { exact: true }).selectOption('failure');
     const records = page.locator('[data-audit-record]'); await expect(records).toHaveCount(1); await records.first().click();

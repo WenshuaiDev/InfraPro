@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import assert from "node:assert/strict";
 import { chromium, request, expect as baseExpect } from "@playwright/test";
 import { randomUUID } from "node:crypto";
@@ -34,10 +35,10 @@ async function call(path, data, method = data === undefined ? "GET" : "POST") {
   assert(r.ok(), `${path}: ${r.status()} ${await r.text()}`);
   return r.json();
 }
-await call("/auth/login", {
+requireAuthenticatedLogin(await call("/auth/login", {
   username: login.username,
   password: login.password,
-});
+}));
 const browser = await chromium.launch({
     args: ["--use-angle=swiftshader", "--enable-webgl"],
   }),

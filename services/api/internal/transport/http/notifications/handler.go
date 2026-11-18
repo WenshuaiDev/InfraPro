@@ -62,14 +62,21 @@ func filter(c *gin.Context) notifications.Filter {
 			limit = -1
 		}
 	}
-	return notifications.Filter{Status: c.Query("status"), Category: c.Query("category"), Tenant: c.Query("tenant_id"), Project: c.Query("project_id"), Scope: c.Query("scope"), Cursor: c.Query("cursor"), Limit: limit}
+	return notifications.Filter{PageIndexOnly: c.Query("page_index_only") == "true", Status: c.Query("status"), Category: c.Query("category"), Tenant: c.Query("tenant_id"), Project: c.Query("project_id"), Scope: c.Query("scope"), Cursor: c.Query("cursor"), Limit: limit}
 }
 func Register(r *gin.Engine, i *identity.Service, s *notifications.Service, t *tenancy.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", RequestID: c.Writer.Header().Get("X-Request-ID")}
 	}
-	r.GET("/api/v1/me/notifications", query("status", "category", "tenant_id", "project_id", "scope", "cursor", "limit"), func(c *gin.Context) { v, e := s.List(c.Request.Context(), actor(c), filter(c)); reply(c, v, e) })
+	r.GET("/api/v1/me/notifications", query("status", "category", "tenant_id", "project_id", "scope", "cursor", "limit", "page_index_only"), func(c *gin.Context) {
+		if value := c.Query("page_index_only"); value != "" && value != "false" && value != "true" {
+			identityhttp.RespondError(c, access.Validation("page_index_only", "分页索引参数必须是布尔值。"))
+			return
+		}
+		v, err := s.List(c.Request.Context(), actor(c), filter(c))
+		reply(c, v, err)
+	})
 	r.GET("/api/v1/me/notifications/summary", query(), func(c *gin.Context) { v, e := s.Summary(c.Request.Context(), actor(c)); reply(c, v, e) })
 	r.GET("/api/v1/me/notifications/:id", query(), func(c *gin.Context) { v, e := s.Get(c.Request.Context(), actor(c), c.Param("id")); reply(c, v, e) })
 	r.PATCH("/api/v1/me/notifications/:id", query(), func(c *gin.Context) {

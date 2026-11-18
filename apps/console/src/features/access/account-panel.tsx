@@ -1,7 +1,10 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
+import { AccountMFASection } from './account-mfa';
 import { ObjectHistory } from '../audit/object-history';
 import { useState, type RefObject } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Building2, ShieldCheck } from 'lucide-react';
 import { Permissions as P, type ManagedAccount } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
@@ -40,10 +43,11 @@ function AccountDetails({ account, edit }: { account: ManagedAccount; edit: (mod
   const [tab, setTab] = useState('roles');
   const enabled = account.status === 'active';
   return <>
-    <div className="flex items-start gap-3"><AccountAvatar name={account.display_name} /><ObjectHistory scope={{kind:"platform"}} objectType="account" objectId={account.id}/><div className="min-w-0 flex-1 space-y-1"><p className="break-words font-medium">{account.display_name}</p><AccountStatus status={account.status} /></div></div>
+    <div className="flex items-start gap-3"><AccountAvatar name={account.display_name} metadata={account} target={{ kind: 'platform', id: account.id }} /><ObjectHistory scope={{kind:"platform"}} objectType="account" objectId={account.id}/><div className="min-w-0 flex-1 space-y-1"><p className="break-words font-medium">{account.display_name}</p><AccountStatus status={account.status} /></div></div>
     <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">用户名</dt><dd className="mt-1 break-all">{account.username}</dd></div><div><dt className="text-muted-foreground">创建时间</dt><dd className="mt-1"><time dateTime={account.created_at}>{new Date(account.created_at).toLocaleString('zh-CN')}</time></dd></div></dl>
     {!enabled && <FormNotice>账号已停用，不能登录或执行操作。恢复账号不会恢复历史会话和邀请链接。</FormNotice>}
     <div className="flex flex-wrap gap-2">{canAssign && <Button variant="outline" onClick={() => edit('roles')}><ShieldCheck aria-hidden="true" />配置角色</Button>}{can(enabled ? P.PlatformAccountDisable : P.PlatformAccountEnable) && <Button variant="outline" className={enabled ? 'text-destructive hover:text-destructive' : undefined} onClick={() => edit('status')}>{enabled ? '停用账号' : '恢复账号'}</Button>}</div>
+    <AccountMFASection key={account.id} id={account.id} />
     <Tabs value={tab === 'tenants' && !canTenants ? 'roles' : tab} onValueChange={setTab} className="gap-4">
       <TabsList className="w-full"><TabsTrigger className="flex-1 max-sm:text-xs" value="roles">绑定角色</TabsTrigger><TabsTrigger className="flex-1 max-sm:text-xs" value="permissions">有效权限</TabsTrigger>{canTenants && <TabsTrigger className="flex-1 max-sm:text-xs" value="tenants">租户任职</TabsTrigger>}</TabsList>
       <TabsContent value="roles" className="space-y-4">
@@ -61,13 +65,13 @@ function AccountDetails({ account, edit }: { account: ManagedAccount; edit: (mod
 
 function AccountTenants({ id }: { id: string }) {
   const { client, account } = useIdentity();
-  const query = useInfiniteQuery({ queryKey: ['access', account?.id, 'tenant-memberships', id], initialPageParam: '', queryFn: ({ pageParam, signal }) => client.accountTenants(id, { cursor: pageParam }, signal), getNextPageParam: (page) => page.next_cursor || undefined });
-  const memberships = query.data?.pages.flatMap((page) => page.items) ?? [];
+  const query = usePagedQuery({ queryKey: ['access', account?.id, 'tenant-memberships', id], queryFn: ({ cursor, signal }) => client.accountTenants(id, { cursor }, signal) });
+  const memberships = query.data?.items ?? [];
   return <section aria-label="当前租户任职" className="space-y-4"><h3 className="text-sm font-semibold">当前租户任职</h3><p className="text-sm text-muted-foreground">查看当前任职和租户状态；成员授权在租户工作空间管理。</p>
     {query.isPending && <LoadingState label="正在读取任职…" />}{query.error && <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />}
     <ul className="space-y-3">{memberships.map((tenant) => <li key={tenant.id} className="space-y-2 rounded-lg border p-4"><div className="flex items-start gap-2"><Building2 aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><Link to="/platform/tenants/$tenantId" params={{ tenantId: tenant.id }} className="min-w-0 break-words text-sm font-medium underline underline-offset-4">{tenant.name}</Link></div><p className="break-all text-xs text-muted-foreground">{tenant.code} · 租户{tenant.status === 'active' ? '已启用' : '已停用'}</p><div className="flex flex-wrap gap-1.5">{tenant.roles.map((role) => <Badge key={role.id} variant="secondary" className="max-w-full whitespace-normal break-words">{role.name}</Badge>)}{!tenant.roles.length && <span className="text-sm text-muted-foreground">未配置租户角色</span>}</div></li>)}</ul>
     {!query.isPending && !query.error && !memberships.length && <EmptyState title="没有当前租户任职" />}
-    {query.hasNextPage && <Button variant="outline" disabled={query.isFetching} onClick={() => void query.fetchNextPage()}>{query.isFetchingNextPage ? '正在加载…' : '加载更多任职'}</Button>}
+    {query.data && <ListPagination label="记录" {...query.pagination} />}
   </section>;
 }
 

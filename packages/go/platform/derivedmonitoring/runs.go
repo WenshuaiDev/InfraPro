@@ -469,6 +469,37 @@ func (s *Service) readRunTx(ctx context.Context, tx pgx.Tx, a access.Actor, scop
 	}
 	return r.Run, nil
 }
+
+// Check the same resource, channel and execution mandate as the command endpoint.
+func (s *Service) automaticControlTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, run Run) (string, error) {
+	action := "retry"
+	switch run.Job.State {
+	case "queued", "running", "retry_wait":
+		action = "cancel"
+	case "failed", "needs_action", "cancelled":
+	default:
+		return "", nil
+	}
+	task, e := s.monitoring.TaskTx(ctx, tx, a, monitoringScope(scope), run.Job.ID, true)
+	if e == nil && action == "retry" {
+		e = s.AuthorizeExecutionTx(ctx, tx, task)
+	}
+	if e != nil {
+		var domain interface{ StatusCode() int }
+		if errors.As(e, &domain) && domain.StatusCode() < 500 {
+			return "", nil
+		}
+		return "", e
+	}
+	if action == "cancel" {
+		var pending bool
+		if e = tx.QueryRow(ctx, `SELECT cancel_requested FROM monitoring_jobs WHERE id=$1`, run.Job.ID).Scan(&pending); e != nil || pending {
+			return "", e
+		}
+	}
+	return action, nil
+}
+
 func (s *Service) readRun(ctx context.Context, a access.Actor, scope Scope, id, action string) (Run, error) {
 	var out Run
 	if !access.ValidID(id) || s.monitoring == nil {
@@ -477,6 +508,16 @@ func (s *Service) readRun(ctx context.Context, a access.Actor, scope Scope, id, 
 	e := s.transact(ctx, a, scope, action, false, func(tx pgx.Tx) error {
 		var e error
 		out, e = s.readRunTx(ctx, tx, a, scope, id, action == "channels.trials" || action == "generations.replay")
+		if e == nil && action == "runs.detail" && out.Mode == "automatic" {
+			if out.Job.State == "succeeded" {
+				out.PublishedGenerationID, e = s.publishedRunGenerationTx(ctx, tx, a, scope, id)
+				if errors.Is(e, pgx.ErrNoRows) || tasks.Denied(e) {
+					return nil
+				}
+			} else {
+				out.ControlAction, e = s.automaticControlTx(ctx, tx, a, scope, out)
+			}
+		}
 		return e
 	})
 	return out, e
@@ -489,7 +530,7 @@ func (s *Service) Runs(ctx context.Context, a access.Actor, scope Scope, f RunFi
 	if f.Limit == 0 {
 		f.Limit = 30
 	}
-	if f.Limit < 1 || f.Limit > 100 || f.ChannelID != "" && !access.ValidID(f.ChannelID) || !slices.Contains([]string{"", "queued", "running", "retry_wait", "needs_action", "succeeded", "failed", "cancelled"}, f.State) {
+	if f.Limit < 1 || f.Limit > 100 || f.Mode != "" && f.Mode != "automatic" || f.ChannelID != "" && !access.ValidID(f.ChannelID) || !slices.Contains([]string{"", "queued", "running", "retry_wait", "needs_action", "succeeded", "failed", "cancelled"}, f.State) {
 		return out, invalid("/filter", "运行筛选无效。")
 	}
 	keyFilter := f
@@ -500,7 +541,7 @@ func (s *Service) Runs(ctx context.Context, a access.Actor, scope Scope, f RunFi
 		return out, e
 	}
 	e = s.transact(ctx, a, scope, "runs.list", false, func(tx pgx.Tx) error {
-		rows, e := tx.Query(ctx, `SELECT r.id::text,r.created_at FROM derived_runs r JOIN monitoring_jobs j ON j.id=r.job_id WHERE r.tenant_id=$1 AND (r.scope_key=$2 OR r.mode='automatic') AND ($3::uuid IS NULL OR r.channel_id=$3) AND ($4='' OR j.state=$4) AND ($5::timestamptz IS NULL OR (r.created_at,r.id)<($5::timestamptz,$6::uuid)) ORDER BY r.created_at DESC,r.id DESC LIMIT $7`, scope.Tenant, scope.key(), nullable(f.ChannelID), f.State, cursor.At, nullable(cursor.ID), f.Limit+1)
+		rows, e := tx.Query(ctx, `SELECT r.id::text,r.created_at FROM derived_runs r JOIN monitoring_jobs j ON j.id=r.job_id WHERE r.tenant_id=$1 AND (r.scope_key=$2 OR r.mode='automatic') AND ($8='' OR r.mode=$8) AND ($3::uuid IS NULL OR r.channel_id=$3) AND ($4='' OR j.state=$4) AND ($5::timestamptz IS NULL OR (r.created_at,r.id)<($5::timestamptz,$6::uuid)) ORDER BY r.created_at DESC,r.id DESC LIMIT $7`, scope.Tenant, scope.key(), nullable(f.ChannelID), f.State, cursor.At, nullable(cursor.ID), f.Limit+1, f.Mode)
 		if e != nil {
 			return e
 		}

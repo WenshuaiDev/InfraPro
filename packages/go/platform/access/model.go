@@ -64,15 +64,18 @@ type Snapshot struct {
 	Sources     map[Code][]string `json:"sources"`
 }
 type Account struct {
-	ID          string    `json:"id"`
-	Username    string    `json:"username"`
-	DisplayName string    `json:"display_name"`
-	Status      string    `json:"status"`
-	Version     string    `json:"management_version"`
-	CreatedAt   time.Time `json:"created_at"`
-	Roles       []Role    `json:"roles"`
+	AvatarRevision string    `json:"avatar_revision"`
+	HasAvatar      bool      `json:"has_avatar"`
+	ID             string    `json:"id"`
+	Username       string    `json:"username"`
+	DisplayName    string    `json:"display_name"`
+	Status         string    `json:"status"`
+	Version        string    `json:"management_version"`
+	CreatedAt      time.Time `json:"created_at"`
+	Roles          []Role    `json:"roles"`
 }
 type Page[T any] struct {
+	Total      *int   `json:"total,omitempty"`
 	Items      []T    `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }

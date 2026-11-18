@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { DomainFiles } from "../files/domain-files";
 import { ObjectHistory } from "../audit/object-history";
 import { spatialAdapter } from "../files/adapters/spatial";
@@ -309,16 +311,14 @@ function Versions({
 }: Props & { asset: SpatialAsset }) {
   const m = useSpatial(),
     cache = useQueryClient(),
-    [cursor, setCursor] = useState(""),
     [note, setNote] = useState(""),
     [newSource, setNewSource] = useState(true);
-  const list = useQuery({
-    queryKey: [...m.prefix, "versions", asset.id, cursor],
-    queryFn: ({ signal }) =>
-      m.client.spatialVersions(
+  const list = usePagedQuery({ initialPageSize: 20,
+    queryKey: [...m.prefix, "versions", asset.id],
+    queryFn: ({ cursor, signal, limit }) => m.client.spatialVersions(
         m.scope,
         asset.id,
-        { cursor, limit: 20 },
+        { cursor, limit },
         signal,
       ),
   });
@@ -370,19 +370,8 @@ function Versions({
         ))}
       </ul>
       <div className="flex gap-2">
-        {cursor && (
-          <Button variant="ghost" onClick={() => setCursor("")}>
-            回到首页
-          </Button>
-        )}
-        {list.data?.next_cursor && (
-          <Button
-            variant="ghost"
-            onClick={() => setCursor(list.data!.next_cursor)}
-          >
-            更多版本
-          </Button>
-        )}
+
+        <ListPagination label="列表" {...list.pagination} />
       </div>
       {m.canManage && asset.status === "normal" && (
         <details
@@ -914,12 +903,10 @@ function Lifecycle({
   );
 }
 function History({ asset }: { asset: string }) {
-  const m = useSpatial(),
-    [cursor, setCursor] = useState("");
-  const q = useQuery({
-    queryKey: [...m.prefix, "history", asset, cursor],
-    queryFn: ({ signal }) =>
-      m.client.spatialHistory(m.scope, asset, { cursor, limit: 20 }, signal),
+  const m = useSpatial();
+  const q = usePagedQuery({ initialPageSize: 20,
+    queryKey: [...m.prefix, "history", asset],
+    queryFn: ({ cursor, signal, limit }) => m.client.spatialHistory(m.scope, asset, { cursor, limit }, signal),
     enabled: m.available,
   });
   const names: Record<string, string> = {
@@ -967,19 +954,8 @@ function History({ asset }: { asset: string }) {
         </article>
       ))}
       {q.data && !q.data.items.length && <Info>暂无变更记录。</Info>}
-      {q.data?.next_cursor && (
-        <Button
-          variant="outline"
-          onClick={() => setCursor(q.data!.next_cursor)}
-        >
-          更多记录
-        </Button>
-      )}
-      {cursor && (
-        <Button variant="ghost" onClick={() => setCursor("")}>
-          回到首批记录
-        </Button>
-      )}
+      <ListPagination label="记录" {...q.pagination} />
+
     </section>
   );
 }

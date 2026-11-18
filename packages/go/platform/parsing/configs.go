@@ -146,8 +146,9 @@ func checkSemanticsTx(ctx context.Context, tx pgx.Tx, m c.Semantics, sem *d.Sema
 	*sem = v
 	unit := ""
 	for _, def := range defs {
-		if def.Content.Unit != nil {
+		if v.UnitVersionID != nil && def.ID == *v.UnitVersionID && def.Content.Unit != nil {
 			unit = def.Content.Unit.Symbol
+			break
 		}
 	}
 	if m.ValueType != v.ValueShape || m.Unit != unit || m.TimestampMeaning != "" && m.TimestampMeaning != v.TimestampMeaning || m.Aggregation != "" && v.AggregationDescription != "" && m.Aggregation != v.AggregationDescription || m.Direction != "" && v.ObservationDirection != "" && m.Direction != v.ObservationDirection || m.Reference != "" && v.ReferenceBasis != "" && m.Reference != v.ReferenceBasis {

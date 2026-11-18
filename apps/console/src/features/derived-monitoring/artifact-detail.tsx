@@ -1,45 +1,109 @@
-import { ObjectHistory } from '../audit/object-history';
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import type { AnalysisArtifactDetail, AnalysisVersion } from '@infrapro/api-client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlarmClock, Download, History, List, RotateCw, Settings2 } from 'lucide-react';
+import { ApiError, type AnalysisArtifactDetail, type AnalysisVersion } from '@infrapro/api-client';
 import { Button } from '@infrapro/ui/components/button';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { LoadingState } from '@infrapro/ui/patterns/feedback';
-import { useOperation } from '../account/use-operation';
-import { useRequestMeta } from '../engineering/use-request-meta';
-import { CursorButtons } from '../monitoring/common';
-import { CommandError, Section, SelectField, TextField, nsISO, useDerived } from './common';
-import { InputRanges, TrialValues } from './run-panel';
+import { ObjectHistory } from '../audit/object-history';
+import { CommandError, Section, SelectField, TextField, useDerived } from './common';
+import { InputRanges } from './run-panel';
 import { RangeFields, recentNSRange } from './channel-controls';
 import { EvidenceTree } from './channel-history';
 import { AnalysisExecution } from './analysis-execution';
 import { ArtifactComparison } from './artifact-comparison';
 import { ArtifactExport } from './artifact-export';
-import { useCursor } from './use-cursor';
+import { ArtifactManagement } from './artifact-management';
+import { ArtifactHeadline, ArtifactReadings, useArtifactInputs } from './artifact-readings';
+import { reportTime } from './analysis-format';
 
-export function ArtifactDetail({id,version,exportID}:{id:string;version?:string;exportID?:string}) {
- const m=useDerived(),navigate=useNavigate(),page=useCursor();
- const detail=useQuery({queryKey:[...m.prefix,'artifact-detail',id,version],queryFn:({signal})=>m.client.analysisArtifact(m.scope,id,version,signal),enabled:m.allows('analysis.results.read'),refetchInterval:30000,retry:false});
- const versions=useQuery({queryKey:[...m.prefix,'artifact-versions',id,page.cursor],queryFn:({signal})=>m.client.analysisArtifactVersions(m.scope,id,{cursor:page.cursor},signal),enabled:m.allows('analysis.results.read')});
- if(!m.allows('analysis.results.read'))return <p role="status">当前身份没有分析成果读取权限。</p>;
- return <div className="space-y-5"><CommandError error={detail.error??versions.error}/><ObjectHistory objectType="analysis_artifact" objectId={id}/>{detail.isPending?<LoadingState/>:detail.data&&!detail.error&&<><Section title={`${detail.data.artifact.name} · 完整成果 V${detail.data.version.version_no}`}><SelectField label="选择固定成果版本" value={detail.data.version.id} onChange={v=>void navigate({to:`${m.analysisPath}/${id}`,search:{version:v}})} options={(versions.data?.items??[]).map(v=>({value:v.id,label:`V${v.version_no} · ${new Date(v.created_at).toLocaleString()}`}))}/><CursorButtons previous={page.previous} next={versions.data?.next_cursor?()=>page.next(versions.data!.next_cursor):undefined} busy={versions.isFetching}/><p className="text-sm">{detail.data.artifact.status==='archived'?'成果已归档；':''}原始输入截至位置 {detail.data.version.source_position}；完整输出 {detail.data.version.output_rows} 条。</p><p className="text-sm">{detail.data.version.input_state==='current'?'原依据未发生变化。':detail.data.version.input_state==='affected'?'输入后来发生变化；原成果值保持不变，可另行重算。':'原依据包含已撤销数据，当前显示的是获准历史证据。'}</p>{detail.data.changes.map((v,i)=><p key={i} className="break-all text-sm">{({raw_append:'新增输入',raw_revoke:'输入撤销',derived_publish:'上游派生修订',channel_config:'配置修订'})[v.kind as 'raw_append']??v.kind}：{v.channel_id}，{nsISO(v.affected_range.from_ns)} 至 {v.affected_range.to_ns?nsISO(v.affected_range.to_ns):'不限'}；来源位置 {v.source_position}。</p>)}{detail.data.changes_truncated&&<p className="text-sm text-muted-foreground">变化说明只展示有限条目，原成果依据完整保留。</p>}</Section><ArtifactContent key={detail.data.version.id} detail={detail.data} exportID={exportID} onArchived={()=>void detail.refetch()}/></>}<ArtifactSelection id={id} version={version} exportID={exportID} visible={!!detail.error}/></div>;
+type DetailProps = {id: string; version?: string; exportID?: string; onVersion: (id: string) => void; onDeleted: (name: string) => Promise<void>};
+export function ArtifactDetail({id, version, exportID, onVersion, onDeleted}: DetailProps) {
+  const m = useDerived(), cache = useQueryClient();
+  const detail = useQuery({queryKey:[...m.prefix,'artifact-detail',id,version],
+    queryFn:({signal}) => m.client.analysisArtifact(m.scope,id,version,signal), enabled:m.allows('analysis.results.read'), refetchInterval:30000, retry:false});
+  if (!m.allows('analysis.results.read')) return <p role="status">当前身份没有分析成果读取权限。</p>;
+  if (detail.isPending) return <LoadingState/>;
+  if (detail.error || !detail.data) return <div className="space-y-4"><CommandError error={detail.error}/>
+    {detail.error instanceof ApiError && [403,404].includes(detail.error.status ?? 0) && <ArtifactSelection id={id} version={version} exportID={exportID}/>}</div>;
+  return <ArtifactContent key={detail.data.version.id} detail={detail.data} exportID={exportID} onVersion={onVersion}
+    refresh={async () => { await cache.invalidateQueries({queryKey:[...m.prefix,'analysis-artifacts']}); await detail.refetch(); }} onDeleted={onDeleted}/>;
 }
-function ArtifactSelection({id,version,exportID,visible}:{id:string;version?:string;exportID?:string;visible:boolean}) {
- const m=useDerived(),[range,setRange]=useState(recentNSRange),[keys,setKeys]=useState('');
- const [selection,setSelection]=useState<{range:ReturnType<typeof recentNSRange>;outputs:string[]}>();
- const result=useQuery({queryKey:[...m.prefix,'artifact-selected-detail',id,version,selection],queryFn:({signal})=>m.client.analysisArtifactRows(m.scope,id,{version_id:version??'',output_range:selection!.range,outputs:selection!.outputs,limit:1},signal),enabled:visible&&!!selection,retry:false,refetchInterval:30000});
- if(!visible)return null;
- return <div className="space-y-5"><Section title="按获准片段读取成果"><p className="text-sm text-muted-foreground">整份成果当前不可读时，可指定已获准的时间范围和输出。窗口、差分前驱和固定基准仍需完整输入权限。输出标识可在本空间分析配置中查看；留空查询全部输出。</p><RangeFields value={range} onChange={setRange}/><TextField label="输出标识（逗号分隔，可留空）" value={keys} onChange={setKeys}/><Button variant="outline" disabled={result.isFetching} onClick={()=>setSelection({range,outputs:keys.split(/[,，]/).map(v=>v.trim()).filter(Boolean)})}>读取获准片段</Button><CommandError error={result.error}/></Section>{result.data?.detail&&!result.error&&<ArtifactContent key={`${result.data.version.id}:${JSON.stringify(selection)}`} detail={result.data.detail} exportID={exportID} onArchived={()=>void result.refetch()}/>}</div>;
+
+function ArtifactSelection({id,version,exportID}: Pick<DetailProps,'id'|'version'|'exportID'>) {
+  const m=useDerived(), [range,setRange]=useState(recentNSRange), [keys,setKeys]=useState('');
+  const [selection,setSelection]=useState<{range:ReturnType<typeof recentNSRange>;outputs:string[];openExport?:string}>();
+  const result=useQuery({queryKey:[...m.prefix,'artifact-selected-detail',id,version,selection],
+    queryFn:({signal})=>m.client.analysisArtifactRows(m.scope,id,{version_id:version??'',output_range:selection!.range,outputs:selection!.outputs,limit:1},signal),
+    enabled:!!selection,retry:false,refetchInterval:30000});
+  return <div className="space-y-4"><Section title="按获准片段读取成果">
+    <p className="text-sm text-muted-foreground">可按获准的时间范围和输出读取片段。窗口、差分前驱和固定基准仍需对应的输入权限。</p>
+    <RangeFields value={range} onChange={setRange}/><TextField label="输出标识（逗号分隔，可留空）" value={keys} onChange={setKeys}/>
+    <Button variant="outline" disabled={result.isFetching} onClick={()=>setSelection({range,openExport:selection?undefined:exportID,outputs:keys.split(/[,，]/).map(v=>v.trim()).filter(Boolean)})}>读取获准片段</Button>
+    <CommandError error={result.error}/></Section>
+    {result.data?.detail&&!result.error&&<ArtifactContent key={JSON.stringify(selection)} detail={result.data.detail} exportID={selection?.openExport}/>}
+  </div>;
 }
-function ArtifactContent({detail,exportID,onArchived}:{detail:AnalysisArtifactDetail;exportID?:string;onArchived:()=>void}) {
- const m=useDerived(),page=useCursor(),meta=useRequestMeta(),[range,setRange]=useState(detail.version.output_range),[outputs,setOutputs]=useState(detail.outputs.map(v=>v.key)),[fixed,setFixed]=useState({range:detail.version.output_range,outputs:detail.outputs.map(v=>v.key)}),[source,setSource]=useState(false),[compare,setCompare]=useState(false),[rerun,setRerun]=useState(false),[reason,setReason]=useState('');
- const rows=useQuery({queryKey:[...m.prefix,'artifact-rows',detail.version.id,fixed,page.cursor],queryFn:({signal})=>m.client.analysisArtifactRows(m.scope,detail.artifact.id,{version_id:detail.version.id,output_range:fixed.range,outputs:fixed.outputs,cursor:page.cursor,limit:100},signal),retry:false,refetchInterval:30000});
- const lineage=useQuery({queryKey:[...m.prefix,'artifact-lineage',detail.version.id,fixed],queryFn:({signal})=>m.client.analysisArtifactLineage(m.scope,detail.artifact.id,{version_id:detail.version.id,output_range:fixed.range,outputs:fixed.outputs},signal),enabled:source,retry:false});
- const archive=useOperation({mutationFn:()=>{const body={expected_revision:detail.artifact.revision};return m.client.analysisArchiveArtifact(m.scope,detail.artifact.id,{...body,...meta('archive-artifact',body,reason)});},onSuccess:onArchived});
- return <div className="space-y-5"><Section title="固定成果明细"><RangeFields value={range} onChange={setRange}/><fieldset><legend className="text-sm font-medium">显示输出</legend><div className="flex flex-wrap gap-4">{detail.outputs.map(v=><label key={v.key} className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={outputs.includes(v.key)} onChange={e=>setOutputs(old=>e.target.checked?[...old,v.key]:old.filter(k=>k!==v.key))}/>{v.name||v.key}</label>)}</div></fieldset><Button variant="outline" disabled={!outputs.length} onClick={()=>{setFixed({range,outputs});page.reset();}}>查询所选范围与输出</Button><CommandError error={rows.error}/>{rows.data?.version.partial&&<p role="status" className="text-sm">当前为所选范围及输出的获准片段；整份成果行数不在此片段中披露。</p>}{!rows.error&&<TrialValues values={rows.data?.items??[]}/>}<CursorButtons previous={page.previous} next={rows.data?.next_cursor?()=>page.next(rows.data!.next_cursor):undefined} busy={rows.isFetching}/></Section><Section title="来源与版本操作"><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={()=>setSource(v=>!v)}>查看原固定来源</Button><Button variant="outline" onClick={()=>setCompare(v=>!v)}>与另一成果版本比较</Button>{m.editable&&m.allows('analysis.run')&&detail.artifact.status==='active'&&<Button variant="outline" onClick={()=>setRerun(v=>!v)}>重新运行，保留旧成果</Button>}</div><CommandError error={lineage.error??archive.error}/>{source&&lineage.data&&!lineage.error&&<div className="space-y-3"><InputRanges values={lineage.data.input_ranges}/><EvidenceTree values={lineage.data.upstream_inputs}/>{lineage.data.baselines.map(v=><p key={v.reference} className="text-sm">基准 {v.reference} · 原冻结快照 {v.snapshot_id}</p>)}<p className="break-all text-xs">原始快照：{lineage.data.raw_snapshot.id}；固定配置：{lineage.data.config_version_id}</p></div>}{m.editable&&m.allows('analysis.manage')&&detail.artifact.status==='active'&&<details><summary className="min-h-11 cursor-pointer py-3 text-sm">归档此成果</summary><div className="space-y-3"><p className="text-sm">归档后停止追加新成果版本，保留获准读取与导出。</p><TextField label="归档原因" value={reason} onChange={setReason}/><Button variant="outline" disabled={archive.isPending} onClick={()=>archive.mutate()}>确认归档成果</Button></div></details>}</Section>{compare&&<ArtifactComparison left={rows.data?.detail??detail}/>} {rerun&&<ArtifactRerun detail={detail}/>}<ArtifactExport detail={rows.data?.detail??detail} range={fixed.range} outputs={fixed.outputs} exportID={exportID}/></div>;
+
+type Panel = 'rows' | 'versions' | 'source' | 'rerun' | 'export' | 'manage';
+function ArtifactContent({detail, exportID, onVersion, refresh, onDeleted}: {
+  detail:AnalysisArtifactDetail; exportID?:string; onVersion?:(id:string)=>void; refresh?:()=>Promise<unknown>; onDeleted?:DetailProps['onDeleted'];
+}) {
+  const m=useDerived(), inputs=useArtifactInputs(detail);
+  const [panel,setPanel]=useState<Panel>(exportID?'export':'rows');
+  const [range,setRange]=useState(detail.version.output_range);
+  const [outputs,setOutputs]=useState(detail.outputs.map(v=>v.key));
+  const [fixed,setFixed]=useState({range,outputs});
+  const versions=usePagedQuery({queryKey:[...m.prefix,'artifact-versions',detail.artifact.id],
+    queryFn:({cursor,signal})=>m.client.analysisArtifactVersions(m.scope,detail.artifact.id,{cursor},signal),
+    enabled:!!onVersion && (panel==='versions' || detail.artifact.latest_version!=='1')});
+  const rows=usePagedQuery({queryKey:[...m.prefix,'artifact-rows',detail.version.id,fixed],
+    queryFn:({cursor,limit,signal})=>m.client.analysisArtifactRows(m.scope,detail.artifact.id,{version_id:detail.version.id,output_range:fixed.range,outputs:fixed.outputs,cursor,limit},signal),
+    enabled:panel==='rows'||panel==='versions'||panel==='export',retry:false,refetchInterval:30000});
+  const lineage=useQuery({queryKey:[...m.prefix,'artifact-lineage',detail.version.id,fixed],
+    queryFn:({signal})=>m.client.analysisArtifactLineage(m.scope,detail.artifact.id,{version_id:detail.version.id,output_range:fixed.range,outputs:fixed.outputs},signal),
+    enabled:panel==='source',retry:false,refetchInterval:30000});
+  const canRun=m.editable&&m.allows('analysis.read')&&m.allows('analysis.run')&&detail.artifact.status==='active'&&!detail.version.partial;
+  const full = !!onVersion && !detail.version.partial;
+  const tabs = [
+    {key:'rows',label:'逐条结果',icon:List}, {key:'source',label:'固定来源',icon:AlarmClock},
+    {key:'versions',label:'版本与比较',icon:History},
+    ...(m.allows('analysis.export')?[{key:'export',label:'导出',icon:Download}]:[]),
+    ...(full&&m.editable&&m.allows('analysis.manage')?[{key:'manage',label:'成果管理',icon:Settings2}]:[]),
+  ] as const;
+  return <article aria-label="固定成果" className="min-w-0 rounded-xl border bg-background">
+    <header className="space-y-4 p-4 md:p-6"><ArtifactHeadline detail={detail} inputs={inputs}/>
+      {canRun&&<Button variant={panel==='rerun'?'secondary':'outline'} aria-pressed={panel==='rerun'} onClick={()=>setPanel('rerun')}><RotateCw/>换时段再算</Button>}
+    </header>
+    <nav aria-label="成果操作" className="flex flex-wrap gap-x-4 border-y px-4 md:px-6">{tabs.map(({key,label,icon:Icon})=><button type="button" key={key}
+      aria-pressed={panel===key} onClick={()=>setPanel(key as Panel)}
+      className="inline-flex min-h-11 items-center gap-1.5 border-b-2 border-transparent text-sm text-muted-foreground aria-pressed:border-teal-700 aria-pressed:font-semibold aria-pressed:text-teal-800 dark:aria-pressed:border-teal-400 dark:aria-pressed:text-teal-300"><Icon size={15}/>{label}</button>)}</nav>
+    <div className="space-y-3 p-4 md:p-6">
+      {panel==='rows'&&<><h3 className="font-semibold">固定成果明细</h3>
+        <details className="text-sm"><summary className="min-h-10 cursor-pointer py-2 font-medium">筛选时段与输出</summary><div className="space-y-3 pb-3">
+          <RangeFields value={range} onChange={setRange}/><fieldset><legend>显示输出</legend><div className="flex flex-wrap gap-3">{detail.outputs.map(v=><label key={v.key} className="flex min-h-10 items-center gap-2"><input type="checkbox" checked={outputs.includes(v.key)} onChange={e=>setOutputs(old=>e.target.checked?[...old,v.key]:old.filter(k=>k!==v.key))}/>{v.name||v.key}</label>)}</div></fieldset>
+          <Button variant="outline" disabled={!outputs.length} onClick={()=>setFixed({range,outputs})}>查询所选范围与输出</Button></div></details>
+        <CommandError error={rows.error}/>{rows.isPending&&<LoadingState/>}{rows.data&&!rows.error&&<ArtifactReadings items={rows.data.items} detail={detail} inputs={inputs} pagination={rows.pagination}/>}
+      </>}
+      {panel==='versions'&&<>{onVersion&&<><SelectField label="选择固定成果版本" value={detail.version.id} onChange={onVersion}
+        options={[detail.version,...(versions.data?.items??[]).filter(v=>v.id!==detail.version.id)].map(v=>({value:v.id,label:'V'+v.version_no+' · '+new Date(v.created_at).toLocaleString()}))}/>
+        <CommandError error={versions.error}/>{versions.data?.next_cursor || versions.pagination.page>0 ? <ListPagination label="版本" {...versions.pagination}/> : null}</>}
+        <ArtifactComparison left={rows.data?.detail??detail}/></>}
+      {panel==='source'&&<><h3 className="font-semibold">原固定来源</h3><CommandError error={lineage.error}/>{lineage.isPending&&<LoadingState/>}
+        {lineage.data&&!lineage.error&&<div className="space-y-3 text-sm">{Object.values(inputs).map((source,i)=><p key={i}>{source.label} · {source.unit}</p>)}
+          <InputRanges values={lineage.data.input_ranges}/><EvidenceTree values={lineage.data.upstream_inputs}/>{lineage.data.baselines.map(v=><p key={v.reference}>基准 {v.reference} · 快照 {v.snapshot_id}</p>)}
+          <p className="break-all text-xs">原始快照：{lineage.data.raw_snapshot.id}</p><p className="break-all text-xs">固定配置 {lineage.data.config_version_id} · 来源位置 {detail.version.source_position}</p></div>}
+        {detail.changes.map((v,i)=><p key={i} className="break-all text-sm">{({raw_append:'新增输入',raw_revoke:'输入撤销',derived_publish:'上游派生修订',channel_config:'配置修订'})[v.kind as 'raw_append']??v.kind} · {inputs[v.channel_id]?.label||v.channel_id} · {reportTime(v.affected_range.from_ns)} 至 {reportTime(v.affected_range.to_ns)}</p>)}
+        {detail.changes_truncated && <p className="text-sm">这里只展示部分变化记录。</p>}<ObjectHistory objectType="analysis_artifact" objectId={detail.artifact.id}/></>}
+      {panel==='rerun'&&canRun&&<ArtifactRerun detail={detail}/>}
+      {panel==='export'&&<ArtifactExport detail={rows.data?.detail??detail} range={fixed.range} outputs={fixed.outputs} exportID={exportID}/>}
+      {panel==='manage'&&refresh&&onDeleted&&<ArtifactManagement artifact={detail.artifact} refresh={refresh} onDeleted={onDeleted}/>}
+    </div>
+  </article>;
 }
 function ArtifactRerun({detail}:{detail:AnalysisArtifactDetail}) {
- const m=useDerived(),page=useCursor(),[selected,setSelected]=useState<AnalysisVersion>(detail.config);
- const versions=useQuery({queryKey:[...m.prefix,'rerun-config-versions',detail.config.config_id,page.cursor],queryFn:({signal})=>m.client.analysisConfigVersions(m.scope,detail.config.config_id,{cursor:page.cursor},signal),enabled:m.allows('analysis.read')});
- return <Section title="选择本次重算的固定配置"><CommandError error={versions.error}/><SelectField label="分析配置版本" value={selected.id} onChange={id=>{const v=versions.data?.items.find(v=>v.id===id);if(v)setSelected(v);}} options={[{value:detail.config.id,label:`原配置 V${detail.config.version_no}`},...(versions.data?.items??[]).filter(v=>v.id!==detail.config.id).map(v=>({value:v.id,label:`V${v.version_no} · ${new Date(v.created_at).toLocaleString()}`}))]}/><CursorButtons previous={page.previous} next={versions.data?.next_cursor?()=>page.next(versions.data!.next_cursor):undefined} busy={versions.isFetching}/><AnalysisExecution key={selected.id} version={selected} artifact={detail}/></Section>;
+ const m=useDerived(),[selected,setSelected]=useState<AnalysisVersion>(detail.config);
+ const versions=usePagedQuery({queryKey:[...m.prefix, 'rerun-config-versions', detail.config.config_id],queryFn:({ cursor, signal }) => m.client.analysisConfigVersions(m.scope,detail.config.config_id,{cursor},signal),enabled:m.allows('analysis.read')});
+ return <Section title="选择本次重算的固定配置"><CommandError error={versions.error}/><SelectField label="分析配置版本" value={selected.id} onChange={id=>{const v=versions.data?.items.find(v=>v.id===id);if(v)setSelected(v);}} options={[{value:detail.config.id,label:`原配置 V${detail.config.version_no}`},...(versions.data?.items??[]).filter(v=>v.id!==detail.config.id).map(v=>({value:v.id,label:`V${v.version_no} · ${new Date(v.created_at).toLocaleString()}`}))]}/><ListPagination label="版本" {...versions.pagination} /><AnalysisExecution key={selected.id} version={selected} artifact={detail}/></Section>;
 }

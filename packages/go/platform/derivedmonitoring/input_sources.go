@@ -37,6 +37,7 @@ type inputAccess struct {
 	Scope        monitoring.Scope
 	Permit       *monitoring.RawSystemPermit
 	History      bool
+	SelectedPart bool
 	Fixed        bool
 	AllowChanged bool
 	Capability   string

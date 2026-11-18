@@ -4,7 +4,7 @@ import { useLocation } from '@tanstack/react-router';
 import { useIdentity } from '@infrapro/api-client/react';
 import type { NotificationSummary } from '@infrapro/api-client';
 
-type ContextValue = { key: readonly unknown[]; open: boolean; setOpen: (open: boolean) => void; summary?: NotificationSummary; error: Error | null; pending: boolean; refresh: () => Promise<void>; inboxViews: Map<string, { scrollTop: number; search: string }> };
+type ContextValue = { key: readonly unknown[]; open: boolean; setOpen: (open: boolean) => void; summary?: NotificationSummary; error: Error | null; pending: boolean; refresh: () => Promise<void>; inboxViews: Map<string, { scrollTop: number; search: string; focusId?: string }> };
 const Context = createContext<ContextValue | null>(null);
 export function NotificationProvider({ children }: { children: ReactNode }) {
  const { client, account, authorization_revision, authorizationEpoch } = useIdentity();
@@ -17,7 +17,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
  // List/detail are separate shareable routes. Keep only their transient view
  // position here, scoped to the same account and authorization epoch as data.
  // eslint-disable-next-line react-hooks/exhaustive-deps -- Changing the authorization key intentionally discards view-only state.
- const inboxViews = useMemo(() => new Map<string, { scrollTop: number; search: string }>(), [key]);
+ const inboxViews = useMemo(() => new Map<string, { scrollTop: number; search: string; focusId?: string }>(), [key]);
  const summary = useQuery({ queryKey: [...key, 'summary'], queryFn: ({ signal }) => client.notificationSummary(signal), refetchInterval: open || path.includes('/notifications') ? 5_000 : 15_000, refetchIntervalInBackground: false, refetchOnWindowFocus: 'always', refetchOnReconnect: 'always', retry: 2, retryDelay: attempt => Math.min(1000 * 2 ** attempt, 15_000) });
  const refresh = useCallback(async () => { await cache.invalidateQueries({ queryKey: prefix }); }, [cache, prefix]);
  useEffect(() => {

@@ -6,12 +6,14 @@ interface ScrollAreaProps extends React.ComponentProps<
   typeof ScrollAreaPrimitive.Root
 > {
   orientation?: 'vertical' | 'horizontal'
+  viewportProps?: React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Viewport>
 }
 
 function ScrollArea({
   className,
   children,
   orientation = 'vertical',
+  viewportProps,
   ...props
 }: ScrollAreaProps) {
   return (
@@ -21,10 +23,12 @@ function ScrollArea({
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
+        {...viewportProps}
         data-slot='scroll-area-viewport'
         className={cn(
           'size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1',
-          orientation === 'horizontal' && 'overflow-x-auto!'
+          orientation === 'horizontal' && 'overflow-x-auto!',
+          viewportProps?.className
         )}
       >
         {children}

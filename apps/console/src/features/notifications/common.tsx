@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
-import { AlertCircle, Bell, CheckCircle2, CircleHelp, Inbox, Layers, LockKeyhole, ShieldCheck, Users } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CircleHelp, Inbox, Layers, LockKeyhole, ShieldCheck, Users } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import { cn } from '@infrapro/ui/lib/utils';
 import type { NotificationFilter, NotificationItem } from '@infrapro/api-client';
-import { categories, time } from './labels';
+import { time } from './labels';
 import { notificationDay, notificationHeading, notificationOutcome, notificationSource, notificationTime } from './presentation';
 
 export function RefreshError({ error, stale, retry }: { error: Error | null; stale?: boolean; retry: () => void }) {
@@ -27,26 +27,32 @@ export function NotificationEmpty({ unread = false, searching = false }: { unrea
   </div>;
 }
 
-type RowsProps = { items: NotificationItem[]; filter?: NotificationFilter; selectedId?: string; onSelect?: (id: string) => void; compact?: boolean; unread?: boolean; searching?: boolean };
-export function NotificationRows({ items, filter = {}, selectedId, onSelect, compact = false, unread, searching }: RowsProps) {
+type RowsProps = { items: NotificationItem[]; filter?: NotificationFilter; rememberItem?: (id: string) => void; onSelect?: (id: string) => void; compact?: boolean; unread?: boolean; searching?: boolean };
+export function NotificationRows({ items, filter = {}, rememberItem, onSelect, compact = false, unread, searching }: RowsProps) {
   if (!items.length) return <NotificationEmpty unread={unread} searching={searching} />;
   return <ul aria-label="通知条目" className="min-w-0">
     {items.map((item, index) => {
       const day = notificationDay(item.delivered_at);
-      const selected = selectedId === item.id;
+      const outcome = notificationOutcome(item);
+      const readState = <span className="inline-flex size-2 shrink-0 items-center justify-center">{!item.read_at && <span className="size-1.5 rounded-full bg-blue-600 dark:bg-blue-400" aria-hidden="true" />}<span className="sr-only">{item.read_at ? '已读' : '未读'}</span></span>;
+      const timestamp = <time dateTime={item.delivered_at} title={time(item.delivered_at)}>{notificationTime(item.delivered_at)}</time>;
       const content = <>
-        {compact && <NotificationIcon item={item} />}
-        <div className="min-w-0 flex-1 space-y-1.5">
-          {!compact && <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"><Bell className="size-3.5" aria-hidden="true" /><span>{categories[item.category as keyof typeof categories] || '通知'}</span><time className="ms-auto" dateTime={item.delivered_at} title={time(item.delivered_at)}>{notificationTime(item.delivered_at)}</time></div>}
-          <div className="flex items-start gap-2"><span className={cn('min-w-0 flex-1 break-words text-sm leading-6', item.read_at ? 'font-medium' : 'font-semibold')}>{notificationHeading(item)}</span><span className="mt-2 flex size-2 shrink-0 items-center justify-center">{!item.read_at && <span className="size-1.5 rounded-full bg-blue-600 dark:bg-blue-400" aria-hidden="true" />}<span className="sr-only">{item.read_at ? '已读' : '未读'}</span></span></div>
-          <p className="line-clamp-2 break-words text-xs leading-5 text-muted-foreground">{item.body}</p>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"><span className="min-w-0 flex-1 break-words">{notificationSource(item)}</span>{compact ? <time dateTime={item.delivered_at} title={time(item.delivered_at)}>{notificationTime(item.delivered_at)}</time> : <span>{notificationOutcome(item)}</span>}</div>
+        <NotificationIcon item={item} />
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-baseline gap-2"><span className={cn('min-w-0 break-words text-sm leading-6', item.read_at ? 'font-medium' : 'font-semibold')}>{notificationHeading(item)}</span>{readState}</div>
+          <p className={cn('break-words text-xs leading-5 text-muted-foreground', compact ? 'line-clamp-2' : 'line-clamp-1')}>{item.body}</p>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"><span className="min-w-0 break-words">{notificationSource(item)}</span>
+            {compact ? <span className="ms-auto">{timestamp}</span> : <span className="sm:hidden">{timestamp}</span>}
+          </div>
         </div>
+        {!compact && <div className="hidden shrink-0 space-y-1 text-end text-xs leading-5 text-muted-foreground sm:block">
+          {timestamp}{outcome !== '状态已更新' && <p>{outcome}</p>}
+        </div>}
       </>;
-      const className = cn('relative flex w-full min-w-0 items-start gap-3 border-b px-5 py-4 text-start transition-colors hover:bg-accent/60 focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring', selected && 'bg-blue-50 before:absolute before:inset-y-0 before:start-0 before:w-0.5 before:bg-blue-600 dark:bg-blue-950/35', compact && 'px-4 py-3.5');
+      const className = cn('relative flex w-full min-w-0 items-start gap-3 border-b px-4 py-3.5 text-start transition-colors hover:bg-accent/60 focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring', !compact && 'sm:gap-4 sm:px-6');
       return <li key={item.id} data-notification-id={item.id}>
         {(index === 0 || notificationDay(items[index - 1]!.delivered_at) !== day) && <p className="border-b bg-muted/25 px-5 py-2 text-xs font-medium text-muted-foreground">{day}</p>}
-        {onSelect ? <button type="button" className={className} onClick={() => onSelect(item.id)} aria-label={`查看通知：${notificationHeading(item)}，${item.read_at ? '已读' : '未读'}`}>{content}</button> : <Link to="/notifications/$notificationId" params={{ notificationId: item.id }} search={filter} aria-current={selected ? 'page' : undefined} className={className}>{content}</Link>}
+        {onSelect ? <button type="button" className={className} onClick={() => onSelect(item.id)} aria-label={`查看通知：${notificationHeading(item)}，${item.read_at ? '已读' : '未读'}`}>{content}</button> : <Link to="/notifications/$notificationId" params={{ notificationId: item.id }} search={filter} onClick={() => rememberItem?.(item.id)} className={className}>{content}</Link>}
       </li>;
     })}
   </ul>;

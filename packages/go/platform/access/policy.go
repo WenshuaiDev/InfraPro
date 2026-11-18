@@ -107,6 +107,23 @@ const (
 
 func basePolicies() []Policy {
 	return []Policy{
+		{OpMFAChallenge, "GET", "/api/v1/auth/mfa/challenge", "credential", nil, false, false},
+		{OpMFAVerify, "POST", "/api/v1/auth/mfa/verify", "credential", nil, false, false},
+		{OpMFALoginEnrollmentStart, "POST", "/api/v1/auth/mfa/enrollment/start", "credential", nil, false, false},
+		{OpMFALoginEnrollmentConfirm, "POST", "/api/v1/auth/mfa/enrollment/confirm", "credential", nil, false, false},
+		{OpMFARecoveryClaim, "POST", "/api/v1/auth/mfa/recovery/claim", "credential", nil, false, false},
+		{OpMFACancel, "POST", "/api/v1/auth/mfa/cancel", "credential", nil, false, false},
+		{OpMFARead, "GET", "/api/v1/account/mfa", "authenticated", nil, false, false},
+		{OpMFAEnrollmentStart, "POST", "/api/v1/account/mfa/enrollment/start", "authenticated", nil, true, false},
+		{OpMFAEnrollmentConfirm, "POST", "/api/v1/account/mfa/enrollment/confirm", "authenticated", nil, true, false},
+		{OpMFAEnrollmentCancel, "POST", "/api/v1/account/mfa/enrollment/cancel", "authenticated", nil, false, false},
+		{OpMFADisable, "POST", "/api/v1/account/mfa/disable", "authenticated", nil, true, false},
+		{OpMFARecoveryRegenerate, "POST", "/api/v1/account/mfa/recovery-codes/regenerate", "authenticated", nil, true, false},
+		{OpSecurityPolicyRead, "GET", "/api/v1/platform/security-policy", "permission", []Code{SecurityPolicyRead}, false, false},
+		{OpSecurityPolicyImpact, "GET", "/api/v1/platform/security-policy/mfa-impact", "permission", []Code{SecurityPolicyRead}, false, false},
+		{OpSecurityPolicyUpdate, "PUT", "/api/v1/platform/security-policy", "permission", []Code{SecurityPolicyRead, SecurityPolicyUpdate}, true, false},
+		{OpAccountMFARead, "GET", "/api/v1/access/accounts/:id/mfa", "permission", []Code{AccountRead}, false, false},
+		{OpAccountMFAReset, "POST", "/api/v1/access/accounts/:id/mfa-reset", "permission", []Code{AccountRead, AccountMFAReset}, true, false},
 		{OpTenantTransferPreview, "POST", "/api/v1/platform/tenants/:tenant_id/administrator-transfer/preview", "permission", []Code{TenantRead, TenantTransfer}, false, false},
 		{OpTenantDisablePreview, "POST", "/api/v1/platform/tenants/:tenant_id/disable/preview", "permission", []Code{TenantRead, TenantDisable}, false, false},
 		{OpTenantDisable, "POST", "/api/v1/platform/tenants/:tenant_id/disable", "permission", []Code{TenantRead, TenantDisable}, true, true},
@@ -213,5 +230,5 @@ func RoutePolicy(method, path string) (Policy, bool) {
 }
 
 func Policies() []Policy {
-	return append(append(ingestionPolicies(), parsingPolicies()...), append(append(append(append(append(append(append(append(append(append(basePolicies(), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)...)
+	return append(append(ingestionPolicies(), parsingPolicies()...), append(append(append(append(append(append(append(append(append(append(append(basePolicies(), avatarPolicies()...), taskPolicies()...), notificationPolicies()...), projectPolicies()...), engineeringPolicies()...), resourcePolicies()...), projectResourcePolicies()...), devicePolicies()...), monitoringPolicies()...), derivedPolicies()...), append(append(spatialPolicies(), displayPolicies()...), append(filesPolicies(), auditPolicies()...)...)...)...)
 }

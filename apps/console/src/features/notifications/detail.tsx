@@ -65,8 +65,8 @@ function DetailContent({ id, back, compact, onNavigate }: Props) {
       {back}
       {item && <Button variant="ghost" className="min-h-11" disabled={busy} onClick={() => change.mutate({ read: !item.read_at })}>{item.read_at ? <Mail aria-hidden="true" /> : <MailOpen aria-hidden="true" />}{item.read_at ? '恢复未读' : '标记已读'}</Button>}
     </div>
-    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-      <div className={compact ? 'space-y-5 p-5' : 'space-y-6 p-5 sm:p-7'}>
+    <div className={compact ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain' : 'min-w-0'}>
+      <div className={compact ? 'space-y-5 p-5' : 'max-w-4xl space-y-6 p-5 sm:p-7'}>
         <RefreshError error={query.error} retry={() => { void query.refetch(); }} />
         {query.isPending && <p role="status" className="py-10 text-center text-sm text-muted-foreground">正在加载通知详情…</p>}
         {item && <>

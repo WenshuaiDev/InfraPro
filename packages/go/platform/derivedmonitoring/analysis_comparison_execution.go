@@ -130,7 +130,7 @@ func artifactRow(row *resultstore.Row) *AnalysisArtifactRow {
 		r := rangeDTO(*row.Start, row.End)
 		value.Interval = &r
 	}
-	return &AnalysisArtifactRow{ResultID: row.Result, TrialValue: value, Lineage: row.Lineage}
+	return &AnalysisArtifactRow{InputFirst: row.InputFirst, InputLast: row.InputLast, ResultID: row.Result, TrialValue: value, Lineage: row.Lineage}
 }
 func exactAnalysisDifference(left, right *resultstore.Row) *string {
 	if left == nil || right == nil || left.Coefficient == nil || right.Coefficient == nil {

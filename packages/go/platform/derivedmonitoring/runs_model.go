@@ -68,27 +68,29 @@ type TrialInput struct {
 	OutputRange NanosecondRange `json:"output_range"`
 }
 type Run struct {
-	ID          string                    `json:"id"`
-	ChannelID   string                    `json:"channel_id,omitempty"`
-	ConfigID    string                    `json:"config_id,omitempty"`
-	Mode        string                    `json:"mode"`
-	OutputRange NanosecondRange           `json:"output_range"`
-	PlanHash    string                    `json:"compiled_plan_hash"`
-	CreatedAt   time.Time                 `json:"created_at"`
-	Job         monitoring.Job            `json:"job"`
-	Trial       *TrialResult              `json:"trial,omitempty"`
-	Replay      *ReplayResult             `json:"historical_replay,omitempty"`
-	Analysis    *AnalysisRunInfo          `json:"analysis,omitempty"`
-	Comparison  *AnalysisComparisonResult `json:"comparison,omitempty"`
-	Replayed    bool                      `json:"replayed"`
+	PublishedGenerationID string                    `json:"published_generation_id,omitempty"`
+	ControlAction         string                    `json:"control_action,omitempty"`
+	ID                    string                    `json:"id"`
+	ChannelID             string                    `json:"channel_id,omitempty"`
+	ConfigID              string                    `json:"config_id,omitempty"`
+	Mode                  string                    `json:"mode"`
+	OutputRange           NanosecondRange           `json:"output_range"`
+	PlanHash              string                    `json:"compiled_plan_hash"`
+	CreatedAt             time.Time                 `json:"created_at"`
+	Job                   monitoring.Job            `json:"job"`
+	Trial                 *TrialResult              `json:"trial,omitempty"`
+	Replay                *ReplayResult             `json:"historical_replay,omitempty"`
+	Analysis              *AnalysisRunInfo          `json:"analysis,omitempty"`
+	Comparison            *AnalysisComparisonResult `json:"comparison,omitempty"`
+	Replayed              bool                      `json:"replayed"`
 }
 type RunPage struct {
 	Items      []Run  `json:"items"`
 	NextCursor string `json:"next_cursor"`
 }
 type RunFilter struct {
-	ChannelID, State, Cursor string
-	Limit                    int
+	ChannelID, State, Cursor, Mode string
+	Limit                          int
 }
 type TrialMatch struct {
 	Reference string `json:"reference"`

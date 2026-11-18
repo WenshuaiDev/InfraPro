@@ -26,76 +26,51 @@ func passwordSuccess(ctx context.Context, tx pgx.Tx, key string) error {
 	_, e := tx.Exec(ctx, "DELETE FROM account_rate_limits WHERE key_hash=$1", key)
 	return e
 }
-func (r *Repository) Login(ctx context.Context, username, password, dummy, tokenHash string, absolute time.Duration, threshold int, m Meta) (Principal, error) {
-	var p Principal
-	var outcome error
-	e := r.transact(ctx, func(tx pgx.Tx) error {
-		var hash string
-		var version int64
-		a, err := scanAccount(tx.QueryRow(ctx, "SELECT "+accountColumns+" FROM accounts WHERE username_normalized=$1 FOR UPDATE", strings.ToLower(username)))
-		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-			return err
-		}
-		found := err == nil
-		key := digest("password:" + strings.ToLower(username))
-		cooling, err := passwordCooldown(ctx, tx, key)
-		if err != nil {
-			return err
-		}
-		if cooling {
-			outcome = ErrRate
-			return audit(ctx, tx, "login", "", a.ID, "", "rate_limited", m)
-		}
-		hash = dummy
-		if found {
-			if err = tx.QueryRow(ctx, "SELECT p.password_hash,a.auth_version FROM account_passwords p JOIN accounts a ON a.id=p.account_id WHERE a.id=$1", a.ID).Scan(&hash, &version); err != nil {
-				return err
-			}
-		}
-		verified := VerifyPassword(hash, password)
-		if !found || !verified || a.Status != "active" {
-			outcome = ErrCredentials
-			if err = passwordFailure(ctx, tx, key, threshold); err != nil {
-				return err
-			}
-			return audit(ctx, tx, "login", "", a.ID, "", "failure", m)
-		}
-		if err = passwordSuccess(ctx, tx, key); err != nil {
-			return err
-		}
-		p.Account = a
-		p.Version = version
-		p.TokenHash = tokenHash
-		err = tx.QueryRow(ctx, `INSERT INTO account_sessions(token_hash,account_id,auth_version,expires_at,user_agent,ip) VALUES($1,$2,$3,now()+$4::interval,$5,$6) RETURNING id::text,created_at,last_activity_at,expires_at,reauthenticated_at`, tokenHash, a.ID, version, interval(absolute), limit(m.UserAgent, 300), limit(m.IP, 100)).Scan(&p.Session.ID, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt)
-		if err != nil {
-			return err
-		}
-		p.Session.UserAgent = limit(m.UserAgent, 300)
-		p.Session.IP = limit(m.IP, 100)
-		return audit(ctx, tx, "login", a.ID, a.ID, p.Session.ID, "success", m)
-	})
-	if e != nil {
-		return p, e
-	}
-	return p, outcome
-}
 func (r *Repository) LoadSession(ctx context.Context, hash string) (Principal, error) {
 	var p Principal
-	e := r.pool.QueryRow(ctx, `SELECT s.id::text,s.account_id::text,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.reauthenticated_at,s.user_agent,s.ip,a.username,a.display_name,a.status,a.created_at FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND a.status='active' AND a.auth_version=s.auth_version`, hash).Scan(&p.Session.ID, &p.Account.ID, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt, &p.Session.UserAgent, &p.Session.IP, &p.Account.Username, &p.Account.DisplayName, &p.Account.Status, &p.Account.CreatedAt)
-	p.TokenHash = hash
-	if errors.Is(e, pgx.ErrNoRows) {
-		e = ErrUnauthorized
-	}
+	e := r.transact(ctx, func(tx pgx.Tx) error {
+		if _, e := access.Lock(ctx, tx, false); e != nil {
+			return e
+		}
+		policy, e := lockSecurityPolicy(ctx, tx, false)
+		if e != nil {
+			return e
+		}
+		var account string
+		e = tx.QueryRow(ctx, "SELECT account_id::text FROM account_sessions WHERE token_hash=$1", hash).Scan(&account)
+		if errors.Is(e, pgx.ErrNoRows) {
+			return ErrUnauthorized
+		}
+		if e != nil {
+			return e
+		}
+		if _, _, e = lockAuthAccount(ctx, tx, account); e != nil {
+			return e
+		}
+		e = tx.QueryRow(ctx, `SELECT s.id::text,s.account_id::text,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.reauthenticated_at,s.user_agent,s.ip,a.username,a.display_name,a.status,a.created_at,a.avatar_revision::text,a.avatar_object_id IS NOT NULL FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND a.status='active' AND a.auth_version=s.auth_version`, hash).Scan(&p.Session.ID, &p.Account.ID, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt, &p.Session.UserAgent, &p.Session.IP, &p.Account.Username, &p.Account.DisplayName, &p.Account.Status, &p.Account.CreatedAt, &p.Account.AvatarRevision, &p.Account.HasAvatar)
+		if errors.Is(e, pgx.ErrNoRows) {
+			return ErrUnauthorized
+		}
+		if e != nil {
+			return e
+		}
+		p.TokenHash = hash
+		return checkMFASession(ctx, tx, p.Account.ID, p.Session.ID, policy, &p)
+	})
 	return p, e
 }
 func (r *Repository) CheckSession(ctx context.Context, p *Principal) error {
-	e := r.pool.QueryRow(ctx, `SELECT s.last_activity_at,s.expires_at,s.reauthenticated_at FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$1 AND s.id=$2 AND s.account_id=$3 AND s.auth_version=$4 AND s.revoked_at IS NULL AND s.expires_at>now() AND a.status='active' AND a.auth_version=s.auth_version`, p.TokenHash, p.Session.ID, p.Account.ID, p.Version).Scan(&p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.ReauthenticatedAt)
-	if errors.Is(e, pgx.ErrNoRows) {
-		e = ErrUnauthorized
+	fresh, e := r.LoadSession(ctx, p.TokenHash)
+	if e != nil {
+		return e
 	}
-	return e
+	*p = fresh
+	return nil
 }
 func revokeSessions(ctx context.Context, tx pgx.Tx, account, id string) error {
+	if e := revokeChallenges(ctx, tx, account, id); e != nil {
+		return e
+	}
 	_, e := tx.Exec(ctx, `WITH revoked AS (UPDATE account_sessions SET revoked_at=COALESCE(revoked_at,now()) WHERE account_id=$1 AND ($2='' OR id::text=$2) RETURNING id,token_hash) INSERT INTO account_cache_invalidations(session_id,token_hash) SELECT id,token_hash FROM revoked ON CONFLICT DO NOTHING`, account, id)
 	return e
 }
@@ -215,7 +190,7 @@ func (r *Repository) ConfirmPassword(ctx context.Context, p Principal, password,
 	return outcome
 }
 func (r *Repository) Sessions(ctx context.Context, tx pgx.Tx, id string) ([]Principal, error) {
-	rows, e := tx.Query(ctx, `SELECT s.id::text,s.token_hash,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.user_agent,s.ip FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.account_id=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND s.auth_version=a.auth_version AND a.status='active' ORDER BY s.created_at DESC`, id)
+	rows, e := tx.Query(ctx, `SELECT s.id::text,s.token_hash,s.auth_version,s.created_at,s.last_activity_at,s.expires_at,s.user_agent,s.ip,s.authentication_method FROM account_sessions s JOIN accounts a ON a.id=s.account_id WHERE s.account_id=$1 AND s.revoked_at IS NULL AND s.expires_at>now() AND s.auth_version=a.auth_version AND a.status='active' ORDER BY s.created_at DESC`, id)
 	if e != nil {
 		return nil, e
 	}
@@ -224,7 +199,7 @@ func (r *Repository) Sessions(ctx context.Context, tx pgx.Tx, id string) ([]Prin
 	for rows.Next() {
 		var p Principal
 		p.Account.ID = id
-		if e = rows.Scan(&p.Session.ID, &p.TokenHash, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.Session.UserAgent, &p.Session.IP); e != nil {
+		if e = rows.Scan(&p.Session.ID, &p.TokenHash, &p.Version, &p.Session.CreatedAt, &p.Session.LastActivityAt, &p.Session.ExpiresAt, &p.Session.UserAgent, &p.Session.IP, &p.Session.AuthenticationMethod); e != nil {
 			return nil, e
 		}
 		list = append(list, p)

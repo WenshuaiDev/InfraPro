@@ -14,10 +14,11 @@ import (
 )
 
 type Error struct {
-	Code    string
-	Message string
-	Status  int
-	Fields  map[string]string
+	RetryAfter int
+	Code       string
+	Message    string
+	Status     int
+	Fields     map[string]string
 }
 
 func (e *Error) Error() string   { return e.Message }
@@ -76,27 +77,33 @@ func PublicError(err error) *Error {
 }
 
 type Account struct {
-	ID          string    `json:"id"`
-	Username    string    `json:"username"`
-	DisplayName string    `json:"display_name"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	AvatarRevision string    `json:"avatar_revision"`
+	HasAvatar      bool      `json:"has_avatar"`
+	ID             string    `json:"id"`
+	Username       string    `json:"username"`
+	DisplayName    string    `json:"display_name"`
+	Status         string    `json:"status"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 type Session struct {
-	ID             string    `json:"id"`
-	CreatedAt      time.Time `json:"created_at"`
-	LastActivityAt time.Time `json:"last_activity_at"`
-	ExpiresAt      time.Time `json:"expires_at"`
-	UserAgent      string    `json:"user_agent"`
-	IP             string    `json:"ip"`
-	Current        bool      `json:"current"`
+	AuthenticationMethod string    `json:"authentication_method"`
+	ID                   string    `json:"id"`
+	CreatedAt            time.Time `json:"created_at"`
+	LastActivityAt       time.Time `json:"last_activity_at"`
+	ExpiresAt            time.Time `json:"expires_at"`
+	UserAgent            string    `json:"user_agent"`
+	IP                   string    `json:"ip"`
+	Current              bool      `json:"current"`
 }
 type Principal struct {
-	Account           Account   `json:"account"`
-	Session           Session   `json:"session"`
-	Version           int64     `json:"version"`
-	ReauthenticatedAt time.Time `json:"reauthenticated_at"`
-	TokenHash         string    `json:"-"`
+	MFAVerifiedAt     *time.Time `json:"mfa_verified_at"`
+	MFAFactorVersion  *int64     `json:"mfa_factor_version"`
+	PolicyGeneration  int64      `json:"policy_enforcement_generation"`
+	Account           Account    `json:"account"`
+	Session           Session    `json:"session"`
+	Version           int64      `json:"version"`
+	ReauthenticatedAt time.Time  `json:"reauthenticated_at"`
+	TokenHash         string     `json:"-"`
 }
 type Invitation struct {
 	ID        string    `json:"id"`

@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func securityReceipt(ctx context.Context, tx pgx.Tx, event, actor, account, object string, m Meta) error {
-	if e := audit(ctx, tx, event, actor, account, object, "success", m); e != nil {
+func securityReceipt(ctx context.Context, tx pgx.Tx, event, actor, account, object string, m Meta, fields ...map[string]any) error {
+	if e := audit(ctx, tx, event, actor, account, object, "success", m, fields...); e != nil {
 		return e
 	}
 	if event == "reauthentication" {

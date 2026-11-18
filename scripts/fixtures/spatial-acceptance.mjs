@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from '../login-result.mjs';
 import { seedSpatialConnections, grantSpatialDeviceOutputs } from './spatial-connections.mjs';
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -66,10 +67,10 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
     throw Error("Sample task timed out");
   };
   try {
-    await call("/auth/login", {
+    requireAuthenticatedLogin(await call("/auth/login", {
       username: login.username,
       password: login.password,
-    });
+    }));
     const base = `/tenants/${prior.tenant}`,
       spatial = base + "/spatial",
       resources = base + "/engineering/resources/facilities",
@@ -578,10 +579,10 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
       save();
     }
     await call("/auth/logout", {});
-    await call("/auth/login", {
+    requireAuthenticatedLogin(await call("/auth/login", {
       username: "e2e_owner",
       password: "Real browser 河流 secret 592",
-    });
+    }));
     const account = (
         await call("/access/accounts?q=" + login.username)
       ).items.find((a) => a.username === login.username),
@@ -594,10 +595,10 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
       });
     state.second_tenant = second.tenant_id;
     await call("/auth/logout", {});
-    await call("/auth/login", {
+    requireAuthenticatedLogin(await call("/auth/login", {
       username: login.username,
       password: login.password,
-    });
+    }));
     const forbidden = await client.get(
       api +
         `/tenants/${second.tenant_id}/spatial/versions/${state.assets["BRIDGE-PDF"].versions[0].id}/manifest`,

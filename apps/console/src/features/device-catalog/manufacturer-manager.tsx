@@ -17,7 +17,7 @@ export function ManufacturerManager({ onEdit, onSelect }: {
   const c = useDeviceCatalog();
   const [search, setSearch] = useState('');
   const [size, setSize] = useState(25);
-  const manufacturers = useCursorList({
+  const manufacturers = useCursorList({ pageSize: size,
     queryKey: [...c.prefix, 'manufacturer-management', search, size],
     load: (cursor, signal) => c.client.deviceManufacturers(c.scope, { q: search, cursor, limit: size }, signal),
   });
@@ -37,9 +37,7 @@ export function ManufacturerManager({ onEdit, onSelect }: {
           })),
         ]} /> },
       ]}
-      pagination={<ListPagination label="厂家" count={manufacturers.items.length} page={manufacturers.page} pageCount={manufacturers.pageCount}
-        hasNext={!!manufacturers.hasNext} fetching={manufacturers.isFetching} go={manufacturers.go} next={() => void manufacturers.next()}
-        pageSize={size} setPageSize={setSize} pageSizes={[25, 50, 100]} />}
+      pagination={<ListPagination label="厂家" {...manufacturers.pagination} pageSizes={[25, 50, 100]} setPageSize={setSize} />}
     />
     <p className="text-sm leading-relaxed text-muted-foreground">厂家停用后不能用于新建产品；既有产品的发布版本仍按各自状态管理。</p>
   </div>;

@@ -1,5 +1,7 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useEffect, useState } from 'react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import type { DisplayReadDefinition as Definition, DisplayReadViewSchema, DisplayDetail } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
 import { Button } from '@infrapro/ui/components/button';
@@ -13,16 +15,16 @@ function ScopePicker({instance,definition,purpose,kind,label,selected,onChange}:
   const project=useProject(),{client}=useIdentity(),[search,setSearch]=useState(''),[query,setQuery]=useState(''),[open,setOpen]=useState(false);
   useEffect(()=>{const timer=setTimeout(()=>setQuery(search.trim()),250);return()=>clearTimeout(timer);},[search]);
   const params={purpose,structure_model:definition.structure_model??1,domain:definition.domain,scope_id:definition.scope_id,kind,search:query,limit:50};
-  const result=useInfiniteQuery({queryKey:[...project.key,'display-scope-options',instance,params],initialPageParam:'',queryFn:({pageParam,signal})=>client.displayReadScopeOptions({tenantId:project.project.tenant_id,projectId:project.project.id},instance,{...params,cursor:pageParam},signal),getNextPageParam:p=>p.next_cursor||undefined,enabled:open&&project.available&&(purpose==='grant'||!!definition.scope_id),retry:false});
-  const items=result.data?.pages.flatMap(p=>p.items)??[];
+  const result=usePagedQuery({ initialPageSize: 50, queryKey:[...project.key,'display-scope-options',instance,params], enabled:open&&project.available&&(purpose==='grant'||!!definition.scope_id), retry:false, queryFn: async ({cursor,signal,limit})=>{const response = await client.displayReadScopeOptions({tenantId:project.project.tenant_id,projectId:project.project.id},instance,{...params,cursor,limit},signal); return { ...response, total: Number(response.total) }; } });
+  const items=result.data?.items??[];
   const toggle=(id:string)=>onChange(selected.includes(id)?selected.filter(v=>v!==id):[...selected,id],items);
   return <details className="rounded-lg border p-3" onToggle={e=>setOpen(e.currentTarget.open)}><summary className="cursor-pointer text-sm font-medium">{label} · 已选 {selected.length}</summary><div className="mt-3 space-y-3">
     <label className="block text-sm">搜索{label}<Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="名称或编号" maxLength={120}/></label>
-    <p className="text-xs text-muted-foreground" role="status">{result.isFetching?'正在搜索…':result.data?`当前匹配 ${result.data.pages[0]?.total??"0"} 项；显式选择最多 500 项。`:'展开后从服务端读取候选。'}</p>
+    <p className="text-xs text-muted-foreground" role="status">{result.isFetching?'正在搜索…':result.data?`当前匹配 ${result.data?.total??"0"} 项；显式选择最多 500 项。`:'展开后从服务端读取候选。'}</p>
     {result.error&&<FormNotice error>{result.error.message}</FormNotice>}
     <div className="max-h-64 space-y-1 overflow-auto">{items.map(item=><label className="flex min-h-10 items-center gap-2 rounded p-2 text-sm hover:bg-muted" key={`${item.kind}:${item.id}`}><input type="checkbox" checked={selected.includes(item.id)} disabled={!selected.includes(item.id)&&selected.length>=500} onChange={()=>toggle(item.id)}/><span className="min-w-0 break-words">{item.name||item.code} <span className="text-xs text-muted-foreground">{item.code} {item.source_kind==='derived'?'派生':item.source_kind==='direct'?'原始':''}</span></span></label>)}</div>
     {result.data&&!items.length&&<p className="text-sm text-muted-foreground">没有符合条件且当前可读的候选。</p>}
-    {result.hasNextPage&&<Button type="button" variant="outline" disabled={result.isFetchingNextPage} onClick={()=>void result.fetchNextPage()}>加载更多候选</Button>}
+    {result.data &&<ListPagination label="候选" {...result.pagination} />}
     {!!selected.length&&<div className="space-y-1 border-t pt-2"><p className="text-xs text-muted-foreground">已选项（不受当前搜索影响）</p>{selected.map(id=><div key={id} className="flex items-center gap-2 text-xs"><span className="min-w-0 flex-1 break-all">{items.find(v=>v.id===id)?.name??id}</span><Button type="button" size="sm" variant="ghost" aria-label={`移除 ${items.find(v=>v.id===id)?.name??id}`} onClick={()=>toggle(id)}>移除</Button></div>)}</div>}
   </div></details>;
 }

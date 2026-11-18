@@ -5,6 +5,9 @@ import { expect, createAccount, csrf, password, consoleURL } from '../e2e/fixtur
 const api = new URL('/api/v1', consoleURL).href;
 async function signIn(request: APIRequestContext, username: string) {
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(request) };
+  const current = await request.get(`${api}/auth/me`);
+  if (current.status() === 200 && (await current.json()).account.username === username) return headers;
+  expect((await request.post(`${api}/auth/logout`, { headers })).status()).toBe(204);
   expect((await request.post(`${api}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username, password } })).status()).toBe(200);
   return headers;
 }

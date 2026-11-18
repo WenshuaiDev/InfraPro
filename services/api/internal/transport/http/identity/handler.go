@@ -6,6 +6,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
@@ -37,7 +38,11 @@ func RespondError(c *gin.Context, err error) {
 	access.ReportOperationFailure(c.Request.Context(), err)
 	e := identity.PublicError(err)
 	if e.Status == 429 {
-		c.Header("Retry-After", "60")
+		seconds := e.RetryAfter
+		if seconds <= 0 {
+			seconds = 60
+		}
+		c.Header("Retry-After", strconv.Itoa(seconds))
 	}
 	result := gin.H{"code": e.Code, "message": e.Message, "request_id": c.Writer.Header().Get("X-Request-ID")}
 	if e.Fields != nil {
@@ -99,29 +104,22 @@ func (h *Handler) PublicReady(c *gin.Context) {
 	c.Next()
 }
 func (h *Handler) Register(r *gin.Engine) {
+	h.registerMFA(r)
+	h.registerAvatars(r)
 	pub := r.Group("/api/v1", h.PublicReady)
 	pub.GET("/public/account-help", func(c *gin.Context) {
 		c.JSON(200, gin.H{"support_contact": h.config.SupportContact, "console_url": h.config.PublicConsoleURL, "password_min": identity.PasswordMin, "password_max": identity.PasswordMax, "username_pattern": "^[A-Za-z0-9_-]{3,32}$"})
 	})
 	pub.GET("/auth/csrf", func(c *gin.Context) { c.JSON(200, gin.H{"token": csrf.Token(c.Request)}) })
-	pub.POST("/auth/login", func(c *gin.Context) {
-		v, ok := decode[struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
-		}](c)
-		if !ok {
-			return
-		}
-		a, token, expiry, e := h.service.Login(c.Request.Context(), v.Username, v.Password, metadata(c))
-		if e == nil {
-			h.setSession(c, token, expiry)
-		}
-		reply(c, a, e)
-	})
+	pub.POST("/auth/login", h.beginLogin)
 	pub.POST("/auth/logout", func(c *gin.Context) {
 		e := h.service.Logout(c.Request.Context(), cookie(c), metadata(c))
 		if e == nil {
+			e = h.service.CancelCurrentChallenge(c.Request.Context(), challengeCookie(c))
+		}
+		if e == nil {
 			h.clearSession(c)
+			h.clearChallenge(c)
 		}
 		reply(c, nil, e)
 	})

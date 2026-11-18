@@ -13,6 +13,14 @@ import (
 
 // TaskSummaryAuthorizer is implemented by the calculation owner. Management
 // disclosure is separate from its complete run/input/result reader.
+type automaticRunCounter interface {
+	TaskAutomaticCountsTx(context.Context, pgx.Tx, access.Actor, taskrecord.Scope) (string, string, string, error)
+}
+
+type runResultResolver interface {
+	TaskRunResultTx(context.Context, pgx.Tx, access.Actor, taskrecord.Scope, string, string) (string, string, map[string]string, error)
+}
+
 type TaskSummaryAuthorizer interface {
 	AuthorizeTaskSummaryTx(context.Context, pgx.Tx, Task, access.Actor, bool) error
 }
@@ -182,6 +190,9 @@ func (s *Service) TaskResolveTx(ctx context.Context, tx pgx.Tx, a access.Actor, 
 					v.ResultState = state
 				}
 			}
+		}
+		if v.State == "succeeded" && (v.Type == "analysis.run" && !tasks.Has(codes, c.Scope.Kind+".derived.analysis.results.read") || v.Type == "derived.backfill" && !tasks.Has(codes, c.Scope.Kind+".derived.results.history")) {
+			v.ResultState = "restricted"
 		}
 		out = append(out, v)
 	}
@@ -406,9 +417,28 @@ func (s *Service) TaskTargetTx(ctx context.Context, tx pgx.Tx, a access.Actor, r
 	default:
 		out.Kind = "derived_run"
 	}
-	if kind == "result" && v.ResultState != "available" {
-		out.Available = false
-		out.Reason = "result_" + v.ResultState
+	if kind != "result" {
+		return out, nil
+	}
+	if v.ResultState != "available" {
+		return tasks.Target{Scope: v.Scope, Generation: generation, Reason: "result_" + v.ResultState}, nil
+	}
+	if v.Type == "analysis.run" || v.Type == "derived.backfill" {
+		executor := "analysis"
+		if v.Type == "derived.backfill" {
+			executor = "derive"
+		}
+		resolver, ok := s.executors[executor].(runResultResolver)
+		if !ok {
+			return tasks.Target{}, tasks.Problem("task_type_unavailable", "尚未注册计算成果读取服务。", 503)
+		}
+		out.Kind, out.ID, out.Parameters, e = resolver.TaskRunResultTx(ctx, tx, a, v.Scope, v.Type, out.ID)
+		if taskHidden(e) {
+			return tasks.Target{Scope: v.Scope, Generation: generation, Reason: "result_restricted"}, nil
+		}
+		if e != nil {
+			return tasks.Target{}, e
+		}
 	}
 	return out, nil
 }
@@ -417,7 +447,11 @@ func (s *Service) TaskOperationsTx(ctx context.Context, tx pgx.Tx, a access.Acto
 		var q, r, failed string
 		condition := `kind IN ('summary','verify','relocate','backup','restore')`
 		if module == "derived" {
-			condition = `kind IN ('derive','analysis','derived_replay','analysis_compare','analysis_export','derived_evidence_export')`
+			counter, ok := s.executors["derive"].(automaticRunCounter)
+			if !ok {
+				return "", "", "", tasks.Problem("task_type_unavailable", "尚未注册自动计算运行服务。", 503)
+			}
+			return counter.TaskAutomaticCountsTx(ctx, tx, a, scope)
 		}
 		e := tx.QueryRow(ctx, `SELECT count(*) FILTER(WHERE state IN ('queued','retry_wait'))::text,count(*) FILTER(WHERE state='running')::text,count(*) FILTER(WHERE state IN ('failed','needs_action'))::text FROM monitoring_jobs WHERE tenant_id=$1 AND project_id IS NOT DISTINCT FROM $2::uuid AND actor_id IS NULL AND `+condition, scope.Tenant, taskrecord.Null(scope.Project)).Scan(&q, &r, &failed)
 		return q, r, failed, e

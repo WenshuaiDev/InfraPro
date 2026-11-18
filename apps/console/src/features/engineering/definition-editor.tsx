@@ -20,7 +20,7 @@ import { useOperation } from '../account/use-operation';
 import { useOptionalTenant } from '../tenancy/context';
 import { TenantAudit } from '../tenancy/pages';
 import { useLivePage } from '../tenancy/membership-shared';
-import { CatalogEditor } from './catalog-editors';
+import { UnitDefinitionEditor } from './catalog-editors';
 import { Issues, Section, SelectControl, TextControl } from './controls';
 import { DirectoryTable } from '@infrapro/ui/patterns/directory-table';
 import { DefinitionInfo, DefinitionSnapshot } from './definition-sections';
@@ -32,7 +32,7 @@ import { PreviewPanel } from './preview-panel';
 import { TemplateEditor } from './template-editor';
 import { upgradeStructureContent } from './structure-model';
 import { TypeEditor } from './type-editor';
-import { useRequestMeta } from './use-request-meta';
+import { useDefinitionCommands } from './use-definition-commands';
 export function DefinitionEditor({
   initial,
   scope,
@@ -75,13 +75,8 @@ export function DefinitionEditor({
   const [notice, setNotice] = useState('');
   const [issues, setIssues] = useState<EngineeringIssue[]>([]);
   const [confirm, setConfirm] = useState('');
-  const requestMeta = useRequestMeta();
+  const write = useDefinitionCommands(scope, definition.id);
   const [lastRequest, setLastRequest] = useState('');
-  const meta = (action: string, payload: unknown, reason: string) => {
-    const result = requestMeta(action, payload, reason);
-    setLastRequest(result.request_id);
-    return result;
-  };
   const errorSummary = useRef<HTMLDivElement>(null);
   const [diffFrom, setDiffFrom] = useState(initial.versions[1]?.id ?? initial.versions[0]?.id ?? '');
   const [diffTo, setDiffTo] = useState(initial.draft ? '' : (initial.versions[0]?.id ?? ''));
@@ -98,34 +93,15 @@ export function DefinitionEditor({
   });
   const operation = useOperation<EngineeringResult, 'save' | 'publish' | 'delete' | 'draft' | 'state' | 'copy'>({
     mutationFn: async (action) => {
-      if (!reason.trim()) throw new Error('请填写本次变更原因。');
-      const common = { revision: definition.revision };
-      const id = definition.id;
-      if (action === 'save') {
-        const payload = { ...common, content: form.getValues('content') };
-        return client.engineeringSave(scope, id, { ...payload, ...meta(action, [id, payload], reason) });
+      const revision = definition.revision;
+      if (action === 'save') return write({ action, revision, content: form.getValues('content') }, reason, setLastRequest);
+      if (action === 'publish' || action === 'delete') {
+        if (action === 'publish' && dirty) throw new Error('请先保存草稿。');
+        return write({ action, revision }, reason, setLastRequest);
       }
-      if (action === 'publish') {
-        if (dirty) throw new Error('请先保存草稿。');
-        return client.engineeringPublish(scope, id, { ...common, ...meta(action, [id, common], reason) });
-      }
-      if (action === 'delete')
-        return client.engineeringDeleteDraft(scope, id, { ...common, ...meta(action, [id, common], reason) });
-      if (action === 'draft') {
-        const payload = { ...common, version_id: versionId };
-        return client.engineeringNewDraft(scope, id, { ...payload, ...meta(action, [id, payload], reason) });
-      }
-      if (action === 'state' && version) {
-        const payload = { revision: version.state_revision, enabled: !version.enabled };
-        return client.engineeringState(scope, id, versionId, {
-          ...payload,
-          ...meta(action, [id, versionId, payload], reason),
-        });
-      }
-      if (action === 'copy') {
-        const payload = { code: copyCode, source_version: versionId };
-        return client.engineeringCopy({ ...scope, catalog: false }, { ...payload, ...meta(action, payload, reason) });
-      }
+      if (action === 'draft') return write({ action, revision, version_id: versionId }, reason, setLastRequest);
+      if (action === 'state' && version) return write({ action, revision: version.state_revision, version_id: versionId, enabled: !version.enabled }, reason, setLastRequest);
+      if (action === 'copy') return write({ action, source_version: versionId, code: copyCode }, reason, setLastRequest);
       throw new Error('请选择明确版本。');
     },
     onSuccess: async (result, action) => {
@@ -477,7 +453,7 @@ export function DefinitionEditor({
                 />
               </Section>
               {scope.kind === 'units' && (
-                <CatalogEditor onReferences={remember} value={content} onChange={update} known={known} />
+                <UnitDefinitionEditor value={content} onChange={update} />
               )}
             </fieldset>
           ) : (
@@ -519,13 +495,7 @@ export function DefinitionEditor({
           ))}
         {scope.kind === 'metrics' && (
           <TabsContent value="rules">
-            {modifying ? (
-              <fieldset disabled={busy} className="min-w-0">
-                <CatalogEditor onReferences={remember} value={content} onChange={update} known={known} />
-              </fieldset>
-            ) : (
-              <DefinitionSnapshot content={displayed} section="rules" known={known} />
-            )}
+            <DefinitionSnapshot content={displayed} section="rules" known={known} />
           </TabsContent>
         )}
         {content.template &&

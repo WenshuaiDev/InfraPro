@@ -2,12 +2,14 @@ package resources_test
 
 import (
 	"database/sql"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pressly/goose/v3"
 )
 
@@ -28,18 +30,6 @@ func TestUploadLimitsMigrationPreservesEvidenceAndRejectsUnsafeDowngrade(t *test
 	for _, table := range []string{"file_records", "file_uploads", "file_upload_parts", "file_objects", "file_jobs", "file_attachment_revisions"} {
 		before[table] = snapshot(table)
 	}
-	must(t, migrations.Up(ctx, f.env.Config.DatabaseURL))
-	must(t, migrations.Check(ctx, f.env.Pool))
-	for table, want := range before {
-		if snapshot(table) != want {
-			t.Fatal("upload upgrade changed retained evidence", table)
-		}
-	}
-	f.options.MaxFileBytes = 101 << 20
-	f.s.WithOptions(f.options)
-	_, e := f.s.StartUpload(ctx, f.actor, f.scope, files.StartUploadInput{WriteMeta: f.meta(), Host: f.scope.Host(), Intent: "add", Filename: "larger.txt", DisplayName: "larger", SizeBytes: "105906176", SHA256: fileDigest([]byte("declaration only")), DeclaredMediaType: "text/plain"})
-	must(t, e)
-	accepted := snapshot("file_uploads")
 	db, e := sql.Open("pgx", f.env.Config.DatabaseURL)
 	must(t, e)
 	defer db.Close()
@@ -47,12 +37,35 @@ func TestUploadLimitsMigrationPreservesEvidenceAndRejectsUnsafeDowngrade(t *test
 	must(t, e)
 	provider, e := goose.NewProvider(goose.DialectPostgres, db, os.DirFS(dir))
 	must(t, e)
-	if _, e = provider.DownTo(ctx, 54); e == nil {
-		t.Fatal("downgrade silently discarded an accepted larger upload")
+	_, e = provider.UpTo(ctx, 55)
+	must(t, e)
+	for table, want := range before {
+		if snapshot(table) != want {
+			t.Fatal("upload upgrade changed retained evidence", table)
+		}
 	}
-	must(t, migrations.Check(ctx, f.env.Pool))
+	f.options.MaxFileBytes = 101 << 20
+	f.s.WithOptions(f.options)
+	_, e = f.s.StartUpload(ctx, f.actor, f.scope, files.StartUploadInput{WriteMeta: f.meta(), Host: f.scope.Host(), Intent: "add", Filename: "larger.txt", DisplayName: "larger", SizeBytes: "105906176", SHA256: fileDigest([]byte("declaration only")), DeclaredMediaType: "text/plain"})
+	must(t, e)
+	accepted := snapshot("file_uploads")
+	_, e = provider.DownTo(ctx, 54)
+	var violation *pgconn.PgError
+	if !errors.As(e, &violation) || violation.Code != "23514" || violation.ConstraintName != "file_uploads_expected_size_check" {
+		t.Fatal("expected the retained upload to block the old size constraint", e)
+	}
+	version, e := provider.GetDBVersion(ctx)
+	must(t, e)
+	if version != 55 {
+		t.Fatalf("failed upload downgrade left schema at %d, want 55", version)
+	}
 	if snapshot("file_uploads") != accepted {
 		t.Fatal("failed downgrade changed uploads")
+	}
+	must(t, migrations.Up(ctx, f.env.Config.DatabaseURL))
+	must(t, migrations.Check(ctx, f.env.Pool))
+	if snapshot("file_uploads") != accepted {
+		t.Fatal("upgrade to current schema changed uploads")
 	}
 	t.Log("schema 54→55 retained completed and unfinished attachments; unsafe rollback failed atomically")
 }

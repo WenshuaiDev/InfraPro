@@ -1,11 +1,8 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { readSpatialMetadata } from "./metadata-reader";
 import { useState } from "react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Permissions as P,
   type SpatialAccessInput,
@@ -63,39 +60,25 @@ export function SpatialAccessPage({
     enabled: canRead && m.can(P.TenantProjectRead) && m.available,
     retry: false,
   });
-  const assets = useInfiniteQuery({
-    queryKey: [...m.prefix, "grant-assets", q],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+  const assets = usePagedQuery({ initialPageSize: 30, queryKey: [...m.prefix, "grant-assets", q], enabled: canManage && m.canRead && m.available && open && !endTarget, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialAssets(
         m.scope,
-        { q, state: "normal", limit: 30, cursor: pageParam },
+        { q, state: "normal", limit, cursor },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: canManage && m.canRead && m.available && open && !endTarget,
-    retry: false,
-  });
+      ) });
   const selectedAsset = useQuery({
     queryKey: [...m.prefix, "asset", asset],
     queryFn: ({ signal }) => m.client.spatialAsset(m.scope, asset, signal),
     enabled: !!asset && m.canRead && open && m.available,
     retry: false,
   });
-  const versions = useInfiniteQuery({
-    queryKey: [...m.prefix, "grant-versions", asset],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+  const versions = usePagedQuery({ initialPageSize: 30, queryKey: [...m.prefix, "grant-versions", asset], enabled: !!asset && m.canRead && m.available && open && !endTarget, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialVersions(
         m.scope,
         asset,
-        { state: "published", limit: 30, cursor: pageParam },
+        { state: "published", limit, cursor },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: !!asset && m.canRead && m.available && open && !endTarget,
-    retry: false,
-  });
+      ) });
   const command = useMutation({
     mutationFn: async (action: string) => {
       if (!grants.data) throw Error("请先读取当前授权。");
@@ -149,7 +132,7 @@ export function SpatialAccessPage({
   if (!canRead) return <Info>当前身份没有项目空间授权读取权限。</Info>;
   const records =
       grants.data?.grants.filter((g) => showEnded || !g.ended_at) ?? [],
-    assetItems = assets.data?.pages.flatMap((p) => p.items) ?? [];
+    assetItems = assets.data?.items ?? [];
   return (
     <section className="min-w-0 space-y-5">
       <div className="flex flex-wrap gap-4 text-sm">
@@ -369,15 +352,8 @@ export function SpatialAccessPage({
                   ))}
                 </select>
               </Field>
-              {assets.hasNextPage && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void assets.fetchNextPage()}
-                  disabled={assets.isFetchingNextPage}
-                >
-                  更多可授权资料
-                </Button>
+              {assets.data && (
+                <ListPagination label="可授权资料" {...assets.pagination} />
               )}
               <Field label="明确选择已发布版本">
                 <select
@@ -386,8 +362,7 @@ export function SpatialAccessPage({
                   onChange={(e) => setVersion(e.target.value)}
                 >
                   <option value="">请选择固定版本</option>
-                  {versions.data?.pages
-                    .flatMap((p) => p.items)
+                  {versions.data?.items
                     .filter((v) => v.state === "published")
                     .map((v) => (
                       <option key={v.id} value={v.id}>
@@ -396,15 +371,8 @@ export function SpatialAccessPage({
                     ))}
                 </select>
               </Field>
-              {versions.hasNextPage && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void versions.fetchNextPage()}
-                  disabled={versions.isFetchingNextPage}
-                >
-                  更多已发布版本
-                </Button>
+              {versions.data && (
+                <ListPagination label="已发布版本" {...versions.pagination} />
               )}
               <label className="flex min-h-11 items-center gap-2 text-sm">
                 <input

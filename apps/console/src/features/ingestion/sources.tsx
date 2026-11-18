@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -12,18 +14,16 @@ import { ErrorState, FormNotice } from "@infrapro/ui/patterns/feedback";
 import { DeviceField, DeviceSelect } from "../parsing/fields";
 import { useParsing, useParsingWrite, WriteFeedback } from "../parsing/context";
 import { Execution } from "./terminals";
-import { Digest, Facts, Pages, State, Time } from "./common";
+import { Digest, Facts, State, Time } from "./common";
 export function Sources({ initial }: { initial?: string }) {
   const c = useParsing(),
-    [cursor, setCursor] = useState(""),
     [q, setQ] = useState(""),
     [selected, setSelected] = useState(initial),
     [create, setCreate] = useState(false),
     [nodes, setNodes] = useState(false);
-  const query = useQuery({
-    queryKey: [...c.prefix, "ingestion-sources", cursor, q],
-    queryFn: ({ signal }) =>
-      c.client.ingestionSources(c.scope, { cursor, q, limit: 25 }, signal),
+  const query = usePagedQuery({ initialPageSize: 25,
+    queryKey: [...c.prefix, "ingestion-sources", q],
+    queryFn: ({ cursor, signal, limit }) => c.client.ingestionSources(c.scope, { cursor, q, limit }, signal),
   });
   const manage = c.scope.kind === "platform" && c.can(P.IngestionSourceManage);
   return (
@@ -36,8 +36,7 @@ export function Sources({ initial }: { initial?: string }) {
             value={q}
             onChange={(v) => {
               setQ(v);
-              setCursor("");
-            }}
+              }}
           />
         </div>
         {manage && (
@@ -106,11 +105,7 @@ export function Sources({ initial }: { initial?: string }) {
           { id: "error", label: "处理提示", cell: (v) => v.error_code || "—" },
         ]}
         pagination={
-          <Pages
-            cursor={cursor}
-            next={query.data?.next_cursor}
-            onChange={setCursor}
-          />
+          <ListPagination label="接入来源" {...query.pagination} />
         }
       />
       <ResponsivePanel

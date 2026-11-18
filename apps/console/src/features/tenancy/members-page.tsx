@@ -27,11 +27,11 @@ export function TenantMembersPage({ membershipId }: { membershipId?: string } = 
   const selected = selection ?? membershipId;
   const returnFocus = useRef<HTMLElement | null>(null);
   const allowed = ctx.permissions.includes(P.TenantMemberRead);
-  const list = useCursorList({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'members', q, status, role, pageSize], load: (cursor, signal) => client.tenantMembers(ctx.tenant.id, { q, status: status === 'current' ? '' : status, role, cursor, limit: pageSize }, signal), enabled: allowed && ctx.available, refetchInterval: 30_000 });
+  const list = useCursorList({ pageSize, queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'members', q, status, role, pageSize], load: (cursor, signal) => client.tenantMembers(ctx.tenant.id, { q, status: status === 'current' ? '' : status, role, cursor, limit: pageSize }, signal), enabled: allowed && ctx.available, refetchInterval: 30_000 });
   const open = (id: string, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelection(id); };
   const close = () => { setSelection(undefined); if (membershipId) void navigate({ to: '/t/$tenantId/members', params: { tenantId: ctx.tenant.id } }); };
   const columns: DirectoryColumn<TenantMember>[] = [
-    { id: 'account', label: '成员', cell: (item) => <MembershipIdentity name={item.account.display_name} username={item.account.username} onClick={(trigger) => open(item.id, trigger)}><p className="truncate text-xs text-muted-foreground lg:hidden">{item.roles.filter((role) => item.membership_status === 'ended' || !role.revoked_at).map((role) => role.name).join('、') || '未绑定角色'}</p></MembershipIdentity> },
+    { id: 'account', label: '成员', cell: (item) => <MembershipIdentity avatar={item.account} target={{ kind: 'tenant', tenant: ctx.tenant.id, id: item.id }} name={item.account.display_name} username={item.account.username} onClick={(trigger) => open(item.id, trigger)}><p className="truncate text-xs text-muted-foreground lg:hidden">{item.roles.filter((role) => item.membership_status === 'ended' || !role.revoked_at).map((role) => role.name).join('、') || '未绑定角色'}</p></MembershipIdentity> },
     { id: 'status', label: '成员 / 账号状态', className: 'w-28 lg:w-36', cell: (item) => <MemberStatus item={item} /> },
     { id: 'roles', label: '绑定角色', secondary: true, cell: (item) => <MemberRoles item={item} onMore={(trigger) => open(item.id, trigger)} /> },
     { id: 'joined', label: '加入时间', secondary: true, className: 'lg:w-40', cell: (item) => <time className="text-sm tabular-nums text-muted-foreground" dateTime={item.joined_at} title={`${membershipDate(item.joined_at)}（北京时间）`}>{membershipDate(item.joined_at)}</time> },
@@ -49,7 +49,7 @@ export function TenantMembersPage({ membershipId }: { membershipId?: string } = 
           <ListFilter label="角色" value={role} onChange={setRole} options={[{ value: '', label: '全部角色' }, { value: 'tenant_admin', label: '管理员' }, { value: 'tenant_member', label: '普通成员' }]} />
           {(q || status !== 'current' || role) && <Button variant="ghost" className="h-9 max-sm:h-11" onClick={() => { setQ(''); setStatus('current'); setRole(''); }}>重置<X aria-hidden="true" /></Button>}
         </>} />
-        <ListPagination label="成员列表" unit="位成员" count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+        <ListPagination label="成员列表" {...list.pagination} setPageSize={setPageSize} />
         <p className="text-xs text-muted-foreground">时间均为北京时间；历史成员保留本次关系及角色授予记录。</p>
       </TabsContent>
     </Tabs>

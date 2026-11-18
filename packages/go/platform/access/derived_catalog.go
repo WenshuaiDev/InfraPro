@@ -74,6 +74,7 @@ var derivedRoutes = []derivedRoute{
 	{"analysis.artifacts.versions", "GET", "/analysis/artifacts/:id/versions", []string{"analysis.results.read"}, false, true},
 	{"analysis.artifacts.query", "POST", "/analysis/artifacts/:id/query", []string{"analysis.results.read"}, false, true},
 	{"analysis.artifacts.lineage", "POST", "/analysis/artifacts/:id/lineage", []string{"analysis.results.read"}, false, true},
+	{"analysis.artifacts.delete", "POST", "/analysis/artifacts/:id/delete", []string{"analysis.results.read", "analysis.manage"}, false, false},
 	{"analysis.artifacts.archive", "POST", "/analysis/artifacts/:id/archive", []string{"analysis.results.read", "analysis.manage"}, false, false},
 	{"analysis.exports.list", "GET", "/analysis/exports", []string{"analysis.results.read", "analysis.export"}, false, true},
 	{"analysis.exports.detail", "GET", "/analysis/exports/:id", []string{"analysis.results.read", "analysis.export"}, false, true},

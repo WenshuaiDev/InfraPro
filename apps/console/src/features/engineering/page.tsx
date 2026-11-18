@@ -1,12 +1,12 @@
 import { ObjectHistory } from '../audit/object-history';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useIdentity } from '@infrapro/api-client/react';
 import { ApiError, Permissions as P, type EngineeringKind, type EngineeringScope } from '@infrapro/api-client';
 import { PageHeader } from '@infrapro/layouts';
 import { Button } from '@infrapro/ui/components/button';
-import { Plus, Copy, Settings2 } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 import { Badge } from '@infrapro/ui/components/badge';
 import {
   DirectoryTable,
@@ -19,22 +19,31 @@ import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { ErrorState, FormNotice } from '@infrapro/ui/patterns/feedback';
 import { useOptionalTenant } from '../tenancy/context';
 import { useOperation } from '../account/use-operation';
-import { CategoriesPanel } from './catalog-editors';
+import { MetricDirectory } from './metric-catalog/directory';
+import { MetricRulesForm } from './metric-catalog/rules-form';
 import { Issues, Section, TextControl } from './controls';
 import { CopyPublicTemplate } from './copy-template';
 import { DefinitionEditor } from './definition-editor';
 import { emptyContent, kinds, permissions, titles } from './model';
 import { useRequestMeta } from './use-request-meta';
+import { PlatformUnitCatalog } from './unit-catalog';
+
+const MetricDetail = lazy(() => import('./metric-catalog/detail'));
+const FacilityTypeDetail = lazy(() => import('./facility-type-detail'));
+export type FacilityPanel = 'structure' | 'versions';
+
 export function EngineeringPage({
   kind,
   catalog = false,
   selected,
   onSelect,
+  initialPanel,
 }: {
   kind: string;
   catalog?: boolean;
   selected?: string;
   onSelect: (id?: string) => void;
+  initialPanel?: FacilityPanel;
 }) {
   const { account, can } = useIdentity();
   const tenant = useOptionalTenant();
@@ -45,12 +54,16 @@ export function EngineeringPage({
   const allows = (index: number) =>
     !!codes[index] && (tenant ? tenant.permissions.includes(codes[index]!) : can(codes[index]!));
   if (!allows(0)) return <ErrorState title="没有工程目录读取权限" message="请联系当前范围的管理员配置相应角色。" />;
+  if (kind === 'units' && !tenant && !catalog && !selected) {
+    return <PlatformUnitCatalog key={account?.id} editable={allows(1)} selectUnit={onSelect} />;
+  }
   return (
     <EngineeringBody
       key={`${account?.id}:${tenant?.membership_id ?? 'public'}:${kind}:${catalog}`}
       scope={scope}
       selected={selected}
       onSelect={onSelect}
+      initialPanel={initialPanel}
       editable={allows(1) && tenant?.available !== false}
       publishable={allows(2) && tenant?.available !== false}
       stateable={allows(3) && tenant?.available !== false}
@@ -69,6 +82,7 @@ function EngineeringBody({
   scope,
   selected,
   onSelect,
+  initialPanel,
   editable,
   publishable,
   stateable,
@@ -77,6 +91,7 @@ function EngineeringBody({
   scope: EngineeringScope;
   selected?: string;
   onSelect: (id?: string) => void;
+  initialPanel?: FacilityPanel;
   editable: boolean;
   publishable: boolean;
   stateable: boolean;
@@ -87,14 +102,15 @@ function EngineeringBody({
   const cache = useQueryClient();
   const [filter, setFilter] = useState({ q: '', status: '', offset: 0 });
   const [pageSize, setPageSize] = useState(20);
-  const [panel, setPanel] = useState<'create' | 'copy' | 'categories' | ''>('');
+  const [panel, setPanel] = useState<'create' | 'copy' | ''>('');
   const prefix = tenant
     ? ['tenant', account?.id, tenant.tenant.id, tenant.membership_id, 'engineering']
     : ['platform', account?.id, 'engineering'];
+  const metricCatalog = scope.kind === 'metrics' && !scope.catalog && !scope.tenant;
   const list = useQuery({
     queryKey: [...prefix, scope.catalog, scope.kind, 'list', filter, pageSize],
     queryFn: ({ signal }) => client.engineeringList(scope, { ...filter, limit: pageSize }, signal),
-    enabled: !selected,
+    enabled: !selected && !metricCatalog,
   });
   const detail = useQuery({
     queryKey: [...prefix, scope.catalog, scope.kind, 'detail', selected],
@@ -105,7 +121,7 @@ function EngineeringBody({
   const refresh = async () => {
     const result = await detail.refetch({ throwOnError: true });
     if (!result.data) throw new Error('未能读取当前结果。');
-    void cache.invalidateQueries({ queryKey: prefix });
+    void cache.invalidateQueries({ queryKey: prefix, predicate: (query) => query.queryKey.at(-1) !== selected });
     return result.data;
   };
   const title = `${scope.tenant ? '本租户' : scope.kind === 'monitoring-templates' ? '公共' : ''}${titles[scope.kind]}`;
@@ -119,28 +135,23 @@ function EngineeringBody({
   };
   const error = detail.error instanceof ApiError ? detail.error : undefined;
   const restricted = error?.status === 401 || error?.status === 403 || error?.status === 404;
-  const copied = (id: string) => {
+  const selectAfterWrite = (id?: string) => {
     setPanel('');
     onSelect(id);
     void cache.invalidateQueries({ queryKey: prefix });
   };
+  const facilityDetail = scope.kind === 'type-definitions' && !scope.tenant && !scope.catalog;
   const canCopyPublic = editable && !!tenant?.permissions.includes(P.TenantEngineeringCatalogRead);
   const page = Math.floor(filter.offset / pageSize);
   const total = list.data?.total ?? 0;
   return (
     <section className="min-w-0 space-y-6">
-      {!selected && (
+      {!selected && !metricCatalog && (
         <PageHeader
           title={title}
           description={descriptions[scope.kind]}
           actions={
             <div className="flex flex-wrap gap-2">
-              {!scope.tenant && ['units', 'metrics'].includes(scope.kind) && (
-                <Button variant="outline" onClick={() => setPanel('categories')}>
-                  <Settings2 aria-hidden="true" />
-                  类别管理
-                </Button>
-              )}
               {canCopyPublic && (
                 <Button id="copy-public-template" variant="outline" onClick={() => setPanel('copy')}>
                   <Copy aria-hidden="true" />
@@ -157,7 +168,7 @@ function EngineeringBody({
           }
         />
       )}
-      {selected && <ObjectHistory objectType="engineering_definition" objectId={selected} scope={scope.tenant?{kind:"tenant",tenant_id:scope.tenant}:{kind:"platform"}}/>}{selected ? (
+      {selected && !facilityDetail && !metricCatalog && <ObjectHistory objectType="engineering_definition" objectId={selected} scope={scope.tenant?{kind:"tenant",tenant_id:scope.tenant}:{kind:"platform"}}/>}{selected ? (
         <>
           {detail.error && (
             <ErrorState
@@ -167,7 +178,16 @@ function EngineeringBody({
             />
           )}
           {!detail.data && !detail.error && <p role="status">正在读取工程定义…</p>}
-          {detail.data && !restricted && (
+          {detail.data && !restricted && (facilityDetail ? (
+            <Suspense fallback={<p role="status">正在打开类型详情…</p>}>
+              <FacilityTypeDetail key={selected + String(editable)} definition={detail.data} initialPanel={initialPanel} refresh={refresh} copied={selectAfterWrite} removed={() => selectAfterWrite()}
+                rights={{ editable, publishable, stateable, copyable }} back={() => onSelect()} />
+            </Suspense>
+          ) : metricCatalog ? (
+            <Suspense fallback={<p role="status">正在打开指标详情…</p>}>
+              <MetricDetail key={selected} definition={detail.data} initialPanel={initialPanel} rights={{ editable, publishable, stateable, copyable }} back={() => onSelect()} refresh={refresh} copied={selectAfterWrite} removed={() => selectAfterWrite()} />
+            </Suspense>
+          ) : (
             <DefinitionEditor
               key={selected}
               initial={detail.data}
@@ -181,9 +201,9 @@ function EngineeringBody({
                 onSelect();
                 void cache.invalidateQueries({ queryKey: prefix });
               }}
-              copied={copied}
+              copied={selectAfterWrite}
             />
-          )}
+          ))}
           {restricted && (
             <Button variant="outline" onClick={() => onSelect()}>
               返回目录
@@ -192,7 +212,7 @@ function EngineeringBody({
         </>
       ) : (
         <>
-          <DirectoryTable
+          {metricCatalog ? <MetricDirectory select={onSelect} create={editable ? () => setPanel('create') : undefined} /> : <DirectoryTable
             label={title}
             items={list.data?.items ?? []}
             rowId={(v) => v.id}
@@ -285,13 +305,10 @@ function EngineeringBody({
             pagination={
               <ListPagination
                 label={title}
-                count={list.data?.items.length ?? 0}
+                total={total}
                 page={page}
-                pageCount={Math.ceil(total / pageSize)}
-                hasNext={filter.offset + pageSize < total}
                 fetching={list.isFetching}
                 go={(p) => setFilter({ ...filter, offset: p * pageSize })}
-                next={() => setFilter({ ...filter, offset: filter.offset + pageSize })}
                 pageSize={pageSize}
                 setPageSize={(size) => {
                   setPageSize(size);
@@ -299,7 +316,7 @@ function EngineeringBody({
                 }}
               />
             }
-          />
+          />}
           <ResponsivePanel
             open={!!panel}
             onOpenChange={(open) => {
@@ -308,22 +325,17 @@ function EngineeringBody({
             title={
               panel === 'copy'
                 ? '从公共模板复制'
-                : panel === 'categories'
-                  ? '单位类别管理'
-                  : `新建${titles[scope.kind]}`
+                : metricCatalog ? '新建指标' : `新建${titles[scope.kind]}`
             }
             description={
               panel === 'copy'
                 ? '选择可用的公共版本，创建本租户独立草稿。'
-                : panel === 'categories'
-                  ? '维护计量单位及数值指标共用的类别。'
-                  : '填写名称与编号后，进入草稿编辑页面。'
+                : metricCatalog ? '填写指标标识、取值规则与单位，保存为草稿。' : '填写名称与编号后，进入草稿编辑页面。'
             }
             fallbackFocusSelector={panel === 'copy' ? '#copy-public-template' : '#create-definition'}
           >
-            {panel === 'create' && editable && <CreateForm scope={scope} done={copied} />}
-            {panel === 'copy' && canCopyPublic && <CopyPublicTemplate done={copied} />}
-            {panel === 'categories' && <CategoriesPanel editable={editable} />}
+            {panel === 'create' && editable && <CreateForm scope={scope} done={selectAfterWrite} />}
+            {panel === 'copy' && canCopyPublic && <CopyPublicTemplate done={selectAfterWrite} />}
           </ResponsivePanel>
         </>
       )}
@@ -335,17 +347,18 @@ function CreateForm({ scope, done }: { scope: EngineeringScope; done: (id: strin
   const { client } = useIdentity();
   const form = useForm({ defaultValues: { code: '', name: '', reason: '' } });
   const values = useWatch({ control: form.control });
+  const [content, setContent] = useState(() => emptyContent(scope.kind));
   const meta = useRequestMeta();
   const mutation = useOperation({
     mutationFn: () => {
       const v = form.getValues();
-      const input = { code: v.code, content: emptyContent(scope.kind, v.name) };
+      const input = { code: v.code, content: { ...content, name: v.name } };
       return client.engineeringCreate(scope, { ...input, ...meta('create', input, v.reason) });
     },
     onSuccess: (v) => done(v.definition_id),
   });
   return (
-    <Section title={`新建${titles[scope.kind]}`}>
+    <Section title={scope.kind === 'metrics' ? '指标定义' : `新建${titles[scope.kind]}`}>
       <form className="space-y-4" onSubmit={form.handleSubmit(() => mutation.mutate())}>
         <div className="grid gap-4 sm:grid-cols-2">
           <TextControl
@@ -356,6 +369,7 @@ function CreateForm({ scope, done }: { scope: EngineeringScope; done: (id: strin
           />
           <TextControl label="定义名称" value={values.name ?? ''} onChange={(v) => form.setValue('name', v)} />
         </div>
+        {scope.kind === 'metrics' && <MetricRulesForm content={content} change={setContent} />}
         <TextControl label="创建原因" value={values.reason ?? ''} onChange={(v) => form.setValue('reason', v)} />
         <FormNotice error>{mutation.error?.message}</FormNotice>
         {mutation.error instanceof ApiError && <Issues issues={mutation.error.issues} />}

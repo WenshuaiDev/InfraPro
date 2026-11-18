@@ -3,6 +3,7 @@ ENV GOWORK=off
 WORKDIR /src/tools/infrapro
 COPY packages/go/foundation /src/packages/go/foundation
 COPY packages/go/platform /src/packages/go/platform
+COPY services/diagnostics /src/services/diagnostics
 COPY tools/infrapro /src/tools/infrapro
 RUN CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/infrapro ./cmd/infrapro
 

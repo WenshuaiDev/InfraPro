@@ -15,6 +15,7 @@ for (const p of policies) {
  const method = p.Method.toLowerCase(), path = p.Path.replace(/:([a-z_]+)/g, '{$1}');
  const parameters = [...path.matchAll(/\{([^}]+)\}/g)].map(([, name]) => ({ name, in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }));
  if (p.Operation === 'MyNotifications') for (const [name, schema] of Object.entries(schemas.NotificationFilter.properties)) parameters.push({ name, in: 'query', schema });
+ if (p.Operation === 'MyNotifications') parameters.push({ name: 'page_index_only', in: 'query', description: '只返回当前账号和筛选条件下的总数与各后续页的起始游标。', schema: { type: 'boolean' } });
  if (p.Operation === 'MyTenantInvitations') for (const name of ['cursor', 'limit']) parameters.push({ name, in: 'query', schema: schemas.NotificationFilter.properties[name] });
  let result = ref(output[p.Operation] ?? 'NotificationPage');
  if (p.Operation === 'MyTenantInvitations') result = { type: 'object', required: ['items'], properties: { items: { type: 'array', items: ref('TenantInvitationInspection') }, next_cursor: { type: 'string' } } };

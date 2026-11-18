@@ -11,7 +11,8 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } f
 import { useIsMobile } from '@infrapro/ui/hooks/use-mobile';
 import { useMonitoring } from './context';
 import { MonitoringError } from './common';
-import { count } from './format';
+import { count, stateNames } from './format';
+import { JobProgress } from './jobs-page';
 import { UploadForm } from './upload-form';
 import { MappingForm } from './mapping-form';
 import { batchCapabilities, importDate, importFileSize, importFileType, importFilter, type ImportSearch, type ImportTab } from './import-search';
@@ -54,8 +55,20 @@ function BatchDrawer({ id, search }: { id: string; search: ImportSearch }) {
   return <Drawer open onOpenChange={open => { if (!open) close(); }} swipeDirection={mobile ? 'down' : 'right'} showSwipeHandle={mobile}><DrawerContent finalFocus={() => focus() ?? true} className="bg-background shadow-xl [--drawer-bleed-background:transparent] data-[swipe-axis=x]:h-[calc(100dvh-1.5rem)] data-[swipe-axis=x]:w-[min(48rem,calc(100vw-1.5rem))] data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-direction=right]:rounded-2xl data-[swipe-direction=right]:border data-[swipe-axis=y]:h-[94dvh] data-[swipe-axis=y]:max-h-[94dvh]">
     <DrawerHeader className="relative border-b px-6 pb-5 pt-6 pr-16 group-data-[swipe-axis=y]/drawer-popup:text-left"><div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><FileSpreadsheet aria-hidden className="size-4" /><span>导入批次</span><span>/</span><span className="font-mono">{id.slice(0, 8).toUpperCase()}</span></div><DrawerTitle className="break-words text-xl font-semibold leading-7">{verified && b ? b.name : '批次详情'}</DrawerTitle><DrawerDescription className="mt-1.5 text-xs">{verified && b ? `${b.scope_clipped ? '当前授权部分' : `${importFileType(b)} · ${importFileSize(b.size_bytes)}`} · 导入于 ${importDate(b.created_at, true)}` : '查看导入状态、校验问题、文件映射和处理记录。'}</DrawerDescription><Button variant="ghost" size="icon" className="absolute right-3 top-3 size-10" aria-label="关闭批次详情" disabled={busy} onClick={close}><X aria-hidden /></Button></DrawerHeader>
     {result.isPending && <p role="status" className="p-6 text-sm">正在读取批次详情…</p>}{result.error && <div className="p-6"><MonitoringError error={result.error} retry={() => void result.refetch()} /></div>}{!m.available && <p role="alert" className="p-6 text-sm">当前工作空间暂不可用，输入已保留；恢复后可继续核对。</p>}
-    {b && <div className={verified ? "flex min-h-0 flex-1 flex-col" : "hidden"}><BatchContent batch={b} tab={tab} setTab={setTab} busy={busy} setBusy={setBusy} done={done} close={close} /></div>}
+    {b && <div className={verified ? "flex min-h-0 flex-1 flex-col" : "hidden"}>{search.job ? <BatchExecution batch={b} job={search.job} generation={search.execution} openBatch={() => void navigate({ to: m.paths.batch(id), search: { ...importFilter(search), tab: 'overview' } })} /> : <BatchContent batch={b} tab={tab} setTab={setTab} busy={busy} setBusy={setBusy} done={done} close={close} />}</div>}
   </DrawerContent></Drawer>;
+}
+function BatchExecution({batch,job,generation,openBatch}:{batch:Batch;job:string;generation?:string;openBatch:()=>void}) {
+  const m = useMonitoring();
+  const query = useQuery({ queryKey:[...m.prefix,'job',job], queryFn:({signal})=>m.client.monitoringJob(m.scope,job,signal), retry:false });
+  const result = query.error ? undefined : query.data;
+  const matches = result && result.target_id===batch.id && ['validate','publish'].includes(result.kind) && (!generation || result.task_ref?.generation===generation);
+  return <section className="min-h-0 space-y-4 overflow-y-auto p-6"><h2 className="font-semibold">本次批次处理结果</h2><MonitoringError error={query.error} retry={()=>void query.refetch()} />
+    {query.isPending && <p role="status">正在核实作业回执…</p>}
+    {matches && <><p className="text-sm">{result.kind==='validate'?'导入校验':'导入采用'} · {stateNames[result.state] ?? result.state}</p><JobProgress job={result} />
+      <p className="break-all font-mono text-xs text-muted-foreground">{result.id}</p></>}
+    {result && !matches && <p role="status">当前链接无法核实本次执行结果。</p>}
+    <Button variant="outline" onClick={openBatch}>查看当前批次</Button></section>;
 }
 function BatchContent({ batch: b, tab, setTab, busy, setBusy, done, close }: { batch: Batch; tab: ImportTab; setTab: (tab: ImportTab) => void; busy: boolean; setBusy: (value: boolean) => void; done: (batch?: Batch) => void; close: () => void }) {
   const m = useMonitoring();

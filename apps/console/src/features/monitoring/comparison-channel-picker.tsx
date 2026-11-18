@@ -1,5 +1,6 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useEffect, useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { Check, ChevronDown, ChevronRight, FolderTree, Search } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import { Input } from '@infrapro/ui/components/input';
@@ -17,13 +18,8 @@ export function ComparisonChannelPicker({ selected, current, onChange }: { selec
   const [source, setSource] = useState<'' | 'direct' | 'derived'>(''), [owner, setOwner] = useState<'' | 'facility' | 'component' | 'point'>('');
   const [expanded, setExpanded] = useState<string[]>(() => [...new Set([...selected, ...(current ? [current] : [])].flatMap(channel => [channel.facility_id, ownerKey(channel)]))]);
   useEffect(() => { const timer = setTimeout(() => setDebounced(search.trim()), 200); return () => clearTimeout(timer); }, [search]);
-  const directory = useInfiniteQuery({
-    queryKey: [...m.prefix, 'comparison-directory', debounced, source, owner], initialPageParam: '',
-    queryFn: ({ pageParam, signal }) => m.client.monitoringDirectory(m.scope, { cursor: pageParam || undefined, search: debounced || undefined, source_kind: source || undefined, owner_kind: owner || undefined }, signal),
-    getNextPageParam: page => page.next_cursor || undefined,
-    enabled: m.available && m.canNavigate && m.canRead && !onlySelected, staleTime: 30_000, retry: false,
-  });
-  const loaded = directory.data?.pages.flatMap(page => page.items) ?? [];
+  const directory = usePagedQuery({ queryKey: [...m.prefix, 'comparison-directory', debounced, source, owner], enabled: m.available && m.canNavigate && m.canRead && !onlySelected, staleTime: 30_000, retry: false, queryFn: ({ cursor, signal }) => m.client.monitoringDirectory(m.scope, { cursor: cursor || undefined, search: debounced || undefined, source_kind: source || undefined, owner_kind: owner || undefined }, signal) });
+  const loaded = directory.data?.items ?? [];
   const items = onlySelected ? selected.filter(channel => (!source || channel.source_kind === source) && (!owner || channel.owner_kind === owner) && `${channel.name} ${channel.code} ${channel.facility_name} ${channel.owner_name} ${channel.owner_code}`.toLocaleLowerCase().includes(debounced.toLocaleLowerCase())) : [...new Map([...(current && !debounced && !source && !owner ? [current] : []), ...loaded].map(channel => [channel.id, channel])).values()];
   const facilities = [...new Set(items.map(channel => channel.facility_id))];
   const toggle = (key: string) => setExpanded(value => value.includes(key) ? value.filter(item => item !== key) : [...value, key]);
@@ -47,8 +43,7 @@ export function ComparisonChannelPicker({ selected, current, onChange }: { selec
         })}</div>;
       })}
       {!items.length && (onlySelected || !directory.isPending && !directory.error) && <p className="p-3 text-xs text-muted-foreground">{onlySelected && !selected.length ? '尚未选择通道。切换到全部通道开始比较。' : '没有符合条件的可读通道。试试其他名称或编号。'}</p>}
-      {!onlySelected && directory.hasNextPage && <Button size="sm" variant="outline" className="my-3 w-full" disabled={directory.isFetching} onClick={() => void directory.fetchNextPage()}>加载更多通道</Button>}
-      {!onlySelected && loaded.length > 0 && <p className="px-2 py-3 text-[11px] text-muted-foreground">已加载 {loaded.length} 个通道{directory.hasNextPage ? ' · 可继续加载或搜索' : ''}</p>}
+      {!onlySelected && directory.data && <ListPagination label="通道" {...directory.pagination} />}
     </div>
     <div className="comparison-directory-footer"><span className="flex items-center gap-1"><Check className="size-3" aria-hidden />{selected.length >= 50 ? '已达 50 个通道上限' : '勾选即加入趋势图'}</span><Button size="sm" variant="ghost" disabled={!selected.length} onClick={() => onChange([])}>清空选择</Button></div>
   </section>;

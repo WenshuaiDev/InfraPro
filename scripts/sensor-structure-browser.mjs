@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 import {spawn,execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync,openSync,closeSync} from 'node:fs';
 import {resolve,join} from 'node:path';
@@ -25,7 +26,7 @@ try {
  client=await request.newContext();const csrf=await(await client.get(api+'/auth/csrf')).json(),headers={Origin:consoleOrigin,'X-CSRF-Token':csrf.token};
  const call=async(path,data,method=data===undefined?'GET':'POST')=>{const r=await client.fetch(api+path,{method,headers,data});if(!r.ok())throw Error(`${method} ${path}: ${r.status()} ${await r.text()}`);return r.status()===204?{}:r.json();};
  const wait=async(path,pick,want)=>{let data;await expect.poll(async()=>{data=await call(path);return pick(data)},{timeout:120000}).toBe(want);return data;};
- await call('/auth/login',{username:'e2e_owner',password:'Real browser 河流 secret 592'});
+ requireAuthenticatedLogin(await call('/auth/login',{username:'e2e_owner',password:'Real browser 河流 secret 592'}));
  if(process.env.INFRAPRO_SBM_REUSE==='1')state=JSON.parse(readFileSync(join(out,'fixture.json'),'utf8'));
  else {
   const owner=(await call('/access/accounts?q=e2e_owner')).items.find(a=>a.username==='e2e_owner');

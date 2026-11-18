@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 // Add self-authored engineering packages to the explicitly authorized local runtime.
 // No database bootstrap, deletion, grants or credential output. Re-entrant by recorded IDs.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
@@ -77,10 +78,10 @@ function position(s, xyz) {
   };
 }
 try {
-  await call("/auth/login", {
+  requireAuthenticatedLogin(await call("/auth/login", {
     username: account.username,
     password: account.password,
-  });
+  }));
   for (const s of manifest.facilities) {
     const f = (state.facilities[s.key] ??= {
       components: {},

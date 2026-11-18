@@ -69,13 +69,14 @@ func (s *Service) transaction(ctx context.Context, a access.Actor, fn func(pgx.T
 }
 
 type Filter struct {
-	Status   string `json:"status,omitempty"`
-	Category string `json:"category,omitempty"`
-	Tenant   string `json:"tenant_id,omitempty"`
-	Project  string `json:"project_id,omitempty"`
-	Scope    string `json:"scope,omitempty"`
-	Cursor   string `json:"cursor,omitempty"`
-	Limit    int    `json:"limit,omitempty"`
+	PageIndexOnly bool   `json:"-"`
+	Status        string `json:"status,omitempty"`
+	Category      string `json:"category,omitempty"`
+	Tenant        string `json:"tenant_id,omitempty"`
+	Project       string `json:"project_id,omitempty"`
+	Scope         string `json:"scope,omitempty"`
+	Cursor        string `json:"cursor,omitempty"`
+	Limit         int    `json:"limit,omitempty"`
 }
 
 func (f Filter) validate() error {
@@ -128,11 +129,13 @@ type Item struct {
 	policy              string
 }
 type Page struct {
-	Items                 []Item `json:"items"`
-	NextCursor            string `json:"next_cursor,omitempty"`
-	Watermark             string `json:"watermark"`
-	Revision              string `json:"revision"`
-	AuthorizationRevision string `json:"authorization_revision"`
+	Total                 *int     `json:"total,omitempty"`
+	PageCursors           []string `json:"page_cursors,omitempty"`
+	Items                 []Item   `json:"items"`
+	NextCursor            string   `json:"next_cursor,omitempty"`
+	Watermark             string   `json:"watermark"`
+	Revision              string   `json:"revision"`
+	AuthorizationRevision string   `json:"authorization_revision"`
 }
 type Summary struct {
 	Unread                int64            `json:"unread"`
@@ -203,6 +206,17 @@ func (s *Service) disclose(ctx context.Context, tx pgx.Tx, account string, items
 	return out, nil
 }
 func outcomeText(outcome string) string {
+	mfa := map[string]string{
+		"mfa_enabled":                    "已启用多因素认证。请妥善保存恢复码。",
+		"mfa_replaced":                   "已更换验证器，旧验证器和旧恢复码已失效。",
+		"mfa_disabled":                   "已关闭个人多因素认证。",
+		"mfa_recovery_codes_regenerated": "已重建恢复码，旧码组已失效。",
+		"mfa_reset":                      "管理员已重置多因素认证。请通过受控恢复流程重新绑定验证器。",
+		"mfa_recovered":                  "多因素认证恢复完成，已绑定新的验证器。",
+	}
+	if v := mfa[outcome]; v != "" {
+		return v
+	}
 	m := map[string]string{"succeeded": "处理已完成。请进入业务页面查看当前结果。", "ready": "结果已就绪。", "failed": "处理未成功，请进入业务页面查看和处理。", "needs_action": "需要你继续处理。", "cancelled": "任务已取消。", "canceled": "任务已取消。", "validated": "校验已完成，等待你确认采用。", "adopted": "数据已正式采用。", "pending": "你收到一份租户邀请，请明确确认是否加入。", "accepted": "邀请已接受。", "replaced": "邀请已替换，请查看新的邀请。", "revoked": "邀请或授权已撤销。", "expired": "有效期已结束。", "invalidated": "邀请已失效。", "recovered": "此前的故障条件已经恢复。", "missing": "已发布包暂时不可用，请检查存储。"}
 	if v := m[outcome]; v != "" {
 		return v
@@ -228,9 +242,49 @@ func inboxState(ctx context.Context, tx pgx.Tx, account string) (string, string,
 	return seq, rev, e
 }
 
+// Personal receipts stay in their owner's inbox even when their target is
+// redacted. An unscoped index needs only category, status and sequence for
+// these receipts. All other receipts go through the usual eligibility check.
+func (s *Service) indexItems(ctx context.Context, tx pgx.Tx, account string, batch []Item) ([]Item, error) {
+	var restricted []Item
+	for _, item := range batch {
+		if item.policy != "personal" {
+			restricted = append(restricted, item)
+		}
+	}
+	permitted := map[string]Item{}
+	if len(restricted) > 0 {
+		visible, err := s.disclose(ctx, tx, account, restricted)
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range visible {
+			permitted[item.ID] = item
+		}
+	}
+	index := make([]Item, 0, len(batch))
+	for _, item := range batch {
+		if item.policy == "personal" {
+			definition, ok := ne.Catalog[item.Type]
+			if !ok {
+				return nil, errors.New("unknown notification template")
+			}
+			item.Category = definition.Category
+			index = append(index, item)
+		} else if visible, ok := permitted[item.ID]; ok {
+			index = append(index, visible)
+		}
+	}
+	return index, nil
+}
+
 // walk bounds memory and resolves business eligibility BEFORE pagination/counting.
 // No limit is applied to eligible rows until the same disclosure predicate runs.
 func (s *Service) walk(ctx context.Context, tx pgx.Tx, account string, f Filter, watermark int64, visit func(Item) (bool, error)) error {
+	project := s.disclose
+	if f.PageIndexOnly && f.Tenant == "" && f.Project == "" && f.Scope == "" {
+		project = s.indexItems
+	}
 	before := watermark + 1
 	if f.Cursor != "" {
 		n, _ := number(f.Cursor)
@@ -261,7 +315,7 @@ func (s *Service) walk(ctx context.Context, tx pgx.Tx, account string, f Filter,
 			return nil
 		}
 		before, _ = number(batch[len(batch)-1].Sequence)
-		visible, e := s.disclose(ctx, tx, account, batch)
+		visible, e := project(ctx, tx, account, batch)
 		if e != nil {
 			return e
 		}
@@ -294,6 +348,22 @@ func (s *Service) List(ctx context.Context, a access.Actor, f Filter) (Page, err
 			return e
 		}
 		max, _ := number(out.Watermark)
+		if f.PageIndexOnly {
+			if f.Cursor != "" {
+				return access.Validation("cursor", "请从首页统计通知。")
+			}
+			total, previous := 0, ""
+			err := s.walk(ctx, tx, a.ID, f, max, func(v Item) (bool, error) {
+				if total > 0 && total%f.Limit == 0 {
+					out.PageCursors = append(out.PageCursors, previous)
+				}
+				total++
+				previous = v.Sequence
+				return false, nil
+			})
+			out.Total = &total
+			return err
+		}
 		return s.walk(ctx, tx, a.ID, f, max, func(v Item) (bool, error) {
 			if len(out.Items) == f.Limit {
 				out.NextCursor = out.Items[len(out.Items)-1].Sequence

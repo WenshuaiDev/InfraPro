@@ -53,7 +53,7 @@ function FilterChoices({ kind, search, choose }: { kind: Picker; search: TenantD
   const { client, scope, prefix } = useDevices();
   const [q, setQ] = useState('');
   const [pageSize, setPageSize] = useState(25);
-  const list = useCursorList({ queryKey: [...prefix, 'filter-choices', kind, search.manufacturer, search.source, q, pageSize], load: async (cursor, signal) => {
+  const list = useCursorList({ pageSize, queryKey: [...prefix, 'filter-choices', kind, search.manufacturer, search.source, q, pageSize], load: async (cursor, signal) => {
     if (kind === 'facility') {
       const page = await client.resourceList(scope, { kind: 'facility' }, { q, status: 'all', cursor, limit: pageSize }, signal);
       return { ...page, items: page.items.map((item) => ({ id: item.id, name: item.name, code: item.code, secondary: item.status === 'retired' ? '已退役' : '设施' })) };
@@ -65,6 +65,6 @@ function FilterChoices({ kind, search, choose }: { kind: Picker; search: TenantD
     <DirectorySearch label={`搜索${labels[kind]}名称或编号`} value={q} onChange={setQ} />
     <Button variant="outline" className="w-full justify-between" onClick={() => choose()}>{kind === 'facility' ? '不限设施' : `全部${labels[kind]}`}{!search[kind] && <Check aria-hidden="true" />}</Button>
     {list.isPending ? <LoadingState /> : list.error ? <ErrorState message={list.error.message} onRetry={() => void list.refetch()} /> : !list.items.length ? <EmptyState title="没有匹配的选项" description="请尝试其他名称或编号。" /> : <ul className="space-y-2">{list.items.map((item) => <li key={item.id}><Button variant={search[kind] === item.id ? 'secondary' : 'ghost'} className="h-auto min-h-14 w-full justify-between text-left whitespace-normal" onClick={() => choose(item.id)}><span className="min-w-0 space-y-1"><span className="block break-words">{item.name}</span><span className="block text-xs font-normal text-muted-foreground">{item.code} · {item.secondary}</span></span>{search[kind] === item.id && <Check className="shrink-0" aria-hidden="true" />}</Button></li>)}</ul>}
-    <ListPagination label={`${labels[kind]}筛选`} pageSizes={[25, 50, 100]} pageSize={pageSize} setPageSize={setPageSize} count={list.items.length} page={list.page} pageCount={list.pageCount} hasNext={!!list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} />
+    <ListPagination label={`${labels[kind]}筛选`} {...list.pagination} pageSizes={[25, 50, 100]} setPageSize={setPageSize} />
   </div>;
 }

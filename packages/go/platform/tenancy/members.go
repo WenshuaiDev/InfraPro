@@ -71,14 +71,14 @@ type MembershipResult struct {
 	Revision     string `json:"authorization_revision"`
 }
 
-const memberSelect = `SELECT m.id::text,m.tenant_id::text,a.id::text,a.username,a.display_name,m.status,a.status='active',m.id=t.administrator_membership_id,
+const memberSelect = `SELECT m.id::text,m.tenant_id::text,a.id::text,a.username,a.display_name,a.avatar_revision::text,a.avatar_object_id IS NOT NULL,m.status,a.status='active',m.id=t.administrator_membership_id,
  m.joined_at,m.joined_by::text,m.status_changed_at,m.status_changed_by::text,m.status_reason,m.version::text,m.ended_at,COALESCE(m.end_reason,''),COALESCE(m.source_invitation_id::text,''),
  COALESCE((SELECT jsonb_agg(jsonb_build_object('binding_id',mr.id,'name',r.name,'key',COALESCE(r.builtin_key,''),'role_id',r.id,'permission_codes',COALESCE((SELECT jsonb_agg(rp.permission_code ORDER BY rp.permission_code) FROM role_permissions rp JOIN permission_catalog p ON p.code=rp.permission_code WHERE rp.role_id=r.id AND p.lifecycle='active'),'[]'::jsonb),'status',r.status,'version',r.version::text,'owner_tenant_id',COALESCE(r.owner_tenant_id::text,''),'assigned_at',mr.assigned_at,'assigned_by',mr.assigned_by,'revoked_at',mr.revoked_at,'revoked_by',mr.revoked_by) ORDER BY mr.assigned_at,mr.id) FROM tenant_member_roles mr JOIN roles r ON r.id=mr.role_id WHERE mr.membership_id=m.id AND mr.tenant_id=m.tenant_id),'[]'::jsonb)
  FROM tenant_memberships m JOIN accounts a ON a.id=m.account_id JOIN tenants t ON t.id=m.tenant_id`
 
 func scanMember(row pgx.Row) (Member, error) {
 	v := Member{}
-	e := row.Scan(&v.ID, &v.TenantID, &v.Account.ID, &v.Account.Username, &v.Account.DisplayName, &v.Status, &v.Available, &v.Administrator, &v.JoinedAt, &v.JoinedBy, &v.StatusChangedAt, &v.StatusChangedBy, &v.StatusReason, &v.Version, &v.EndedAt, &v.EndReason, &v.InvitationID, &v.Roles)
+	e := row.Scan(&v.ID, &v.TenantID, &v.Account.ID, &v.Account.Username, &v.Account.DisplayName, &v.Account.AvatarRevision, &v.Account.HasAvatar, &v.Status, &v.Available, &v.Administrator, &v.JoinedAt, &v.JoinedBy, &v.StatusChangedAt, &v.StatusChangedBy, &v.StatusReason, &v.Version, &v.EndedAt, &v.EndReason, &v.InvitationID, &v.Roles)
 	v.RoleEffective = v.Available && v.Status == "active"
 	return v, e
 }

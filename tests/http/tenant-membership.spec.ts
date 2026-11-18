@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { Permissions as P } from '../../packages/ts/api-client/src/permissions.generated';
 import { test, expect } from '@playwright/test';
+import { recoverHTTPMFA } from './mfa-recovery';
 import { roleAction } from '../helpers/roles';
 
 const origin = `http://${process.env.INFRAPRO_HTTP_TEST_HOST}:18088`;
@@ -13,7 +14,7 @@ test.use({ trace: 'off' });
 
 test('tenant invitation through /console HTTP and restored credentials are permanently revoked', async ({ page, request, browser }) => {
   const csrf = (await (await request.get(`${origin}/api/v1/auth/csrf`)).json()).token as string;
-  const headers = { Origin: origin, 'X-CSRF-Token': csrf };
+  const headers = { Origin: origin, 'X-CSRF-Token': csrf, 'X-Command-ID': randomUUID() };
   expect((await request.post(`${origin}/api/v1/auth/login`, { headers, data: { username: 'e2e_owner', password } })).status()).toBe(200);
   const owner = (await (await request.get(`${origin}/api/v1/auth/me`)).json()).account.id as string;
   const createAccount = async () => {
@@ -49,17 +50,17 @@ test('tenant invitation through /console HTTP and restored credentials are perma
   const old = await issue(pending.id);
   // A real backup is restored into this dedicated disposable stack, with API stopped.
   compose('stop', 'api');
-  const dump = execFileSync('docker', [...args, 'exec', '-T', 'postgres', 'pg_dump', '-U', 'infrapro_test', '-d', 'infrapro_test', '-Fc'], { stdio: ['ignore', 'pipe', 'pipe'] });
-  execFileSync('docker', [...args, 'exec', '-T', 'postgres', 'pg_restore', '-U', 'infrapro_test', '-d', 'infrapro_test', '--clean', '--if-exists', '--exit-on-error'], { input: dump, stdio: ['pipe', 'pipe', 'pipe'] });
+  const dump = execFileSync('docker', [...args, 'exec', '-T', 'postgres', 'pg_dump', '-U', 'infrapro_test', '-d', 'infrapro_test', '-Fc'], { stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 32 * 1024 * 1024 });
+  execFileSync('docker', [...args, 'exec', '-T', 'postgres', 'pg_restore', '-U', 'infrapro_test', '-d', 'infrapro_test', '--clean', '--if-exists', '--exit-on-error'], { input: dump, stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 32 * 1024 * 1024 });
+  dump.fill(0);
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'account', 'revoke-access', '--reason', 'membership restore drill');
   compose('run', '--rm', '--no-deps', '-T', 'ops', 'access', 'check'); compose('start', 'api');
   await expect.poll(async () => (await request.get(`${origin}/readyz`)).status()).toBe(200);
   expect((await page.request.get(`${origin}/api/v1/auth/me`)).status()).toBe(401); expect((await request.get(`${origin}/api/v1/auth/me`)).status()).toBe(401);
   const recipient = await browser.newContext(); const targetPage = await recipient.newPage();
   try {
-    await targetPage.goto(old.link); await targetPage.getByRole('link', { name: '登录并继续' }).click(); await targetPage.getByLabel('用户名', { exact: true }).fill(pending.username); await targetPage.getByLabel('密码', { exact: true }).fill(password); await targetPage.getByRole('button', { name: '登录', exact: true }).click(); await expect(targetPage.getByText('资格已失效', { exact: true })).toBeVisible();
-    const rh = { Origin: origin, 'X-CSRF-Token': (await (await page.request.get(`${origin}/api/v1/auth/csrf`)).json()).token as string };
-    expect((await page.request.post(`${origin}/api/v1/auth/login`, { headers: rh, data: { username: member.username, password } })).status()).toBe(200); const restored = await (await page.request.get(`${origin}/api/v1/tenants/${tenant}/context`)).json(); expect(restored.membership_id).toBe(active); expect(restored.authorization.roles.map((r: { id: string }) => r.id)).toEqual([role.id]); expect(restored.permissions).toContain(P.TenantProfileUpdate);
+    await targetPage.goto(old.link); await targetPage.getByRole('link', { name: '登录并继续' }).click(); await targetPage.getByLabel('用户名', { exact: true }).fill(pending.username); await targetPage.getByLabel('密码', { exact: true }).fill(password); await targetPage.getByRole('button', { name: '登录', exact: true }).click(); await expect(targetPage.getByLabel('MFA 恢复凭证')).toBeVisible(); await recoverHTTPMFA(recipient.request, origin, pending.username, password, true); await targetPage.goto(old.link); await expect(targetPage.getByText('资格已失效', { exact: true })).toBeVisible();
+    await recoverHTTPMFA(page.request, origin, member.username, password); const restored = await (await page.request.get(`${origin}/api/v1/tenants/${tenant}/context`)).json(); expect(restored.membership_id).toBe(active); expect(restored.authorization.roles.map((r: { id: string }) => r.id)).toEqual([role.id]); expect(restored.permissions).toContain(P.TenantProfileUpdate);
     const logs = compose('logs', '--no-color', 'api', 'web'); expect(logs.includes(new URLSearchParams(new URL(old.link).hash.slice(1)).get('token')!)).toBe(false); expect(logs.includes(new URLSearchParams(new URL(link.link).hash.slice(1)).get('token')!)).toBe(false);
   } finally { await recipient.close(); }
 });

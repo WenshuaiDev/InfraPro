@@ -1,6 +1,6 @@
 import type { MonitoringChannel, MonitoringRange, MonitoringTrendSeries } from '@infrapro/api-client';
 import { calculationStatusNames, observationKind, observationQuality, observationRevoked, observationTime, plotCoefficient, type DetailRow } from './detail-format';
-import { MAX_NS, MIN_NS, parseNS, qualityNames } from './format';
+import { fixedQuantityKey, MAX_NS, MIN_NS, parseNS, qualityNames } from './format';
 import { plotBaseline, plotObservations } from './trend-points';
 
 export type TrendScale = 'actual' | 'relative';
@@ -24,7 +24,7 @@ export type TrendLine = { id: string; name: string; axisIndex: number; channel: 
 export function buildTrendModel(channels: MonitoringChannel[], series: MonitoringTrendSeries[], range: MonitoringRange, scale: TrendScale = 'actual') {
   const start = range.from ? parseNS(range.from) : MIN_NS, end = range.to ? parseNS(range.to) : MAX_NS;
   const byID = new Map(series.map(item => [item.channel_id, item]));
-  const axisKey = (channel: MonitoringChannel) => channel.value_kind === 'enum' ? 'enum' : scale === 'relative' ? 'relative' : `unit:${channel.unit}`;
+  const axisKey = (channel: MonitoringChannel) => channel.value_kind === 'enum' ? 'enum' : scale === 'relative' ? 'relative' : fixedQuantityKey(channel);
   const grouped = new Map<string, MonitoringChannel[]>();
   for (const channel of channels) { const key = axisKey(channel); grouped.set(key, [...(grouped.get(key) ?? []), channel]); }
   const axes: TrendAxis[] = [...grouped].map(([key, peers]) => {

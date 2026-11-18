@@ -39,10 +39,10 @@ func (r *Repository) transact(ctx context.Context, fn func(pgx.Tx) error) error 
 	return err
 }
 
-const accountColumns = "id::text,username,display_name,status,created_at"
+const accountColumns = "id::text,username,display_name,status,created_at,avatar_revision::text,avatar_object_id IS NOT NULL"
 
 func scanAccount(row pgx.Row) (a Account, err error) {
-	err = row.Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.CreatedAt)
+	err = row.Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.CreatedAt, &a.AvatarRevision, &a.HasAvatar)
 	return
 }
 func (r *Repository) Account(ctx context.Context, id string) (Account, error) {
@@ -65,9 +65,12 @@ func insertAccount(ctx context.Context, tx pgx.Tx, username, display, hash strin
 		return a, e
 	}
 	_, e = tx.Exec(ctx, "INSERT INTO account_passwords(account_id,password_hash) VALUES($1,$2)", a.ID, hash)
+	if e == nil {
+		_, e = tx.Exec(ctx, "INSERT INTO account_mfa(account_id) VALUES($1)", a.ID)
+	}
 	return a, e
 }
-func audit(ctx context.Context, tx pgx.Tx, event, actor, account, object, outcome string, m Meta) error {
+func audit(ctx context.Context, tx pgx.Tx, event, actor, account, object, outcome string, m Meta, fields ...map[string]any) error {
 	m = trimMeta(m)
 	actorType, objectType := "account", "account"
 	switch event {
@@ -75,6 +78,9 @@ func audit(ctx context.Context, tx pgx.Tx, event, actor, account, object, outcom
 		actorType = "maintenance"
 	}
 	switch event {
+	case "mfa_enabled", "mfa_replaced", "mfa_disabled", "mfa_recovery_codes_regenerated", "mfa_recovery_code_used", "mfa_reset", "mfa_recovered", "mfa_verification":
+		objectType = "account_mfa"
+		object = account
 	case "login", "logout", "logout_all", "session_revoked", "reauthentication":
 		objectType = "session"
 	case "invitation_created", "invitation_revoked", "invitation_accepted":
@@ -89,6 +95,23 @@ func audit(ctx context.Context, tx pgx.Tx, event, actor, account, object, outcom
 			return e
 		}
 		subject = map[string]string{"display_name": name, "username": username}
+		if strings.HasPrefix(event, "mfa_") {
+			f, e := loadFactor(ctx, tx, account)
+			if e != nil {
+				return e
+			}
+			var remaining int
+			if e = tx.QueryRow(ctx, `SELECT count(*) FROM account_mfa_recovery_codes WHERE account_id=$1 AND generation=$2 AND used_at IS NULL AND revoked_at IS NULL`, account, f.Generation).Scan(&remaining); e != nil {
+				return e
+			}
+			values := map[string]any{"display_name": name, "username": username, "state": f.State, "factor_version": f.Version, "recovery_generation": f.Generation, "recovery_codes_remaining": remaining}
+			for _, extra := range fields {
+				for k, v := range extra {
+					values[k] = v
+				}
+			}
+			subject = values
+		}
 	}
 	_, err := auditrecord.AppendLegacyTx(ctx, tx, auditrecord.LegacyInput{Event: event, ActorID: actor, AccountID: account, ObjectID: object, ObjectType: objectType, ActorType: actorType, Outcome: outcome, Reason: m.Reason, IP: m.IP, UserAgent: m.UserAgent, RequestID: m.RequestID, Entry: "platform", After: subject})
 	return err
@@ -130,6 +153,13 @@ func (r *Repository) Bootstrap(ctx context.Context, username, display, hash stri
 // Sensitive browser writes lock the account before any session or single-use credential.
 // The session is rechecked under that lock so a concurrent password reset cannot authorize a later write.
 func lockPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Duration, recent bool) error {
+	if _, e := access.Lock(ctx, tx, false); e != nil {
+		return e
+	}
+	policy, e := lockSecurityPolicy(ctx, tx, false)
+	if e != nil {
+		return e
+	}
 	var active bool
 	var version int64
 	if e := tx.QueryRow(ctx, "SELECT status='active',auth_version FROM accounts WHERE id=$1 FOR UPDATE", p.Account.ID).Scan(&active, &version); e != nil {
@@ -140,7 +170,7 @@ func lockPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Durati
 	}
 	var valid bool
 	var reauth time.Time
-	e := tx.QueryRow(ctx, `SELECT revoked_at IS NULL AND expires_at>now() AND auth_version=$3 AND GREATEST(last_activity_at,$4::timestamptz)>now()-$5::interval,reauthenticated_at FROM account_sessions WHERE id=$1 AND account_id=$2`, p.Session.ID, p.Account.ID, p.Version, p.Session.LastActivityAt, interval(idle)).Scan(&valid, &reauth)
+	e = tx.QueryRow(ctx, `SELECT revoked_at IS NULL AND expires_at>now() AND auth_version=$3 AND GREATEST(last_activity_at,$4::timestamptz)>now()-$5::interval,reauthenticated_at FROM account_sessions WHERE id=$1 AND account_id=$2`, p.Session.ID, p.Account.ID, p.Version, p.Session.LastActivityAt, interval(idle)).Scan(&valid, &reauth)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return ErrUnauthorized
 	}
@@ -149,6 +179,9 @@ func lockPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Durati
 	}
 	if !valid {
 		return ErrUnauthorized
+	}
+	if e = checkMFASession(ctx, tx, p.Account.ID, p.Session.ID, policy, nil); e != nil {
+		return e
 	}
 	if recent && time.Since(reauth) > 5*time.Minute {
 		return ErrReauth

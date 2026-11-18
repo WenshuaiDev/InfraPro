@@ -24,21 +24,24 @@ func (a *App) account(ctx context.Context, args []string) error {
 	}
 	cmd := args[0]
 	switch cmd {
-	case "bootstrap", "find", "reset-link", "disable", "enable", "audit", "revoke-access":
+	case "bootstrap", "find", "reset-link", "disable", "enable", "audit", "revoke-access", "mfa-reset", "mfa-rotate", "mfa-keys":
 	default:
 		return fmt.Errorf("未知账号命令 %q；使用 infrapro account --help 查看帮助", cmd)
 	}
 	fs := flag.NewFlagSet(cmd, flag.ContinueOnError)
 	fs.SetOutput(a.errOut)
-	var username, reason, cursor string
+	var username, reason, cursor, operator string
 	var emergency bool
 	switch cmd {
-	case "find", "reset-link", "disable", "enable":
+	case "find", "reset-link", "disable", "enable", "mfa-reset":
 		fs.StringVar(&username, "username", "", "目标用户名（必填）")
 	}
 	switch cmd {
-	case "reset-link", "disable", "enable", "revoke-access":
+	case "reset-link", "disable", "enable", "revoke-access", "mfa-reset":
 		fs.StringVar(&reason, "reason", "", "维护操作原因（必填）")
+	}
+	if cmd == "mfa-reset" {
+		fs.StringVar(&operator, "operator", "", "维护操作员说明（必填）")
 	}
 	if cmd == "disable" {
 		fs.BoolVar(&emergency, "emergency", false, "应急停用（允许暂时失去平台或租户管理员）")
@@ -132,6 +135,35 @@ func (a *App) account(ctx context.Context, args []string) error {
 			return e
 		}
 		return output(a)
+	case "mfa-reset":
+		if a.in == nil || !term.IsTerminal(int(a.in.Fd())) || !isTerminalOutput(a.out) {
+			return fmt.Errorf("MFA 恢复授权仅能在受控交互终端生成和展示，不允许重定向")
+		}
+		result, e := s.MaintenanceResetMFA(ctx, username, operator, m)
+		if e != nil {
+			return e
+		}
+		fmt.Fprintln(a.out, "MFA 已重置；平台策略不变，目标必须使用密码及恢复授权重新绑定。以下链接仅展示一次。")
+		return output(result)
+	case "mfa-keys":
+		refs, e := s.MFAKeyReferences(ctx)
+		if e != nil {
+			return e
+		}
+		return output(refs)
+	case "mfa-rotate":
+		total := 0
+		for {
+			n, e := s.RotateMFAKeys(ctx)
+			if e != nil {
+				return e
+			}
+			total += n
+			if n == 0 {
+				break
+			}
+		}
+		return output(map[string]any{"reencrypted": total})
 	case "reset-link":
 		if !isTerminalOutput(a.out) {
 			return fmt.Errorf("重置链接仅在受控交互终端展示，请勿重定向到日志或文件")

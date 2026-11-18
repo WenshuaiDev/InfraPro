@@ -2,7 +2,6 @@ import { label, timestamp } from './format';
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AlertCircle, CheckCircle2, CircleHelp, Clock3, PauseCircle } from 'lucide-react';
 import { Badge } from '@infrapro/ui/components/badge';
-import { Button } from '@infrapro/ui/components/button';
 import { Card, CardContent } from '@infrapro/ui/components/card';
 import { DiagnosticsError, type Coverage, type Meta } from '@infrapro/diagnostics-client';
 export function Status({ value, stale = false }: { value: string; stale?: boolean }) {
@@ -21,7 +20,6 @@ export function Feedback({ error, meta, pending }: { error: Error | null; meta?:
   if (pending) return <p className="py-8 text-sm text-muted-foreground">正在读取诊断证据…</p>;
   return null;
 }
-export function Pager({ total, next, hasPrevious, onNext, onPrevious, onRefresh }: { total: number; next: string; hasPrevious: boolean; onNext: () => void; onPrevious: () => void; onRefresh: () => void }) { return <div className="flex flex-wrap items-center justify-between gap-3 text-sm"><span>共 {total} 项 · 当前快照</span><div className="flex gap-2"><Button variant="outline" onClick={onRefresh}>刷新列表</Button><Button variant="outline" disabled={!hasPrevious} onClick={onPrevious}>上一页</Button><Button variant="outline" disabled={!next} onClick={onNext}>下一页</Button></div></div>; }
 export class RegionBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }

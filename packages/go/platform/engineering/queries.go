@@ -23,6 +23,18 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, f Filte
 		if out.Limit < 1 || out.Limit > 100 || f.Offset < 0 || f.Offset > 100000 || len([]rune(f.Query)) > 200 || !slices.Contains([]string{"", "usable", "unavailable", "draft"}, f.Status) {
 			return access.Validation("filter", "无效的列表筛选或分页参数。")
 		}
+		if scope.Tenant == "" && !scope.Catalog && scope.Kind == MetricDefinition {
+			if f.FacilityTopic == "__all" {
+				f.FacilityTopic = ""
+			}
+			if len([]rune(f.FacilityTopic)) > 32 {
+				return access.Validation("facility_topic", "设施筛选无效。")
+			}
+			return metricDirectoryTx(ctx, tx, scope, f, &out)
+		}
+		if f.UnitChoices && scope.Tenant == "" && !scope.Catalog && scope.Kind == UnitDefinition {
+			return unitChoicesTx(ctx, tx, scope, f, &out)
+		}
 		base := ` FROM engineering_definitions d LEFT JOIN engineering_drafts dr ON dr.definition_id=d.id
  LEFT JOIN LATERAL (SELECT v.number,v.content FROM engineering_versions v WHERE v.definition_id=d.id AND (NOT $4 OR NOT EXISTS(SELECT 1 FROM blocked b WHERE b.id=v.id)) ORDER BY v.number DESC LIMIT 1) latest ON true
  WHERE d.scope_key=$1 AND d.kind=$2 AND d.deleted_at IS NULL AND (NOT $4 OR latest.number IS NOT NULL)
@@ -32,14 +44,15 @@ func (s *Service) List(ctx context.Context, a access.Actor, scope Scope, f Filte
 		if e := tx.QueryRow(ctx, blockedCTE+` SELECT count(*)`+base, args...).Scan(&out.Total); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, blockedCTE+` SELECT d.id::text,d.kind,d.code,CASE WHEN $4 THEN latest.content->>'name' ELSE COALESCE(dr.content->>'name',latest.content->>'name','') END,COALESCE(latest.number,0),NOT $4 AND dr.definition_id IS NOT NULL,EXISTS(SELECT 1 FROM engineering_versions v WHERE v.definition_id=d.id AND NOT EXISTS(SELECT 1 FROM blocked b WHERE b.id=v.id)),COALESCE(d.source_version::text,'')`+base+` ORDER BY d.created_at DESC,d.id DESC LIMIT $6 OFFSET $7`, append(args, out.Limit, out.Offset)...)
+		rows, e := tx.Query(ctx, blockedCTE+` SELECT d.id::text,d.kind,d.code,CASE WHEN $4 THEN latest.content->>'name' ELSE COALESCE(dr.content->>'name',latest.content->>'name','') END,COALESCE(latest.number,0),NOT $4 AND dr.definition_id IS NOT NULL,EXISTS(SELECT 1 FROM engineering_versions v WHERE v.definition_id=d.id AND NOT EXISTS(SELECT 1 FROM blocked b WHERE b.id=v.id)),COALESCE(d.source_version::text,''),
+ CASE WHEN d.kind='units' THEN COALESCE(NULLIF((CASE WHEN $4 THEN latest.content ELSE COALESCE(dr.content,latest.content) END)->'unit','null'::jsonb),'{}'::jsonb) END`+base+` ORDER BY d.created_at DESC,d.id DESC LIMIT $6 OFFSET $7`, append(args, out.Limit, out.Offset)...)
 		if e != nil {
 			return e
 		}
 		defer rows.Close()
 		for rows.Next() {
 			v := Summary{}
-			if e = rows.Scan(&v.ID, &v.Kind, &v.Code, &v.Name, &v.Latest, &v.HasDraft, &v.Usable, &v.SourceVersion); e != nil {
+			if e = rows.Scan(&v.ID, &v.Kind, &v.Code, &v.Name, &v.Latest, &v.HasDraft, &v.Usable, &v.SourceVersion, &v.Unit); e != nil {
 				return e
 			}
 			out.Items = append(out.Items, v)
@@ -175,7 +188,7 @@ func (s *Service) Preview(ctx context.Context, a access.Actor, scope Scope, id s
 		}
 		if scope.Kind == MetricDefinition && len(in.Value) > 0 && c.Metric != nil {
 			m := c.Metric
-			if (m.Shape == "enum" && in.UnitVersion != "") || (m.Shape != "enum" && !slices.Contains(m.AllowedUnits, in.UnitVersion)) {
+			if !m.AllowsUnit(in.UnitVersion) {
 				add(&out.Issues, "metric_unit_mismatch", "请选择指标允许的单位。", "/value", "")
 			}
 			var v any

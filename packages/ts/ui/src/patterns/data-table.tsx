@@ -1,18 +1,18 @@
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/table';
-import { Button } from '../components/button';
+import type { ReactNode } from 'react';
 import { EmptyState, ErrorState, LoadingState } from './feedback';
 import { cn } from '../lib/utils';
 
 type Props<T> = {
   data: T[]; columns: ColumnDef<T>[]; getRowId: (row: T) => string; label: string;
   loading?: boolean; error?: string; onRetry?: () => void; emptyLabel?: string;
-  hasMore?: boolean; loadingMore?: boolean; onLoadMore?: () => void; loadMoreLabel?: string;
+  pagination?: ReactNode;
   /** ColumnDef.size sets the width proportions; minWidth keeps dense tables readable. */
   minWidth?: number;
 };
 
-export function DataTable<T>({ data, columns, getRowId, label, loading, error, onRetry, emptyLabel, hasMore, loadingMore, onLoadMore, loadMoreLabel = '加载更多', minWidth }: Props<T>) {
+export function DataTable<T>({ data, columns, getRowId, label, loading, error, onRetry, emptyLabel, pagination, minWidth }: Props<T>) {
   // TanStack Table is intentionally used through its documented mutable table interface.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({ data, columns, getRowId, getCoreRowModel: getCoreRowModel() });
@@ -29,6 +29,6 @@ export function DataTable<T>({ data, columns, getRowId, label, loading, error, o
         {!data.length && <TableRow><TableCell colSpan={columns.length}><EmptyState title={emptyLabel} /></TableCell></TableRow>}
       </TableBody>
     </Table></div>
-    {hasMore && onLoadMore && <div className="flex justify-center"><Button variant="outline" disabled={loadingMore} onClick={onLoadMore}>{loadingMore ? '正在加载…' : loadMoreLabel}</Button></div>}
+    {pagination}
   </div>;
 }

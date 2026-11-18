@@ -3,7 +3,7 @@ import type { MonitoringImportBatch, MonitoringImportFilter } from '@infrapro/ap
 export const importStates: MonitoringImportBatch['state'][] = ['uploading', 'received', 'validating', 'needs_resolution', 'ready', 'preparing', 'published', 'completed_noop', 'failed', 'cancelled', 'revoked'];
 export const importTabs = ['overview', 'issues', 'mapping', 'history'] as const;
 export type ImportTab = typeof importTabs[number];
-export type ImportSearch = MonitoringImportFilter & { tab?: ImportTab };
+export type ImportSearch = MonitoringImportFilter & { tab?: ImportTab; job?: string; execution?: string };
 
 export function importSearch(value: Record<string, unknown>): ImportSearch {
   const multiple = (key: string, allowed: string[]) => typeof value[key] === 'string' ? [...new Set(value[key].split(',').filter(v => allowed.includes(v)))].sort().join(',') || undefined : undefined;
@@ -14,6 +14,8 @@ export function importSearch(value: Record<string, unknown>): ImportSearch {
     sort: value.sort === 'oldest' ? 'oldest' : undefined,
     limit: ([10, 20, 25, 50, 100] as const).find(value => value === limit) ?? 10,
     cursor: typeof value.cursor === 'string' ? value.cursor.slice(0, 2048) || undefined : undefined,
+    job: typeof value.job === 'string' && /^[a-f0-9-]{36}$/i.test(value.job) ? value.job : undefined,
+    execution: /^[1-9][0-9]*$/.test(String(value.execution)) ? String(value.execution) : undefined,
     tab: importTabs.includes(value.tab as ImportTab) ? value.tab as ImportTab : undefined,
   };
 }

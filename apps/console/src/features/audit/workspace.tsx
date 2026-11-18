@@ -1,10 +1,12 @@
+import { useRoutePagination } from '../../hooks/use-route-pagination';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useEffect,useMemo,useRef,useState } from 'react';
 import { useQuery,useQueryClient } from '@tanstack/react-query';
 import { useLocation,useNavigate,useSearch } from '@tanstack/react-router';
 import { useIdentity } from '@infrapro/api-client/react';
 import { ApiError,type AuditScope,type AuditCapabilities } from '@infrapro/api-client';
 import { PageHeader } from '@infrapro/layouts';
-import { ArrowDownToLine, ChevronLeft, ChevronRight, ChevronsLeft, LockKeyhole, RefreshCw, ScrollText } from 'lucide-react';
+import { ArrowDownToLine, LockKeyhole, RefreshCw, ScrollText } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
 import { ErrorState } from '@infrapro/ui/patterns/feedback';
 import { EventTable } from './event-table';
@@ -42,6 +44,11 @@ function WorkspaceContent({ scope, caps, queryKey }: { scope: AuditScope; caps: 
   const previous = historyState.auditTrailFor === trailKey ? historyState.auditTrail ?? [] : [];
   const change = (next: AuditSearch) => void navigate({ to: auditPath(scope), search: next, state: state => ({ ...state }) });
   const applyFilter = (next: AuditSearch) => void navigate({ to: auditPath(scope), search: { ...next, cursor: undefined }, state: state => ({ ...state, auditTrail: [], auditTrailFor: undefined }) });
+  const pagination = useRoutePagination({
+    key: [...queryKey, 'list', { ...filter, cursor: undefined }], data: !obsolete && !q.error ? q.data : undefined, cursor: filter.cursor, trail: previous,
+    load: (cursor, signal) => client.auditEvents(scope, { ...filter, cursor }, signal), move: (cursor, trail) => void navigate({ to: auditPath(scope), search: { ...search, cursor }, state: state => ({ ...state, auditTrail: trail, auditTrailFor: trailKey }) }),
+    pageSize: filter.limit, setPageSize: size => applyFilter({ ...filter, limit: size }), fetching: q.isFetching,
+  });
   const scopeName = scope.kind === 'platform' ? '平台' : scope.kind === 'tenant' ? '租户' : '项目';
   const title = scope.kind === 'platform' ? '平台审计' : `${scopeName}操作记录`;
   const refresh = <Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="刷新记录" disabled={q.isFetching} onClick={() => void q.refetch()}><RefreshCw aria-hidden="true" className={q.isFetching ? 'motion-safe:animate-spin' : ''} /></Button>;
@@ -51,7 +58,7 @@ function WorkspaceContent({ scope, caps, queryKey }: { scope: AuditScope; caps: 
     {exports ? <ExportList scope={scope} canManage={caps.manage} queryKey={queryKey} open={(id, generation) => change({ ...search, tab: 'exports', export_id: id, execution: generation })} /> : <>
       <EventTable items={items} loading={q.isPending} fetching={q.isFetching} error={q.error} filter={filter} technical={caps.technical} onChange={applyFilter} open={event => change({ ...search, event })} refresh={refresh}
         notice={<>{q.error && <ErrorState title={q.error instanceof ApiError && q.error.code === 'audit_query_budget_exceeded' ? '候选记录超出查询预算，请缩小范围' : '暂时无法核实记录'} message={q.error.message} onRetry={() => void q.refetch()} />}{q.error instanceof ApiError && q.error.code === 'audit_cursor_stale' && <Button onClick={() => applyFilter(filter)}>按当前权限回到第一页</Button>}{!q.error && q.data?.coverage === 'partial' && <p role="status" className="rounded-md border bg-muted/30 p-3 text-xs leading-5">部分来源仍在交接或历史字段不完整；当前结果不能代表完整记录。</p>}{obsolete && <p role="status">授权已变化，正在重新核验；旧记录已隐藏。</p>}</>}
-        pagination={<footer className="flex flex-wrap items-center justify-between gap-3 text-xs"><p role="status" className="text-muted-foreground">{q.isPending ? '正在加载记录…' : q.error || obsolete ? '记录暂不可核实' : `本页 ${items.length} 条记录`}</p><div className="flex flex-wrap items-center gap-3"><label className="flex items-center gap-2">每页<select aria-label="每页" className="h-9 rounded-md border bg-background px-2 max-sm:h-11" value={filter.limit} onChange={event => applyFilter({ ...filter, limit: Number(event.target.value) })}>{[10, 25, 50, 100].map(n => <option key={n} value={n}>{n} 条</option>)}</select></label><span className="tabular-nums">{!filter.cursor ? '第 1 页' : previous.length ? `第 ${previous.length + 1} 页` : '续页'}</span><div className="flex gap-1.5"><Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="回到第一页" disabled={!filter.cursor || q.isFetching} onClick={() => applyFilter(filter)}><ChevronsLeft aria-hidden="true" /></Button><Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="上一页" disabled={!filter.cursor || !previous.length || q.isFetching} onClick={() => void navigate({ to: auditPath(scope), search: { ...search, cursor: previous.at(-1) ?? undefined }, state: state => ({ ...state, auditTrail: previous.slice(0, -1), auditTrailFor: trailKey }) })}><ChevronLeft aria-hidden="true" /></Button><Button variant="outline" size="icon" className="size-9 max-sm:size-11" aria-label="下一页" disabled={!q.data?.next_cursor || !!q.error || obsolete || q.isFetching} onClick={() => void navigate({ to: auditPath(scope), search: { ...search, cursor: q.data?.next_cursor }, state: state => ({ ...state, auditTrail: [...previous, filter.cursor ?? null], auditTrailFor: trailKey }) })}><ChevronRight aria-hidden="true" /></Button></div></div></footer>} />
+        pagination={<ListPagination label="审计记录" {...pagination} pageSizes={[10, 25, 50, 100]} />} />
       <p className="text-xs leading-5 text-muted-foreground">记录按当前空间与权限展示。查看详情可核实字段变化、关联来源与处理过程。</p>
     </>}
     {search.event && caps.read && <EventDetail key={search.event} scope={scope} id={search.event} queryKey={queryKey} close={() => change({ ...search, event: undefined })} history={(objectType, objectId) => applyFilter({ ...filter, object_type: objectType, object_id: objectId, reference_id: undefined })} />}

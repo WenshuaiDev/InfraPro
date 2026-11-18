@@ -1,3 +1,4 @@
+import { requireAuthenticatedResponse } from './login-result.mjs';
 import { request } from "@playwright/test";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import assert from "node:assert/strict";
@@ -12,10 +13,10 @@ const account = JSON.parse(readFileSync(runtime + "/account.json", "utf8"));
 const c = await request.newContext({ baseURL: state.origin, timeout: 30000 });
 const csrf = await (await c.get("/api/v1/auth/csrf")).json();
 const headers = { Origin: state.origin, "X-CSRF-Token": csrf.token };
-await c.post("/api/v1/auth/login", {
+await requireAuthenticatedResponse(await c.post("/api/v1/auth/login", {
   headers,
   data: { username: account.username, password: account.password },
-});
+}));
 const timings = [];
 async function get(path) {
   const start = performance.now();

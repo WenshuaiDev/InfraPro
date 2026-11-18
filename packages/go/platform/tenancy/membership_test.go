@@ -235,8 +235,8 @@ func TestTenantInvitationRevocationCoupledToIdentity(t *testing.T) {
 				f.a = login(t, f.e, "Alice")
 			case "restore":
 				must(t, repo.RevokeAfterRestore(ctx, identity.Meta{Reason: "restore"}))
-				f.a = login(t, f.e, "Alice")
-				f.b = login(t, f.e, "Bob")
+				f.a = recoverAfterRestore(t, f.e, "Alice")
+				f.b = recoverAfterRestore(t, f.e, "Bob")
 			case "handover":
 				f.transfer(t, a, f.p.Account.ID)
 			case "appointed":

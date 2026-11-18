@@ -8,6 +8,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"github.com/jackc/pgx/v5"
+	"strconv"
 )
 
 // This seam deliberately returns no run inputs, channel names or artifacts.
@@ -22,6 +23,75 @@ func (s *Service) AuthorizeTaskSummaryTx(ctx context.Context, tx pgx.Tx, t monit
 		return nil
 	}
 	return access.ErrDenied
+}
+
+// Count only automatic records visible through this workspace's run reader.
+func (s *Service) TaskAutomaticCountsTx(ctx context.Context, tx pgx.Tx, a access.Actor, fixed taskrecord.Scope) (string, string, string, error) {
+	scope := Scope{Entry: fixed.Kind, Tenant: fixed.Tenant, Project: fixed.Project}
+	rows, e := tx.Query(ctx, `SELECT r.id::text FROM derived_runs r JOIN monitoring_jobs j ON j.id=r.job_id WHERE r.tenant_id=$1 AND r.mode='automatic' AND j.state IN ('queued','retry_wait','running','failed','needs_action')`, scope.Tenant)
+	if e != nil {
+		return "", "", "", e
+	}
+	ids, e := pgx.CollectRows(rows, pgx.RowTo[string])
+	if e != nil {
+		return "", "", "", e
+	}
+	var queued, running, failed int
+	for _, id := range ids {
+		run, err := s.readRunTx(ctx, tx, a, scope, id)
+		if tasks.Denied(err) {
+			continue
+		}
+		if err != nil {
+			return "", "", "", err
+		}
+		switch run.Job.State {
+		case "queued", "retry_wait":
+			queued++
+		case "running":
+			running++
+		case "failed", "needs_action":
+			failed++
+		}
+	}
+	return strconv.Itoa(queued), strconv.Itoa(running), strconv.Itoa(failed), nil
+}
+
+// TaskRunResultTx resolves a successful run to the immutable object it published.
+func (s *Service) TaskRunResultTx(ctx context.Context, tx pgx.Tx, a access.Actor, fixed taskrecord.Scope, typ, run string) (string, string, map[string]string, error) {
+	scope := Scope{Entry: fixed.Kind, Tenant: fixed.Tenant, Project: fixed.Project}
+	if typ == "analysis.run" {
+		if e := requireAnyDerivedTx(ctx, tx, a, scope, "analysis.results.read"); e != nil {
+			return "", "", nil, e
+		}
+		target, e := analysisRunTargetTx(ctx, tx, scope.Tenant, run)
+		if e != nil {
+			return "", "", nil, e
+		}
+		if target.ArtifactID == "" || target.ArtifactVersionID == "" {
+			return "", "", nil, pgx.ErrNoRows
+		}
+		proof, e := s.analysisArtifactProofTx(ctx, tx, a, scope, target.ArtifactID, target.ArtifactVersionID)
+		if e != nil {
+			return "", "", nil, e
+		}
+		return "analysis_artifact_version", proof.Version.ArtifactID, map[string]string{"version": proof.Version.ID}, nil
+	}
+	generation, e := s.publishedRunGenerationTx(ctx, tx, a, scope, run)
+	if e != nil {
+		return "", "", nil, e
+	}
+	return "derived_generation", generation, map[string]string{"run": run}, nil
+}
+
+// The caller has already authorized the run's channel, input and output ranges.
+func (s *Service) publishedRunGenerationTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, run string) (string, error) {
+	if e := requireAnyDerivedTx(ctx, tx, a, scope, "results.history"); e != nil {
+		return "", e
+	}
+	var generation string
+	e := tx.QueryRow(ctx, `SELECT id::text FROM derived_generations WHERE tenant_id=$1 AND run_id=$2`, scope.Tenant, run).Scan(&generation)
+	return generation, e
 }
 
 // TaskResultStateTx evaluates only retained metadata and fixed-input validity;

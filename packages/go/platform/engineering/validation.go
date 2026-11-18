@@ -13,6 +13,20 @@ import (
 var keyPattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
 var shapes = []string{"text", "integer", "decimal", "boolean", "date", "datetime", "enum", "multi_enum"}
 
+func (metric *Metric) AllowsUnit(id string) bool {
+	if metric == nil {
+		return false
+	}
+	switch metric.Shape {
+	case "enum":
+		return id == ""
+	case "decimal", "integer":
+		return id != "" && slices.Contains(metric.AllowedUnits, id)
+	default:
+		return false
+	}
+}
+
 func issue(code, message, path, key string) Issue {
 	return Issue{Code: code, Message: message, Path: path, Key: key, Severity: "error"}
 }
@@ -198,6 +212,20 @@ func ValidateContent(kind Kind, c Content) []Issue {
 			break
 		}
 		m := c.Metric
+		if m.FacilityTopics != nil {
+			topics := *m.FacilityTopics
+			seen := map[string]bool{}
+			if len(topics) > 32 {
+				add(&out, "input_limit", "最多选择 32 个设施标签。", "/metric/facility_topics", "")
+			}
+			for _, topic := range topics {
+				if seen[topic] || topic == "__unassigned" || topic == "__all" || strings.TrimSpace(topic) != topic || strings.ContainsAny(topic, "、，,；;。\r\n") {
+					add(&out, "invalid_facility_topic", "设施标签不能重复、使用分隔符或保留标识。", "/metric/facility_topics", topic)
+				}
+				bounded(&out, topic, "/metric/facility_topics", 32, true)
+				seen[topic] = true
+			}
+		}
 		if m.Shape == "enum" {
 			options(&out, m.Options, "/metric/options")
 			if m.Category != "" || m.StandardUnit != "" || len(m.AllowedUnits) > 0 || m.Minimum != nil || m.Maximum != nil {
@@ -208,7 +236,7 @@ func ValidateContent(kind Kind, c Content) []Issue {
 			if len(m.Options) > 0 {
 				add(&out, "unsupported_constraint", "数值指标不配置枚举选项。", "/metric/options", "")
 			}
-			if m.Category == "" || m.StandardUnit == "" || !slices.Contains(m.AllowedUnits, m.StandardUnit) {
+			if m.Category == "" || !m.AllowsUnit(m.StandardUnit) {
 				add(&out, "standard_unit_required", "数值指标需要单位类别及属于允许单位的标准单位。", "/metric/standard_unit", "")
 			}
 			seen := map[string]bool{}

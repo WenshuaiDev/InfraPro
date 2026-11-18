@@ -1,10 +1,7 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   MapPinned,
   Layers,
@@ -101,25 +98,18 @@ function Workspace({ search, onSearch, facility }: Props) {
           ? "geolayer"
           : undefined;
   const manage = search.mode === "manage";
-  const assets = useInfiniteQuery({
-    queryKey: [...m.prefix, "assets", assetQuery, facility, desiredKind],
-    initialPageParam: "",
-    queryFn: ({ pageParam, signal }) =>
+  const assets = usePagedQuery({ initialPageSize: 25, queryKey: [...m.prefix, "assets", assetQuery, facility, desiredKind], enabled: m.available && section !== "overview" && section !== "assets", retry: false, queryFn: ({ cursor, signal, limit }) =>
       m.client.spatialAssets(
         m.scope,
         {
           q: assetQuery,
           facility_id: facility,
           kind: desiredKind,
-          cursor: pageParam,
-          limit: 25,
+          cursor,
+          limit,
         },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: m.available && section !== "overview" && section !== "assets",
-    retry: false,
-  });
+      ) });
   const manifest = useQuery({
     queryKey: [...m.prefix, "manifest", search.version],
     queryFn: ({ signal }) =>
@@ -152,24 +142,17 @@ function Workspace({ search, onSearch, facility }: Props) {
     enabled: !!activeAsset && m.available,
     retry: false,
   });
-  const elements = useInfiniteQuery({
-    queryKey: [...m.prefix, "elements", search.version, elementQuery],
-    initialPageParam: "",
-    queryFn: ({ pageParam, signal }) =>
-      m.client.spatialElements(
-        m.scope,
-        search.version!,
-        { q: elementQuery, cursor: pageParam, limit: 100 },
-        signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled:
+  const elements = usePagedQuery({ initialPageSize: 100, queryKey: [...m.prefix, "elements", search.version, elementQuery], enabled:
       !!search.version &&
       asset.data?.kind === "model" &&
       !!manifest.data?.manifest_hash &&
-      m.available,
-    retry: false,
-  });
+      m.available, retry: false, queryFn: ({ cursor, signal, limit }) =>
+      m.client.spatialElements(
+        m.scope,
+        search.version!,
+        { q: elementQuery, cursor, limit },
+        signal,
+      ) });
   const element = useQuery({
     queryKey: [...m.prefix, "element", search.version, elementKey],
     queryFn: ({ signal }) =>
@@ -264,7 +247,7 @@ function Workspace({ search, onSearch, facility }: Props) {
       setNotice("请复制地址栏中的当前页面链接。");
     }
   };
-  const loadedElements = elements.data?.pages.flatMap((p) => p.items) ?? [];
+  const loadedElements = elements.data?.items ?? [];
   const resolvedLinks = useQuery({
     queryKey: [...m.prefix, "source-links", search.version, resolveElement],
     queryFn: ({ signal }) =>
@@ -421,7 +404,7 @@ function Workspace({ search, onSearch, facility }: Props) {
     { key: "placements", label: "测点标注", icon: Crosshair },
     { key: "assets", label: "资料与版本", icon: FolderOpen },
   ] as const;
-  const loadedAssets = assets.data?.pages.flatMap((p) => p.items) ?? [];
+  const loadedAssets = assets.data?.items ?? [];
   const managerVersion = manifest.error
     ? versions.data?.items.find((v) => v.id === search.version)
     : (manifest.data ??
@@ -632,15 +615,8 @@ function Workspace({ search, onSearch, facility }: Props) {
                       </button>
                     ))
                   )}
-                  {assets.hasNextPage && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={assets.isFetchingNextPage}
-                      onClick={() => void assets.fetchNextPage()}
-                    >
-                      更多资料
-                    </Button>
+                  {assets.data && (
+                    <ListPagination label="资料" {...assets.pagination} />
                   )}
                 </div>
               </div>
@@ -687,14 +663,8 @@ function Workspace({ search, onSearch, facility }: Props) {
                       selected={elementKey}
                       select={(key) => pick({ element: key })}
                     />
-                    {elements.hasNextPage && (
-                      <Button
-                        variant="outline"
-                        disabled={elements.isFetchingNextPage}
-                        onClick={() => void elements.fetchNextPage()}
-                      >
-                        载入更多源构件
-                      </Button>
+                    {elements.data && (
+                      <ListPagination label="源构件" {...elements.pagination} />
                     )}
                   </div>
                 )}

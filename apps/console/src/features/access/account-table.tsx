@@ -3,7 +3,8 @@ import { flexRender, getCoreRowModel, useReactTable, type ColumnDef, type Visibi
 import { CheckCircle2, CircleDashed, Eye, MoreHorizontal, ShieldCheck, SlidersHorizontal, UserCheck, UserRoundX } from 'lucide-react';
 import { Permissions as P, type ManagedAccount } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
-import { Avatar, AvatarFallback } from '@infrapro/ui/components/avatar';
+import { AccountAvatar } from '../account/account-avatar';
+export { AccountAvatar } from '../account/account-avatar';
 import { Badge } from '@infrapro/ui/components/badge';
 import { Button } from '@infrapro/ui/components/button';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@infrapro/ui/components/dropdown-menu';
@@ -18,9 +19,7 @@ export function AccountStatus({ status }: { status: string }) {
   return <span className="inline-flex items-center gap-2 whitespace-nowrap text-sm"><Icon aria-hidden="true" className="size-4 text-muted-foreground" />{status === 'active' ? '正常' : '停用'}</span>;
 }
 
-export function AccountAvatar({ name }: { name: string }) {
-  return <Avatar aria-hidden="true" className="size-9 rounded-lg"><AvatarFallback className="rounded-lg text-xs font-medium">{Array.from(name).slice(0, 2).join('').toUpperCase()}</AvatarFallback></Avatar>;
-}
+
 
 function AccountActions({ account, open }: { account: ManagedAccount; open: OpenAccount }) {
   const { can, canAll } = useIdentity();
@@ -42,7 +41,7 @@ function AccountActions({ account, open }: { account: ManagedAccount; open: Open
 // Stable cell components keep the original trigger mounted during query refreshes.
 function AccountCell({ column, account, open, showRoles }: { column: string; account: ManagedAccount; open: OpenAccount; showRoles: boolean }) {
   switch (column) {
-    case 'account': return <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={account.display_name} /></div><div className="min-w-0 flex-1 space-y-1"><Button id={`account-${account.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={account.display_name} onClick={(event) => open(account, 'details', event.currentTarget)}><span className="truncate">{account.display_name}</span></Button><p className="truncate text-xs text-muted-foreground" title={account.username}>{account.username}</p>{showRoles && <p className="truncate text-xs text-muted-foreground lg:hidden">{account.roles.length ? account.roles.map((role) => `${role.name}${role.status === 'disabled' ? '（停用）' : ''}`).join('、') : '未绑定平台角色'}</p>}</div></div>;
+    case 'account': return <div className="flex min-w-0 items-center gap-3"><div className="hidden sm:block"><AccountAvatar name={account.display_name} metadata={account} target={{ kind: 'platform', id: account.id }} /></div><div className="min-w-0 flex-1 space-y-1"><Button id={`account-${account.id}-name`} variant="link" className="h-auto max-w-full justify-start truncate p-0 text-left font-medium" title={account.display_name} onClick={(event) => open(account, 'details', event.currentTarget)}><span className="truncate">{account.display_name}</span></Button><p className="truncate text-xs text-muted-foreground" title={account.username}>{account.username}</p>{showRoles && <p className="truncate text-xs text-muted-foreground lg:hidden">{account.roles.length ? account.roles.map((role) => `${role.name}${role.status === 'disabled' ? '（停用）' : ''}`).join('、') : '未绑定平台角色'}</p>}</div></div>;
     case 'status': return <AccountStatus status={account.status} />;
     case 'roles': return <div className="flex min-w-0 flex-wrap gap-1.5">{account.roles.slice(0, 2).map((role) => <Badge key={role.id} variant="secondary" className="max-w-full font-normal" title={`${role.name}${role.status === 'disabled' ? '（已停用，不贡献权限）' : ''}`}><span className="truncate">{role.name}{role.status === 'disabled' ? '（停用）' : ''}</span></Badge>)}{account.roles.length > 2 && <Button variant="ghost" className="h-6 px-1.5 text-xs" aria-label={`查看全部 ${account.roles.length} 个绑定角色`} onClick={(event) => open(account, 'details', event.currentTarget)}>+{account.roles.length - 2}</Button>}{!account.roles.length && <span className="text-sm text-muted-foreground">未绑定</span>}</div>;
     case 'created': return <time dateTime={account.created_at} title={new Date(account.created_at).toLocaleString('zh-CN')} className="text-sm tabular-nums text-muted-foreground">{new Date(account.created_at).toLocaleDateString('zh-CN')}</time>;

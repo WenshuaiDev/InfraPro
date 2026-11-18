@@ -1,22 +1,85 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import { MonitoringPageHeader } from '../monitoring/page-header';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { FileText, FolderOpen, ListFilter, Plus, Search, Settings2 } from 'lucide-react';
 import { Button } from '@infrapro/ui/components/button';
-import { DirectoryTable } from '@infrapro/ui/patterns/directory-table';
+import { Input } from '@infrapro/ui/components/input';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { LoadingState } from '@infrapro/ui/patterns/feedback';
-import { CursorButtons } from '../monitoring/common';
-import { CommandError, SelectField, TextField, nsISO, useDerived } from './common';
+import { MonitoringPageHeader } from '../monitoring/page-header';
+import { NewAnalysis } from './new-analysis';
 import { AnalysisEditor } from './analysis-editor';
 import { ArtifactDetail } from './artifact-detail';
-import { useCursor } from './use-cursor';
+import { reportTime } from './analysis-format';
+import { CommandError, SelectField, useDerived } from './common';
 import type { DerivedSearch } from './search';
-export function AnalysisPage({id,view,version,export_id,...prefill}:DerivedSearch) {
- const m=useDerived(),navigate=useNavigate(),page=useCursor(),[q,setQ]=useState(''),[state,setState]=useState<''|'active'|'archived'>('');
- const tab=view==='artifacts'||!m.allows('analysis.read')?'artifacts':'configs';
- const choose=(value?:string,mode=tab)=>navigate({to:mode==='artifacts'&&value?`${m.analysisPath}/${value}`:m.analysisPath,search:mode==='artifacts'?{view:mode}:{...prefill,view:mode,id:value}});
- const configs=useQuery({queryKey:[...m.prefix,'analysis-configs',q,state,page.cursor],queryFn:({signal})=>m.client.analysisConfigs(m.scope,{q,state:state||undefined,cursor:page.cursor},signal),enabled:tab==='configs'&&!id&&m.allows('analysis.read')});
- const detail=useQuery({queryKey:[...m.prefix,'analysis-config',id],queryFn:({signal})=>m.client.analysisConfig(m.scope,id!,signal),enabled:tab==='configs'&&!!id&&id!=='new'&&m.allows('analysis.read')});
- const artifacts=useQuery({queryKey:[...m.prefix,'analysis-artifacts',q,state,page.cursor],queryFn:({signal})=>m.client.analysisArtifacts(m.scope,{q,state:state||undefined,cursor:page.cursor},signal),enabled:tab==='artifacts'&&!id&&m.allows('analysis.results.read')});
- return <div className="@container/monitoring min-w-0 space-y-4"><MonitoringPageHeader title="历史监测分析" description="保存可重复执行的分析配置，并将每次完整运行固定为独立成果版本。" actions={m.editable&&m.allows('analysis.manage')&&m.allows('analysis.read')?<Button onClick={()=>choose('new','configs')}>新建分析配置</Button>:undefined}/><nav aria-label="分析内容" className="flex flex-wrap gap-2">{m.allows('analysis.read')&&<Button variant={tab==='configs'?'secondary':'ghost'} onClick={()=>{page.reset();choose(undefined,'configs');}}>分析配置</Button>}{m.allows('analysis.results.read')&&<Button variant={tab==='artifacts'?'secondary':'ghost'} onClick={()=>{page.reset();choose(undefined,'artifacts');}}>分析成果</Button>}</nav>{!m.allows('analysis.read')&&!m.allows('analysis.results.read')?<p role="status">当前身份没有历史分析读取权限。</p>:id?<><Button variant="ghost" onClick={()=>choose()}>返回{tab==='configs'?'配置':'成果'}目录</Button>{tab==='artifacts'?<ArtifactDetail key={`${id}:${version}`} id={id} version={version} exportID={export_id}/>:id==='new'?<AnalysisEditor prefill={prefill} key="new" onSelect={id=>choose(id,'configs')}/>:<><CommandError error={detail.error}/>{detail.isPending?<LoadingState/>:detail.data&&<AnalysisEditor prefill={prefill} key={detail.data.id} config={detail.data} onSelect={id=>choose(id,'configs')}/>}</>}</>:<><div className="grid min-w-0 gap-3 rounded-lg border bg-muted/20 p-3 @[40rem]/monitoring:grid-cols-[minmax(0,1fr)_14rem]"><TextField label={tab==='configs'?'搜索分析配置':'搜索分析成果'} value={q} onChange={v=>{setQ(v);page.reset();}}/><SelectField label="归档状态" value={state} onChange={v=>{setState(v);page.reset();}} options={[{value:'',label:'全部状态'},{value:'active',label:'未归档'},{value:'archived',label:'已归档'}]}/></div>{tab==='configs'?<DirectoryTable tableClassName="min-w-[40rem]" label="分析配置目录" items={configs.data?.items??[]} rowId={v=>v.id} loading={configs.isPending} error={configs.error?.message} columns={[{id:'name',label:'分析配置',className:'w-[45%]',cell:v=><Button variant="link" className="h-auto min-h-11 w-full min-w-0 justify-start whitespace-normal break-all px-0 text-left" onClick={()=>choose(v.id)}>{v.name} · {v.code}</Button>},{id:'version',label:'固定版本',className:'w-28',cell:v=>v.latest_version==='0'?'尚未发布':`V${v.latest_version}`},{id:'state',label:'状态',cell:v=>v.status==='archived'?'已归档':v.inputs_restricted?'输入读取受限':'可用'},{id:'time',label:'更新时间',secondary:true,cell:v=>new Date(v.updated_at).toLocaleString()}]} pagination={<CursorButtons previous={page.previous} next={configs.data?.next_cursor?()=>page.next(configs.data!.next_cursor):undefined} busy={configs.isFetching}/>}/>:<DirectoryTable tableClassName="min-w-[48rem]" label="分析成果目录" items={artifacts.data?.items??[]} rowId={v=>v.artifact.id} loading={artifacts.isPending} error={artifacts.error?.message} columns={[{id:'name',label:'完整成果',className:'w-[40%]',cell:v=><Button variant="link" className="h-auto min-h-11 w-full min-w-0 justify-start whitespace-normal break-all px-0 text-left" onClick={()=>choose(v.artifact.id)}>{v.artifact.name} · V{v.version.version_no}</Button>},{id:'state',label:'依据现状',cell:v=>v.version.input_state==='current'?'依据未变化':v.version.input_state==='affected'?'依据变化，原值保留':'原依据包含撤销'},{id:'range',label:'输出范围',secondary:true,cell:v=><span className="text-xs">{nsISO(v.version.output_range.from_ns)} 至 {v.version.output_range.to_ns?nsISO(v.version.output_range.to_ns):'不限'}</span>},{id:'time',label:'生成时间',cell:v=>new Date(v.version.created_at).toLocaleString()}]} pagination={<CursorButtons previous={page.previous} next={artifacts.data?.next_cursor?()=>page.next(artifacts.data!.next_cursor):undefined} busy={artifacts.isFetching}/>}/>}</>}</div>;
+
+export function AnalysisPage({id, view, version, export_id, ...prefill}: DerivedSearch) {
+  const m = useDerived(), navigate = useNavigate(), cache = useQueryClient();
+  const [query, setQuery] = useState(''), [state, setState] = useState<'' | 'active' | 'archived'>('');
+  const [notice, setNotice] = useState('');
+  const canResults = m.allows('analysis.results.read'), canConfigs = m.allows('analysis.read');
+  const canCreate = canConfigs && m.editable && m.allows('analysis.manage');
+  const configsView = canConfigs && (!canResults || view === 'configs' || (!view && !!id));
+  const go = (mode: 'configs' | 'artifacts', next?: string, fixed?: string) =>
+    navigate({to: m.analysisPath, search: {...prefill, view: mode, id: next, version: fixed}, resetScroll: false});
+  const filter = {q: query, state: state || undefined};
+  const configs = usePagedQuery({queryKey: [...m.prefix, 'analysis-configs', filter], enabled: configsView,
+    queryFn: ({cursor, limit, signal}) => m.client.analysisConfigs(m.scope, {...filter, cursor, limit}, signal)});
+  const artifacts = usePagedQuery({queryKey: [...m.prefix, 'analysis-artifacts', filter], enabled: canResults && !configsView,
+    queryFn: ({cursor, limit, signal}) => m.client.analysisArtifacts(m.scope, {...filter, cursor, limit}, signal)});
+  const list = configsView ? configs : artifacts;
+  const selected = id ?? (configsView ? configs.data?.items[0]?.id : artifacts.data?.items[0]?.artifact.id);
+  const config = useQuery({queryKey: [...m.prefix, 'analysis-config', selected], enabled: configsView && !!selected && selected !== 'new',
+    queryFn: ({signal}) => m.client.analysisConfig(m.scope, selected!, signal)});
+  const entries = configsView ? configs.data?.items.map(v => ({id: v.id, name: v.name,
+    state: v.status === 'archived' ? '已归档' : v.latest_version === '0' ? '草稿' : '方案 V' + v.latest_version,
+    meta: v.inputs_restricted ? '输入读取受限' : v.code})) : artifacts.data?.items.map(({artifact, version: v}) => ({
+    id: artifact.id, name: artifact.name, state: '成果 V' + v.version_no + (artifact.status === 'archived' ? ' · 已归档' : ''),
+    meta: reportTime(v.output_range.from_ns, 'date') + ' 至 ' + reportTime(v.output_range.to_ns, 'date')}));
+  const switchView = () => {
+    setQuery(''); setState(''); setNotice('');
+    void go(configsView ? 'artifacts' : 'configs');
+  };
+  const afterDelete = async (name: string) => {
+    setNotice('已删除“' + name + '”及其全部版本。');
+    // Refresh dependent version, comparison and export reads as well as the ledger.
+    await cache.invalidateQueries({queryKey: m.prefix});
+    await go('artifacts');
+  };
+  return <div className="@container/analysis mx-auto min-w-0 max-w-[90rem] space-y-5 pb-6">
+    <MonitoringPageHeader workspaceTasks title="历史监测分析" description="复核历史监测成果，或沿用已保存的方案计算另一段时间。" actions={<>
+      {canConfigs && canResults && <Button variant="outline" onClick={switchView}>{configsView ? <FolderOpen/> : <Settings2/>}{configsView ? '返回成果' : '分析方案'}</Button>}
+      {canCreate && <Button onClick={() => { setNotice(''); void go('configs', 'new'); }}><Plus/>新建分析</Button>}
+    </>}/>
+    {notice && <p role="status" className="rounded-lg border bg-muted/40 px-4 py-2 text-sm">{notice}</p>}
+    {!(canConfigs || canResults) ? <p role="status">当前身份没有历史分析读取权限。</p> :
+    <div className="grid min-w-0 items-start gap-5 @[54rem]/analysis:grid-cols-[minmax(14rem,0.48fr)_minmax(0,1.52fr)]">
+      <aside aria-label={configsView ? '分析方案目录' : '成果目录'} className="min-w-0 space-y-3 border-t-2 border-teal-700 pt-3 dark:border-teal-400">
+        <h2 className="flex items-center gap-2 font-semibold"><FolderOpen size={18}/>{configsView ? '分析方案目录' : '成果目录'}</h2>
+        <div className="flex items-start gap-1"><label className="relative min-w-0 flex-1"><Search aria-hidden className="absolute top-3 left-3 size-4 text-muted-foreground"/>
+          <Input type="search" aria-label={configsView ? '搜索分析配置' : '搜索分析成果'} placeholder={configsView ? '搜索方案名称或编码' : '搜索成果名称'} className="min-h-10 pl-9" value={query} onChange={e => setQuery(e.target.value)}/></label>
+          <details className="group relative"><summary aria-label="筛选归档状态" className="grid size-10 cursor-pointer list-none place-items-center rounded-md border hover:bg-muted"><ListFilter size={17}/></summary>
+            <div className="absolute right-0 z-10 w-44 rounded-lg border bg-popover p-3 shadow-md"><SelectField label="归档状态" value={state} onChange={setState} options={[{value:'', label:'全部状态'}, {value:'active', label:'未归档'}, {value:'archived', label:'已归档'}]}/></div></details></div>
+        {state && <button className="text-xs underline" onClick={() => setState('')}>{state === 'active' ? '未归档' : '已归档'} · 清除筛选</button>}
+        <CommandError error={list.error}/>
+        {list.isPending && !list.error && <LoadingState/>}
+        <div className="max-h-64 overflow-y-auto @[54rem]/analysis:max-h-[65vh]">{entries?.map(item =>
+          <button type="button" key={item.id} aria-pressed={selected === item.id} onClick={() => { setNotice(''); void go(configsView ? 'configs' : 'artifacts',item.id); }}
+            className="grid w-full gap-1 border-b border-l-[3px] border-l-transparent px-3 py-3 text-left hover:bg-muted/60 aria-pressed:border-l-teal-700 aria-pressed:bg-teal-50 dark:aria-pressed:border-l-teal-400 dark:aria-pressed:bg-teal-950/55">
+            <span className="flex items-center gap-1.5 text-xs text-teal-800 dark:text-teal-300"><FileText size={14}/>{item.state}</span>
+            <strong className="break-words text-sm">{item.name}</strong><span className="text-xs text-muted-foreground">{item.meta}</span>
+          </button>)}</div>
+        {entries?.length === 0 && !list.error && <p className="py-2 text-sm text-muted-foreground">{query || state ? '没有符合筛选条件的记录。' : configsView ? '还没有分析方案。' : '还没有已生成的成果。'}</p>}
+        {list.data && (list.pagination.total === undefined || list.pagination.total > list.pagination.pageSize || list.pagination.page > 0) && <ListPagination label={configsView ? '方案' : '成果'} {...list.pagination}/>}
+      </aside>
+      <div className="min-w-0">{!selected ? !list.isPending && <div className="rounded-xl border border-dashed p-8 text-center"><h2 className="font-semibold">{query || state ? '没有匹配记录' : configsView ? '建立第一个分析方案' : '暂无历史成果'}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{query || state ? '更换名称或归档状态后再查找。' : '从分析方案选择方法和测点，指定时段后运行即可生成成果。'}</p></div> :
+        !configsView ? <ArtifactDetail key={selected} id={selected} version={version} exportID={export_id} onVersion={v => void go('artifacts',selected,v)} onDeleted={afterDelete}/> :
+        selected === 'new' ? canCreate ? <NewAnalysis key="new" prefill={prefill} onSelect={v => go('configs',v)}/> : <p role="status">当前身份无法新建分析。</p> :
+        <><CommandError error={config.error}/>{config.isPending ? <LoadingState/> : config.data && !config.error && <AnalysisEditor key={config.data.id} config={config.data} prefill={prefill} onSelect={v => go('configs',v)}/>}</>}
+      </div>
+    </div>}
+  </div>;
 }

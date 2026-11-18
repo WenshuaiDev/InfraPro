@@ -39,12 +39,12 @@ func run() (resultErr error) {
 	slog.SetDefault(logger)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	resources, e := runtime.Open(ctx, cfg, logger, false)
+	resources, e := runtime.OpenWorker(ctx, cfg, logger)
 	if e != nil {
 		return e
 	}
 	defer resources.Close()
-	business := runtime.Compose(resources.Identity.Access(), resources.Monitoring).Configure(cfg)
+	business := runtime.Compose(resources.Access, resources.Monitoring).Configure(cfg)
 	if len(cfg.Monitoring.Replicas) > 0 {
 		if e = business.DerivedMonitoring.Ready(ctx); e != nil {
 			return e

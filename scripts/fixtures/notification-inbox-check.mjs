@@ -1,6 +1,6 @@
 import {expect} from '@playwright/test';
 
-// A + C uses the real isolated notification service. None of these checks mock
+// The popover and account inbox use the real isolated notification service. None of these checks mock
 // counts, permission disclosure, read/archived state, or business navigation.
 export async function checkNotificationInbox(page,call,state,origin,checks) {
  const bell=page.getByRole('button',{name:/^通知，/});
@@ -25,18 +25,21 @@ export async function checkNotificationInbox(page,call,state,origin,checks) {
  await page.waitForURL(v=>v.pathname==='/notifications/'+selected.id&&v.searchParams.get('tenant_id')===state.tenants[0]);
  const detail=page.getByRole('region',{name:'通知详情'});
  await expect(detail.getByRole('heading',{name:selected.object_name||selected.title,exact:true})).toBeVisible();
- await expect(page.getByRole('region',{name:'通知列表',exact:true})).toBeVisible();
- await expect(page.getByRole('navigation',{name:'通知分类导航'})).toBeVisible();
- checks.push('A right-anchored nonmodal popover, scope filtering without read, inline detail reads only one, C deep link retains source');
+ await expect(page.getByRole('region',{name:'通知列表',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('navigation',{name:'账号设置'}).getByRole('link',{name:'通知中心'})).toHaveAttribute('aria-current','page');
+ await detail.getByRole('link',{name:'返回通知列表',exact:true}).click();
+ checks.push('Right-anchored nonmodal popover, scope filtering without read, inline detail reads only one, detail deep link retains source');
 
  await page.getByLabel('查找本页通知',{exact:true}).fill('definitely-no-notification-matches');
  await expect(page.getByText('本页没有匹配的通知',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'当前筛选全部已读',exact:true})).toBeDisabled();
  await page.getByRole('button',{name:'清空本页查找',exact:true}).click();
  await expect(page.getByRole('list',{name:'通知条目'})).toBeVisible();
+ await page.getByRole('region',{name:'通知列表',exact:true}).locator(`[data-notification-id="${selected.id}"] a`).click();
  await detail.getByRole('button',{name:'归档',exact:true}).click();
  await expect.poll(async()=>(await call('/me/notifications/'+selected.id)).archived_at).not.toBeNull();
- await page.getByRole('navigation',{name:'通知分类导航'}).getByRole('button',{name:'已归档',exact:true}).click();
+ await detail.getByRole('link',{name:'返回通知列表',exact:true}).click();
+ await page.getByRole('combobox',{name:'阅读状态',exact:true}).selectOption('archived');
  await page.getByRole('region',{name:'通知列表',exact:true}).locator(`[data-notification-id="${selected.id}"] a`).click();
  await detail.getByRole('button',{name:'取消归档',exact:true}).click();
  await expect.poll(async()=>(await call('/me/notifications/'+selected.id)).archived_at).toBeNull();
@@ -45,7 +48,7 @@ export async function checkNotificationInbox(page,call,state,origin,checks) {
  await expect(detail.getByRole('button',{name:'取消归档',exact:true})).toBeEnabled();
  await detail.getByRole('button',{name:'恢复未读',exact:true}).click();
  await expect.poll(async()=>{const v=await call('/me/notifications/'+selected.id);return [v.read_at,v.archived_at];}).toEqual([null,null]);
- checks.push('C local-page find is explicit and disables bulk-read; archive/unarchive/read restoration retain service semantics');
+ checks.push('Inbox local-page find is explicit and disables bulk-read; archive/unarchive/read restoration retain service semantics');
 
  await page.goto(`${origin}/notifications?category=tasks&tenant_id=${state.tenants[0]}`);
  const list=page.getByRole('region',{name:'通知列表',exact:true});
@@ -60,22 +63,23 @@ export async function checkNotificationInbox(page,call,state,origin,checks) {
  await expect(list).toBeVisible();
  if(new URL(page.url()).searchParams.get('category')!=='tasks')throw Error('Mobile back lost category filter');
  await page.setViewportSize({width:1440,height:1000});
- checks.push('C selection/filter URLs survive reload; mobile detail/list back retains category with no horizontal overflow');
+ checks.push('Inbox selection/filter URLs survive reload; mobile detail/list back retains category with no horizontal overflow');
 
  await page.goto(origin+'/notifications');
  const last=list.getByRole('link').last();
  await expect(last).toBeVisible();await last.scrollIntoViewIfNeeded();
- const scrollBefore=await list.getByRole('list').evaluate(el=>el.parentElement.scrollTop);
+ const scrollBefore=await page.evaluate(()=>window.scrollY);
  if(scrollBefore<=0)throw Error('Scroll restoration fixture did not exercise a scrolled list');
  await last.click();await expect(detail.getByRole('button',{name:'恢复未读',exact:true})).toBeVisible();
- await expect.poll(()=>list.getByRole('list').evaluate(el=>el.parentElement.scrollTop)).toBe(scrollBefore);
+ await expect(list).toHaveCount(0);
  await detail.getByRole('link',{name:'返回通知列表',exact:true}).click();
- await expect.poll(()=>list.getByRole('list').evaluate(el=>el.parentElement.scrollTop)).toBe(scrollBefore);
+ await expect(last).toBeFocused();
+ await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBeCloseTo(scrollBefore,0);
  await page.getByLabel('查找本页通知').fill('通知');
  await list.getByRole('link').first().click();
- await expect(page.getByLabel('查找本页通知')).toHaveValue('通知');
+ await expect(list).toHaveCount(0);
  await detail.getByRole('link',{name:'返回通知列表',exact:true}).click();
  await expect(page.getByLabel('查找本页通知')).toHaveValue('通知');
  await page.getByRole('button',{name:'清空本页查找',exact:true}).click();
- checks.push('C list scroll position and local-page search survive list/detail route switches within the account authorization epoch');
+ checks.push('Inbox list scroll position and local-page search survive list/detail route switches within the account authorization epoch');
 }

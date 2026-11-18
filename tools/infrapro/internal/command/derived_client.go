@@ -169,14 +169,62 @@ func (a *App) derivedLogin(ctx context.Context, origin, username, path string) e
 	if e != nil {
 		return e
 	}
-	e = c.request(ctx, "POST", "/api/v1/auth/login", map[string]string{"username": username, "password": string(password)}, nil)
+	var result struct {
+		Status      string `json:"status"`
+		ChallengeID string `json:"challenge_id"`
+	}
+	e = c.request(ctx, "POST", "/api/v1/auth/login", map[string]string{"username": username, "password": string(password)}, &result)
 	for i := range password {
 		password[i] = 0
 	}
 	if e != nil {
 		return e
 	}
-	session := derivedSession{Origin: c.origin.String(), Cookies: c.client.Jar.Cookies(c.origin)}
+	if result.Status == "mfa_required" {
+		fmt.Fprint(a.errOut, "认证方式（1：动态码，2：恢复码）：")
+		methodInput, e := term.ReadPassword(int(a.in.Fd()))
+		fmt.Fprintln(a.errOut)
+		if e != nil {
+			return e
+		}
+		method := "totp"
+		choice := strings.TrimSpace(string(methodInput))
+		clear(methodInput)
+		if choice == "2" {
+			method = "recovery_code"
+		} else if choice != "1" {
+			return fmt.Errorf("请选择 1 或 2，未创建会话文件")
+		}
+		fmt.Fprint(a.errOut, "验证码（不回显）：")
+		code, e := term.ReadPassword(int(a.in.Fd()))
+		fmt.Fprintln(a.errOut)
+		if e != nil {
+			return e
+		}
+		e = c.request(ctx, "POST", "/api/v1/auth/mfa/verify", map[string]string{"challenge_id": result.ChallengeID, "method": method, "code": string(code)}, &result)
+		clear(code)
+		if e != nil {
+			return e
+		}
+	}
+	if result.Status != "authenticated" {
+		_ = c.request(ctx, "POST", "/api/v1/auth/logout", map[string]string{}, nil)
+		return fmt.Errorf("需要在控制台完成 MFA 绑定或恢复后重新登录；未创建会话文件")
+	}
+	session := derivedSession{Origin: c.origin.String()}
+	found := false
+	for _, cookie := range c.client.Jar.Cookies(c.origin) {
+		if cookie.Name == "infrapro_session" && cookie.Value != "" {
+			found = true
+			session.Cookies = append(session.Cookies, cookie)
+		} else if cookie.Name == "infrapro_csrf" {
+			session.Cookies = append(session.Cookies, cookie)
+		}
+	}
+	if !found {
+		return fmt.Errorf("服务未交付正式会话；未创建会话文件")
+	}
+
 	f, e := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 	if e != nil {
 		return fmt.Errorf("无法创建会话文件")

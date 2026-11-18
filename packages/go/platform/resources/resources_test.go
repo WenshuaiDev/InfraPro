@@ -64,15 +64,21 @@ func setupAtMigration(t *testing.T, version int64) fixture {
 	e, err := testsupport.NewAtMigration(ctx, slog.Default(), version)
 	must(t, err)
 	t.Cleanup(e.Close)
-	_, err = e.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
-	must(t, err)
-	_, token, _, err := e.Service.Login(ctx, "Platform", password, identity.Meta{})
-	must(t, err)
-	p, err := e.Service.Authenticate(ctx, token)
-	must(t, err)
+	var p identity.Principal
+	if version < 56 {
+		p, err = e.LegacyPrincipal(ctx, "Platform", password, true)
+		must(t, err)
+	} else {
+		_, err = e.Service.Bootstrap(ctx, "Platform", "平台", password, identity.Meta{})
+		must(t, err)
+		_, token, _, err := e.Service.Login(ctx, "Platform", password, identity.Meta{})
+		must(t, err)
+		p, err = e.Service.Authenticate(ctx, token)
+		must(t, err)
+	}
 	return fixture{e, eng.New(e.Service.Access()), p}
 }
-func (f fixture) actor(p identity.Principal) access.Actor { return f.env.Service.AccessActor(p) }
+func (f fixture) actor(p identity.Principal) access.Actor { return f.env.FixtureActor(p) }
 func (f fixture) wm(t *testing.T) eng.WriteMeta {
 	t.Helper()
 	var id string
@@ -92,6 +98,11 @@ func (f fixture) publish(t *testing.T, kind eng.Kind, v eng.Result) eng.Result {
 	return out
 }
 func (f fixture) member(t *testing.T, name string) identity.Principal {
+	if f.env.BaseMigration < 56 {
+		p, e := f.env.LegacyPrincipal(ctx, name, password, false)
+		must(t, e)
+		return p
+	}
 	t.Helper()
 	l, e := f.env.Service.CreateInvitation(ctx, f.p, "", "", identity.Meta{})
 	must(t, e)

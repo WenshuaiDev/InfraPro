@@ -53,6 +53,29 @@ func channelsSetup(t *testing.T) resourceFixture {
 	f.direct = f.write(t, resources.Target{Kind: resources.Channel, Facility: f.facility, Point: f.point}, map[string]any{"code": "DIRECT", "name": "原始位移", "metric_version_id": metric.VersionID, "unit_version_id": f.unit.VersionID, "timestamp_meaning": "observation_time", "observation_direction": "up", "reference_basis": "fixed"}).ID
 	return f
 }
+func TestPublicMetricInputUsesExactCatalogQuantity(t *testing.T) {
+	f := channelsSetup(t)
+	var rule dm.Rule
+	must(t, json.Unmarshal(f.rule, &rule))
+	var metric string
+	must(t, f.e.Pool.QueryRow(ctx, `SELECT metric_version_id::text FROM engineering_channels WHERE id=$1`, f.direct).Scan(&metric))
+	input := rule.Inputs[0]
+	input.MetricVersionID = metric
+	check := func(input dm.InputSpec) error {
+		_, err := f.s.ExpandTemplate(ctx, f.actor(f.admin), f.scope, "difference", dm.ExpandTemplateInput{Inputs: []dm.InputSpec{input}})
+		return err
+	}
+	must(t, check(input))
+	input.Quantity.BasePower = 2
+	err := check(input)
+	var bad *dm.Error
+	if !errors.As(err, &bad) || len(bad.Issues) == 0 || bad.Issues[0].Path != "/rule/inputs" {
+		t.Fatalf("expected a fixed metric quantity mismatch, got %v", err)
+	}
+	input.MetricVersionID = ""
+	must(t, check(input))
+}
+
 func TestDerivedChannelOwnershipAtomicityAndInputContracts(t *testing.T) {
 	f := channelsSetup(t)
 	actor := f.actor(f.admin)

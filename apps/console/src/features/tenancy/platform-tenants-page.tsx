@@ -24,7 +24,7 @@ function PlatformTenantList() {
   const [selected, setSelected] = useState<{ id?: string; mode: TenantPanelMode }>();
   const returnFocus = useRef<HTMLElement | null>(null);
   const read = can(P.PlatformTenantRead);
-  const list = useCursorList({
+  const list = useCursorList({ pageSize,
     queryKey: ['platform', account?.id, 'tenants', q, status, availability, pageSize], enabled: read,
     load: (cursor, signal) => client.tenants({ q, status, administrator_unavailable: availability === 'unavailable', cursor, limit: pageSize }, signal),
   });
@@ -42,7 +42,7 @@ function PlatformTenantList() {
           <ListFilter label="管理员可用性" caption="管理员" value={availability} onChange={setAvailability} options={[{ value: '', label: '全部管理员' }, { value: 'unavailable', label: '管理员不可用' }]} />
           {filtered && <Button variant="ghost" className="h-9 max-sm:h-11" onClick={reset}>重置<X aria-hidden="true" /></Button>}
         </>} />
-        <ListPagination label="平台租户列表" count={list.items.length} unit="个租户" page={list.page} pageCount={list.pageCount} hasNext={list.hasNext} fetching={list.isFetching} go={list.go} next={() => void list.next()} pageSize={pageSize} setPageSize={setPageSize} />
+        <ListPagination label="平台租户列表" {...list.pagination} setPageSize={setPageSize} />
       </TabsContent>
     </Tabs>}
     {selected && <PlatformTenantPanel key={`${selected.id ?? 'new'}:${selected.mode}`} id={selected.id} initialMode={selected.mode} close={() => setSelected(undefined)} complete={(message) => { setNotice(message); setSelected(undefined); }} returnFocus={returnFocus} />}

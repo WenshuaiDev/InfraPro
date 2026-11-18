@@ -231,11 +231,11 @@ func (s *Service) Candidates(ctx context.Context, a access.Actor, tenant, projec
 	return out, e
 }
 
-const memberSelect = `SELECT m.id::text,m.tenant_membership_id::text,m.account_id::text,a.username,a.display_name,a.status,tm.status,m.status,m.version::text,COALESCE(m.id=p.administrator_membership_id,false),m.joined_at,m.status_reason,COALESCE(m.ended_at::text,'') FROM project_memberships m JOIN accounts a ON a.id=m.account_id JOIN tenant_memberships tm ON tm.id=m.tenant_membership_id JOIN projects p ON p.id=m.project_id`
+const memberSelect = `SELECT m.id::text,m.tenant_membership_id::text,m.account_id::text,a.username,a.display_name,a.avatar_revision::text,a.avatar_object_id IS NOT NULL,a.status,tm.status,m.status,m.version::text,COALESCE(m.id=p.administrator_membership_id,false),m.joined_at,m.status_reason,COALESCE(m.ended_at::text,'') FROM project_memberships m JOIN accounts a ON a.id=m.account_id JOIN tenant_memberships tm ON tm.id=m.tenant_membership_id JOIN projects p ON p.id=m.project_id`
 
 func scanMember(row pgx.Row) (Member, error) {
 	var v Member
-	e := row.Scan(&v.ID, &v.TenantMembershipID, &v.AccountID, &v.Username, &v.DisplayName, &v.AccountStatus, &v.TenantMembershipStatus, &v.Status, &v.Version, &v.Administrator, &v.JoinedAt, &v.StatusReason, &v.EndedAt)
+	e := row.Scan(&v.ID, &v.TenantMembershipID, &v.AccountID, &v.Username, &v.DisplayName, &v.AvatarRevision, &v.HasAvatar, &v.AccountStatus, &v.TenantMembershipStatus, &v.Status, &v.Version, &v.Administrator, &v.JoinedAt, &v.StatusReason, &v.EndedAt)
 	if e == pgx.ErrNoRows {
 		return v, access.ErrNotFound
 	}

@@ -86,6 +86,13 @@ func (s *Service) CheckDisplaySession(ctx context.Context, tx pgx.Tx, account, s
 	return CheckDisplaySessionTx(ctx, tx, account, session, s.cfg.SessionIdle)
 }
 func CheckDisplaySessionTx(ctx context.Context, tx pgx.Tx, account, session string, idle time.Duration) error {
+	if _, e := access.Lock(ctx, tx, false); e != nil {
+		return e
+	}
+	policy, e := lockSecurityPolicy(ctx, tx, false)
+	if e != nil {
+		return e
+	}
 	var active bool
 	if e := tx.QueryRow(ctx, `SELECT status='active' FROM accounts WHERE id=$1 FOR SHARE`, account).Scan(&active); e != nil {
 		if errors.Is(e, pgx.ErrNoRows) {
@@ -95,6 +102,9 @@ func CheckDisplaySessionTx(ctx context.Context, tx pgx.Tx, account, session stri
 	}
 	if !active {
 		return ErrUnauthorized
+	}
+	if e := checkMFASession(ctx, tx, account, session, policy, nil); e != nil {
+		return e
 	}
 	// Snapshot materialization must not write the personnel session: concurrent
 	// readers would otherwise fail with a serialization conflict. Delivery and

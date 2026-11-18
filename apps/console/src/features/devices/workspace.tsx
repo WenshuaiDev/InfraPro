@@ -1,13 +1,13 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { ClassificationBulk } from '../classification/bulk';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Plus } from 'lucide-react';
 import type { DeviceFilter, DeviceInstallation } from '@infrapro/api-client';
 import { PageHeader } from '@infrapro/layouts';
 import { Badge } from '@infrapro/ui/components/badge';
 import { Button } from '@infrapro/ui/components/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@infrapro/ui/components/select';
 import { cn } from '@infrapro/ui/lib/utils';
 import { EmptyState, ErrorState, FormNotice, LoadingState } from '@infrapro/ui/patterns/feedback';
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
@@ -42,7 +42,7 @@ function Workspace({ id, search, onSelect, onFilter, onDetail }: Props) {
   const previousId = useRef(id);
   const listScroll = useRef(0);
   const filter: DeviceFilter = {category_id:search.category,category_scope:search.category_scope,category_group:search.category_group, q: search.q, manufacturer_id: search.manufacturer, product_id: search.product, source: search.source, status: search.status, installation: search.installation, facility_id: search.facility };
-  const list = useCursorList({ queryKey: [...prefix, 'workspace-list', filter, pageSize], load: (cursor, signal) => client.devices(scope, { ...filter, cursor, limit: pageSize }, signal) });
+  const list = useCursorList({ pageSize, queryKey: [...prefix, 'workspace-list', filter, pageSize], load: (cursor, signal) => client.devices(scope, { ...filter, cursor, limit: pageSize }, signal) });
   const activeId = id ?? list.items[0]?.id;
   const detail = useQuery({ queryKey: [...prefix, 'detail', activeId], enabled: !!activeId, queryFn: ({ signal }) => client.device(scope, activeId!, signal) });
   const filtered = !!(search.category || search.category_group || search.q || search.manufacturer || search.product || search.status || search.installation || search.facility || search.source && search.source !== 'all');
@@ -90,8 +90,7 @@ function Workspace({ id, search, onSelect, onFilter, onDetail }: Props) {
           </li>)}</ul>}
         </nav>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t p-3 text-xs">
-          <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))} disabled={list.isFetching}><SelectTrigger aria-label="设备每页条数" className="h-9 w-24"><SelectValue /></SelectTrigger><SelectContent>{[25, 50, 100].map((size) => <SelectItem key={size} value={String(size)}>{size} 台 / 页</SelectItem>)}</SelectContent></Select>
-          <div className="flex items-center gap-1" aria-label="设备分页"><Button variant="ghost" size="icon" className="size-9 max-sm:size-11" aria-label="上一页设备" disabled={!list.page || list.isFetching} onClick={() => list.go(list.page - 1)}><ChevronLeft aria-hidden="true" /></Button><span className="whitespace-nowrap tabular-nums" role="status">第 {list.page + 1} 页</span><Button variant="ghost" size="icon" className="size-9 max-sm:size-11" aria-label="下一页设备" disabled={!list.hasNext || list.isFetching} onClick={() => void list.next()}><ChevronRight aria-hidden="true" /></Button></div>
+          <ListPagination label="设备" {...list.pagination} pageSizes={[25, 50, 100]} setPageSize={setPageSize} previousLabel="上一页设备" nextLabel="下一页设备" />
         </div>
       </aside>
       <div ref={detailRef} tabIndex={-1} role="region" aria-label="设备详情工作区" className={cn('min-h-0 min-w-0 space-y-4 focus:outline-none xl:overflow-y-auto xl:pr-1', !id && 'hidden xl:block')}>

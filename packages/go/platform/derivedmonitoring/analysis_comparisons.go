@@ -63,7 +63,7 @@ func (s *Service) CompareAnalysis(ctx context.Context, a access.Actor, scope Sco
 			version string
 			target  *string
 		}{{in.LeftVersionID, &leftArtifact}, {in.RightVersionID, &rightArtifact}} {
-			e := tx.QueryRow(ctx, `SELECT v.artifact_id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND v.id=$3`, scope.Tenant, scope.key(), item.version).Scan(item.target)
+			e := tx.QueryRow(ctx, `SELECT v.artifact_id::text FROM analysis_artifact_versions v JOIN analysis_artifacts a ON a.tenant_id=v.tenant_id AND a.id=v.artifact_id WHERE v.tenant_id=$1 AND a.scope_key=$2 AND a.deleted_at IS NULL AND v.id=$3`, scope.Tenant, scope.key(), item.version).Scan(item.target)
 			if e == pgx.ErrNoRows {
 				return notFound()
 			}

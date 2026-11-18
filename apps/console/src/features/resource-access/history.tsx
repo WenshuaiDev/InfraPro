@@ -87,7 +87,7 @@ const operationNames: Record<string, string> = {
 export function AccessHistory({ project }: { project: string }) {
   const { client, tenant, prefix, canRead } = useResourceAccess(project);
   const [pageSize, setPageSize] = useState(20);
-  const list = useCursorList({
+  const list = useCursorList({ pageSize,
     queryKey: [...prefix, 'history', pageSize],
     load: (cursor, signal) =>
       client.resourceAccessChanges(tenant.tenant.id, project, { cursor, limit: pageSize }, signal),
@@ -143,18 +143,7 @@ export function AccessHistory({ project }: { project: string }) {
           );
         })
       )}
-      <ListPagination
-        label="授权记录"
-        count={list.items.length}
-        page={list.page}
-        pageCount={list.pageCount}
-        hasNext={list.hasNext}
-        fetching={list.isFetching}
-        go={list.go}
-        next={() => void list.next()}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-      />
+      <ListPagination label="授权记录" {...list.pagination} setPageSize={setPageSize} />
       {list.error && (
         <Button variant="outline" onClick={() => void list.refetch()}>
           重新读取记录

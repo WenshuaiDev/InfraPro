@@ -8,7 +8,7 @@ import net from 'node:net';
 import assert from 'node:assert/strict';
 import { ensureTestDependencies } from './test-environment.mjs';
 
-const root = resolve('.'), out = join(root, '.artifacts/https-20261117');
+const root = resolve('.'), out = resolve(process.env.INFRAPRO_HTTPS_OUTPUT ?? join(root, '.artifacts/https-' + new Date().toISOString().replaceAll(':', '-')));
 mkdirSync(out, { recursive: true });
 rmSync(join(out, 'result.json'), { force: true });
 const run = (cmd, args, options = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...options });
@@ -35,9 +35,10 @@ const spki = createHash('sha256').update(openssl(['pkey', '-pubin', '-outform', 
 const observed = { api: [], runtime: [], assets: [] }, spies = [];
 async function freePort() { const s=net.createServer(); await new Promise(r=>s.listen(0,'127.0.0.1',r)); const port=s.address().port; await new Promise(r=>s.close(r)); return port; }
 const apiPort=await freePort(), runtimePort=await freePort(), assetsPort=await freePort(), apiSpy=await freePort(), runtimeSpy=await freePort(), assetsSpy=await freePort();
+const consoleTLS = await freePort(), runtimeTLS = await freePort(), assetTLS = await freePort();
 let processNginx;
 try {
-  for (const port of [28443, 28444, 28445]) {
+  for (const port of [consoleTLS, runtimeTLS, assetTLS]) {
     const probe = net.createServer();
     await new Promise((resolve, reject) => {
       probe.once('error', reject);
@@ -58,15 +59,15 @@ try {
     spies.push(server);
   }
   let conf = readFileSync('deploy/display/https.nginx.conf', 'utf8');
-  conf = conf.replaceAll('10.23.52.152', '127.0.0.1').replaceAll('18443', '28443').replaceAll('18444', '28444').replaceAll('18445', '28445')
-    .replace(/listen (2844[345]) ssl;/g, 'listen 127.0.0.1:$1 ssl;')
+  conf = conf.replaceAll('10.23.52.152', '127.0.0.1').replaceAll('18443', String(consoleTLS)).replaceAll('18444', String(runtimeTLS)).replaceAll('18445', String(assetTLS))
+    .replace(/listen (\d+) ssl;/g, 'listen 127.0.0.1:$1 ssl;')
     .replaceAll('/etc/infrapro/tls', tls).replace('/opt/infrapro/web', join(out, 'web')).replaceAll('127.0.0.1:18000', `127.0.0.1:${apiSpy}`).replaceAll('127.0.0.1:5180', `127.0.0.1:${runtimeSpy}`).replaceAll('127.0.0.1:5181', `127.0.0.1:${assetsSpy}`);
   // The worker uses the same user; explicit mime table keeps this harness portable.
   writeFileSync(join(out, 'nginx.conf'), `worker_processes 1;\npid ${join(out, 'nginx.pid')};\nerror_log ${join(out, 'nginx.log')};\nevents { worker_connections 1024; }\nhttp { types { text/html html; text/css css; application/javascript js mjs; image/svg+xml svg; }\n${conf}\n}\n`);
   run(nginx, ['-t', '-p', out + '/', '-c', join(out, 'nginx.conf')]);
   const fd = openSync(join(out, 'nginx-process.log'), 'w');
   processNginx = spawn(nginx, ['-p', out + '/', '-c', join(out, 'nginx.conf'), '-g', 'daemon off;'], { stdio: ['ignore', fd, fd] }); closeSync(fd);
-  const env = { ...process.env, NODE_EXTRA_CA_CERTS: join(tls, 'ca.pem'), INFRAPRO_DISPLAY_API_ADDR: `127.0.0.1:${apiPort}`, INFRAPRO_E2E_RUNTIME_ADDR: `127.0.0.1:${runtimePort}`, INFRAPRO_E2E_ASSET_ADDR: `127.0.0.1:${assetsPort}`, INFRAPRO_DISPLAY_HTTPS: '1', INFRAPRO_DISPLAY_SKIP_BUILD: '1', INFRAPRO_DISPLAY_OUT: join(out, 'browser'), INFRAPRO_HTTPS_SPKI: spki };
+  const env = { ...process.env, INFRAPRO_HTTPS_CONSOLE_PORT: String(consoleTLS), INFRAPRO_HTTPS_RUNTIME_PORT: String(runtimeTLS), INFRAPRO_HTTPS_ASSET_PORT: String(assetTLS), NODE_EXTRA_CA_CERTS: join(tls, 'ca.pem'), INFRAPRO_DISPLAY_API_ADDR: `127.0.0.1:${apiPort}`, INFRAPRO_E2E_RUNTIME_ADDR: `127.0.0.1:${runtimePort}`, INFRAPRO_E2E_ASSET_ADDR: `127.0.0.1:${assetsPort}`, INFRAPRO_DISPLAY_HTTPS: '1', INFRAPRO_DISPLAY_SKIP_BUILD: '1', INFRAPRO_DISPLAY_OUT: join(out, 'browser'), INFRAPRO_HTTPS_SPKI: spki };
   const child = spawn(process.execPath, ['scripts/display-browser-check.mjs'], { env, stdio: 'inherit' });
   const code = await new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', resolve); });
   assert.equal(code, 0, 'HTTPS browser and tool journeys');

@@ -1,3 +1,4 @@
+import { defaultMetricUnit, metricUnitOptions } from './metric-units';
 import { useState } from 'react';
 import { CategoryPicker } from '../classification/picker';
 import { useOptionalTenant } from '../tenancy/context';
@@ -25,7 +26,7 @@ export function TemplateEditor({
 }) {
   const tenant = useOptionalTenant();
   const [picked, setPicked] = useState<EngineeringVersion[]>([]);
-  const definitions = [...known, ...picked];
+  const definitions = [...picked, ...known];
   const types = value.type_versions ?? [];
   const groups = value.groups ?? [];
   const items = value.items ?? [];
@@ -288,20 +289,13 @@ export function TemplateEditor({
                                   v,
                                   ...dependencies,
                                 ]);
-                              change({ metric_version, unit_version: v?.content.metric?.standard_unit ?? '' });
+                              change({ metric_version, unit_version: defaultMetricUnit(v, dependencies) });
                             }}
                           />
                           {metric?.shape !== 'enum' && (
-                            <VersionPicker
-                              kind="units"
-                              label={`绑定单位 ${n + 1}`}
-                              value={b.unit_version}
-                              known={definitions}
-                              onChange={(unit_version, v) => {
-                                if (v) onReferences?.([v]);
-                                change({ unit_version });
-                              }}
-                            />
+                            <SelectControl label={`绑定单位 ${n + 1}`} value={b.unit_version} disabled={!metric}
+                              options={metricUnitOptions(metric, definitions, b.unit_version)}
+                              onChange={unit_version => change({ unit_version })} />
                           )}
                           <p className="text-sm">资源要求：观测通道（待后续绑定）</p>
                           <div className="grid gap-3 sm:grid-cols-2">

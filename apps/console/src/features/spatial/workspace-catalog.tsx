@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { readSpatialMetadata } from "./metadata-reader";
 import { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
@@ -49,19 +51,12 @@ export function FacilityScope({
     enabled: !!value && m.available,
     retry: false,
   });
-  const list = useInfiniteQuery({
-    queryKey: [...m.prefix, "facility-picker", q],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+  const list = usePagedQuery({ initialPageSize: 30, queryKey: [...m.prefix, "facility-picker", q], enabled: open && m.available, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialObjects(
         m.scope,
-        { kind: "facility", q, cursor: pageParam, limit: 30 },
+        { kind: "facility", q, cursor, limit },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: open && m.available,
-    retry: false,
-  });
+      ) });
   return (
     <>
       <Button
@@ -93,8 +88,7 @@ export function FacilityScope({
           </Button>
           <Failure error={list.error} />
           {list.isPending && <Info>正在读取设施…</Info>}
-          {list.data?.pages
-            .flatMap((p) => p.items)
+          {list.data?.items
             .map((o) => (
               <button
                 type="button"
@@ -117,15 +111,9 @@ export function FacilityScope({
             ))}
           {!list.isPending &&
             !list.error &&
-            !list.data?.pages[0]?.items.length && <Info>没有匹配的设施。</Info>}
-          {list.hasNextPage && (
-            <Button
-              variant="outline"
-              disabled={list.isFetchingNextPage}
-              onClick={() => void list.fetchNextPage()}
-            >
-              更多设施
-            </Button>
+            !list.data?.items.length && <Info>没有匹配的设施。</Info>}
+          {list.data && (
+            <ListPagination label="设施" {...list.pagination} />
           )}
         </div>
       </ResponsivePanel>
@@ -377,17 +365,14 @@ export function AssetLibrary({
   onBrowse: (asset: SpatialAsset) => void;
 }) {
   const m = useSpatial();
-  const list = useInfiniteQuery({
-    queryKey: [
+  const list = usePagedQuery({ initialPageSize: 25, queryKey: [
       ...m.prefix,
       "library",
       search.facility,
       search.q,
       search.kind,
       search.status,
-    ],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+    ], enabled: m.available, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.spatialAssets(
         m.scope,
         {
@@ -395,16 +380,12 @@ export function AssetLibrary({
           q: search.q,
           kind: search.kind,
           state: search.status,
-          cursor: pageParam,
-          limit: 25,
+          cursor,
+          limit,
         },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: m.available,
-    retry: false,
-  });
-  const items = list.data?.pages.flatMap((p) => p.items) ?? [];
+      ) });
+  const items = list.data?.items ?? [];
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap justify-between gap-3">
@@ -519,17 +500,11 @@ export function AssetLibrary({
           </table>
         </div>
       )}
-      {list.hasNextPage && (
-        <Button
-          variant="outline"
-          disabled={list.isFetchingNextPage}
-          onClick={() => void list.fetchNextPage()}
-        >
-          加载更多资料
-        </Button>
+      {list.data && (
+        <ListPagination label="资料" {...list.pagination} />
       )}
       <p className="text-xs text-muted-foreground">
-        已载入 {items.length} 份资料{list.hasNextPage ? "，还有更多结果" : ""}
+        已载入 {items.length} 份资料{list.pagination.hasNext ? "，还有更多结果" : ""}
         。项目使用明确授权的版本，后续发布不会自动升级项目版本。
       </p>
     </section>
@@ -566,19 +541,12 @@ export function ProjectAccessEntry() {
     m.scope.kind === "tenant" &&
     m.can(P.TenantProjectRead) &&
     m.can(P.TenantProjectSpatialAccessRead);
-  const list = useInfiniteQuery({
-    queryKey: [...m.prefix, "access-projects", q],
-    initialPageParam: "",
-    queryFn: ({ signal, pageParam }) =>
+  const list = usePagedQuery({ initialPageSize: 25, queryKey: [...m.prefix, "access-projects", q], enabled: allowed && open && m.available, retry: false, queryFn: ({ signal, cursor , limit}) =>
       m.client.projectGovernance(
         m.scope.tenantId,
-        { q, status: "all", limit: 25, cursor: pageParam },
+        { q, status: "all", limit, cursor },
         signal,
-      ),
-    getNextPageParam: (p) => p.next_cursor || undefined,
-    enabled: allowed && open && m.available,
-    retry: false,
-  });
+      ) });
   if (!allowed) return null;
   return (
     <>
@@ -596,8 +564,7 @@ export function ProjectAccessEntry() {
           <TextField label="搜索授权项目" value={q} onChange={setQ} />
           <Failure error={list.error} />
           {list.isPending && <Info>正在读取项目…</Info>}
-          {list.data?.pages
-            .flatMap((p) => p.items)
+          {list.data?.items
             .map(({ project: p }) => (
               <SpatialLink
                 key={p.id}
@@ -612,17 +579,11 @@ export function ProjectAccessEntry() {
             ))}
           {!list.isPending &&
             !list.error &&
-            !list.data?.pages[0]?.items.length && (
+            !list.data?.items.length && (
               <Info>没有符合条件的项目。</Info>
             )}
-          {list.hasNextPage && (
-            <Button
-              variant="outline"
-              onClick={() => void list.fetchNextPage()}
-              disabled={list.isFetchingNextPage}
-            >
-              更多项目
-            </Button>
+          {list.data && (
+            <ListPagination label="项目" {...list.pagination} />
           )}
         </div>
       </ResponsivePanel>

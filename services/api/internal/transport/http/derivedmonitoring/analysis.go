@@ -192,10 +192,15 @@ func analysis(c *gin.Context, s *dm.Service, a access.Actor, scope dm.Scope, act
 		}
 		v, e := s.AnalysisArtifactLineage(ctx, a, scope, id, in)
 		reply(c, 200, v, e)
-	case "analysis.artifacts.archive":
+	case "analysis.artifacts.archive", "analysis.artifacts.delete":
 		var in dm.WriteMeta
 		if e := body(c, &in); e != nil {
 			reply(c, 0, nil, e)
+			return
+		}
+		if action == "analysis.artifacts.delete" {
+			v, e := s.DeleteAnalysisArtifact(ctx, a, scope, id, in, meta)
+			reply(c, 200, v, e)
 			return
 		}
 		v, e := s.ArchiveAnalysisArtifact(ctx, a, scope, id, in, meta)

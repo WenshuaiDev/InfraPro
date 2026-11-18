@@ -2,7 +2,7 @@
 
 版本：1.0。日期：2026-11-17。
 
-业务范围已经确认；本规格落实“登录后敏感操作不再要求 TOTP”的修订。开发状态为 In progress（规格阶段，尚未编码），功能自验和人工验收均未开始。本文中的新增文件、字段、接口、命令和测试均为待实现内容，现有实现另有明确标注。
+业务范围已经确认；本规格落实“登录后敏感操作不再要求 TOTP”的修订。当前实现状态为 Awaiting acceptance（R1–R6 已实现，MFA-001–060 自验及交付复核通过，待用户人工接受）。实际实现、自验和人工接受分别记录在[验证账本](../verification/mfa.md)，部署与恢复见[操作手册](../operations/mfa.md)。本节以下保留开发时确认的行为约束。
 
 本规格是本次 MFA 开发、集成和验收的依据；[功能方案](mfa-proposal.md)作为范围摘要。交付范围为平台策略、个人 MFA 管理、登录与会话、恢复与重置、安全存储与审计五项，包括使这五项在现有系统中完整工作所需的迁移、客户端、部署和测试。
 
@@ -55,7 +55,7 @@
 
 ## 2 当前系统基线与改动地图
 
-以下基线来自当前 checkout。实施前应重新核对函数和迁移编号，保留其他正在进行的修改；默认在当前分支和 checkout 工作。
+以下为实施前的系统基线及改动地图；已完成的实际实现以验证账本和当前代码为准。保留其他正在进行的修改，默认在当前分支和 checkout 工作。
 
 | 位置 | 当前行为 | 必须如何衔接 |
 | --- | --- | --- |
@@ -355,7 +355,7 @@ disable、regenerate 登记为命令收据操作，要求 X-Command-ID。start/c
 
 | 方法与路径 | 资格及输入 | 成功结果 |
 | --- | --- | --- |
-| GET `/platform/security-policy` | security_policy.read | SecurityPolicy：require_mfa、revision、updated_by 摘要、updated_at |
+| GET `/platform/security-policy` | security_policy.read | SecurityPolicy：require_mfa、revision、updated_by、updated_by_label 摘要、updated_at |
 | GET `/platform/security-policy/mfa-impact` | security_policy.read | active_accounts、enabled_accounts、unenrolled_accounts、reset_required_accounts、potential_password_sessions、computed_at |
 | PUT `/platform/security-policy` | read+update、密码复验、X-Command-ID；require_mfa、expected_version、reason | policy、changed、session_action、operation_id；不要求操作者已绑定 |
 | GET `/access/accounts/:id/mfa` | platform.account.read | 目标 state、factor_version、enabled_at；不返回秘密或私人会话 |
@@ -512,7 +512,7 @@ Redis 保留账号/IP 请求速率限制，默认沿用已配置 CredentialReque
 
 ## 13 文件改动清单与实施顺序
 
-以下为开发任务清单，不表示本轮已经修改这些代码。
+以下为完整开发任务清单；W1–W7 的实际实现及自验状态见验证账本。
 
 | 工作包 | 新增或调整位置 | 完成证据 |
 | --- | --- | --- |
@@ -526,7 +526,7 @@ Redis 保留账号/IP 请求速率限制，默认沿用已配置 CredentialReque
 
 按 W1→W2→W3/W4→W5/W6→W7 集成，内部可以分小迭代，但不能以某一个工作包通过代替五项功能完整交付。W2 验证正式会话签发规则之后再接页面，避免 UI 状态暂时替代后端门禁。
 
-未来实施要补充 `docs/operations/mfa.md` 和 `docs/verification/mfa.md`，并更新正式需求、架构及文档目录。现有文档中针对旧模块“本轮不增加 MFA”的阶段性表述，不用于覆盖本次已确认范围；现有密码复验规则继续适用。本次文档交付不提前修改 OpenAPI、迁移或运行配置，使仓库误以为功能已经存在。
+实施同时维护 `docs/operations/mfa.md` 和 `docs/verification/mfa.md`，并更新正式需求、架构及文档目录。现有文档中针对旧模块“本轮不增加 MFA”的阶段性表述，不用于覆盖本次已确认范围；现有密码复验规则继续适用。实现交付须同步 OpenAPI、迁移和运行配置；文档中的状态不能替代实际检查。
 
 ## 14 发布 运维与恢复
 
@@ -582,7 +582,7 @@ Redis 保留账号/IP 请求速率限制，默认沿用已配置 CredentialReque
 
 ## 16 验收用例
 
-下表为完整交付检查清单。每项在实施验收账本中分别记录实现状态、自验结果、证据位置和人工接受；目前全部未执行。
+下表为完整交付检查清单。每项在实施验收账本中分别记录实现状态、自验结果、证据位置和人工接受；执行结果见[逐项验证账本](../verification/mfa.md)，不在规格中重复记录。
 
 | 编号 | 操作或前提 | 必须观察到的结果 | 对应需求 |
 | --- | --- | --- | --- |
@@ -666,4 +666,4 @@ Redis 保留账号/IP 请求速率限制，默认沿用已配置 CredentialReque
 
 最终交付说明应包含实际改动、启动/访问方式、已运行检查和结果、部署范围、尚未验证的真实环境条件、已知限制及上述人工验收步骤。不得把本规格中的接口或建议文件称为已经上线，也不得把开发者自验写作用户接受。只有用户明确确认，才能将功能标记 Accepted。
 
-本次仅编写规格并同步方案摘要及文档索引；不执行迁移、不修改代码、不启动功能、不改变任何实际账号或平台安全设置。
+本轮在当前 checkout 完成实现和隔离自验；未部署生产，未改变现有实际业务账号的安全设置。人工接受须由用户明确确认。

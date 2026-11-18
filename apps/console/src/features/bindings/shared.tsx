@@ -1,7 +1,6 @@
 import { ArrowRight, Check, CircleAlert, CircleDot, Cpu, LockKeyhole, Unplug } from 'lucide-react';
 import type { DeviceOutput, DeviceSourceCurrent } from '@infrapro/api-client';
 import { Badge } from '@infrapro/ui/components/badge';
-import { Button } from '@infrapro/ui/components/button';
 import { cn } from '@infrapro/ui/lib/utils';
 import { bindingLocation, stateLabels, visibleOutput, type BindingRow } from './model';
 
@@ -22,9 +21,7 @@ export function CurrentEquipment({ source }: { source: DeviceSourceCurrent['sour
 export function PairSummary({ row, output, unbind = false }: { row: BindingRow; output?: DeviceOutput; unbind?: boolean }) {
   return <div className="grid min-w-0 items-center gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]" aria-label="本次配对关系"><div className="min-w-0"><p className="mb-2 flex items-center gap-2 text-xs text-muted-foreground"><CircleDot className="size-4" aria-hidden="true" />业务通道 · 测什么</p><ChannelIdentity row={row} /></div><ArrowRight className="size-5 rotate-90 text-muted-foreground sm:rotate-0" aria-hidden="true" /><div className="min-w-0"><p className="mb-2 flex items-center gap-2 text-xs text-muted-foreground"><Cpu className="size-4" aria-hidden="true" />设备通道 · 谁来测</p>{unbind ? <p className="text-sm">解除后暂不关联设备</p> : output ? <Equipment output={output} /> : <p className="text-sm text-muted-foreground">请选择设备通道</p>}</div></div>;
 }
-export function PageButtons({ page, hasNext, busy, previous, next, label }: { page: number; hasNext: boolean; busy: boolean; previous: () => void; next: () => void; label: string }) {
-  return <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3"><Button className="min-h-11" variant="ghost" disabled={!page || busy} onClick={previous}>上一页{label}</Button><span className="text-xs text-muted-foreground">第 {page + 1} 页</span><Button className="min-h-11" variant="ghost" disabled={!hasNext || busy} onClick={next}>下一页{label}</Button></div>;
-}
+
 export function DesignMeaning({ row, current, expanded = false }: { row: BindingRow; current: DeviceSourceCurrent; expanded?: boolean }) {
   const s = current.semantics;
   return <details open={expanded || undefined} className="rounded-lg border p-3"><summary className="min-h-8 cursor-pointer text-sm font-medium">设计要求 · 观测含义</summary><dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">{[['指标', row.metric_name], ['单位', row.unit_symbol || '无量纲'], ['值类型', s.value_shape === 'decimal' ? '数值' : s.value_shape === 'enum' ? '枚举状态' : s.value_shape], ['时间含义', s.timestamp_meaning === 'observation_time' ? '观测时刻' : s.timestamp_meaning === 'interval_end' ? '统计时段结束' : s.timestamp_meaning], ['聚合说明', s.aggregation_description || '无'], ['观测方向', s.observation_direction || '无'], ['参考基准', s.reference_basis || '无']].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 break-words">{value}</dd></div>)}</dl></details>;

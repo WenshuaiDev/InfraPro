@@ -9,6 +9,8 @@ x-infrapro-environment: &infrapro-environment
   INFRAPRO_COOKIE_SECURE: 'false'
   INFRAPRO_SUPPORT_CONTACT: ${SUPPORT_CONTACT:?set SUPPORT_CONTACT}
   INFRAPRO_HTTP_ADDR: 0.0.0.0:8080
+  INFRAPRO_MFA_KEYRING_FILE: /run/infrapro/mfa-keyring.json
+  INFRAPRO_MFA_ISSUER: ${MFA_ISSUER:-InfraPro}
   # Only this dedicated Compose subnet may assert the client IP; API ports are never published.
   INFRAPRO_TRUSTED_PROXIES: 172.30.42.0/24
 services:
@@ -58,11 +60,23 @@ services:
     build: {context: ../.., dockerfile: deploy/docker/infrapro.Dockerfile}
     image: infrapro-ops:local
     environment: *infrapro-environment
+    volumes:
+      - type: bind
+        source: ${MFA_KEYRING_FILE:?set absolute private MFA_KEYRING_FILE outside the repository}
+        target: /run/infrapro/mfa-keyring.json
+        read_only: true
+        bind: {create_host_path: false}
     depends_on:
       postgres: {condition: service_healthy}
   api:
     build: {context: ../.., dockerfile: deploy/docker/api.Dockerfile}
     environment: *infrapro-environment
+    volumes:
+      - type: bind
+        source: ${MFA_KEYRING_FILE:?set absolute private MFA_KEYRING_FILE outside the repository}
+        target: /run/infrapro/mfa-keyring.json
+        read_only: true
+        bind: {create_host_path: false}
     depends_on:
       access-sync: {condition: service_completed_successfully}
       redis: {condition: service_healthy}

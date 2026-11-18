@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Button } from "@infrapro/ui/components/button";
 import { Badge } from "@infrapro/ui/components/badge";
 const labels: Record<string, string> = {
   active: "已生效",
@@ -61,30 +60,7 @@ export function Digest({ value }: { value?: string | null }) {
     </code>
   );
 }
-export function Pages({
-  cursor,
-  next,
-  onChange,
-}: {
-  cursor: string;
-  next?: string | null;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex gap-2">
-      <Button variant="outline" disabled={!cursor} onClick={() => onChange("")}>
-        首页
-      </Button>
-      <Button
-        variant="outline"
-        disabled={!next}
-        onClick={() => onChange(next!)}
-      >
-        下一页
-      </Button>
-    </div>
-  );
-}
+
 export function Facts({ items }: { items: [string, ReactNode][] }) {
   return (
     <dl className="grid gap-3 text-sm">

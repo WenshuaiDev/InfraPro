@@ -1,12 +1,15 @@
 import { Fragment, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ApiError, createApiClient, type Account, type AccountHelp, type AuthContext, type PermissionCode } from './index';
+import { ApiError, createApiClient, type Account, type AccountHelp, type AuthContext, type PermissionCode, type LoginChallenge, type LoginResult } from './index';
 
-type IdentityState = { phase: 'loading' | 'authenticated' | 'anonymous' | 'unavailable'; account?: Account; help?: AccountHelp; permissions: PermissionCode[]; authorization_revision?: string; authorizationEpoch: number };
+type IdentityState = { phase: 'loading' | 'authenticated' | 'authenticating' | 'anonymous' | 'unavailable'; challenge?: LoginChallenge; recovery?: { accountId: string; codes: string[] }; account?: Account; help?: AccountHelp; permissions: PermissionCode[]; authorization_revision?: string; authorizationEpoch: number };
 export type IdentityValue = IdentityState & {
   client: ReturnType<typeof createApiClient>;
   reload: () => Promise<void>;
   signedIn: (account: Account) => Promise<void>;
   signedOut: () => void;
+  beginLogin: (input: { username: string; password: string }) => Promise<void>;
+  acceptLogin: (result: LoginResult) => Promise<void>;
+  dismissRecovery: () => void;
   can: (permission: PermissionCode) => boolean;
   canAll: (...permissions: PermissionCode[]) => boolean;
 };
@@ -23,20 +26,43 @@ export function IdentityProvider({ children, baseUrl = '/api/v1' }: { children: 
     if (old && (old.account.id !== value.account.id || old.permissions.some((p) => !value.permissions.includes(p)))) client.invalidateIdentity();
     previous.current = value;
     revision.current = value.authorization_revision;
-    setState((old) => ({ ...old, ...value, help: help ?? old.help, phase: 'authenticated', authorizationEpoch: old.authorizationEpoch + (old.account?.id === value.account.id && old.permissions.some((p) => !value.permissions.includes(p)) ? 1 : 0) }));
+    setState((old) => ({ ...old, ...value, help: help ?? old.help, phase: 'authenticated', challenge: undefined, recovery: old.recovery?.accountId === value.account.id ? old.recovery : undefined, authorizationEpoch: old.authorizationEpoch + (old.account?.id === value.account.id && old.permissions.some((p) => !value.permissions.includes(p)) ? 1 : 0) }));
   }, [client]);
-  const signedOut = useCallback(() => { client.invalidateIdentity(); previous.current = undefined; generation.current++; pending.current = undefined; revision.current = undefined; setState((old) => ({ ...old, phase: 'anonymous', account: undefined, permissions: [] })); }, [client]);
+  const signedOut = useCallback(() => { client.invalidateIdentity(); previous.current = undefined; generation.current++; pending.current = undefined; revision.current = undefined; setState((old) => ({ ...old, phase: 'anonymous', account: undefined, challenge: undefined, recovery: undefined, permissions: [] })); }, [client]);
   const reload = useCallback(() => {
     if (pending.current) return pending.current;
     const version = generation.current;
     const task = client.csrf().then(() => client.accountHelp()).then(async (help) => {
       try { const auth = await client.me(); if (version === generation.current) accept(auth, help); }
-      catch (error) { if (error instanceof ApiError && error.status === 401) { if (version === generation.current) { signedOut(); setState((old) => ({ ...old, help })); } } else throw error; }
+      catch (error) {
+        if (!(error instanceof ApiError) || !['unauthenticated', 'mfa_login_required'].includes(error.code ?? '')) throw error;
+        const challenge = await client.mfaChallenge();
+        if (version === generation.current) {
+          if (previous.current) client.invalidateIdentity();
+          previous.current = undefined; revision.current = undefined;
+          setState((old) => ({ ...old, help, account: undefined, recovery: undefined, permissions: [], phase: challenge.status === 'none' ? 'anonymous' : 'authenticating', challenge: challenge.status === 'none' ? undefined : challenge }));
+        }
+      }
     }).catch(() => { if (version === generation.current) setState((old) => ({ ...old, phase: 'unavailable' })); }).finally(() => { if (pending.current === task) pending.current = undefined; });
     pending.current = task;
     return task;
-  }, [client, accept, signedOut]);
+  }, [client, accept]);
   const signedIn = useCallback(async () => { client.invalidateIdentity(); previous.current = undefined; generation.current++; pending.current = undefined; await reload(); }, [client, reload]);
+  const acceptLogin = useCallback(async (result: LoginResult) => {
+    if (result.status === 'authenticated') {
+      if (result.recovery_codes?.length) setState((old) => ({ ...old, recovery: { accountId: result.account.id, codes: result.recovery_codes! } }));
+      await signedIn();
+    } else {
+      setState((old) => ({ ...old, phase: result.status === 'none' ? 'anonymous' : 'authenticating', account: undefined, permissions: [], challenge: result.status === 'none' ? undefined : result }));
+    }
+  }, [signedIn]);
+  const beginLogin = useCallback(async (input: { username: string; password: string }) => {
+    client.invalidateIdentity(); generation.current++; pending.current = undefined;
+    const version = generation.current;
+    const result = await client.login(input);
+    if (version === generation.current) await acceptLogin(result);
+  }, [client, acceptLogin]);
+  const dismissRecovery = useCallback(() => setState((old) => ({ ...old, recovery: undefined })), []);
   useEffect(() => { void reload(); return client.onUnauthorized(signedOut); }, [client, reload, signedOut]);
   useEffect(() => client.onAuthorizationChange((next) => { if (!next || (next !== revision.current && (!revision.current || BigInt(next) > BigInt(revision.current)))) void reload(); }), [client, reload]);
   useEffect(() => {
@@ -64,7 +90,7 @@ export function IdentityProvider({ children, baseUrl = '/api/v1' }: { children: 
   const can = (permission: PermissionCode) => state.permissions.includes(permission);
   // Loss of any permission destroys queries, drafts, credentials and pending consumer callbacks.
   // Unrelated revision changes and grants preserve drafts. Nothing is persisted to localStorage.
-  return <IdentityContext value={{ ...state, client, reload, signedIn, signedOut, can, canAll: (...permissions) => permissions.every(can) }}>
+  return <IdentityContext value={{ ...state, client, reload, signedIn, signedOut, beginLogin, acceptLogin, dismissRecovery, can, canAll: (...permissions) => permissions.every(can) }}>
     <Fragment key={`${state.account?.id ?? 'anonymous'}:${state.authorizationEpoch}`}>{children}</Fragment>
   </IdentityContext>;
 }

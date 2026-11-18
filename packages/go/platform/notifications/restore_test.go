@@ -59,7 +59,9 @@ func TestUpgradeFrom35AndIndependentNotificationRestore(t *testing.T) {
 	}
 	must(t, migrations.Up(ctx, parsed.String()))
 	must(t, migrations.Check(ctx, old))
-	must(t, old.QueryRow(ctx, `SELECT to_jsonb(a)::text FROM accounts a`).Scan(&after))
+	// Migration 57 adds an empty avatar to existing accounts. Compare every original field
+	// and require the new fields to have their documented defaults.
+	must(t, old.QueryRow(ctx, `SELECT (to_jsonb(a)-'avatar_revision'-'avatar_object_id')::text FROM accounts a WHERE avatar_revision=0 AND avatar_object_id IS NULL`).Scan(&after))
 	if before != after {
 		t.Fatal("existing account changed on upgrade")
 	}

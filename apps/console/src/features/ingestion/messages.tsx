@@ -1,3 +1,5 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Permissions as P, type IngestionFilters } from "@infrapro/api-client";
@@ -7,7 +9,7 @@ import { ResponsivePanel } from "@infrapro/ui/patterns/responsive-panel";
 import { ErrorState, FormNotice } from "@infrapro/ui/patterns/feedback";
 import { DeviceField, DeviceSelect } from "../parsing/fields";
 import { useParsing, useParsingWrite, WriteFeedback } from "../parsing/context";
-import { Digest, Facts, Pages, State, Time } from "./common";
+import { Digest, Facts, State, Time } from "./common";
 import { RecoveryEditor } from "./recovery";
 export function Messages({
   source,
@@ -31,10 +33,9 @@ export function Messages({
       c.client.ingestionSources(c.scope, { limit: 100 }, signal),
     enabled: c.can(P.TenantIngestionSourceRead) && c.can(P.TenantProjectRead),
   });
-  const query = useQuery({
+  const query = usePagedQuery({ initialPageSize: 25,
     queryKey: [...c.prefix, "ingestion-messages", filter],
-    queryFn: ({ signal }) =>
-      c.client.ingestionMessages(c.scope, filter, signal),
+    queryFn: ({ cursor, signal, limit }) => c.client.ingestionMessages(c.scope, { ...filter, cursor, limit }, signal),
   });
   return (
     <div className="space-y-4">
@@ -166,11 +167,7 @@ export function Messages({
           { id: "error", label: "处理提示", cell: (v) => v.error_code || "—" },
         ]}
         pagination={
-          <Pages
-            cursor={filter.cursor ?? ""}
-            next={query.data?.next_cursor}
-            onChange={(cursor) => setFilter((f) => ({ ...f, cursor }))}
-          />
+          <ListPagination label="原始报文" {...query.pagination} />
         }
       />
       <ResponsivePanel

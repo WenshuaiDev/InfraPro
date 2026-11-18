@@ -1,3 +1,4 @@
+import { requireAuthenticatedLogin } from './login-result.mjs';
 // Isolated production-handler journeys through the shipped Nginx HTTP template.
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync, openSync, closeSync, rmSync } from 'node:fs';
@@ -30,7 +31,7 @@ try{
   const r=await client.fetch('/api/v1'+path,{method,headers:{Origin:origin,'X-CSRF-Token':csrf,'X-Command-ID':randomUUID(),...extra},...(data===undefined?{}:{data})});
   const raw=await r.body(),status=r.status();await r.dispose();assert.ok(status>=200&&status<300,`${method} ${path}: ${status} ${raw.toString().slice(0,800)}`);return raw.length?JSON.parse(raw):{};
  }
- csrf=(await call('/auth/csrf')).token;await call('/auth/login',{username:'e2e_owner',password:'Real browser 河流 secret 592'});
+ csrf=(await call('/auth/csrf')).token;requireAuthenticatedLogin(await call('/auth/login',{username:'e2e_owner',password:'Real browser 河流 secret 592'}));
  const limits=await call('/auth/upload-limits');assert.equal(limits.spatial_max_file_bytes,String(270<<20));assert.equal(limits.display_max_package_bytes,String(160<<20));
  const owner=(await call('/access/accounts?q=e2e_owner')).items.find(a=>a.username==='e2e_owner');
  const tenant=(await call('/platform/tenants',{name:'上传部署验收',code:'upload-deploy',administrator_account_id:owner.id,client_request_id:randomUUID(),reason:'合成验收'})).tenant_id;

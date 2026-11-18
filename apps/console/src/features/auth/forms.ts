@@ -2,7 +2,7 @@ import { z } from '../../config/validation';
 import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import { ApiError } from '@infrapro/api-client';
 
-export const loginSearchSchema = z.object({ returnTo: z.string().optional().catch(undefined), notice: z.enum(['created', 'password']).optional().catch(undefined) });
+export const loginSearchSchema = z.object({ returnTo: z.string().optional().catch(undefined), notice: z.enum(['created', 'password', 'mfa_policy']).optional().catch(undefined) });
 export const loginSchema = z.object({ username: z.string().min(1, '请输入用户名。'), password: z.string().min(1, '请输入密码。') });
 export function passwordSchema(min = 8, max = 128) {
   return z.string().refine((value) => { const length = Array.from(value).length; return length >= min && length <= max; }, `请输入 ${min}–${max} 个字符的密码。`);

@@ -1,50 +1,96 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from '@tanstack/react-router';
+import { useEffect, useMemo } from 'react';
+import { useLocation, useMatch, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useIdentity } from '@infrapro/api-client/react';
-import { ApiError, type TaskFilter, type TaskView } from '@infrapro/api-client';
-import { Activity, RefreshCw } from 'lucide-react';
+import { ApiError, type TaskFilter } from '@infrapro/api-client';
+import { Activity, ArrowDown, ArrowUp, CheckCheck, ChevronRight, CircleAlert, Clock3, Download, FileInput, FlaskConical, Inbox, Layers3, RefreshCw, Workflow } from 'lucide-react';
 import { PageHeader } from '@infrapro/layouts';
 import { Button } from '@infrapro/ui/components/button';
 import { Tabs, TabsList, TabsTrigger } from '@infrapro/ui/components/tabs';
+import { useIsMobile } from '@infrapro/ui/hooks/use-mobile';
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
+import { useRoutePagination } from '../../hooks/use-route-pagination';
+import { TaskDetailContent } from './detail';
+import { TaskOperations } from './operations';
+import { TaskError, TaskStatus } from './common';
+import { TaskToolbar } from './toolbar';
 import { useTasks } from './provider';
-import { TaskError } from './common';
-import { TaskTable } from './task-table';
 import type { TaskSearch } from './search';
+import './center.css';
 
 declare module '@tanstack/react-router' { interface HistoryState { taskTrail?: (string | null)[]; taskTrailFor?: string } }
-const noTypes: { type: string; title: string }[] = [];
+const groups = [
+  { field: 'total', label: '全部任务', group: undefined, icon: Layers3 },
+  { field: 'active', label: '进行中', group: 'active', icon: Clock3 },
+  { field: 'attention', label: '需处理', group: 'attention', icon: CircleAlert },
+  { field: 'ended', label: '已结束', group: 'ended', icon: CheckCheck },
+] as const;
+const time = new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+
 export function TaskCenter({ filter: raw, embedded = false }: { filter: TaskSearch; embedded?: boolean }) {
-  const { client } = useIdentity(), t = useTasks(), navigate = useNavigate();
-  const historyState = useLocation({ select: location => location.state });
+  const { client } = useIdentity(), tasks = useTasks(), navigate = useNavigate(), mobile = useIsMobile();
+  const match = useMatch({ from: '/_authenticated/tasks/$taskId', shouldThrow: false });
+  const selected = match?.params.taskId;
+  const state = useLocation({ select: location => location.state });
   const { source, scope_kind, mode = 'mine', tenant_id, project_id, type, group, from, to, q, cursor, limit = 10, sort } = raw;
-  const filter: TaskFilter = useMemo(() => ({ source, scope_kind, mode, tenant_id, project_id, type, group, from, to, q, cursor, limit, sort }), [source, scope_kind, mode, tenant_id, project_id, type, group, from, to, q, cursor, limit, sort]);
+  const scope = useMemo(() => ({ source, scope_kind, mode, tenant_id, project_id }), [source, scope_kind, mode, tenant_id, project_id]);
+  const criteria = useMemo(() => ({ ...scope, type, from, to, q }), [scope, type, from, to, q]);
+  const filter = { ...criteria, group, cursor, limit, sort };
+  const list = useQuery({ queryKey: [...tasks.key, 'list', filter], queryFn: ({ signal }) => client.tasks(filter, signal), retry: false,
+    refetchInterval: query => query.state.data?.items.some(item => ['queued','running','waiting','retry_wait','cancelling'].includes(item.state)) ? 3000 : 15000,
+    refetchIntervalInBackground: false, refetchOnWindowFocus: 'always' });
+  const summary = useQuery({ queryKey: [...tasks.key, 'filtered-summary', criteria], queryFn: ({ signal }) => client.taskSummary(criteria, signal), refetchInterval: 30000, retry: false });
+  const catalog = useQuery({ queryKey: [...tasks.key, 'catalog', scope], queryFn: ({ signal }) => client.taskCatalog(scope, signal), retry: false });
+  const { observeAuthorization } = tasks;
+  useEffect(() => { observeAuthorization(list.data?.authorization_revision); }, [list.data?.authorization_revision, observeAuthorization]);
   const trailKey = JSON.stringify({ ...filter, cursor: undefined });
-  const previous = historyState.taskTrailFor === trailKey ? historyState.taskTrail ?? [] : [];
-  const [operationsOpen, setOperationsOpen] = useState(false);
-  const query = useQuery({ queryKey: [...t.key, 'list', filter], queryFn: ({ signal }) => client.tasks(filter, signal), refetchInterval: value => value.state.data?.items.some(item => ['queued', 'running', 'waiting', 'retry_wait', 'cancelling'].includes(item.state)) ? 3000 : 15000, refetchIntervalInBackground: false, refetchOnWindowFocus: 'always', refetchOnReconnect: 'always', retry: false });
-  const observeAuthorization = t.observeAuthorization;
-  useEffect(() => { observeAuthorization(query.data?.authorization_revision); }, [query.data?.authorization_revision, observeAuthorization]);
-  const catalog = useQuery({ queryKey: [...t.key, 'catalog', source, scope_kind, mode, tenant_id, project_id], queryFn: ({ signal }) => client.taskCatalog({ source, scope_kind, mode, tenant_id, project_id }, signal), retry: false });
-  const change = useCallback((value: Partial<TaskFilter>) => { void navigate({ to: '/tasks', search: { ...filter, ...value, cursor: undefined }, state: state => ({ ...state, taskTrail: [], taskTrailFor: undefined }) }); }, [filter, navigate]);
-  const open = useCallback((task: TaskView, action?: 'cancel' | 'retry') => { void navigate({ to: '/tasks/$taskId', params: { taskId: task.id }, search: { ...filter, action }, state: state => ({ ...state }) }); }, [filter, navigate]);
-  const items = query.error ? [] : query.data?.items ?? [];
-  return <section className="min-w-0 space-y-6">
-    <div className="flex flex-wrap items-start justify-between gap-3">{!embedded && <PageHeader title="任务中心" description="跟进任务进度、处理异常，在这里找到执行结果。" />}<div className="ml-auto flex items-center gap-2"><Button variant="outline" className="h-9" onClick={() => setOperationsOpen(true)}><Activity aria-hidden="true" />运行概况</Button><Button variant="outline" className="h-9" disabled={query.isFetching} onClick={() => void t.refresh()}><RefreshCw aria-hidden="true" className={query.isFetching ? 'motion-safe:animate-spin' : ''} />刷新</Button></div></div>
-    <div className="flex flex-wrap items-center justify-between gap-3"><Tabs value={mode} onValueChange={value => change({ mode: value === 'managed' ? 'managed' : 'mine' })}><TabsList aria-label="任务视图"><TabsTrigger value="mine" className="px-4">我的任务</TabsTrigger><TabsTrigger value="managed" className="px-4">管理视图</TabsTrigger></TabsList></Tabs><p className="text-xs text-muted-foreground">{mode === 'managed' ? '仅展示管理权限内的任务' : '汇总本人在各工作空间可见的任务'}</p></div>
-    <TaskTable items={items} filter={filter} types={catalog.error ? noTypes : catalog.data?.items ?? noTypes} loading={query.isPending} fetching={query.isFetching} error={!!query.error} next={!!query.data?.next_cursor} previous={!!cursor && previous.length > 0} page={!cursor ? 1 : previous.length ? previous.length + 1 : undefined} onChange={change} onOpen={open}
-      onNext={() => { if (query.data?.next_cursor) void navigate({ to: '/tasks', search: { ...filter, cursor: query.data.next_cursor }, state: state => ({ ...state, taskTrail: [...previous, cursor ?? null], taskTrailFor: trailKey }) }); }}
-      onPrevious={() => { void navigate({ to: '/tasks', search: { ...filter, cursor: previous.at(-1) ?? undefined }, state: state => ({ ...state, taskTrail: previous.slice(0, -1), taskTrailFor: trailKey }) }); }}
-      notice={<><TaskError error={query.error ?? catalog.error} retry={() => void t.refresh()} />{query.error instanceof ApiError && query.error.code === 'task_cursor_stale' && <Button onClick={() => change({})}>按当前权限回到首页</Button>}{!query.error && query.data?.coverage === 'partial' && <p role="status" className="rounded-md border bg-muted/30 p-3 text-xs leading-5">任务索引正在准备或同步，当前列表尚不代表完整历史。</p>}</>} />
-    <p aria-live="polite" className="text-xs text-muted-foreground">{query.isFetching ? '正在核实最新状态…' : !query.error && query.data ? `最近核实 ${new Date(query.data.observed_at).toLocaleTimeString('zh-CN')} · 自动更新` : ''}</p>
-    <ResponsivePanel open={operationsOpen} onOpenChange={setOperationsOpen} title="运行概况" description="查看获准来源的内部处理状态。">{operationsOpen && <Operations filter={{ tenant_id, project_id, scope_kind }} />}</ResponsivePanel>
-    {!embedded && <Outlet />}
+  function change(value: Partial<TaskFilter>) {
+    void navigate({ to: '/tasks', search: { ...filter, ...value, cursor: undefined, back: raw.back }, state: s => ({ ...s, taskTrail: [], taskTrailFor: undefined }) });
+  }
+  const pagination = useRoutePagination({
+    key: [...tasks.key, 'list', { ...filter, cursor: undefined }], data: list.error ? undefined : list.data, cursor,
+    trail: state.taskTrailFor === trailKey ? state.taskTrail ?? [] : [],
+    load: (next, signal) => client.tasks({ ...filter, cursor: next }, signal),
+    move: (next, trail) => void navigate({ to: '/tasks', search: { ...filter, cursor: next, back: raw.back }, state: s => ({ ...s, taskTrail: trail, taskTrailFor: trailKey }) }),
+    pageSize: limit, setPageSize: size => change({ limit: size }), fetching: list.isFetching,
+  });
+  function select(id: string, execution?: string) {
+    void navigate({ to: '/tasks/$taskId', params: { taskId: id }, search: { ...filter, back: raw.back, execution }, state: s => ({ ...s }), resetScroll: false });
+  }
+  function overlay(value: Partial<TaskSearch>) {
+    const options = { search: { ...raw, ...value }, state: (s: typeof state) => ({ ...s }), resetScroll: false };
+    if (selected) void navigate({ ...options, to: '/tasks/$taskId', params: { taskId: selected } });
+    else void navigate({ ...options, to: '/tasks' });
+  }
+  const items = list.error ? [] : list.data?.items ?? [];
+  const activeID = selected ?? (!mobile ? items[0]?.id : undefined);
+  const detail = activeID && <TaskDetailContent key={activeID} id={activeID} execution={selected ? raw.execution : undefined} initialAction={raw.action} onExecution={generation => select(activeID, generation)} />;
+  const counts = !summary.error && summary.data?.counts_state === 'exact' ? summary.data : undefined;
+  return <section className="min-w-0 space-y-5">
+    <header className="flex flex-wrap items-center justify-between gap-3">{!embedded && <PageHeader title="任务中心" description="跟进任务进度、处理异常，查看本次执行的成果。" />}<div className="flex gap-2">
+      <Button variant="outline" onClick={() => overlay({ operations: 'open' })}><Activity aria-hidden />运行概况</Button>
+      <Button variant="outline" disabled={list.isFetching} onClick={() => void tasks.refresh()}><RefreshCw aria-hidden />刷新</Button></div></header>
+    <Tabs value={mode} onValueChange={value => change({ mode: value === 'managed' ? 'managed' : 'mine' })}><TabsList aria-label="任务视图"><TabsTrigger value="mine">我的任务</TabsTrigger><TabsTrigger value="managed">管理视图</TabsTrigger></TabsList></Tabs>
+    <div className="task-counts" aria-label="任务统计">{groups.map(({ field, label, group: value, icon: Icon }) => <button type="button" key={field} aria-pressed={value === group} onClick={() => change({ group: value })}>
+      <span><Icon aria-hidden size={16} />{label}</span><strong>{counts?.[field]?.toLocaleString() ?? '—'}</strong>
+    </button>)}</div>
+    {!counts && !summary.isPending && <p role="status" className="text-xs text-muted-foreground">当前授权范围的完整统计暂时无法核实。</p>}
+    <TaskToolbar filter={filter} types={catalog.error ? [] : catalog.data?.items ?? []} onChange={change} />
+    <TaskError error={list.error ?? catalog.error ?? summary.error} retry={() => void tasks.refresh()} />
+    {list.error instanceof ApiError && list.error.code === 'task_cursor_stale' && <Button onClick={() => change({})}>按当前权限回到首页</Button>}
+    {list.data?.coverage === 'partial' && !list.error && <p role="status" className="text-xs text-muted-foreground">索引正在同步，部分历史任务尚未列出。</p>}
+    <div className="task-panes"><section aria-label="任务列表" className="task-inbox">
+      <header className="task-pane-heading"><h2>任务列表</h2><Button aria-label="按提交时间排序" size="sm" variant="ghost" onClick={() => change({ sort: sort === 'oldest' ? undefined : 'oldest' })}>提交时间{sort === 'oldest' ? <ArrowUp /> : <ArrowDown />}</Button></header>
+      <div className="task-items">{items.map(task => {
+        const Icon = task.type.includes('export') ? Download : task.type.includes('import') ? FileInput : task.type.startsWith('analysis.') ? FlaskConical : Workflow;
+        return <button type="button" id={`task-${task.id}`} key={task.id} aria-pressed={activeID === task.id} className="task-list-item" onClick={() => select(task.id, task.generation)}>
+          <span className="task-type-icon"><Icon size={17} aria-hidden /></span><span className="min-w-0 space-y-1"><strong className="block text-sm">{task.title}</strong><span className="block truncate text-xs text-muted-foreground">{task.scope_label} · {task.id.slice(0, 8).toUpperCase()}</span>
+          <span className="flex flex-wrap items-center gap-2 pt-1"><TaskStatus task={task} hideResult /><time className="text-xs text-muted-foreground" dateTime={task.created_at}>{time.format(new Date(task.created_at))}</time></span></span><ChevronRight size={15} aria-hidden /></button>;
+      })}{!items.length && <p role="status" className="p-8 text-center text-sm text-muted-foreground">{list.isPending ? '正在读取任务…' : list.error ? '任务列表暂时不可用' : '当前筛选下没有任务'}</p>}</div>
+    </section>{!mobile && <section className="task-inspector" aria-label="任务详情"><header className="task-pane-heading"><h2>任务详情</h2></header><div className="task-detail-body">{detail || <div className="grid justify-items-center gap-3 py-12 text-sm text-muted-foreground"><Inbox aria-hidden />选择一项任务查看详情</div>}</div></section>}</div>
+    <ListPagination label="任务" {...pagination} pageSizes={[10,25,50,100]} />
+    {mobile && selected && !raw.operations && <ResponsivePanel open title="任务详情" description="本次执行的进度、操作和结果" fallbackFocusSelector={`#task-${selected}`} onOpenChange={open => { if (!open) void navigate({ to: '/tasks', replace: true, search: { ...filter, back: raw.back }, state: s => ({ ...s }), resetScroll: false }); }}>{detail}</ResponsivePanel>}
+    <ResponsivePanel open={raw.operations === 'open'} title="运行概况" description="按工作空间查看后台运行和处理异常。" size="wide" onOpenChange={open => { if (!open) overlay({ operations: undefined, automatic: undefined, run: undefined }); }}>{raw.operations && <TaskOperations search={raw} change={overlay} />}</ResponsivePanel>
   </section>;
-}
-function Operations({ filter }: { filter: TaskFilter }) {
-  const { client } = useIdentity(), t = useTasks();
-  const query = useQuery({ queryKey: [...t.key, 'operations', filter], queryFn: ({ signal }) => client.taskOperations(filter, signal), refetchInterval: 15000, refetchIntervalInBackground: false, retry: false });
-  const modules: Record<string, { title: string; path: string }> = { monitoring: { title: '监测维护', path: 'monitoring' }, derived: { title: '自动计算', path: 'monitoring/derived-runs' }, spatial: { title: '空间处理', path: 'spatial' }, display: { title: '大屏包处理', path: 'displays' }, files: { title: '文件检查与绑定', path: 'files' }, audit: { title: '审计导出', path: 'audit' } };
-  return <div className="space-y-4"><p className="text-sm leading-6 text-muted-foreground">自动计算和内部维护不列入我的任务。通知投递诊断由通知运维入口提供。</p><TaskError error={query.error} retry={() => void query.refetch()} />{query.isPending && <p role="status" className="text-sm">正在核实运行状态…</p>}{!query.error && query.data?.items.map(item => <section key={`${item.source_module}:${item.scope.tenant_id}:${item.scope.project_id}`} className="space-y-3 rounded-lg border p-4"><div><h3 className="font-medium">{modules[item.source_module]?.title ?? item.source_module}</h3><p className="mt-1 text-xs text-muted-foreground">{item.scope_label}</p></div>{item.state === 'available' ? <dl className="grid grid-cols-3 gap-3">{[['排队', item.queued], ['运行', item.running], ['失败', item.failed]].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 text-xl font-semibold tabular-nums">{value ?? '—'}</dd></div>)}</dl> : <p className="text-sm">暂时无法核实</p>}<div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted-foreground">核实 {new Date(item.observed_at).toLocaleTimeString('zh-CN')}</p>{modules[item.source_module] && <Button variant="link" size="sm" className="px-0" asChild><a href={item.scope.kind === 'platform' ? '/access/audit' : `/t/${item.scope.tenant_id}${item.scope.project_id ? `/p/${item.scope.project_id}` : ''}/${modules[item.source_module]?.path}`}>打开来源工作区</a></Button>}</div></section>)}{!query.error && query.data?.items.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">当前范围没有可查看的运行概况。</p>}</div>;
 }

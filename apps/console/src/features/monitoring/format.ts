@@ -28,7 +28,15 @@ export function decimalCoefficient(value: string): bigint {
   if (!/^\d+$/.test(integer ?? '') || !/^\d{0,12}$/.test(fraction)) throw new Error('不支持的十进制原值。');
   return (negative ? -1n : 1n) * BigInt(`${integer}${fraction.padEnd(12, '0')}`);
 }
-export const compatibility = (channel: MonitoringChannel) => JSON.stringify([channel.source_kind, channel.metric_version_id || channel.output_contract_hash, channel.unit, channel.value_kind, channel.timestamp_meaning, channel.observation_direction, channel.reference_basis]);
+export function fixedQuantityKey(channel: MonitoringChannel) {
+  if (channel.value_kind === 'enum') return 'enum';
+  const quantity = channel.quantity_spec;
+  const base = quantity?.base_unit_version_id || channel.unit_version_id;
+  if (base) return JSON.stringify([base, quantity?.base_power ?? 1, quantity?.time_power ?? 0, quantity?.time_unit ?? '']);
+  if (quantity?.base_power === 0) return JSON.stringify(['dimensionless', quantity.dimensionless_kind, quantity.time_power, quantity.time_unit ?? '']);
+  return 'channel:' + channel.id;
+}
+export const compatibility = (channel: MonitoringChannel) => JSON.stringify([channel.source_kind, channel.metric_version_id || channel.output_contract_hash, fixedQuantityKey(channel), channel.value_kind, channel.timestamp_meaning, channel.observation_direction, channel.reference_basis]);
 
 export function shiftRange(range: MonitoringRange, shift: bigint): MonitoringRange {
   const from = range.from ? parseNS(range.from) : MIN_NS, to = range.to ? parseNS(range.to) : MAX_NS;

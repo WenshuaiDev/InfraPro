@@ -21,12 +21,14 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedInvitationsRouteImport } from './routes/_authenticated/invitations'
 import { Route as AuthTenantInviteRouteImport } from './routes/_auth/tenant-invite'
 import { Route as AuthResetPasswordRouteImport } from './routes/_auth/reset-password'
+import { Route as AuthMfaRecoveryRouteImport } from './routes/_auth/mfa-recovery'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthInviteRouteImport } from './routes/_auth/invite'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks/$taskId'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t/$tenantId'
+import { Route as AuthenticatedPlatformSecurityPolicyRouteImport } from './routes/_authenticated/platform/security-policy'
 import { Route as AuthenticatedPlatformParsingRouteImport } from './routes/_authenticated/platform/parsing'
 import { Route as AuthenticatedPlatformIngestionRouteImport } from './routes/_authenticated/platform/ingestion'
 import { Route as AuthenticatedPlatformDeviceCategoriesRouteImport } from './routes/_authenticated/platform/device-categories'
@@ -178,6 +180,11 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthMfaRecoveryRoute = AuthMfaRecoveryRouteImport.update({
+  id: '/mfa-recovery',
+  path: '/mfa-recovery',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -210,6 +217,12 @@ const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
   path: '/t/$tenantId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlatformSecurityPolicyRoute =
+  AuthenticatedPlatformSecurityPolicyRouteImport.update({
+    id: '/platform/security-policy',
+    path: '/platform/security-policy',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPlatformParsingRoute =
   AuthenticatedPlatformParsingRouteImport.update({
     id: '/platform/parsing',
@@ -773,6 +786,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
+  '/mfa-recovery': typeof AuthMfaRecoveryRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/tenant-invite': typeof AuthTenantInviteRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
@@ -790,6 +804,7 @@ export interface FileRoutesByFullPath {
   '/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
   '/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
+  '/platform/security-policy': typeof AuthenticatedPlatformSecurityPolicyRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -882,6 +897,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/invite': typeof AuthInviteRoute
   '/login': typeof AuthLoginRoute
+  '/mfa-recovery': typeof AuthMfaRecoveryRoute
   '/reset-password': typeof AuthResetPasswordRoute
   '/tenant-invite': typeof AuthTenantInviteRoute
   '/invitations': typeof AuthenticatedInvitationsRoute
@@ -899,6 +915,7 @@ export interface FileRoutesByTo {
   '/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
   '/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/platform/parsing': typeof AuthenticatedPlatformParsingRoute
+  '/platform/security-policy': typeof AuthenticatedPlatformSecurityPolicyRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
@@ -986,6 +1003,7 @@ export interface FileRoutesById {
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/invite': typeof AuthInviteRoute
   '/_auth/login': typeof AuthLoginRoute
+  '/_auth/mfa-recovery': typeof AuthMfaRecoveryRoute
   '/_auth/reset-password': typeof AuthResetPasswordRoute
   '/_auth/tenant-invite': typeof AuthTenantInviteRoute
   '/_authenticated/invitations': typeof AuthenticatedInvitationsRoute
@@ -1004,6 +1022,7 @@ export interface FileRoutesById {
   '/_authenticated/platform/device-categories': typeof AuthenticatedPlatformDeviceCategoriesRoute
   '/_authenticated/platform/ingestion': typeof AuthenticatedPlatformIngestionRoute
   '/_authenticated/platform/parsing': typeof AuthenticatedPlatformParsingRoute
+  '/_authenticated/platform/security-policy': typeof AuthenticatedPlatformSecurityPolicyRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/_authenticated/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
@@ -1098,6 +1117,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/mfa-recovery'
     | '/reset-password'
     | '/tenant-invite'
     | '/invitations'
@@ -1115,6 +1135,7 @@ export interface FileRouteTypes {
     | '/platform/device-categories'
     | '/platform/ingestion'
     | '/platform/parsing'
+    | '/platform/security-policy'
     | '/t/$tenantId'
     | '/tasks/$taskId'
     | '/notifications/'
@@ -1207,6 +1228,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/invite'
     | '/login'
+    | '/mfa-recovery'
     | '/reset-password'
     | '/tenant-invite'
     | '/invitations'
@@ -1224,6 +1246,7 @@ export interface FileRouteTypes {
     | '/platform/device-categories'
     | '/platform/ingestion'
     | '/platform/parsing'
+    | '/platform/security-policy'
     | '/t/$tenantId'
     | '/tasks/$taskId'
     | '/notifications'
@@ -1310,6 +1333,7 @@ export interface FileRouteTypes {
     | '/_auth/forgot-password'
     | '/_auth/invite'
     | '/_auth/login'
+    | '/_auth/mfa-recovery'
     | '/_auth/reset-password'
     | '/_auth/tenant-invite'
     | '/_authenticated/invitations'
@@ -1328,6 +1352,7 @@ export interface FileRouteTypes {
     | '/_authenticated/platform/device-categories'
     | '/_authenticated/platform/ingestion'
     | '/_authenticated/platform/parsing'
+    | '/_authenticated/platform/security-policy'
     | '/_authenticated/t/$tenantId'
     | '/_authenticated/tasks/$taskId'
     | '/_authenticated/notifications/'
@@ -1507,6 +1532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/mfa-recovery': {
+      id: '/_auth/mfa-recovery'
+      path: '/mfa-recovery'
+      fullPath: '/mfa-recovery'
+      preLoaderRoute: typeof AuthMfaRecoveryRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
@@ -1547,6 +1579,13 @@ declare module '@tanstack/react-router' {
       path: '/t/$tenantId'
       fullPath: '/t/$tenantId'
       preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/platform/security-policy': {
+      id: '/_authenticated/platform/security-policy'
+      path: '/platform/security-policy'
+      fullPath: '/platform/security-policy'
+      preLoaderRoute: typeof AuthenticatedPlatformSecurityPolicyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/platform/parsing': {
@@ -2193,6 +2232,7 @@ interface AuthRouteRouteChildren {
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthInviteRoute: typeof AuthInviteRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthMfaRecoveryRoute: typeof AuthMfaRecoveryRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthTenantInviteRoute: typeof AuthTenantInviteRoute
 }
@@ -2201,6 +2241,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthInviteRoute: AuthInviteRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthMfaRecoveryRoute: AuthMfaRecoveryRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthTenantInviteRoute: AuthTenantInviteRoute,
 }
@@ -2563,6 +2604,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlatformDeviceCategoriesRoute: typeof AuthenticatedPlatformDeviceCategoriesRoute
   AuthenticatedPlatformIngestionRoute: typeof AuthenticatedPlatformIngestionRoute
   AuthenticatedPlatformParsingRoute: typeof AuthenticatedPlatformParsingRoute
+  AuthenticatedPlatformSecurityPolicyRoute: typeof AuthenticatedPlatformSecurityPolicyRoute
   AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedNotificationsInvitationsInvitationIdRoute: typeof AuthenticatedNotificationsInvitationsInvitationIdRoute
@@ -2594,6 +2636,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedPlatformDeviceCategoriesRoute,
   AuthenticatedPlatformIngestionRoute: AuthenticatedPlatformIngestionRoute,
   AuthenticatedPlatformParsingRoute: AuthenticatedPlatformParsingRoute,
+  AuthenticatedPlatformSecurityPolicyRoute:
+    AuthenticatedPlatformSecurityPolicyRoute,
   AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedNotificationsInvitationsInvitationIdRoute:

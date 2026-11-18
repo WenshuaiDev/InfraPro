@@ -1,3 +1,4 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useIdentity } from '@infrapro/api-client/react';
@@ -12,12 +13,14 @@ export function VersionPicker({
   onChange,
   label,
   known = [],
+  acceptVersion,
 }: {
   kind: EngineeringKind;
   value: string;
   onChange: (id: string, version?: EngineeringVersion, dependencies?: EngineeringVersion[]) => void;
   label: string;
   known?: EngineeringVersion[];
+  acceptVersion?: (version: EngineeringVersion) => boolean;
 }) {
   const { client, account } = useIdentity();
   const tenant = useOptionalTenant();
@@ -25,14 +28,14 @@ export function VersionPicker({
   const [choice, setChoice] = useState(current?.definition_id ?? '');
   const selectedChoice=choice||current?.definition_id||'';
   const [q, setQ] = useState('');
-  const [offset, setOffset] = useState(0);
+  const [pageSize, setPageSize] = useState(20), [offset, setOffset] = useState(0);
   const scope = { kind, tenant: tenant?.tenant.id, catalog: !!tenant };
   const prefix = tenant
     ? ['tenant', account?.id, tenant.tenant.id, tenant.membership_id, 'engineering']
     : ['platform', account?.id, 'engineering'];
   const list = useQuery({
-    queryKey: [...prefix, 'picker', kind, q, offset],
-    queryFn: ({ signal }) => client.engineeringList(scope, { q, status: 'usable', offset, limit: 20 }, signal),
+    queryKey: [...prefix, 'picker', kind, q, offset, pageSize],
+    queryFn: ({ signal }) => client.engineeringList(scope, { q, status: 'usable', offset, limit: pageSize }, signal),
   });
   const detail = useQuery({
     queryKey: [...prefix, 'picker-detail', kind, selectedChoice],
@@ -47,7 +50,7 @@ export function VersionPicker({
       value: selectedChoice,
       label: `${detail.data.versions[0]?.content.name ?? detail.data.code} · ${detail.data.code}`,
     });
-  const versions = (detail.data?.versions ?? []).filter((v) => v.usable || v.id === value);
+  const versions = (detail.data?.versions ?? []).filter((v) => v.id === value || (v.usable && (!acceptVersion || acceptVersion(v))));
   if (current && current.definition_id === selectedChoice && !versions.some((v) => v.id === current.id))
     versions.unshift(current);
   return (
@@ -113,28 +116,7 @@ export function VersionPicker({
         </p>
       )}
       {(list.error || detail.error) && <FormNotice error>{list.error?.message ?? detail.error?.message}</FormNotice>}
-      {(offset > 0 || (list.data?.total ?? 0) > 20) && (
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={offset === 0}
-            onClick={() => setOffset(offset - 20)}
-          >
-            上一页定义
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={offset + 20 >= (list.data?.total ?? 0)}
-            onClick={() => setOffset(offset + 20)}
-          >
-            下一页定义
-          </Button>
-        </div>
-      )}
+      {<ListPagination label="工程定义" total={list.data?.total} page={Math.floor(offset / pageSize)} go={n => setOffset(n * pageSize)} pageSize={pageSize} setPageSize={size => { setPageSize(size); setOffset(0); }} />}
     </div>
   );
 }

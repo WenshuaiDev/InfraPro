@@ -1,5 +1,6 @@
+import { ListPagination } from '@infrapro/ui/patterns/list-controls';
+import { usePagedQuery } from '@infrapro/ui/hooks/use-paged-query';
 import { useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { Permissions as P, type DisplayBinding, type DisplayConfig, type DisplayDetail, type DisplayGrant, type DisplayList, type DisplayPackage, type DisplayReadDefinition } from '@infrapro/api-client';
 import { useIdentity } from '@infrapro/api-client/react';
 import { Button } from '@infrapro/ui/components/button';
@@ -314,15 +315,15 @@ export function GrantForm({
 export function InstanceInfo({instance,disabled,save}:{instance:DisplayDetail['instance'];disabled:boolean;save:(value:object)=>Promise<unknown>}) {
   const project=useProject(),{client}=useIdentity();
   const [name,setName]=useState(instance.name),[restricted,setRestricted]=useState(instance.viewers.length>0),[viewers,setViewers]=useState(instance.viewers),[search,setSearch]=useState('');
-  const members=useInfiniteQuery({queryKey:[...project.key,'display-viewers',search],initialPageParam:'',queryFn:({pageParam,signal})=>client.projectMembers(project.project.tenant_id,project.project.id,{q:search,status:'active',cursor:pageParam},signal),getNextPageParam:p=>p.next_cursor||undefined,enabled:project.available&&restricted&&project.can(P.ProjectMemberRead)});
+  const members=usePagedQuery({ queryKey:[...project.key,'display-viewers',search], enabled:project.available&&restricted&&project.can(P.ProjectMemberRead), queryFn: ({cursor,signal})=>client.projectMembers(project.project.tenant_id,project.project.id,{q:search,status:'active',cursor},signal) });
   return <form className="space-y-4" onSubmit={e=>{e.preventDefault();void save({name,state:instance.state,viewers:restricted?viewers:[]}).catch(()=>{});}}>
     <label className="block text-sm">实例名称<Input value={name} required maxLength={100} disabled={disabled} onChange={e=>setName(e.target.value)}/></label>
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={restricted} disabled={disabled||!project.can(P.ProjectMemberRead)} onChange={e=>setRestricted(e.target.checked)}/>限制为指定项目成员</label>
     <p className="text-xs text-muted-foreground">默认允许有大屏查看资格的项目成员。指定成员仍需具备当前业务读取权限；实例管理者保留管理访问。</p>
     {restricted&&<fieldset disabled={disabled} className="space-y-2"><legend className="text-sm">允许查看的成员（已选 {viewers.length} 人）</legend><Input aria-label="搜索大屏查看成员" value={search} onChange={e=>setSearch(e.target.value)} placeholder="姓名或用户名"/>
       {members.error&&<p role="alert" className="text-sm text-destructive">{members.error.message}</p>}
-      <div className="max-h-56 overflow-y-auto">{members.data?.pages.flatMap(p=>p.items).map(m=><label key={m.id} className="flex min-h-9 items-center gap-2 text-sm"><input type="checkbox" checked={viewers.includes(m.account_id)} onChange={e=>setViewers(e.target.checked?[...viewers,m.account_id]:viewers.filter(id=>id!==m.account_id))}/>{m.display_name} · {m.username}</label>)}</div>
-      {members.hasNextPage&&<Button type="button" variant="outline" size="sm" disabled={members.isFetchingNextPage} onClick={()=>void members.fetchNextPage()}>更多成员</Button>}
+      <div className="max-h-56 overflow-y-auto">{members.data?.items.map(m=><label key={m.id} className="flex min-h-9 items-center gap-2 text-sm"><input type="checkbox" checked={viewers.includes(m.account_id)} onChange={e=>setViewers(e.target.checked?[...viewers,m.account_id]:viewers.filter(id=>id!==m.account_id))}/>{m.display_name} · {m.username}</label>)}</div>
+      {members.data &&<ListPagination label="成员" {...members.pagination} />}
     </fieldset>}
     <Button size="sm" disabled={disabled||!name.trim()||(restricted&&!viewers.length)}>保存实例信息</Button>
   </form>;

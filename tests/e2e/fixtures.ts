@@ -11,7 +11,8 @@ const apiRoot = () => new URL('/api/v1', consoleURL).href;
 export async function createAccount(request: APIRequestContext, withInvitationRole = true) {
   const token = await csrf(request, new URL(consoleURL).origin);
   const headers = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': token };
-  let response = await request.post(`${apiRoot()}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } }); expect(response.status()).toBe(200);
+  expect((await request.post(`${apiRoot()}/auth/logout`, { headers })).status()).toBe(204);
+  let response = await request.post(`${apiRoot()}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } }); expect(response.status()).toBe(200); expect((await response.json()).status).toBe('authenticated');
   response = await request.post(`${apiRoot()}/invitations`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { note: '隔离浏览器验收账号' } }); expect(response.status()).toBe(200);
   const link = await response.json(); const credential = new URLSearchParams(new URL(link.url).hash.slice(1)).get('token');
   response = await request.post(`${apiRoot()}/auth/logout`, { headers: { ...headers, 'X-Command-ID': randomUUID() } }); expect(response.status()).toBe(204);
@@ -19,7 +20,7 @@ export async function createAccount(request: APIRequestContext, withInvitationRo
   response = await request.post(`${apiRoot()}/public/invitations/accept`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { token: credential, username, display_name: '浏览器验收', password } }); expect(response.status()).toBe(204);
   if (withInvitationRole) {
     // Authentication regressions opt into invitation capability through real role APIs.
-    response = await request.post(`${apiRoot()}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } }); expect(response.status()).toBe(200);
+    response = await request.post(`${apiRoot()}/auth/login`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { username: 'e2e_owner', password } }); expect(response.status()).toBe(200); expect((await response.json()).status).toBe('authenticated');
     response = await request.get(`${apiRoot()}/access/accounts?q=${username}`); expect(response.status()).toBe(200);
     const target = (await response.json()).items[0] as { id: string; management_version: string; roles: { id: string }[] };
     response = await request.post(`${apiRoot()}/access/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { name: `邀请回归_${username}`, description: '明确授权的邀请回归测试账号', reason: '测试准备' } }); expect(response.status()).toBe(200);

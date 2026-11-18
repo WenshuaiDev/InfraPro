@@ -253,7 +253,7 @@ func (r *resolver) checkReferences(c Content, newUse bool, previous *Content) ([
 					return nil, e
 				}
 				m := v.Content.Metric
-				if (m.Shape == "enum" && b.UnitVersion != "") || (m.Shape != "enum" && !slices.Contains(m.AllowedUnits, b.UnitVersion)) {
+				if !m.AllowsUnit(b.UnitVersion) {
 					add(&issues, "metric_unit_mismatch", "绑定单位不属于指标允许单位。", fmt.Sprintf("/template/items/%d/bindings/%d/unit_version", i, j), item.Key)
 				}
 			}

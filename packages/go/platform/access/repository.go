@@ -28,7 +28,7 @@ func roleTx(ctx context.Context, tx pgx.Tx, id string) (Role, error) {
 }
 func accountTx(ctx context.Context, tx pgx.Tx, id string) (Account, error) {
 	var a Account
-	e := tx.QueryRow(ctx, "SELECT id::text,username,display_name,status,management_version::text,created_at FROM accounts WHERE id=$1", id).Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.Version, &a.CreatedAt)
+	e := tx.QueryRow(ctx, "SELECT id::text,username,display_name,status,management_version::text,created_at,avatar_revision::text,avatar_object_id IS NOT NULL FROM accounts WHERE id=$1", id).Scan(&a.ID, &a.Username, &a.DisplayName, &a.Status, &a.Version, &a.CreatedAt, &a.AvatarRevision, &a.HasAvatar)
 	if e != nil {
 		return a, notFound(e)
 	}
@@ -76,13 +76,23 @@ func (s *Service) Roles(ctx context.Context, a Actor, f Filter) (Page[Role], err
 		if f.Cursor != "" && !ValidID(f.Cursor) {
 			return Validation("cursor", "分页位置无效。")
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text FROM roles WHERE binding_scope='platform' AND deleted_at IS NULL AND ($1='' OR name ILIKE '%'||$1||'%') AND ($2='' OR status=$2) AND ($3='' OR id::text>$3) ORDER BY id LIMIT $4`, f.Query, f.Status, f.Cursor, limit+1)
+		const filtered = ` FROM roles WHERE binding_scope='platform' AND deleted_at IS NULL AND ($1='' OR name ILIKE '%'||$1||'%') AND ($2='' OR status=$2)`
+		rows, e := tx.Query(ctx, `SELECT id::text`+filtered+` AND ($3='' OR id::text>$3) ORDER BY id LIMIT $4`, f.Query, f.Status, f.Cursor, limit+1)
 		if e != nil {
 			return e
 		}
 		ids, e := readIDs(rows)
 		if e != nil {
 			return e
+		}
+		if f.Cursor == "" {
+			total := len(ids)
+			if total > limit {
+				if err := tx.QueryRow(ctx, "SELECT count(*)"+filtered, f.Query, f.Status).Scan(&total); err != nil {
+					return err
+				}
+			}
+			v.Total = &total
 		}
 		if len(ids) > limit {
 			ids = ids[:limit]
@@ -136,13 +146,23 @@ func (s *Service) Accounts(ctx context.Context, a Actor, f Filter) (Page[Account
 		if f.Cursor != "" && !ValidID(f.Cursor) {
 			return Validation("cursor", "分页位置无效。")
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text FROM accounts WHERE ($1='' OR username ILIKE '%'||$1||'%' OR display_name ILIKE '%'||$1||'%') AND ($2='' OR status=$2) AND ($3='' OR id::text>$3) AND ($4='' OR EXISTS(SELECT 1 FROM account_roles WHERE account_id=accounts.id AND role_id::text=$4)) ORDER BY id LIMIT $5`, f.Query, f.Status, f.Cursor, f.RoleID, limit+1)
+		const filtered = ` FROM accounts WHERE ($1='' OR username ILIKE '%'||$1||'%' OR display_name ILIKE '%'||$1||'%') AND ($2='' OR status=$2) AND ($3='' OR EXISTS(SELECT 1 FROM account_roles WHERE account_id=accounts.id AND role_id::text=$3))`
+		rows, e := tx.Query(ctx, `SELECT id::text`+filtered+` AND ($4='' OR id::text>$4) ORDER BY id LIMIT $5`, f.Query, f.Status, f.RoleID, f.Cursor, limit+1)
 		if e != nil {
 			return e
 		}
 		ids, e := readIDs(rows)
 		if e != nil {
 			return e
+		}
+		if f.Cursor == "" {
+			total := len(ids)
+			if total > limit {
+				if err := tx.QueryRow(ctx, "SELECT count(*)"+filtered, f.Query, f.Status, f.RoleID).Scan(&total); err != nil {
+					return err
+				}
+			}
+			v.Total = &total
 		}
 		if len(ids) > limit {
 			ids = ids[:limit]

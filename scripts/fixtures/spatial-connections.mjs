@@ -7,7 +7,7 @@ export async function seedSpatialConnections({call,wait,base,prior,state,compone
  if(!state.devices?.length){
  const maker=await call(base+'/device-definitions/manufacturers',{...meta(),code:'SPATIAL-MAKER',name:'空间示例厂家 · 自制资料'});
  const product=await call(base+'/device-definitions/products',{...meta(),manufacturer_id:maker.id,code:'SPATIAL-SENSOR',name:'合成位移采集仪',model:'SYNTHETIC-01',output_slots:[{key:'displacement',name:'位移输出',mode:'fixed',metric_version_id:channel.metric_version_id,unit_version_id:channel.unit_version_id,timestamp_meaning:'observation_time'}]});
- const published=await call(base+'/device-definitions/products/'+product.id+'/publish',{...meta(),expected_draft_revision:product.revision});
+ const published=await call(base+'/device-definitions/products/'+product.id+'/publish',{...meta(),expected_draft_revision:product.revision,classification:{mode:'unclassified'}});
  state.devices=[];
  for(const [code,name]of [['OLD','历史示例采集仪'],['NEW','当前示例采集仪']]){
   const created=await call(base+'/devices',{...meta(),code:'SPATIAL-'+code,name,product_version_id:published.version_id,serial_number:'PRIVATE-SYNTHETIC-'+code,description:'租户设备详情，不向仅有输出授权的项目展示'});

@@ -168,16 +168,19 @@ func TestMonitoringCSVPublicationAndFixedDuplicateSet(t *testing.T) {
 	if a.State != "ready" || a.Counts.Proposed != "3" {
 		t.Fatal(a)
 	}
-	before, e := f.service.Details(ctx, f.actor, f.scope, f.query(t))
+	emptyQuery := f.query(t)
+	emptyQuery.IncludeTotal = true
+	before, e := f.service.Details(ctx, f.actor, f.scope, emptyQuery)
 	must(t, e)
-	if len(before.Items) != 0 {
+	if len(before.Items) != 0 || before.Total == nil || *before.Total != 0 {
 		t.Fatal("unpublished candidates visible")
 	}
 	a = f.publish(t, a)
 	query := f.query(t)
+	query.IncludeTotal = true
 	page, e := f.service.Details(ctx, f.actor, f.scope, query)
 	must(t, e)
-	if len(page.Items) != 2 || !page.HasMore || page.Items[0].At != "2262-04-11T23:47:16.854775807Z" || page.Items[1].Value != "-99999999999999999999999999.999999999999" {
+	if page.Total == nil || *page.Total != 3 || len(page.Items) != 2 || !page.HasMore || page.Items[0].At != "2262-04-11T23:47:16.854775807Z" || page.Items[1].Value != "-99999999999999999999999999.999999999999" {
 		f.diagnoseRead(t)
 		t.Fatal(page)
 	}
@@ -231,6 +234,30 @@ func TestMonitoringCSVPublicationAndFixedDuplicateSet(t *testing.T) {
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM monitoring_publications`).Scan(&pgRows))
 	if pgRows != 2 {
 		t.Fatal(pgRows)
+	}
+}
+
+func TestMonitoringImportUnitMatchesChannelAndPreservesValues(t *testing.T) {
+	f := monitoringSetup(t)
+	mapping := md.Mapping{Format: "csv", Mode: "single", Encoding: "utf-8", Delimiter: ",", HeaderRow: 1, TimeColumn: "observed_at", ValueColumn: "value", UnitColumn: "unit", Timezone: "UTC", EmptyWide: "error", Channels: []md.ChannelMapping{{Alias: "C", Channel: f.channel, Unit: "mm"}}}
+	content := []byte("observed_at,value,unit\n2024-01-01T00:00:00Z,12.5,mm\n")
+	b := f.uploadBytes(t, "accepted.csv", content, mapping)
+	mapping.Channels[0].Unit = "cm"
+	_, err := f.service.SetMapping(ctx, f.actor, f.scope, b.ID, md.MappingInput{WriteMeta: f.meta(b.Revision), Mapping: mapping})
+	if err == nil {
+		t.Fatal("accepted a mapping that relabels millimeters as centimeters")
+	}
+	b = f.publish(t, f.validate(t, b))
+	page, err := f.service.Details(ctx, f.actor, f.scope, f.query(t))
+	must(t, err)
+	if len(page.Items) != 1 || page.Items[0].Value != "12.500000000000" {
+		t.Fatalf("unexpected stored original: %+v", page.Items)
+	}
+	mapping.Channels[0].Unit = "mm"
+	content = []byte("observed_at,value,unit\n2024-01-02T00:00:00Z,12.5,cm\n")
+	wrong := f.validate(t, f.uploadBytes(t, "wrong-unit.csv", content, mapping))
+	if wrong.State != "needs_resolution" || wrong.Counts.Errors != "1" {
+		t.Fatalf("unexpected file validation: %+v", wrong)
 	}
 }
 
