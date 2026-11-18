@@ -24,6 +24,6 @@
 - 最终管理端生产构建（包含 TypeScript 类型检查）、变更前端文件的 ESLint 和 OpenAPI 契约同步检查通过。构建时恢复了监测任务页原有的任务中心嵌入参数。
 - 工程与目录浏览器组 18 项通过。项目资源、设备资源与目录浏览器组 22 项通过。两组均含桌面和手机，均含指标专项。最终生产构建另行重跑两端的指标专项，2 项通过。
 - 工程定义、原始通道、限定指标的派生输入和真实文件导入的新增 Go 回归通过。监测查询与导入的 14 项前端单元测试通过。
-- 扩大运行资源包时，两项既有迁移回退测试仍失败。`TestDisplayReadMigrationFormatsAndDowngrade` 预期较早版本的回退报错文本，目前先遇到头像迁移的回退保护。`TestUploadLimitsMigrationPreservesEvidenceAndRejectsUnsafeDowngrade` 在部分回退后检查当前迁移版本，版本不符。指标调整未引入迁移。
+- 首次扩大运行资源包时，两项旧测试在回退途中遇到后续版本的保护，未能检验各自的迁移。2026-11-18 合并前已在独立 PostgreSQL 测试库复验通过。`TestDisplayReadMigrationFormatsAndDowngrade` 验证了版本 46 的具名视图保护，以及整库回退受阻后重新升级仍能读取原结果。`TestUploadLimitsMigrationPreservesEvidenceAndRejectsUnsafeDowngrade` 验证了超过 100 MiB 的已受理上传阻止版本 55 回退到 54，随后升级到 58 时保留上传记录。
 
 [桌面目录](../../.artifacts/metric-catalog/directory-desktop.png) · [桌面详情](../../.artifacts/metric-catalog/displacement-desktop.png) · [手机目录](../../.artifacts/metric-catalog/directory-mobile.png) · [手机详情](../../.artifacts/metric-catalog/displacement-mobile.png)

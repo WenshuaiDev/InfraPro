@@ -3,6 +3,7 @@ package resources_test
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 	res "github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pressly/goose/v3"
 )
 
@@ -89,8 +91,14 @@ func TestDisplayReadMigrationFormatsAndDowngrade(t *testing.T) {
 	v.ID = ""
 	v.ScopeID = "r"
 	named := createReadDisplay(t, f, p, b, []dr.Definition{d}, map[string]dr.Definition{"r": v}, []string{"views.read", "queries.read", "resources.directory"})
+	// Later migrations can block a full downgrade before it reaches the display guard.
+	_, e = provider.ApplyVersion(ctx, 46, false)
+	var rejection *pgconn.PgError
+	if !errors.As(e, &rejection) || rejection.Code != "P0001" || !strings.Contains(rejection.Message, "format-2 display data must be retained") {
+		t.Fatal("display migration did not protect the named view", e)
+	}
 	_, e = provider.DownTo(ctx, 45)
-	if e == nil || (!strings.Contains(e.Error(), "requires restore of a verified backup") && !strings.Contains(e.Error(), "MFA migration is irreversible")) {
+	if !errors.As(e, &rejection) || rejection.Code != "P0001" {
 		t.Fatal("destructive rollback was not refused", e)
 	}
 	must(t, migrations.Up(ctx, f.env.Config.DatabaseURL))

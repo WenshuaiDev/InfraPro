@@ -3,10 +3,14 @@ import assert from 'node:assert/strict';
 import { importSearch, importFilter, batchCapabilities } from '../../apps/console/src/features/monitoring/import-search.ts';
 import { monitoringMethods } from '../../packages/ts/api-client/src/monitoring.ts';
 
-test('bookmark inputs normalize multi-select filters and keep drawer tabs out of list requests', () => {
- const search=importSearch({q:'  桥梁\n ',states:'ready,published,ready,unknown',formats:'xlsx,csv,pdf',limit:'20',sort:'oldest',tab:'issues',cursor:'valid-position'});
- assert.deepEqual(search,{q:'桥梁',states:'published,ready',formats:'csv,xlsx',limit:20,sort:'oldest',tab:'issues',cursor:'valid-position'});
- assert.equal('tab' in importFilter(search),false);
+test('bookmark inputs normalize multi-select filters and keep task and drawer state out of list requests', () => {
+ const job = '0eeaf420-46b3-4081-86e0-1afd640648cd';
+ const input = {q:'  桥梁\n ',states:'ready,published,ready,unknown',formats:'xlsx,csv,pdf',limit:'20',sort:'oldest',tab:'issues',cursor:'valid-position'};
+ const filter = {q:'桥梁',states:'published,ready',formats:'csv,xlsx',limit:20,sort:'oldest',cursor:'valid-position'};
+ const search = importSearch({...input, job, execution:'2'});
+ assert.deepEqual(search, {...filter, tab:'issues', job, execution:'2'});
+ assert.deepEqual(importFilter(search), filter);
+ assert.deepEqual(importFilter(importSearch(input)), filter);
  assert.equal(importSearch({limit:100000,sort:'id',tab:'arbitrary'}).limit,10);
  assert.equal(importSearch({q:'界'.repeat(201)}).q.length,200);
 });
