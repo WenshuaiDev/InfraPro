@@ -1,0 +1,43 @@
+// Installed into the frozen and candidate Go tests by a Go overlay. This hook
+// exposes only the synthetic fixture to the matching local executable stack.
+func architectureLoadFixture(t *testing.T, f monitoringFixture, p projectFixture, screens []*displayHarness, original md.ImportBatch, channels []string) {
+	t.Helper()
+	secret := os.Getenv("ARC_DISPLAY_FIXTURE")
+	sessions := make([]map[string]string, 0, len(screens))
+	for _, h := range screens {
+		sessions = append(sessions, map[string]string{"id": h.session.ID, "token": h.token})
+	}
+	// Submit a prevalidated import through the public API during mixed load.
+	// The ungranted channel keeps the ten displays' original scope constant.
+	extra, e := f.env.Pool.Query(ctx, `INSERT INTO engineering_channels(tenant_id,facility_id,point_id,code,name,metric_version_id,unit_version_id,timestamp_meaning,created_by,updated_by) SELECT tenant_id,facility_id,point_id,'ARC-PUBLISH','隔离同步发布',metric_version_id,unit_version_id,timestamp_meaning,created_by,updated_by FROM engineering_channels WHERE id=$1 RETURNING id::text`, f.channel)
+	must(t,e)
+	if !extra.Next(){t.Fatal("missing publication target")}
+	var ungranted string
+	must(t,extra.Scan(&ungranted))
+	extra.Close()
+	other := f
+	other.channel = ungranted
+	staged := other.validate(t, other.upload(t, "observed_at,value,quality\n2026-11-01T00:00:00Z,0,good\n"))
+	var hash string
+	must(t, f.env.Pool.QueryRow(ctx, "SELECT sha256 FROM monitoring_source_files WHERE id=$1", original.SourceFile).Scan(&hash))
+	secretBody, e := json.Marshal(map[string]any{
+		"database": f.env.Config.DatabaseURL, "redis": f.env.Config.RedisURL, "prefix": f.env.Config.RedisKeyPrefix,
+		"csrf": fmt.Sprintf("%x", f.env.Config.CSRFKey), "keyring": f.env.Config.MFAKeyringFile, "clickhouse": f.database,
+		"tenant": f.tenant, "project": p.id, "channel": f.channel, "channels": channels, "sessions": sessions,
+		"username": "ResourceOwner", "password": password, "staged": staged, "source": original.SourceFile,
+		"sourceBytes": original.Size, "sourceSHA256": hash,
+	})
+	must(t, e)
+	must(t, os.WriteFile(secret+".tmp",secretBody,0600))
+	must(t, os.Rename(secret+".tmp",secret))
+	deadline := time.After(90*time.Minute)
+	tick:=time.NewTicker(200*time.Millisecond)
+	defer tick.Stop()
+	for {
+		select {
+		case <-deadline:t.Fatal("display architecture load controller disappeared")
+		case <-tick.C:
+			if _,e:=os.Stat(secret+".done");e==nil{return}
+		}
+	}
+}

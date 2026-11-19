@@ -170,6 +170,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 		if table == "tenants" {
 			projection = "to_jsonb(t)-'status'-'status_changed_at'-'status_changed_by'-'status_change_reason'-'status_notice'"
 		}
+		projection = "(" + projection + ")-'architecture_lock'"
 		must(pool.QueryRow(ctx, `SELECT jsonb_agg(`+projection+` ORDER BY `+projection+`::text)::text FROM `+table+` t`).Scan(&s))
 		snapshots[table] = s
 	}
@@ -178,6 +179,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 	must(Up(ctx, u.String()))
 	must(Check(ctx, pool))
 	assertAvatarDefaults(t, ctx, pool)
+	assertLegacyLockMarkers(t, ctx, pool)
 	var initial bool
 	must(pool.QueryRow(ctx, `SELECT bool_and(status='active' AND status_changed_at IS NULL AND status_changed_by IS NULL AND status_change_reason IS NULL AND status_notice='') FROM tenants`).Scan(&initial))
 	if !initial {
@@ -202,6 +204,7 @@ func testMembershipUpgrade(t *testing.T, baseline int64) {
 		if table == "tenants" {
 			projection = "to_jsonb(t)-'status'-'status_changed_at'-'status_changed_by'-'status_change_reason'-'status_notice'"
 		}
+		projection = "(" + projection + ")-'architecture_lock'"
 		must(pool.QueryRow(ctx, `SELECT jsonb_agg(`+projection+` ORDER BY `+projection+`::text)::text FROM `+table+` t`).Scan(&s))
 		if s != snapshots[table] {
 			t.Fatal("changed legacy table", table)

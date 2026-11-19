@@ -109,7 +109,11 @@ func (r notificationResolver) ResolveTx(ctx context.Context, tx pgx.Tx, account 
 		case "signup_invitation":
 			data, e = identity.NotificationInvitationsTx(ctx, tx, account, ids)
 		case "tenant_invitation":
-			data, e = tenancy.NotificationInvitationsTx(ctx, tx, account, ids)
+			eventIDs := make([]string, 0, len(group))
+			for _, item := range group {
+				eventIDs = append(eventIDs, item.EventID)
+			}
+			data, e = tenancy.NotificationInvitationsTx(ctx, tx, account, scope.Tenant, eventIDs)
 		case "monitoring_import", "monitoring_job", "derived_job":
 			data, e = r.b.Monitoring.NotificationTargetsTx(ctx, tx, account, monitoring.Scope{Entry: scope.Kind, Tenant: scope.Tenant, Project: scope.Project}, ref.Target.Kind, ids)
 		case "derived_channel":

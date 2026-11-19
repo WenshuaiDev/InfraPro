@@ -1,12 +1,13 @@
 package runtime
 
 import (
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/requestlimit"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 )
 
-func (b Business) configureFiles(o config.Files) {
+func (b Business) configureFiles(o config.Files, budget *requestlimit.Limit) {
 	if b.Files == nil {
 		return
 	}
@@ -15,7 +16,7 @@ func (b Business) configureFiles(o config.Files) {
 	}
 	b.Files.WithOptions(o).WithChecker(files.SocketChecker{Socket: o.CheckerSocket, Timeout: o.CheckerTimeout})
 	if o.ObjectEndpoint != "" {
-		objects, e := blobstore.Open(o.ObjectEndpoint, o.ObjectAccessKey, o.ObjectSecretKey, o.Bucket, "files/v1")
+		objects, e := blobstore.Open(o.ObjectEndpoint, o.ObjectAccessKey, o.ObjectSecretKey, o.Bucket, "files/v1", budget)
 		if e != nil {
 			panic(e)
 		}

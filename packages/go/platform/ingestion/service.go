@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicecoord"
@@ -12,13 +13,18 @@ import (
 	"github.com/jackc/pgx/v5"
 	"strconv"
 	"strings"
+	"sync/atomic"
+	"time"
 )
 
 type Service struct {
-	access  *access.Service
-	parser  *parsing.Service
-	objects parsing.ObjectStore
-	options Options
+	reporter       diagnosticreport.Sink
+	candidateScans atomic.Uint64
+	fallback       time.Duration
+	access         *access.Service
+	parser         *parsing.Service
+	objects        parsing.ObjectStore
+	options        Options
 }
 
 func New(a *access.Service, p *parsing.Service) *Service {
@@ -111,41 +117,50 @@ func receiptTx(ctx context.Context, tx pgx.Tx, id string) (Receipt, error) {
 }
 func (s *Service) machineTx(ctx context.Context, tenant string, write bool, fn func(pgx.Tx) error) error {
 	return s.access.Transact(ctx, func(tx pgx.Tx) error {
-		if _, e := access.Lock(ctx, tx, false); e != nil {
-			return e
-		}
-		if _, e := tx.Exec(ctx, `SELECT id FROM engineering_catalog_state WHERE id=1 FOR SHARE`); e != nil {
-			return e
-		}
-		if e := devicecoord.Catalog(ctx, tx, false); e != nil {
-			return e
-		}
-		if tenant != "" {
-			if e := devicecoord.Tenant(ctx, tx, tenant, write); e != nil {
-				return e
-			}
+		var guards pgx.Batch
+		access.QueueSharedLock(&guards)
+		devicecoord.QueueStateLocks(&guards, tenant, write)
+		if err := tx.SendBatch(ctx, &guards).Close(); err != nil {
+			return err
 		}
 		return fn(tx)
 	})
 }
-func businessTx(ctx context.Context, tx pgx.Tx, s Source, device string) (string, error) {
+
+// Both machine authorization paths use these current project and device
+// predicates. The source can be a locked persisted row or a typed snapshot.
+const activeRoutingProject = `EXISTS(SELECT 1 FROM tenants t JOIN projects p ON p.tenant_id=t.id
+	WHERE t.id=s.tenant_id AND t.status='active' AND p.id=s.project_id AND p.status='active')`
+const routingDeviceGrant = `CASE WHEN $2::text<>'' THEN (SELECT g.id::text FROM devices d
+	JOIN device_products p ON p.id=d.product_id JOIN device_manufacturers m ON m.id=p.manufacturer_id
+	JOIN project_device_grants g ON g.tenant_id=d.tenant_id AND g.device_id=d.id AND g.kind='device'
+		AND g.project_id=s.project_id AND g.ended_at IS NULL
+	WHERE d.tenant_id=s.tenant_id AND d.id=NULLIF($2,'')::uuid AND d.deleted_at IS NULL AND d.status='enabled'
+		AND p.manufacturer_id=s.manufacturer_id AND m.deleted_at IS NULL AND m.status='active'
+		AND (s.manufacturer_scope='public' AND m.owner_tenant_id IS NULL OR s.manufacturer_scope='tenant' AND m.owner_tenant_id=s.tenant_id)
+	LIMIT 1) END`
+
+func businessTx(ctx context.Context, tx pgx.Tx, source Source, device string) (string, error) {
 	var active bool
-	e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM tenants t JOIN projects p ON p.tenant_id=t.id WHERE t.id=$1 AND t.status='active' AND p.id=$2 AND p.status='active')`, s.TenantID, s.ProjectID).Scan(&active)
-	if e != nil {
-		return "", e
+	var grant *string
+	err := tx.QueryRow(ctx, `WITH s AS (SELECT $1::uuid tenant_id,$3::uuid project_id,NULLIF($4::text,'')::uuid manufacturer_id,$5::text manufacturer_scope)
+		SELECT `+activeRoutingProject+`,`+routingDeviceGrant+` FROM s`, source.TenantID, device, source.ProjectID, source.ManufacturerID, source.ManufacturerScope).Scan(&active, &grant)
+	if err != nil {
+		return "", err
 	}
+	return checkedRoute(active, device, grant)
+}
+func checkedRoute(active bool, device string, grant *string) (string, error) {
 	if !active {
 		return "", k.Problem("routing_scope_mismatch", "租户或来源项目当前不可用。", 409)
 	}
 	if device == "" {
 		return "", nil
 	}
-	var grant string
-	e = tx.QueryRow(ctx, `SELECT g.id::text FROM devices d JOIN device_products p ON p.id=d.product_id JOIN device_manufacturers m ON m.id=p.manufacturer_id JOIN project_device_grants g ON g.tenant_id=d.tenant_id AND g.device_id=d.id AND g.kind='device' AND g.project_id=$3 AND g.ended_at IS NULL WHERE d.tenant_id=$1 AND d.id=$2 AND d.deleted_at IS NULL AND d.status='enabled' AND p.manufacturer_id=$4 AND m.deleted_at IS NULL AND m.status='active' AND (($5='public' AND m.owner_tenant_id IS NULL) OR ($5='tenant' AND m.owner_tenant_id=$1))`, s.TenantID, device, s.ProjectID, s.ManufacturerID, s.ManufacturerScope).Scan(&grant)
-	if errors.Is(e, pgx.ErrNoRows) {
+	if grant == nil {
 		return "", k.Problem("routing_scope_mismatch", "设备、项目授权与入口厂家不一致。", 409)
 	}
-	return grant, e
+	return *grant, nil
 }
 func code(e error) string {
 	if e == nil {
@@ -163,6 +178,11 @@ func code(e error) string {
 		return "authorization_revoked"
 	}
 	return parsing.ErrorCode(e)
+}
+
+func retryableAttempt(err error) bool {
+	var cause *c.Error
+	return parsing.Retryable(err) || errors.As(err, &cause) && cause.Code == "storage_unavailable"
 }
 
 func filterContext(a k.Authorization, f Filter, kind string) string {

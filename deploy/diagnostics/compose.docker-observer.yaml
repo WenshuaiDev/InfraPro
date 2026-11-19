@@ -19,5 +19,5 @@ services:
       - ${DIAGNOSTICS_DOCKER_CONFIG_DIR:?protected Docker observer configuration}:/etc/infrapro/observer:ro
       - ${DIAGNOSTICS_DOCKER_STATE_DIR:?protected Docker observer state}:/var/lib/infrapro-observer
       - ${DIAGNOSTICS_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro
-      - ${DIAGNOSTICS_REPORT_DIR:?assigned business reports}:/run/infrapro-reports:ro
+      - ${DIAGNOSTICS_REPORT_DIR:?assigned business reports}:${DIAGNOSTICS_REPORT_DIR}:ro
     tmpfs: ["/tmp:size=8m,mode=1777"]

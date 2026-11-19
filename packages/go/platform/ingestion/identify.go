@@ -2,8 +2,12 @@ package ingestion
 
 import (
 	"context"
+	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"strings"
+	"time"
+
 	i "github.com/WenshuaiDev/InfraPro/packages/go/foundation/ingestioncontract"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	r "github.com/WenshuaiDev/InfraPro/packages/go/foundation/relaycontract"
@@ -13,98 +17,125 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+//go:embed candidates/identify.sql
+var identifyCandidates string
+
 type identifyClaim struct {
 	Receipt     Receipt
 	Decision    Decision
 	Input       object
 	ExecutionID string
+	MachineID   string
 	Source      r.Source
 }
 
+type identityAuthority struct {
+	source   Source
+	revision SourceRevision
+	grant    Grant
+	protocol i.Protocol
+	method   i.Identification
+}
+
 func (s *Service) identityAllowed(ctx context.Context, tx pgx.Tx, receipt Receipt, d Decision) error {
+	_, err := s.identityAuthority(ctx, tx, receipt, d)
+	return err
+}
+
+// The machine transaction already holds the catalog and tenant mutation locks.
+// Resolve the same source, active business scope, confirmed source revision,
+// pending association change and grant from one current statement snapshot.
+func (s *Service) identityAuthority(ctx context.Context, tx pgx.Tx, receipt Receipt, d Decision) (identityAuthority, error) {
+	var state identityAuthority
 	if d.RecoveryID != nil {
 		if d.RecoveryGeneration == nil {
-			return c.Fail("recovery_not_active")
+			return state, c.Fail("recovery_not_active")
 		}
-		if e := s.recoveryAllowedTx(ctx, tx, *d.RecoveryID, *d.RecoveryGeneration); e != nil {
-			return e
+		if err := s.recoveryAllowedTx(ctx, tx, *d.RecoveryID, *d.RecoveryGeneration); err != nil {
+			return state, err
 		}
 	}
 	if receipt.TenantID == nil {
-		return c.Fail("source_revision_unknown")
+		return state, c.Fail("source_revision_unknown")
 	}
-	src, e := sourceTx(ctx, tx, k.Tenant(*receipt.TenantID), receipt.SourceID)
-	if e != nil {
-		return e
+	var revisionJSONBytes, grantJSONBytes []byte
+	var active, changing bool
+	err := tx.QueryRow(ctx, `SELECT `+sourceJSON+`,
+		 `+activeRoutingProject+`,
+		EXISTS(SELECT 1 FROM ingestion_change_intents c WHERE c.source_id=s.id AND c.state='pending'),
+		CASE WHEN r.source_id IS NOT NULL THEN `+revisionJSON+` END,
+		CASE WHEN g.id IS NOT NULL THEN `+grantJSON+` END
+		FROM ingestion_sources s LEFT JOIN ingestion_source_revisions r ON r.source_id=s.id AND r.revision=$3
+		LEFT JOIN ingestion_execution_grants g ON g.source_id=s.id AND g.terminal_id IS NULL
+		WHERE s.id=$1 AND s.tenant_id=$2`, receipt.SourceID, *receipt.TenantID, receipt.SourceRevision).
+		Scan(&state.source, &active, &changing, &revisionJSONBytes, &grantJSONBytes)
+	if err == pgx.ErrNoRows {
+		return state, k.NotFound("ingestion")
 	}
-	if src.Blocked || src.PlanningPaused && d.RecoveryID == nil {
-		return c.Fail("execution_paused")
+	if err != nil {
+		return state, err
 	}
-	if _, e = businessTx(ctx, tx, src, ""); e != nil {
-		return e
+	if state.source.Blocked || state.source.PlanningPaused && d.RecoveryID == nil {
+		return state, c.Fail("execution_paused")
 	}
-	var changing bool
-	if e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM ingestion_change_intents WHERE source_id=$1 AND state='pending')`, src.ID).Scan(&changing); e != nil {
-		return e
+	if !active {
+		return state, k.Problem("routing_scope_mismatch", "租户或来源项目当前不可用。", 409)
 	}
 	if changing {
-		return c.Fail("association_changing")
+		return state, c.Fail("association_changing")
 	}
-	rev, e := revisionTx(ctx, tx, src.ID, receipt.SourceRevision)
-	if e != nil {
-		return e
+	if revisionJSONBytes == nil {
+		return state, k.NotFound("ingestion")
 	}
-	if !rev.Confirmed {
-		return c.Fail("awaiting_source_confirmation")
+	if err = json.Unmarshal(revisionJSONBytes, &state.revision); err != nil {
+		return state, err
 	}
-	if _, e = s.parser.IngressProtocolTx(ctx, tx, rev.Snapshot.ProtocolID, rev.Snapshot.ProtocolVersion, false); e != nil {
-		return e
+	if !state.revision.Confirmed {
+		return state, c.Fail("awaiting_source_confirmation")
 	}
-	g, e := grantTx(ctx, tx, src.ID, "")
-	if e != nil {
-		return c.Fail("execution_unconfigured")
+	state.protocol, state.method, err = s.parser.IngressIdentificationTx(ctx, tx, state.revision.Snapshot.ProtocolID, state.revision.Snapshot.ProtocolVersion, false)
+	if err != nil {
+		return state, err
 	}
-	if !g.Enabled || !g.Identify || d.GrantID != nil && (*d.GrantID != g.ID || d.GrantGeneration == nil || *d.GrantGeneration != g.Generation) {
-		return c.Fail("authorization_revoked")
+	if grantJSONBytes == nil {
+		return state, c.Fail("execution_unconfigured")
 	}
-	return nil
+	if err = json.Unmarshal(grantJSONBytes, &state.grant); err != nil {
+		return state, c.Fail("execution_unconfigured")
+	}
+	grant := state.grant
+	if !grant.Enabled || !grant.Identify || d.GrantID != nil && (*d.GrantID != grant.ID || d.GrantGeneration == nil || *d.GrantGeneration != grant.Generation) {
+		return state, c.Fail("authorization_revoked")
+	}
+	return state, nil
 }
-func (s *Service) claimIdentity(ctx context.Context) (*identifyClaim, error) {
+func (s *Service) claimIdentity(ctx context.Context, key *workKey) (*identifyClaim, error) {
 	var candidates []Receipt
-	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
-		rows, e := tx.Query(ctx, `WITH busy AS MATERIALIZED (
- SELECT br.tenant_id,count(*) n FROM ingestion_identity_decisions d JOIN ingestion_receipts br ON br.id=d.receipt_id WHERE d.state='identifying' AND d.lease_until>clock_timestamp() GROUP BY br.tenant_id
-), eligible AS MATERIALIZED (
- SELECT s.id,s.tenant_id,s.planning_paused FROM ingestion_sources s LEFT JOIN busy ON busy.tenant_id=s.tenant_id
- WHERE COALESCE(busy.n,0)<2 AND NOT s.blocked AND NOT EXISTS(SELECT 1 FROM ingestion_change_intents c WHERE c.source_id=s.id AND c.state='pending')
-), fresh AS MATERIALIZED (
- SELECT picked.* FROM eligible s CROSS JOIN LATERAL (
-  SELECT r.id,r.tenant_id,r.stored_at available_at FROM ingestion_receipts r
-  WHERE NOT s.planning_paused AND r.source_id=s.id AND r.tenant_id IS NOT NULL AND r.state='stored'
-  AND NOT EXISTS(SELECT 1 FROM ingestion_identity_decisions d WHERE d.receipt_id=r.id AND d.generation=r.current_generation)
-  ORDER BY r.stored_at LIMIT 16
- ) picked
-), retries AS MATERIALIZED (
- SELECT r.id,r.tenant_id,d.available_at FROM ingestion_identity_decisions d JOIN ingestion_receipts r ON r.id=d.receipt_id AND r.current_generation=d.generation JOIN eligible s ON s.id=r.source_id
- WHERE r.tenant_id IS NOT NULL AND r.state IN ('stored','identifying','retry_wait') AND (NOT s.planning_paused OR d.recovery_id IS NOT NULL)
- AND (d.state IN ('queued','retry_wait') AND d.available_at<=clock_timestamp() OR d.state='identifying' AND d.lease_until<clock_timestamp()) ORDER BY d.available_at LIMIT 16
-)
-SELECT id::text,tenant_id::text FROM (SELECT * FROM fresh UNION ALL SELECT * FROM retries) candidates ORDER BY available_at LIMIT 16`)
-		if e != nil {
-			return e
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var v Receipt
-			if e := rows.Scan(&v.ID, &v.TenantID); e != nil {
+	var e error
+	if key != nil {
+		candidates = []Receipt{{ID: key.id, TenantID: &key.scope}}
+	} else {
+		e = s.access.Transact(ctx, func(tx pgx.Tx) error {
+			unrecorded := s.unrecorded("ingest-custody-worker", "ingestion.receipt.stored", "identify", "r.id", "r.current_generation")
+			query := strings.ReplaceAll(identifyCandidates, "/* split event ownership */", unrecorded)
+			s.recordCandidateScan()
+			rows, e := tx.Query(ctx, query)
+			if e != nil {
 				return e
 			}
-			candidates = append(candidates, v)
+			defer rows.Close()
+			for rows.Next() {
+				var v Receipt
+				if e := rows.Scan(&v.ID, &v.TenantID); e != nil {
+					return e
+				}
+				candidates = append(candidates, v)
+			}
+			return rows.Err()
+		})
+		if e != nil {
+			return nil, e
 		}
-		return rows.Err()
-	})
-	if e != nil {
-		return nil, e
 	}
 	for _, candidate := range candidates {
 		var picked *identifyClaim
@@ -112,29 +143,47 @@ SELECT id::text,tenant_id::text FROM (SELECT * FROM fresh UNION ALL SELECT * FRO
 			// Lock first, then take a fresh statement snapshot for the decision.
 			// A correlated EXISTS evaluated in SELECT ... FOR UPDATE can retain
 			// a pre-wait decision snapshot after another claimant changes its lease.
-			if _, e := tx.Exec(ctx, `SELECT id FROM ingestion_receipts WHERE id=$1 FOR UPDATE`, candidate.ID); e != nil {
+			if key != nil {
+				var eligible bool
+				err := tx.QueryRow(ctx, `SELECT true FROM ingestion_receipts r JOIN ingestion_sources s ON s.id=r.source_id
+			    LEFT JOIN ingestion_identity_decisions d ON d.receipt_id=r.id AND d.generation=r.current_generation
+			    WHERE r.id=$1 AND r.tenant_id=$2 AND r.current_generation=$3 AND NOT s.blocked AND (NOT s.planning_paused OR d.recovery_id IS NOT NULL)
+			    AND NOT EXISTS(SELECT 1 FROM ingestion_change_intents c WHERE c.source_id=s.id AND c.state='pending')
+			    AND (r.state='stored' AND d.id IS NULL OR r.state IN ('stored','identifying','retry_wait') AND
+			        (d.state IN ('queued','retry_wait') AND d.available_at<=clock_timestamp() OR d.state='identifying' AND d.lease_until<clock_timestamp())) FOR UPDATE OF r`, key.id, key.scope, key.generation).Scan(&eligible)
+				if err == pgx.ErrNoRows {
+					return nil
+				}
+				if err != nil {
+					return err
+				}
+			} else if _, e := tx.Exec(ctx, `SELECT id FROM ingestion_receipts WHERE id=$1 FOR UPDATE`, candidate.ID); e != nil {
 				return e
 			}
-			receipt, e := receiptTx(ctx, tx, candidate.ID)
+
+			var receipt Receipt
+			var d Decision
+			var live bool
+			var decisionBytes []byte
+			e := tx.QueryRow(ctx, `SELECT `+receiptJSON+`,r.state='stored' OR COALESCE(
+				d.state IN ('queued','retry_wait') AND d.available_at<=clock_timestamp() OR
+				d.state='identifying' AND d.lease_until<clock_timestamp(),false),
+				CASE WHEN d.id IS NOT NULL THEN `+decisionJSON+` END
+				FROM ingestion_receipts r LEFT JOIN ingestion_identity_decisions d ON d.receipt_id=r.id AND d.generation=r.current_generation
+				WHERE r.id=$1`, candidate.ID).Scan(&receipt, &live, &decisionBytes)
 			if e != nil {
 				return e
 			}
-			var live bool
-			if e = tx.QueryRow(ctx, `SELECT state='stored' OR EXISTS(SELECT 1 FROM ingestion_identity_decisions d WHERE d.receipt_id=r.id AND d.generation=r.current_generation AND (d.state IN ('queued','retry_wait') AND d.available_at<=clock_timestamp() OR d.state='identifying' AND d.lease_until<clock_timestamp())) FROM ingestion_receipts r WHERE id=$1`, receipt.ID).Scan(&live); e != nil || !live {
-				return e
+			if !live || key != nil && receipt.Generation != numstr(key.generation) {
+				return nil
 			}
-			d := Decision{}
-			var raw []byte
-			e = tx.QueryRow(ctx, `SELECT `+decisionJSON+` FROM ingestion_identity_decisions d WHERE receipt_id=$1 AND generation=$2`, receipt.ID, receipt.Generation).Scan(&raw)
-			if e != nil && e != pgx.ErrNoRows {
-				return e
-			}
-			if e == nil {
-				if e = json.Unmarshal(raw, &d); e != nil {
+			if decisionBytes != nil {
+				if e = json.Unmarshal(decisionBytes, &d); e != nil {
 					return e
 				}
 			}
-			if e = s.identityAllowed(ctx, tx, receipt, d); e != nil {
+			authority, e := s.identityAuthority(ctx, tx, receipt, d)
+			if e != nil {
 				_, err := tx.Exec(ctx, `UPDATE ingestion_receipts SET state='blocked',error_code=$2 WHERE id=$1`, receipt.ID, code(e))
 				return err
 			}
@@ -146,51 +195,34 @@ SELECT id::text,tenant_id::text FROM (SELECT * FROM fresh UNION ALL SELECT * FRO
 				return nil
 			}
 
-			if d.ID == "" {
-				rev, e := revisionTx(ctx, tx, receipt.SourceID, receipt.SourceRevision)
-				if e != nil {
-					return e
-				}
-				protocol, e := s.parser.IngressProtocolTx(ctx, tx, rev.Snapshot.ProtocolID, rev.Snapshot.ProtocolVersion, false)
-				if e != nil {
-					return e
-				}
-				method, e := s.parser.IdentificationTx(ctx, tx, protocol.Identification, false)
-				if e != nil {
-					return e
-				}
-				grant, e := grantTx(ctx, tx, receipt.SourceID, "")
-				if e != nil {
-					return e
-				}
-				d = Decision{ID: uuid.NewString(), ReceiptID: receipt.ID, Generation: receipt.Generation, Method: method, GrantID: &grant.ID, GrantGeneration: &grant.Generation}
-				if _, e = tx.Exec(ctx, `INSERT INTO ingestion_identity_decisions(id,receipt_id,generation,method,grant_id,grant_generation) VALUES($1,$2,$3,$4,$5,$6)`, d.ID, receipt.ID, receipt.Generation, k.JSON(method), grant.ID, grant.Generation); e != nil {
-					return e
-				}
-			}
 			if d.Attempts >= 5 {
 				_, e = tx.Exec(ctx, `UPDATE ingestion_identity_decisions SET state='rejected',error_code='attempts_exhausted',lease_until=NULL WHERE id=$1`, d.ID)
 				return e
 			}
-			if e = tx.QueryRow(ctx, `UPDATE ingestion_identity_decisions SET state='identifying',fence=fence+1,attempts=attempts+1,lease_until=clock_timestamp()+interval '45 seconds' WHERE id=$1 RETURNING fence,attempts`, d.ID).Scan(&d.Fence, &d.Attempts); e != nil {
-				return e
+			var claim pgx.Batch
+			if d.ID == "" {
+				grant, method := authority.grant, authority.method
+				d = Decision{ID: uuid.NewString(), ReceiptID: receipt.ID, Generation: receipt.Generation, Method: method, GrantID: &grant.ID, GrantGeneration: &grant.Generation}
+				claim.Queue(`INSERT INTO ingestion_identity_decisions(id,receipt_id,generation,method,grant_id,grant_generation)
+					VALUES($1,$2,$3,$4,$5,$6)`, d.ID, receipt.ID, receipt.Generation, k.JSON(method), grant.ID, grant.Generation)
 			}
 			execution := uuid.NewString()
-			if _, e = tx.Exec(ctx, `INSERT INTO ingestion_attempts(execution_id,stage,target_id,fence,attempt) VALUES($1,'identify',$2,$3,$4)`, execution, d.ID, d.Fence, d.Attempts); e != nil {
+			var machineID string
+			claim.Queue(`WITH lease AS (
+				UPDATE ingestion_identity_decisions SET state='identifying',fence=fence+1,attempts=attempts+1,
+				lease_until=clock_timestamp()+interval '45 seconds' WHERE id=$1 RETURNING id,fence,attempts)
+				INSERT INTO ingestion_attempts(execution_id,stage,target_id,fence,attempt)
+				SELECT $2,'identify',id,fence,attempts FROM lease RETURNING fence,attempt,`+machineExecutionID, d.ID, execution).
+				QueryRow(func(row pgx.Row) error { return row.Scan(&d.Fence, &d.Attempts, &machineID) })
+			var obj object
+			claim.Queue(availableObject, receipt.ObjectID).QueryRow(func(row pgx.Row) error {
+				return row.Scan(&obj.ID, &obj.Key, &obj.Hash, &obj.Size)
+			})
+			claim.Queue(`UPDATE ingestion_receipts SET state='identifying',error_code='' WHERE id=$1`, receipt.ID)
+			if e = tx.SendBatch(ctx, &claim).Close(); e != nil {
 				return e
 			}
-			obj, e := objectTx(ctx, tx, receipt.ObjectID)
-			if e != nil {
-				return e
-			}
-			if _, e = tx.Exec(ctx, `UPDATE ingestion_receipts SET state='identifying',error_code='' WHERE id=$1`, receipt.ID); e != nil {
-				return e
-			}
-			sourceRev, e := revisionTx(ctx, tx, receipt.SourceID, receipt.SourceRevision)
-			if e != nil {
-				return e
-			}
-			picked = &identifyClaim{Source: sourceRev.Snapshot, Receipt: receipt, Decision: d, Input: obj, ExecutionID: execution}
+			picked = &identifyClaim{Source: authority.revision.Snapshot, Receipt: receipt, Decision: d, Input: obj, ExecutionID: execution, MachineID: machineID}
 			return nil
 		})
 		if e != nil {
@@ -202,11 +234,12 @@ SELECT id::text,tenant_id::text FROM (SELECT * FROM fresh UNION ALL SELECT * FRO
 	}
 	return nil, nil
 }
-func (s *Service) IdentifyOne(ctx context.Context) (bool, error) {
+func (s *Service) IdentifyOne(ctx context.Context) (bool, error) { return s.identify(ctx, nil) }
+func (s *Service) identify(ctx context.Context, key *workKey) (bool, error) {
 	if !s.options.Enabled {
 		return false, nil
 	}
-	job, e := s.claimIdentity(ctx)
+	job, e := s.claimIdentity(ctx, key)
 	if e != nil || job == nil {
 		return false, e
 	}
@@ -217,13 +250,15 @@ func (s *Service) IdentifyOne(ctx context.Context) (bool, error) {
 		callErr = s.machineTx(ctx, *job.Receipt.TenantID, false, func(tx pgx.Tx) error { return s.identityAllowed(ctx, tx, job.Receipt, job.Decision) })
 	}
 	if callErr == nil {
-		req := i.Request{Version: 1, ExecutionID: job.ExecutionID, Method: job.Decision.Method.Method, Input: i.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), ByteLength: int64(len(raw)), SHA256: job.Input.Hash}, Context: i.Context{FixedTerminal: job.Source.FixedTerminal, ExclusiveAuthenticated: job.Source.Exclusive, ReceivedAt: job.Receipt.ReceivedAt, Transport: job.Decision.Method.Transport, InputUnit: job.Decision.Method.InputUnit}, TraceID: job.Receipt.ID}
-		responseBytes, response, callErr = s.parser.Identify(ctx, req, job.Decision.Method)
+		req := i.Request{Version: 1, ExecutionID: job.MachineID, Method: job.Decision.Method.Method, Input: i.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), ByteLength: int64(len(raw)), SHA256: job.Input.Hash}, Context: i.Context{FixedTerminal: job.Source.FixedTerminal, ExclusiveAuthenticated: job.Source.Exclusive, ReceivedAt: job.Receipt.ReceivedAt, Transport: job.Decision.Method.Transport, InputUnit: job.Decision.Method.InputUnit}, TraceID: job.Receipt.ID}
+		started := time.Now()
+		responseBytes, response, callErr = s.parser.Identify(parsing.MachineWork(ctx, "tenant:"+*job.Receipt.TenantID, job.ExecutionID, true), req, job.Decision.Method)
+		s.parserDuration(started)
 		observeDependency(ctx, "parser", callErr)
 	}
 	var stored *object
 	if len(responseBytes) > 0 {
-		obj, err := s.saveObject(ctx, responseBytes)
+		obj, err := s.stageResponse(ctx, responseBytes)
 		if err != nil {
 			callErr = err
 		} else {
@@ -239,7 +274,7 @@ func (s *Service) IdentifyOne(ctx context.Context) (bool, error) {
 		if stored != nil {
 			objectID = stored.ID
 		}
-		if _, e := tx.Exec(ctx, `UPDATE ingestion_attempts SET state=$2,error_code=$3,response_object_id=$4,finished_at=clock_timestamp() WHERE execution_id=$1`, job.ExecutionID, state, code(callErr), objectID); e != nil {
+		if e := finishAttemptTx(ctx, tx, job.ExecutionID, state, code(callErr), objectID); e != nil {
 			return e
 		}
 		var live bool
@@ -252,7 +287,7 @@ func (s *Service) IdentifyOne(ctx context.Context) (bool, error) {
 		status, errorCode := response.Status, code(callErr)
 		if callErr != nil {
 			status = "rejected"
-			if parsing.Retryable(callErr) && job.Decision.Attempts < 5 {
+			if retryableAttempt(callErr) && job.Decision.Attempts < 5 {
 				status = "retry_wait"
 			} else if errorCode == "authorization_revoked" || errorCode == "execution_paused" {
 				status = "blocked"
@@ -264,22 +299,22 @@ func (s *Service) IdentifyOne(ctx context.Context) (bool, error) {
 				errorCode = response.Diagnostics[0]
 			}
 		}
-		if _, e := tx.Exec(ctx, `UPDATE ingestion_identity_decisions SET state=$2,error_code=$3,response_object_id=$4,response=$5,lease_until=NULL,available_at=clock_timestamp()+$6*interval '1 second' WHERE id=$1`, job.Decision.ID, status, errorCode, objectID, k.JSON(response), retryDelay(job.Decision.Attempts)); e != nil {
-			return e
-		}
+		var effects pgx.Batch
+		effects.Queue(`UPDATE ingestion_identity_decisions SET state=$2,error_code=$3,response_object_id=$4,response=$5,
+			lease_until=NULL,available_at=clock_timestamp()+$6*interval '1 second' WHERE id=$1`,
+			job.Decision.ID, status, errorCode, objectID, k.JSON(response), retryDelay(job.Decision.Attempts))
 		receiptState := status
 		if status == "identified" {
 			for _, unit := range response.Units {
-				if _, e := tx.Exec(ctx, `INSERT INTO ingestion_units(receipt_id,decision_id,unit_key,terminal_key,child_key,view,message_kind) VALUES($1,$2,$3,$4,$5,$6,$7)`, job.Receipt.ID, job.Decision.ID, unit.Key, unit.TerminalKey, unit.ChildKey, k.JSON(unit.View), unit.MessageKind); e != nil {
-					return e
-				}
+				effects.Queue(`INSERT INTO ingestion_units(receipt_id,decision_id,unit_key,terminal_key,child_key,view,message_kind)
+					VALUES($1,$2,$3,$4,$5,$6,$7)`, job.Receipt.ID, job.Decision.ID, unit.Key, unit.TerminalKey, unit.ChildKey, k.JSON(unit.View), unit.MessageKind)
 			}
 			receiptState = "identified"
 		} else if status == "rejected" {
 			receiptState = "awaiting_identity"
 		}
-		_, e := tx.Exec(ctx, `UPDATE ingestion_receipts SET state=$2,error_code=$3 WHERE id=$1`, job.Receipt.ID, receiptState, errorCode)
-		return e
+		effects.Queue(`UPDATE ingestion_receipts SET state=$2,error_code=$3 WHERE id=$1`, job.Receipt.ID, receiptState, errorCode)
+		return key.terminalWrite(tx.SendBatch(ctx, &effects).Close(), receiptState == "identified" || receiptState == "awaiting_identity")
 	})
 	return true, e
 }
@@ -297,10 +332,15 @@ func retryDelay(attempt int) int {
 }
 
 func identitySlotTx(ctx context.Context, tx pgx.Tx, tenant string) (bool, error) {
-	if _, e := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(754043)`); e != nil {
-		return false, e
-	}
+	// The count takes a new READ COMMITTED snapshot after the previous owner
+	// releases its lock. Keep these two ordered statements in one round trip.
+	var batch pgx.Batch
+	batch.Queue(`SELECT pg_advisory_xact_lock(754043)`)
 	var all, own int
-	e := tx.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE tenant_id=$1::uuid) FROM (SELECT r.tenant_id FROM ingestion_identity_decisions d JOIN ingestion_receipts r ON r.id=d.receipt_id WHERE d.state='identifying' AND d.lease_until>clock_timestamp() UNION ALL SELECT r.tenant_id FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id WHERE u.state='demultiplexing' AND u.lease_until>clock_timestamp()) running`, tenant).Scan(&all, &own)
+	batch.Queue(`SELECT count(*),count(*) FILTER(WHERE tenant_id=$1::uuid) FROM (
+		SELECT r.tenant_id FROM ingestion_identity_decisions d JOIN ingestion_receipts r ON r.id=d.receipt_id WHERE d.state='identifying' AND d.lease_until>clock_timestamp()
+		UNION ALL SELECT r.tenant_id FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id WHERE u.state='demultiplexing' AND u.lease_until>clock_timestamp()
+		) running`, tenant).QueryRow(func(row pgx.Row) error { return row.Scan(&all, &own) })
+	e := tx.SendBatch(ctx, &batch).Close()
 	return all < 4 && own < 2, e
 }

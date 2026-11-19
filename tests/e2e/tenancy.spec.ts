@@ -132,7 +132,17 @@ test('tenant HTTP contracts enforce scoped permissions, narrow candidates and st
   try {
     const r = isolated.request; const h = { Origin: new URL(consoleURL).origin, 'X-CSRF-Token': await csrf(r) }; expect((await r.post(`${api}/auth/login`, { headers: h, data: member })).status()).toBe(200);
     for (const path of ['/platform/tenants', '/access/accounts', '/access/audit-events']) expect((await r.get(api + path)).status()).toBe(403);
-    response = await r.get(`${api}/platform/tenant-admin-candidates?q=${member.username}`); expect(response.status()).toBe(200); const candidates = (await response.json()).items; expect(Object.keys(candidates[0]).sort()).toEqual(['display_name', 'id', 'replaced_roles', 'username']); expect(candidates[0].replaced_roles).toEqual([]);
+    response = await r.get(`${api}/platform/tenant-admin-candidates?q=${member.username}`);
+    expect(response.status()).toBe(200);
+    const candidates = (await response.json()).items;
+    expect(candidates).toEqual([{
+      id: target.id,
+      username: member.username,
+      display_name: '浏览器验收',
+      replaced_roles: [],
+      avatar_revision: '',
+      has_avatar: false,
+    }]);
     expect((await r.get(`${api}/platform/tenant-admin-candidates?q=x`)).status()).toBe(400);
     const input = { name: '无平台查看权限建档', code: `n-${randomBytes(4).toString('hex')}`, description: '', reason: '最小授权', administrator_account_id: target.id, client_request_id: randomUUID() };
     for (const extra of [{ status: 'active' }, { roles: [] }, { tenant_id: randomUUID() }]) expect((await r.post(`${api}/platform/tenants`, { headers: h, data: { ...input, ...extra } })).status()).toBe(400);

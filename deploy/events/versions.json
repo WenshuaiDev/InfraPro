@@ -1,0 +1,14 @@
+{
+  "server": {
+    "module": "github.com/nats-io/nats-server/v2",
+    "version": "v2.14.6",
+    "h1": "h1:dHjEHa49lUTxIb5jrsk5kz/AmOyOQ4T9ti8djcBumDQ=",
+    "goModH1": "h1:u/0bNBzN/m5orQGz7q2NNzxCQ6PWdwaOSwPNDADZn/A="
+  },
+  "client": {
+    "module": "github.com/nats-io/nats.go",
+    "version": "v1.55.0",
+    "h1": "h1:Ng8QKHdvdHIWoaiq0+d/aH1BWkxvcJxWJ0Y/9BPKx3M=",
+    "goModH1": "h1:y+DZoD1oBOYfZTU681eTUiUjI0vbqYGixNVFHcjHJ0k="
+  }
+}

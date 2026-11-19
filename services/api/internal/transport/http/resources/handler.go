@@ -9,6 +9,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	fileshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/files"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
@@ -85,7 +86,7 @@ func number(c *gin.Context, key string) (int, error) {
 func requestMeta(c *gin.Context) access.Meta {
 	return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
 }
-func Register(r *gin.Engine, i *identity.Service, s *resources.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *resources.Service) {
 	for _, p := range access.Policies() {
 		parts := strings.Split(string(p.Operation), ":")
 		if len(parts) != 3 || !slices.Contains([]string{"Resource", "ProjectResource", "ProjectResourceAccess"}, parts[0]) {

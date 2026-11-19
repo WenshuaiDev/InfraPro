@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	ar "github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/dispatch"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"log/slog"
 	"slices"
@@ -31,7 +32,7 @@ func New(pool *pgxpool.Pool, logger *slog.Logger) *Service {
 
 // Transact owns one bounded transaction; callbacks never commit independently.
 func (s *Service) Transact(ctx context.Context, fn func(pgx.Tx) error) (result error) {
-	tx, e := s.pool.Begin(ctx)
+	tx, e := s.beginTx(ctx)
 	if e != nil {
 		ReportOperationFailure(ctx, e)
 		return e
@@ -43,13 +44,13 @@ func (s *Service) Transact(ctx context.Context, fn func(pgx.Tx) error) (result e
 		_ = tx.Rollback(cleanup)
 		ReportOperationFailure(ctx, result)
 	}()
-	if _, e = tx.Exec(ctx, "SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='10s'"); e != nil {
-		return e
-	}
 	if e = fn(tx); e != nil {
 		return e
 	}
 	if e = taskrecord.FlushTx(ctx, tx); e != nil {
+		return e
+	}
+	if e = dispatch.CheckTx(ctx, tx); e != nil {
 		return e
 	}
 	e = tx.Commit(ctx)
@@ -66,10 +67,23 @@ func Lock(ctx context.Context, tx pgx.Tx, exclusive bool) (string, error) {
 	if exclusive {
 		mode = " FOR UPDATE"
 	}
+	return readCatalogLock(tx.QueryRow(ctx, catalogLockSQL+mode))
+}
+
+const catalogLockSQL = "SELECT revision::text,catalog_checksum FROM authorization_state WHERE id=1"
+
+// QueueSharedLock keeps the authorization check first in a batch of
+// prerequisite locks. Closing the batch verifies the release checksum.
+func QueueSharedLock(batch *pgx.Batch) {
+	batch.Queue(catalogLockSQL + " FOR SHARE").QueryRow(func(row pgx.Row) error {
+		_, err := readCatalogLock(row)
+		return err
+	})
+}
+func readCatalogLock(row pgx.Row) (string, error) {
 	var revision, checksum string
-	e := tx.QueryRow(ctx, "SELECT revision::text,catalog_checksum FROM authorization_state WHERE id=1"+mode).Scan(&revision, &checksum)
-	if e != nil {
-		return "", e
+	if err := row.Scan(&revision, &checksum); err != nil {
+		return "", err
 	}
 	if checksum != Checksum() {
 		return "", ErrCatalog

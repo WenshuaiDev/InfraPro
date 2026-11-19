@@ -101,7 +101,7 @@ func baselineSelections(p *compute.Plan, cfg ChannelConfig) map[string]monitorin
 func (s *Service) baselineNeedsTx(ctx context.Context, tx pgx.Tx, tenant string, cfg ChannelConfig, p *compute.Plan) ([]monitoring.RawNeed, error) {
 	out := []monitoring.RawNeed{}
 	for key, need := range baselineSelections(p, cfg) {
-		fixed, ok, e := loadBaselineTx(ctx, tx, tenant, cfg.ID, key)
+		fixed, ok, e := loadBaselineMetadataTx(ctx, tx, tenant, cfg.ID, key, nil)
 		if e != nil {
 			return nil, e
 		}
@@ -123,7 +123,7 @@ func (s *Service) authorizeBaselineNeedsTx(ctx context.Context, tx pgx.Tx, a acc
 		return e
 	}
 	for key, need := range baselineSelections(p, cfg) {
-		fixed, found, e := loadBaselineTx(ctx, tx, scope.Tenant, cfg.ID, key)
+		fixed, found, e := loadBaselineMetadataTx(ctx, tx, scope.Tenant, cfg.ID, key, nil)
 		if e != nil {
 			return e
 		}
@@ -142,6 +142,30 @@ func (s *Service) authorizeBaselineNeedsTx(ctx context.Context, tx pgx.Tx, a acc
 	}
 	return nil
 }
+
+// baselineMetadata carries only the fields needed to authorize the evidence.
+type baselineMetadata struct {
+	Snapshot monitoring.RawSnapshot
+	Needs    []monitoring.RawNeed
+}
+
+func loadBaselineMetadataTx(ctx context.Context, tx pgx.Tx, tenant, config, reference string, expectedHash *string) (baselineMetadata, bool, error) {
+	var out baselineMetadata
+	var snapshot *monitoring.RawSnapshot
+	err := tx.QueryRow(ctx, `SELECT snapshot,input_ranges FROM architecture_fixed_baseline_metadata($1,$2,$3,$4)`, tenant, config, reference, expectedHash).Scan(&snapshot, &out.Needs)
+	if err == pgx.ErrNoRows {
+		return out, false, nil
+	}
+	if err != nil {
+		return out, false, err
+	}
+	if snapshot == nil {
+		return out, false, fmt.Errorf("baseline_evidence_integrity")
+	}
+	out.Snapshot = *snapshot
+	return out, true, nil
+}
+
 func loadBaselineTx(ctx context.Context, tx pgx.Tx, tenant, config, key string) (fixedBaseline, bool, error) {
 	var out fixedBaseline
 	var hash, snapshot string

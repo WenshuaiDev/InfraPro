@@ -3,6 +3,7 @@ package engineeringhttp
 import (
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"slices"
@@ -62,7 +63,7 @@ func integer(c *gin.Context, key string) int {
 	}
 	return n
 }
-func Register(r *gin.Engine, i *identity.Service, s *engineering.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *engineering.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}

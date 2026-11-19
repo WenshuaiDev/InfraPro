@@ -1,0 +1,218 @@
+{
+  "version": 1,
+  "directories": {
+    "scripts": [
+      "architecture-capacities.mjs",
+      "architecture-clickhouse.mjs",
+      "architecture-deploy.mjs",
+      "architecture-machines.mjs",
+      "architecture-object-profile-check.py",
+      "architecture-postgres.mjs",
+      "architecture-process-resources.mjs",
+      "architecture-replicas.mjs",
+      "architecture-runtime.mjs"
+    ],
+    "tools/spatial-converter": [
+      "convert.py",
+      "engineering.py",
+      "requirements.in",
+      "requirements.lock",
+      "samples.py",
+      "test_converter.py",
+      "test_engineering.py"
+    ],
+    "contracts": [
+      "diagnostics/auth.schema.json",
+      "diagnostics/bindings.schema.json",
+      "diagnostics/credential.schema.json",
+      "diagnostics/keyring.schema.json",
+      "diagnostics/manifest.schema.json",
+      "diagnostics/observation.schema.json",
+      "diagnostics/observer-frame.schema.json",
+      "diagnostics/observer-key.schema.json",
+      "diagnostics/observer.schema.json",
+      "diagnostics/process-report.schema.json",
+      "diagnostics/reasons.json",
+      "diagnostics/runtime-catalog.json",
+      "diagnostics/server.schema.json",
+      "display/v1/protocol.json",
+      "display/v1/read.generated.json",
+      "display/v1/runtime.openapi.json",
+      "events/v1.schema.json",
+      "fixtures/device-semantics.json",
+      "internal/v1/api.json",
+      "openapi/api.yaml",
+      "openapi/diagnostics.yaml",
+      "openapi/ingestion-identification.yaml",
+      "openapi/ingestion-relay.yaml",
+      "openapi/parsing-service.yaml"
+    ],
+    "configs": [
+      "infrapro.example.yaml"
+    ],
+    "docs/operations": [
+      "account-avatar.md",
+      "architecture-events.md",
+      "audit-and-operation-tracing.md",
+      "channel-bindings.md",
+      "derived-monitoring-and-analysis.md",
+      "device-ingestion-and-raw-messages.md",
+      "document-preview.md",
+      "files-and-attachments.md",
+      "https-deployment.md",
+      "in-app-notifications.md",
+      "independent-runtime-diagnostics.md",
+      "local-environment.md",
+      "mfa.md",
+      "monitoring-data.md",
+      "parsing-service.md",
+      "production-deployment-2026-11-17.md",
+      "production-deployment-readiness-2026-11-17.md",
+      "production-facility-types-2026-11-17.md",
+      "production-failover-status-2026-11-17.md",
+      "production-four-server-deployment-plan-2026-11-17.md",
+      "production-server-preparation-2026-11-17.md",
+      "production-version-2026-11-17.md",
+      "spatial-visualization.md",
+      "system-architecture-refactor.md",
+      "task-center.md",
+      "upload-limits-and-proxy.md",
+      "visualization-display.md"
+    ],
+    "deploy/architecture": [
+      "display-inflight.example.json",
+      "display-processes.example.json",
+      "group-identities.sql",
+      "infrapro-replica-proxy.service",
+      "offline-members.json",
+      "postgres-roles.sql",
+      "replica-proxy.py",
+      "restore-base-grants.sql",
+      "roles.json"
+    ],
+    "deploy/events": [
+      "broker.example.json",
+      "events.example.json",
+      "infrapro-nats-server.service",
+      "postgres-grants.sql",
+      "render.mjs",
+      "versions.json"
+    ],
+    "deploy/production": [
+      "architecture-restore.example.json",
+      "architecture-restore.py",
+      "backup-node.py",
+      "checkpoint_roles.py",
+      "postgresql-logind.conf",
+      "production-backup.py",
+      "restore-pg-restore.py",
+      "s3_archive.py",
+      "schema-55-audit-role-completion.sql"
+    ],
+    "deploy/display": [
+      "display-package-worker.service",
+      "display-runtime.service",
+      "http.example.yaml",
+      "https.example.yaml",
+      "https.nginx.conf",
+      "nginx.conf",
+      "object-policy.example.json",
+      "package-worker-role.sql",
+      "package-worker.example.yaml"
+    ],
+    "deploy/diagnostics": [
+      "Dockerfile",
+      "README.md",
+      "compose.docker-observer.yaml",
+      "compose.yaml",
+      "docker/auth.json",
+      "docker/bindings.json",
+      "docker/manifest.json",
+      "docker/node-keys.json",
+      "docker/observer-bindings.json",
+      "docker/observer.json",
+      "docker/server.json",
+      "docker/split-bindings.json",
+      "docker/split-manifest.json",
+      "docker/split-observer-bindings.json",
+      "docker/split-observer-edge-bindings.json",
+      "mixed/auth.json",
+      "mixed/bindings.json",
+      "mixed/manifest.json",
+      "mixed/node-keys.json",
+      "mixed/observer-bindings.json",
+      "mixed/observer.json",
+      "mixed/server.json",
+      "mixed/split-bindings.json",
+      "mixed/split-manifest.json",
+      "mixed/split-observer-bindings.json",
+      "native/auth.json",
+      "native/bindings.json",
+      "native/manifest.json",
+      "native/node-keys.json",
+      "native/server.json",
+      "native/split-bindings.json",
+      "native/split-manifest.json",
+      "systemd/infrapro-diagnostics.service",
+      "systemd/infrapro-observer.service"
+    ],
+    "deploy/files": [
+      "compose.yaml",
+      "config.example.yaml",
+      "s3-policy.example.json",
+      "systemd/infrapro-files-checker.service",
+      "systemd/infrapro-files-worker.service"
+    ],
+    "deploy/tasks": [
+      "index-worker-role.sql"
+    ],
+    "deploy/parsing": [
+      "Dockerfile",
+      "infrapro-parser.service",
+      "parser.env.example",
+      "platform.example.yaml"
+    ],
+    "deploy/ingestion": [
+      "principals.example.json",
+      "relay.example.json",
+      "systemd/infrapro-ingest-relay.service",
+      "systemd/infrapro-ingest-worker.service",
+      "worker.example.json"
+    ],
+    "deploy/audit": [
+      "audit-worker.service",
+      "compose.yaml",
+      "s3-api-content-policy.json",
+      "s3-cleanup-policy.json",
+      "s3-worker-policy.json",
+      "worker.example.yaml"
+    ],
+    "deploy/docker": [
+      "README.md",
+      "api.Dockerfile",
+      "audit.Dockerfile",
+      "broker.Dockerfile",
+      "display.Dockerfile",
+      "display.Dockerfile.dockerignore",
+      "files.Dockerfile",
+      "infrapro.Dockerfile",
+      "spatial.Dockerfile",
+      "web.Dockerfile"
+    ],
+    "deploy/compose": [
+      ".env.example",
+      "README.md",
+      "compose.yaml",
+      "http-test.yaml",
+      "local.yaml",
+      "test.yaml"
+    ],
+    "deploy/nginx": [
+      "default.conf"
+    ],
+    "deploy/notifications": [
+      "notification-worker.service",
+      "worker.example.yaml"
+    ]
+  }
+}

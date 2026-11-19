@@ -55,6 +55,7 @@ type Report struct {
 	UptimeMS      string            `json:"uptime_ms"`
 	Phase         string            `json:"phase"`
 	Lanes         []Lane            `json:"lanes"`
+	Metrics       []ProcessMetric   `json:"metrics,omitempty"`
 	Dependencies  []DependencyState `json:"dependencies"`
 }
 
@@ -85,7 +86,15 @@ type Reporter struct {
 }
 
 var validID = regexp.MustCompile(`^[a-z][a-z0-9_.-]{0,63}$`)
-var reasons = map[string]bool{"dependency_unavailable": true, "configuration_invalid": true, "storage_unconfigured": true, "checker_unavailable": true, "loop_failed": true, "deadline_exceeded": true}
+var reasons = map[string]bool{"dependency_unavailable": true, "configuration_invalid": true, "storage_unconfigured": true, "checker_unavailable": true, "loop_failed": true, "deadline_exceeded": true,
+	"event_publish_failed": true, "event_position_gap": true, "event_quarantined": true,
+	"outbox_backpressure": true, "dispatch_fence_rejected": true, "broker_unavailable": true,
+}
+
+// KnownReason is shared by producers and observers so a private error string
+// cannot be reclassified as safe by passing it through the process report.
+func KnownReason(s string) bool { return reasons[s] }
+
 var BuildID = "dev"
 
 func safeReason(s string) *string {

@@ -79,14 +79,17 @@ func summaryRootKey(tenant, channel, revision string) string {
 	return tenant + "/summaries/v1/roots/" + channel + "/" + revision + ".json"
 }
 func (s *Storage) summaryObject(ctx context.Context, key string, out any, hashed bool) error {
-	o, e := s.get(ctx, key)
+	// Reading the entire immutable index validates existence and reports the
+	// storage error before any result is returned. An initial Stat would issue
+	// an additional network request for every channel in the fixed selection.
+	object, e := s.openObject(ctx, key)
 	if e != nil {
 		return e
 	}
-	defer o.Close()
-	var input io.Reader = o
+	defer object.Close()
+	var input io.Reader = measureObjectRead(ctx, object)
 	if hashed {
-		z, e := gzip.NewReader(o)
+		z, e := gzip.NewReader(input)
 		if e != nil {
 			return e
 		}

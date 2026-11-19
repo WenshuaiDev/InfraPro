@@ -15,6 +15,166 @@
   ],
   "components": [
     {
+      "id": "replica-proxy",
+      "display_name": "副本 TCP 转发",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "identity-api",
+      "display_name": "身份与空间治理",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "control-api",
+      "display_name": "工程与业务控制",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-query-api",
+      "display_name": "监测查询",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "transfer-api",
+      "display_name": "受控传输",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "compat-api",
+      "display_name": "兼容业务 API",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "ingest-custody-worker",
+      "display_name": "原文接管",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "parsing-dispatch-worker",
+      "display_name": "解析调度",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-publish-worker",
+      "display_name": "正式监测发布",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-incremental-worker",
+      "display_name": "监测增量计算",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-history-worker",
+      "display_name": "历史分析",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "monitoring-read-worker",
+      "display_name": "后台读取",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "event-relay",
+      "display_name": "内部事件转发",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "nats-server",
+      "display_name": "内部消息存储",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "display-assets",
+      "display_name": "大屏包资产",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "parser-runner",
+      "display_name": "方法执行子进程",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "由 parser 按版本与预算启动"
+    },
+    {
+      "id": "ingest-worker",
+      "display_name": "设备接入流水",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "ingest-relay",
+      "display_name": "云端转发",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "ingest-relay-postgres",
+      "display_name": "云端缓冲 PostgreSQL",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "parser",
+      "display_name": "独立解析服务",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
       "id": "api",
       "display_name": "业务 API",
       "kind": "application",
@@ -24,7 +184,7 @@
     },
     {
       "id": "monitoring-worker",
-      "display_name": "监测与派生计算",
+      "display_name": "监测、派生计算与试解析",
       "kind": "worker",
       "expectation": "disabled",
       "min_ready_replicas": 0,
@@ -208,6 +368,146 @@
     }
   ],
   "replicas": [
+    {
+      "id": "replica-proxy-1",
+      "component_id": "replica-proxy",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "identity-api-1",
+      "component_id": "identity-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "control-api-1",
+      "component_id": "control-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-query-api-1",
+      "component_id": "monitoring-query-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "transfer-api-1",
+      "component_id": "transfer-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "compat-api-1",
+      "component_id": "compat-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-custody-worker-1",
+      "component_id": "ingest-custody-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "parsing-dispatch-worker-1",
+      "component_id": "parsing-dispatch-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-publish-worker-1",
+      "component_id": "monitoring-publish-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-incremental-worker-1",
+      "component_id": "monitoring-incremental-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-history-worker-1",
+      "component_id": "monitoring-history-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "monitoring-read-worker-1",
+      "component_id": "monitoring-read-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "event-relay-1",
+      "component_id": "event-relay",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "nats-server-1",
+      "component_id": "nats-server",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "display-assets-1",
+      "component_id": "display-assets",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "parser-runner-1",
+      "component_id": "parser-runner",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-worker-1",
+      "component_id": "ingest-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-relay-1",
+      "component_id": "ingest-relay",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-relay-postgres-1",
+      "component_id": "ingest-relay-postgres",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "parser-1",
+      "component_id": "parser",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
     {
       "id": "api-1",
       "component_id": "api",

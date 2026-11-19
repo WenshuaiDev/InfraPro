@@ -1,0 +1,41 @@
+--- a/packages/go/platform/parsing/architecture_load_test.go
++++ b/packages/go/platform/parsing/architecture_load_test.go
+@@ -450,13 +450,18 @@
+ 		return requests.Wait()
+ 	})
+ 	var down, up time.Time
++	// Keep monotonic readings for elapsed time and UTC stamps for correlation.
++	var partition time.Duration
+ 	g.Go(func() error {
+ 		time.Sleep(time.Until(started.Add(10 * time.Second)))
+ 		switcher.offline(true)
+-		down = time.Now().UTC()
++		disconnected := time.Now()
++		down = disconnected.UTC()
+ 		time.Sleep(45 * time.Second)
+ 		switcher.offline(false)
+-		up = time.Now().UTC()
++		restored := time.Now()
++		partition = restored.Sub(disconnected)
++		up = restored.UTC()
+ 		return nil
+ 	})
+ 	must(t, g.Wait())
+@@ -490,7 +495,16 @@
+ 		return inputs[i].Sequence < inputs[j].Sequence
+ 	})
+ 	archJSON(t, filepath.Join(dir, "inputs.json"), inputs)
+-	archJSON(t, filepath.Join(dir, "outage.json"), map[string]any{"down": down, "restored": up, "duration_seconds": up.Sub(down).Seconds(), "production_seconds": sentAt.Sub(started).Seconds(), "offered_fps": offeredRate, "effective_fps": 6000 / sentAt.Sub(started).Seconds()})
++	archJSON(t, filepath.Join(dir, "outage.json"), map[string]any{
++		"down":               down,
++		"restored":           up,
++		"duration_seconds":   partition.Seconds(),
++		"duration_clock":     "monotonic",
++		"utc_seconds":        up.Sub(down).Seconds(),
++		"production_seconds": sentAt.Sub(started).Seconds(),
++		"offered_fps":        offeredRate,
++		"effective_fps":      6000 / sentAt.Sub(started).Seconds(),
++	})
+ 	deadline := time.Now().Add(15 * time.Minute)
+ 	var counts archCount
+ 	for {

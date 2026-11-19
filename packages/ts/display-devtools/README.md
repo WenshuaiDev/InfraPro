@@ -51,7 +51,7 @@ npx infrapro-display upload display.zip --console http://console.infra.lan/conso
 
 ## 包规范
 
-1.1 同时验证 Manifest 1 和 2。Manifest 2 增加 `read_views`，各条声明 domain、purpose、required、field_groups 和 allow_dynamic；未知版本、未知字段、重复键、错误领域均拒绝。旧包不会自动获得项目视图。`init my-display --template monitoring-read` 创建独立的六面板验收工程，包含完整分页、统计下钻、来源目录和图纸／Three.js 模型查看器；构建依赖在模板内声明，运行资源全部打包到 ZIP。模板文档说明授权配置、计数口径和释放流程。
+1.1 同时验证 Manifest 1 和 2。Manifest 2 使用 `read_view_schema`，每项包含 `domain`，可声明 `purpose`、`required`、`allow_dynamic` 和 `structure_model`。实例数据授权和草稿配置保存 `field_groups`。开发工具校验清单版本、字段、重复键和领域。`init my-display --template monitoring-read` 创建独立的六面板验收工程，包含完整分页、统计下钻、来源目录和图纸／Three.js 模型查看器。构建依赖在模板内声明，运行资源全部打包到 ZIP。模板文档说明授权配置、计数口径和释放流程。
 
 包根 `manifest.json` 由 pack 从 `display.manifest.json` 和构建目录生成。ZIP 不包含 node_modules、源码声明或服务端程序。入口为相对 HTML；资源、模块、字体、Worker/WASM 使用包内相对路径。路由可用 hash，history 仅支持 manifest 明列的 fallback 路径。没有全局任意路径回退。
 

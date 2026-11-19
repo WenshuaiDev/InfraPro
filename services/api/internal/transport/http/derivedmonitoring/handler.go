@@ -2,6 +2,7 @@ package derivedmonitoringhttp
 
 import (
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"slices"
@@ -64,7 +65,7 @@ func filter(c *gin.Context, allowed ...string) (dm.MetricFilter, error) {
 	}
 	return out, nil
 }
-func Register(r *gin.Engine, identityService *identity.Service, s *dm.Service) {
+func Register(r routes.Registrar, identityService *identity.Service, s *dm.Service) {
 	for _, policy := range access.Policies() {
 		parts := strings.SplitN(string(policy.Operation), ":", 3)
 		if len(parts) != 3 || parts[0] != "Derived" {

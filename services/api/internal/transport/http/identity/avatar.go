@@ -1,6 +1,7 @@
 package identityhttp
 
 import (
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 
@@ -8,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) registerAvatars(r *gin.Engine) {
-	auth := r.Group("/api/v1", h.Guard)
+func (h *Handler) registerAvatars(r routes.Registrar) {
+	auth := r.Group("/api/v1")
 	auth.PUT("/account/avatar", func(c *gin.Context) {
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, identity.AvatarMaxBytes)
 		body, err := io.ReadAll(c.Request.Body)

@@ -49,6 +49,20 @@ func (s *Service) call(ctx context.Context, path string, in any) ([]byte, error)
 	if timeout <= 0 || timeout > 10*time.Second {
 		timeout = 10 * time.Second
 	}
+	if work, ok := ctx.Value(machineWorkKey{}).(machineWork); ok {
+		waiting, stop := context.WithTimeout(ctx, timeout)
+		defer stop()
+		leave, err := s.machineAdmission.enter(waiting, work)
+		if err != nil {
+			return nil, &serviceError{"service_unavailable", true}
+		}
+		defer leave()
+		slot, err := s.machineSlot(waiting, work, timeout)
+		if err != nil {
+			return nil, &serviceError{"service_unavailable", true}
+		}
+		defer s.releaseMachineSlot(ctx, slot, work.id)
+	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	req, e := http.NewRequestWithContext(ctx, method, strings.TrimSuffix(s.options.URL, "/")+path, body)

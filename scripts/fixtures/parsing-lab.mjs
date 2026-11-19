@@ -5,17 +5,19 @@ import {join,resolve} from 'node:path';
 import {createServer} from 'node:net';
 import {ensureTestDependencies,testEnv} from '../test-environment.mjs';
 export async function availablePort(){return new Promise((ok,no)=>{const s=createServer();s.on('error',no);s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>ok(p));});});}
-export async function startParser(directory=resolve('.artifacts/parsing/service')){
- mkdirSync(directory,{recursive:true,mode:0o700});const token=join(directory,'machine-token'),pkg=join(directory,'release'),runner=join(directory,'parser-runner'),binary=join(directory,'parser');
+export async function startParser(directory=resolve('.artifacts/parsing/service'), {bin,source=resolve('.'),serviceBinary,reportEnvironment={}} = {}){
+ mkdirSync(directory,{recursive:true,mode:0o700});const token=join(directory,'machine-token'),pkg=join(directory,'release'),runner=join(bin ?? directory,'parser-runner'),binary=serviceBinary??join(bin ?? directory,'parser');
  if(!existsSync(token))writeFileSync(token,randomBytes(48).toString('hex'),{mode:0o600});
- for(const [file,target]of [[runner,'parser-runner'],[binary,'parser']])execFileSync('go',['build','-trimpath','-o',file,`./services/parser/cmd/${target}`],{stdio:'inherit'});
- execFileSync('go',['run','./services/parser/cmd/parser-package',runner,'samples/parsing',pkg],{stdio:'inherit'});
+ if(!bin)for(const [file,target]of [[runner,'parser-runner'],[binary,'parser']])execFileSync('go',['build','-trimpath','-o',file,`./services/parser/cmd/${target}`],{stdio:'inherit'});
+ const packager=bin&&join(bin,'parser-package');
+ if(packager&&existsSync(packager))execFileSync(packager,[runner,'samples/parsing',pkg],{stdio:'inherit',cwd:source});
+ else execFileSync('go',['run','./services/parser/cmd/parser-package',runner,'samples/parsing',pkg],{stdio:'inherit',cwd:source});
  const port=await availablePort(),url=`http://127.0.0.1:${port}`;let child;
- async function start(){child=spawn(binary,[],{env:{...process.env,INFRAPRO_PARSER_PACKAGE:pkg,INFRAPRO_PARSER_TOKEN_FILE:token,INFRAPRO_PARSER_ADDR:`127.0.0.1:${port}`,INFRAPRO_PARSER_RELEASE:'parsing-acceptance',INFRAPRO_DIAGNOSTICS_INSTANCE_ID:'parsing-lab',INFRAPRO_DIAGNOSTICS_NODE_ID:'local',INFRAPRO_DIAGNOSTICS_REPLICA_ID:'parser',INFRAPRO_DIAGNOSTICS_REPORT_FILE:join(directory,'process-report.json')},stdio:['ignore','pipe','pipe']});for(const s of [child.stdout,child.stderr])s.on('data',v=>appendFileSync(join(directory,'service.log'),v));await waitURL(url+'/healthz');}
+ async function start(){child=spawn(binary,[],{env:{...process.env,INFRAPRO_PARSER_PACKAGE:pkg,INFRAPRO_PARSER_TOKEN_FILE:token,INFRAPRO_PARSER_ADDR:`127.0.0.1:${port}`,INFRAPRO_PARSER_RELEASE:'parsing-acceptance',INFRAPRO_DIAGNOSTICS_INSTANCE_ID:'parsing-lab',INFRAPRO_DIAGNOSTICS_NODE_ID:'local',INFRAPRO_DIAGNOSTICS_REPLICA_ID:'parser',INFRAPRO_DIAGNOSTICS_REPORT_FILE:join(directory,'process-report.json'),...reportEnvironment},stdio:['ignore','pipe','pipe']});for(const s of [child.stdout,child.stderr])s.on('data',v=>appendFileSync(join(directory,'service.log'),v));await waitURL(url+'/healthz');}
  async function pause(){await stop(child);child=undefined;}
- await start();return {url,token,pkg,runner,binary,pause,resume:start,close:pause};
+ await start();return {url,token,pkg,runner,binary,get pid(){return child?.pid},pause,resume:start,close:pause};
 }
-export async function stop(child){if(!child||child.exitCode!==null)return;const ended=new Promise(r=>child.once('exit',r));child.kill('SIGTERM');const timer=setTimeout(()=>child.kill('SIGKILL'),10000);try{await ended;}finally{clearTimeout(timer);}}
+export async function stop(child){if(!child||child.exitCode!==null||child.signalCode)return;const ended=new Promise(r=>child.once('exit',r));child.kill('SIGTERM');const timer=setTimeout(()=>child.kill('SIGKILL'),10000);try{await ended;}finally{clearTimeout(timer);}}
 export async function waitURL(url){for(let i=0;i<100;i++){try{if((await fetch(url,{signal:AbortSignal.timeout(1000)})).ok)return;}catch{/* starting */}await new Promise(r=>setTimeout(r,300));}throw Error('Parsing lab startup timed out: '+url);}
 export async function startParsingLab({build=true,environment={},consolePort=Number(process.env.INFRAPRO_PARSING_CONSOLE_PORT??15578),apiPort=Number(process.env.INFRAPRO_PARSING_API_PORT??18578),directory=resolve('.artifacts/parsing/browser-lab')}={}){
  for(const port of [consolePort,apiPort])await new Promise((ok,no)=>{const s=createServer();s.once('error',()=>no(Error('Parsing lab port is already occupied: '+port)));s.listen(port,'127.0.0.1',()=>s.close(ok));});

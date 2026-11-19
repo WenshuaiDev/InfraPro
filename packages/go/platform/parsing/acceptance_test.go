@@ -339,14 +339,22 @@ func TestIngestionMigrationPreservesV44ParsingEvidence(t *testing.T) {
 	product, device := seedLegacyProductDevice(t, f, m.ID, "pre_ingestion")
 	sample := f.sample(t, scope, f.owner, "measurement.bin", "binary")
 	run := seedLegacyParsingRun(t, f, product, device, sample)
-	_, e = f.ps.RunOne(ctx)
+	var historical bool
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT to_regclass('parsing_executor_slots') IS NULL`).Scan(&historical))
+	if !historical {
+		t.Fatal("the v44 fixture unexpectedly has shared executor slots")
+	}
+	worked, e := f.ps.RunV44Fixture(ctx)
 	must(t, e)
+	if !worked {
+		t.Fatal("the v44 worker did not claim its historical run")
+	}
 	beforeResult, _, e := f.ps.Result(ctx, f.owner, scope, run.ID, "1", false, 0, 100)
 	must(t, e)
 	if beforeResult.Response == nil || *beforeResult.Response.Records[0].Measurements[0].Value != "12.34" {
 		t.Fatal("historical fixture did not execute before upgrade")
 	}
-	tables := []string{"parsing_method_versions", "parsing_configs", "parsing_config_revisions", "parsing_product_defaults", "parsing_device_adoptions", "parsing_samples", "parsing_runs", "parsing_run_executions", "parsing_objects"}
+	tables := []string{"parsing_method_versions", "parsing_configs", "parsing_config_revisions", "parsing_product_defaults", "parsing_device_adoptions", "parsing_samples", "parsing_runs", "parsing_run_executions", "parsing_run_attempts", "parsing_objects"}
 	hashes := map[string]string{}
 	for _, table := range tables {
 		var hash string
@@ -365,8 +373,13 @@ func TestIngestionMigrationPreservesV44ParsingEvidence(t *testing.T) {
 	f.ps.WithIngress(f.b.Ingestion)
 	replay, e := f.ps.CreateRun(ctx, f.owner, scope, parse.RunInput{Meta: f.meta(t), ReplayRunID: run.ID})
 	must(t, e)
-	_, e = f.ps.RunOne(ctx)
+	worked, e = f.ps.RunOne(ctx)
 	must(t, e)
+	var slots int
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM parsing_executor_slots`).Scan(&slots))
+	if !worked || slots != parse.ExecutorSlots {
+		t.Fatalf("upgraded worker claimed=%v with %d shared executor slots", worked, slots)
+	}
 	result, _, e := f.ps.Result(ctx, f.owner, scope, replay.ID, "1", false, 0, 100)
 	must(t, e)
 	if result.Response == nil || *result.Response.Records[0].Measurements[0].Value != "12.34" {

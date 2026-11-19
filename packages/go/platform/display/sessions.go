@@ -256,7 +256,12 @@ func (s *Service) loadSessionTx(ctx context.Context, tx pgx.Tx, v Session, allow
 		if v.Preview {
 			op = access.DisplayOperation("preview")
 		}
-		auth, e := access.RequireProjectTx(ctx, tx, v.AccountID, op, v.Tenant, v.Project)
+		auth := issuer
+		if v.AccountID == g.IssuedBy {
+			e = auth.Require(op)
+		} else {
+			auth, e = access.RequireProjectTx(ctx, tx, v.AccountID, op, v.Tenant, v.Project)
+		}
 		if e != nil {
 			return g, Config{}, problem("revoked", "人员项目资格已经失效。", 403)
 		}

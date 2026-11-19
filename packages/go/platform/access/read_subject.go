@@ -6,6 +6,42 @@ import (
 	"slices"
 )
 
+type sharedPrincipalCheckKey struct{}
+type sharedPrincipalCheck struct {
+	account    string
+	connection *pgx.Conn
+}
+
+// SessionActor binds a verified personnel session to its transaction checker.
+// Regular commands retain the exclusive account lock. Only an input-read check
+// on this same actor can request the shared mode.
+func SessionActor(id string, verify func(context.Context, pgx.Tx, bool, bool) error) Actor {
+	return Actor{ID: id, personnelSession: true, Check: func(ctx context.Context, tx pgx.Tx, recent bool) error {
+		read, ok := ctx.Value(sharedPrincipalCheckKey{}).(sharedPrincipalCheck)
+		return verify(ctx, tx, recent, !recent && ok && read.account == id && read.connection == tx.Conn())
+	}}
+}
+
+// CheckInputReadTx checks the actor inside the caller's input-proof transaction.
+// Personnel lock policy then account and validate the original session. Display
+// subjects verify their own durable identity. A durable worker delegation locks
+// its owner's account before its existing eligibility check.
+func (a Actor) CheckInputReadTx(ctx context.Context, tx pgx.Tx) error {
+	if a.Check == nil {
+		return ErrDenied
+	}
+	if a.personnelSession {
+		read := sharedPrincipalCheck{account: a.ID, connection: tx.Conn()}
+		return a.Check(context.WithValue(ctx, sharedPrincipalCheckKey{}, read), tx, false)
+	}
+	if a.subject == nil {
+		if _, err := tx.Exec(ctx, `SELECT id FROM accounts WHERE id=$1 FOR SHARE`, a.ID); err != nil {
+			return err
+		}
+	}
+	return a.Check(ctx, tx, false)
+}
+
 // ReadSubject is constructed inside a verified runtime, never decoded from a
 // client request. Its owner is a durable display_subjects row, not an account.
 // Check and Authorize run inside each domain's existing authorization boundary.

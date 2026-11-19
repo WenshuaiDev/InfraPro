@@ -8,6 +8,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	sp "github.com/WenshuaiDev/InfraPro/packages/go/platform/spatial"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -65,7 +66,7 @@ func filter(c *gin.Context) (sp.Filter, error) {
 	out.BBox, e = sp.ParseBBox(c.Query("bbox"))
 	return out, e
 }
-func Register(r *gin.Engine, identityService *identity.Service, s *sp.Service) {
+func Register(r routes.Registrar, identityService *identity.Service, s *sp.Service) {
 	for _, policy := range access.Policies() {
 		parts := strings.SplitN(string(policy.Operation), ":", 3)
 		if len(parts) != 3 || parts[0] != "Spatial" {

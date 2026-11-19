@@ -5,8 +5,10 @@ import { join } from 'node:path';
 import { request } from '@playwright/test';
 
 export async function seedDerivedAcceptance(directory, origin, options = {}) {
-  if (!['http://127.0.0.1:15373','http://127.0.0.1:15473','http://127.0.0.1:15573','http://127.0.0.1:15773','http://127.0.0.1:15576'].includes(origin)) throw new Error('Synthetic derived fixture requires its dedicated loopback session.');
-  const client = await request.newContext(), api = `${origin}/api/v1`;
+  const pairedRun=Boolean(options.paired);
+  if (!(options.paired?.origin===origin && new URL(origin).hostname==='127.0.0.1') && !['http://127.0.0.1:15373','http://127.0.0.1:15473','http://127.0.0.1:15573','http://127.0.0.1:15773','http://127.0.0.1:15576'].includes(origin)) throw new Error('Synthetic derived fixture requires its dedicated loopback session.');
+  const client = options.paired ? await options.paired.client() : await request.newContext(), api = `${origin}/api/v1`;
+  const adminLogin = options.adminLogin || { username: 'e2e_owner', password: 'Real browser 河流 secret 592' };
   const state = { synthetic: true, fixture: 'development-plan-25.1', channels: {}, expected: {}, batches: {} };
   const save = () => writeFileSync(join(directory, 'acceptance.json'), JSON.stringify(state, null, 2), { mode: 0o600 });
   const wm = (revision = '0') => ({ request_id: randomUUID(), expected_revision: revision, reason: '方案25.1独立合成验收样本' });
@@ -17,6 +19,7 @@ export async function seedDerivedAcceptance(directory, origin, options = {}) {
     return response.status() === 204 ? null : response.json();
   };
   const wait = async (path, pick, desired) => {
+    if(options.paired) return client.wait(api+path,headers,pick,desired);
     const deadline = Date.now() + 120000;
     while (Date.now() < deadline) {
       const v = await call(path), status = pick(v);
@@ -27,14 +30,14 @@ export async function seedDerivedAcceptance(directory, origin, options = {}) {
     throw new Error(`${path} did not reach ${desired}`);
   };
   try {
-    requireAuthenticatedLogin(await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' }));
+    requireAuthenticatedLogin(await call('/auth/login', adminLogin));
     const invitation = await call('/invitations', { note: '方案25.1合成验收账号' });
     const token = new URLSearchParams(new URL(invitation.url).hash.slice(1)).get('token');
     await call('/auth/logout', {});
     const user = { username: `derived_${randomBytes(5).toString('hex')}`, display_name: '派生监测验收', password: randomBytes(24).toString('base64url') };
     await call('/public/invitations/accept', { token, ...user });
     writeFileSync(join(directory, 'login.json'), JSON.stringify({ ...user, url: origin, synthetic: true }, null, 2), { mode: 0o600 });
-    requireAuthenticatedLogin(await call('/auth/login', { username: 'e2e_owner', password: 'Real browser 河流 secret 592' }));
+    requireAuthenticatedLogin(await call('/auth/login', adminLogin));
     const publish = async (kind, code, content) => {
       const draft = await call(`/platform/engineering/${kind}`, { request_id: randomUUID(), reason: '合成验收量纲', code, content: { metamodel_version: '1', description: '方案25.1独立合成样本', release_notes: '', ...content } });
       return call(`/platform/engineering/${kind}/${draft.definition_id}/publish`, { request_id: randomUUID(), reason: '固定验收版本', revision: draft.revision });
@@ -91,11 +94,21 @@ export async function seedDerivedAcceptance(directory, origin, options = {}) {
       const end = Date.now() + 120000;
       let generations;
       do {
-        generations = await call(`${path}/generations?from_ns=${range.from_ns}&to_ns=${range.to_ns}`);
+        const list = `${path}/generations?from_ns=${range.from_ns}&to_ns=${range.to_ns}`;
+        generations = pairedRun ? await client.wait(api+list,headers,v=>v.items.length>0,true) : await call(list);
         if (generations.items.length) break;
         await new Promise(resolve => setTimeout(resolve, 500));
       } while (Date.now() < end);
       if (!generations.items.length) throw new Error(`${code}: automatic publication did not finish`);
+      // A_MINUS_B starts half an hour before the first sample. Its enabled
+      // interval spans two daily budget partitions. Wait for the empty tail
+      // too, so the next trial freezes the same committed source position.
+      if(pairedRun && options.autoStart){
+        const tail='1704151800000000000';
+        const list=`${path}/generations?from_ns=${tail}&to_ns=1704153600000000000`;
+        const last=await client.wait(api+list,headers,v=>v.items.some(g=>g.output_range.to_ns==='1704153600000000000'&&g.row_count==='0'),true);
+        if(last.items.length!==1)throw Error('Unexpected generation at the final empty partition');
+      }
       const rows = await call(`${derived}/generations/${generations.items[0].id}/query`, {});
       const canonical = value => value.includes('.') ? value.replace(/0+$/, '').replace(/\.$/, '') : value;
       const values = rows.items.map(row => row.value === null ? null : canonical(row.value));

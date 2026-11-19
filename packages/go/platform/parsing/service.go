@@ -10,10 +10,11 @@ import (
 )
 
 type Service struct {
-	access  *access.Service
-	options Options
-	objects ObjectStore
-	ingress AdoptionCompatibility
+	access           *access.Service
+	options          Options
+	objects          ObjectStore
+	ingress          AdoptionCompatibility
+	machineAdmission localMachineAdmission
 }
 
 func New(a *access.Service) *Service                            { return &Service{access: a, options: DefaultOptions()} }

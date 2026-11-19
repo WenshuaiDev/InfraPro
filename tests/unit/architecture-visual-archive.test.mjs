@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { test } from 'node:test';
+import { archiveNaturalVisualAttempt } from '../../scripts/architecture-visual-read-order.mjs';
+
+test('preserves different observations and screenshot bytes for the same browser input', (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'infrapro-visual-history-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const source = join(dir, 'source'), output = join(dir, 'natural');
+  const row = { key: 'console-1440-001', viewport: { width: 1440, height: 1000 }, passed: true };
+  const captured = join(source, row.key);
+  mkdirSync(captured, { recursive: true });
+  const matrix = (status) => JSON.stringify({ identity: 'same-frozen-input', measuredStatus: status });
+  writeFileSync(join(source, 'matrix.json'), matrix(503));
+  writeFileSync(join(captured, 'live.png'), 'original capture');
+  writeFileSync(join(captured, 'live.json'), '{"aria":"temporary failure"}');
+  const first = archiveNaturalVisualAttempt(source, output, [row]);
+  writeFileSync(join(source, 'matrix.json'), matrix(200));
+  writeFileSync(join(captured, 'live.png'), 'success capture');
+  writeFileSync(join(captured, 'live.json'), '{"aria":"records"}');
+  const second = archiveNaturalVisualAttempt(source, output, [row]);
+  assert.notEqual(first.naturalMatrixSHA256, second.naturalMatrixSHA256);
+  assert.equal(readFileSync(first.naturalMatrix, 'utf8'), matrix(503));
+  assert.equal(readFileSync(second.naturalMatrix, 'utf8'), matrix(200));
+  assert.equal(readFileSync(join(dirname(first.naturalMatrix), row.key + '-live.png'), 'utf8'), 'original capture');
+  assert.equal(readFileSync(join(dirname(second.naturalMatrix), row.key + '-live.json'), 'utf8'), '{"aria":"records"}');
+  assert.deepEqual(archiveNaturalVisualAttempt(source, output, [row]), second);
+  writeFileSync(join(captured, 'live.png'), 'different pixels');
+  const changedImage = archiveNaturalVisualAttempt(source, output, [row]);
+  assert.equal(second.naturalMatrixSHA256, changedImage.naturalMatrixSHA256);
+  assert.notEqual(second.naturalArtifactsSHA256, changedImage.naturalArtifactsSHA256);
+  assert.equal(readFileSync(join(dirname(second.naturalMatrix), row.key + '-live.png'), 'utf8'), 'success capture');
+});

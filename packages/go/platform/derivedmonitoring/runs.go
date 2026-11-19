@@ -210,8 +210,16 @@ func (s *Service) ChannelTrial(ctx context.Context, a access.Actor, scope Scope,
 	replayed := out.Replayed
 	// The full target remains queued if its duration/input/time budget exceeds
 	// the interactive allowance. No truncated prefix is reported as a trial.
-	if !replayed && output.To != nil && output.From >= *output.To-int64(s.options.TrialRange) {
-		_, _ = s.monitoring.RunInteractiveTask(context.WithValue(ctx, inlineTrialKey{}, true), "inline-trial-"+uuid.NewString(), scope.Tenant, out.Job.ID, s.options.TrialDeadline)
+	if !replayed && output.To != nil && uint64(*output.To)-uint64(output.From) <= uint64(s.options.TrialRange) {
+		attempt := s.trialAttempt
+		if attempt == nil {
+			attempt = s.AttemptTrial
+		}
+		deadline := time.Now().Add(s.options.TrialDeadline)
+		claimed, _ := attempt(ctx, scope.Tenant, out.Job.ID, s.options.TrialDeadline)
+		if !claimed && s.trialAttempt != nil && time.Now().Before(deadline) {
+			s.waitClaimedTrial(ctx, scope.Tenant, out.Job.ID, deadline)
+		}
 	}
 	result, e := s.readRun(ctx, a, scope, out.ID, "channels.trials")
 	result.Replayed = replayed

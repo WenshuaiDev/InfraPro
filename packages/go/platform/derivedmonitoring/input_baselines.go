@@ -24,7 +24,7 @@ func (s *Service) checkFixedInputsTx(ctx context.Context, tx pgx.Tx, auth inputA
 	state.Changed = state.Revoked
 	return state, e
 }
-func (s *Service) authorizeFixedBaselineTx(ctx context.Context, tx pgx.Tx, auth inputAccess, fixed fixedBaseline) error {
+func (s *Service) authorizeFixedBaselineTx(ctx context.Context, tx pgx.Tx, auth inputAccess, fixed baselineMetadata) error {
 	ledger, found, e := loadInputSourcesTx(ctx, tx, auth.Scope.Tenant, fixed.Snapshot.ID)
 	if e != nil {
 		return e
@@ -49,7 +49,7 @@ func (s *Service) authorizeFixedBaselineTx(ctx context.Context, tx pgx.Tx, auth 
 	}
 	return e
 }
-func (s *Service) checkFixedBaselineHistoryTx(ctx context.Context, tx pgx.Tx, auth inputAccess, fixed fixedBaseline) (monitoring.RawSnapshotState, error) {
+func (s *Service) checkFixedBaselineHistoryTx(ctx context.Context, tx pgx.Tx, auth inputAccess, fixed baselineMetadata) (monitoring.RawSnapshotState, error) {
 	auth.History = true
 	if e := s.authorizeFixedBaselineTx(ctx, tx, auth, fixed); e != nil {
 		return monitoring.RawSnapshotState{}, e

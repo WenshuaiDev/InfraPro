@@ -6,6 +6,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -40,52 +41,89 @@ func (s *Service) Check(ctx context.Context) error {
 		return checkProjection(ctx, tx)
 	})
 }
-func checkProjection(ctx context.Context, tx pgx.Tx) error {
-	var count int
-	if e := tx.QueryRow(ctx, "SELECT count(*) FROM permission_catalog").Scan(&count); e != nil {
-		return e
-	}
-	if count != len(Catalog()) {
-		return ErrCatalog
-	}
+
+// Ready takes the authorization lock on every authenticated request. Compare
+// the complete projection in two result sets so an additional process hop
+// does not multiply hundreds of catalog round trips. Only compiled release
+// constants are retained; database state is read again on every invocation.
+var expectedPermissions = sync.OnceValue(func() map[Code]Permission {
+	out := map[Code]Permission{}
 	for _, p := range Catalog() {
-		var actual Permission
+		out[p.Code] = p
+	}
+	return out
+})
+var expectedBuiltins = sync.OnceValue(func() map[string]Builtin {
+	out := map[string]Builtin{}
+	for _, b := range Builtins() {
+		b.Permissions = slices.Clone(b.Permissions)
+		slices.Sort(b.Permissions)
+		out[b.Key] = b
+	}
+	return out
+})
+
+func checkProjection(ctx context.Context, tx pgx.Tx) error {
+	permissions := expectedPermissions()
+	rows, err := tx.Query(ctx, `SELECT code,name,group_name,scope,description,risk,lifecycle,tenant_custom_role_assignable,project_custom_role_assignable,catalog_version FROM permission_catalog`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	count := 0
+	for rows.Next() {
+		var p Permission
 		var version string
-		e := tx.QueryRow(ctx, "SELECT code,name,group_name,scope,description,risk,lifecycle,tenant_custom_role_assignable,project_custom_role_assignable,catalog_version FROM permission_catalog WHERE code=$1", p.Code).Scan(&actual.Code, &actual.Name, &actual.Group, &actual.Scope, &actual.Description, &actual.Risk, &actual.Lifecycle, &actual.TenantCustomRoleAssignable, &actual.ProjectCustomRoleAssignable, &version)
-		if e != nil {
-			return e
+		if err := rows.Scan(&p.Code, &p.Name, &p.Group, &p.Scope, &p.Description, &p.Risk, &p.Lifecycle, &p.TenantCustomRoleAssignable, &p.ProjectCustomRoleAssignable, &version); err != nil {
+			return err
 		}
-		if actual != p || version != Checksum() {
+		expected, ok := permissions[p.Code]
+		if !ok || expected != p || version != Checksum() {
 			return ErrCatalog
 		}
+		count++
 	}
-	var builtins int
-	if e := tx.QueryRow(ctx, "SELECT count(*) FROM roles WHERE builtin_key IS NOT NULL").Scan(&builtins); e != nil {
-		return e
+	if err := rows.Err(); err != nil {
+		return err
 	}
-	if builtins != len(Builtins()) {
+	if count != len(permissions) {
 		return ErrCatalog
 	}
-	for _, b := range Builtins() {
-		var id string
-		if e := tx.QueryRow(ctx, "SELECT id::text FROM roles WHERE builtin_key=$1 AND deleted_at IS NULL", b.Key).Scan(&id); e != nil {
-			return e
+	roles := expectedBuiltins()
+	rows, err = tx.Query(ctx, `SELECT r.builtin_key,r.name,r.description,r.assignment_policy,r.binding_scope,r.status,
+  r.owner_tenant_id IS NULL AND r.deleted_at IS NULL,
+  ARRAY(SELECT rp.permission_code FROM role_permissions rp WHERE rp.role_id=r.id ORDER BY rp.permission_code)
+  FROM roles r WHERE r.builtin_key IS NOT NULL`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	count = 0
+	for rows.Next() {
+		var role Builtin
+		var status string
+		var unowned bool
+		if err := rows.Scan(&role.Key, &role.Name, &role.Description, &role.AssignmentPolicy, &role.BindingScope, &status, &unowned, &role.Permissions); err != nil {
+			return err
 		}
-		r, e := roleTx(ctx, tx, id)
-		if e != nil {
-			return e
-		}
-		a := slices.Clone(b.Permissions)
-		slices.Sort(a)
-		if r.OwnerTenantID != "" || r.AssignmentPolicy != b.AssignmentPolicy || r.BindingScope != b.BindingScope || r.Name != b.Name || r.Description != b.Description || r.Status != "active" || !slices.Equal(r.Permissions, a) {
+		expected, ok := roles[role.Key]
+		if !ok || !unowned || status != "active" || role.Name != expected.Name || role.Description != expected.Description || role.AssignmentPolicy != expected.AssignmentPolicy || role.BindingScope != expected.BindingScope || !slices.Equal(role.Permissions, expected.Permissions) {
 			return ErrCatalog
 		}
+		count++
 	}
-	if e := CheckTenantStructure(ctx, tx); e != nil {
-		return e
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	if count != len(roles) {
+		return ErrCatalog
+	}
+	if err := CheckTenantStructure(ctx, tx); err != nil {
+		return err
 	}
 	return CheckProjectStructure(ctx, tx)
 }
+
 func (s *Service) RecoverAdmin(ctx context.Context, username, reason string) error {
 	if e := ValidReason(reason); e != nil {
 		return e

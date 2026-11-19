@@ -11,6 +11,8 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/privateapi"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	accesshttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/access"
 	audithttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/audit"
 	classificationhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/classification"
@@ -44,6 +46,31 @@ import (
 )
 
 func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config, storage ...*monitoring.Storage) http.Handler {
+	return OwnerRouter(logger, service, cfg, "", privateapi.LocalVerify(service), nil, storage...)
+}
+
+func OwnerRouter(logger *slog.Logger, service *identity.Service, cfg config.Config, owner string, verify privateapi.VerifyFunc, configure func(runtime.Business), storage ...*monitoring.Storage) http.Handler {
+	handler, _ := buildRouter(logger, service, cfg, owner, verify, configure, storage...)
+	return handler
+}
+
+// RegisteredOperations exports what Gin actually mounted, including hand-written
+// handlers absent from an OpenAPI source. Constructing this graph needs no I/O.
+func RegisteredOperations(owner string) []routes.Operation {
+	service := &identity.Service{}
+	_, registry := buildRouter(slog.Default(), service, config.Config{}, owner, privateapi.LocalVerify(service), nil)
+	ops := make([]routes.Operation, 0, len(registry))
+	for _, r := range registry {
+		op, ok := routes.Lookup(r.Method, r.Path)
+		if !ok {
+			panic("unassigned Gin operation: " + r.Method + " " + r.Path)
+		}
+		ops = append(ops, op)
+	}
+	return ops
+}
+
+func buildRouter(logger *slog.Logger, service *identity.Service, cfg config.Config, owner string, verify privateapi.VerifyFunc, configure func(runtime.Business), storage ...*monitoring.Storage) (http.Handler, gin.RoutesInfo) {
 	var calculationReady func(context.Context) error
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -67,7 +94,8 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 				identityhttp.RespondError(c, identity.ErrUnavailable)
 				return
 			}
-			handler.Guard(c)
+			verifyPrincipal(c, verify)
+			c.Next()
 			return
 		}
 		if policy.Class == "public" || policy.Class == "credential" {
@@ -79,17 +107,10 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 			return
 		}
 		// Guard does not run downstream until the explicit operation check has passed.
-		if e := service.Ready(c.Request.Context()); e != nil {
-			identityhttp.RespondError(c, e)
+		p, ok := verifyPrincipal(c, verify)
+		if !ok {
 			return
 		}
-		token, _ := c.Cookie(identityhttp.SessionCookie)
-		p, e := service.Authenticate(c.Request.Context(), token)
-		if e != nil {
-			identityhttp.RespondError(c, e)
-			return
-		}
-		identityhttp.SetPrincipal(c, p)
 		c.Request = c.Request.WithContext(access.WithTransport(c.Request.Context(), c.Request.Method, c.Writer.Header().Get("X-Request-ID")))
 		c.Request = c.Request.WithContext(access.WithOperation(c.Request.Context(), service.Access(), p.Account.ID, policy.Operation, c.Writer.Header().Get("X-Request-ID")))
 		if policy.Class == "permission" || policy.Class == "permission_any" || policy.Class == "tenant" {
@@ -106,10 +127,11 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		}
 		c.Next()
 	})
-	r.GET("/healthz", func(c *gin.Context) {
+	registry := routes.New(r, owner)
+	registry.GET("/healthz", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
-	r.GET("/readyz", func(c *gin.Context) {
+	registry.GET("/readyz", func(c *gin.Context) {
 		if service == nil {
 			identityhttp.RespondError(c, identity.ErrUnavailable)
 			return
@@ -127,45 +149,61 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 	if service != nil {
-		handler.Register(r)
-		accesshttp.Register(r, service)
-		projectshttp.Register(r, service, projects.New(service.Access()))
-		business := runtime.Compose(service.Access(), storage...).Configure(cfg)
-		if len(storage) > 0 && storage[0] != nil {
-			calculationReady = business.DerivedMonitoring.Ready
-		}
-		audithttp.Register(r, service, business.Audit)
-		fileshttp.Register(r, service, business.Files)
-		displayhttp.Register(r, service, business.Displays)
-		spatialhttp.Register(r, service, business.Spatial)
-		monitoringhttp.Register(r, service, business.Monitoring)
-		derivedmonitoringhttp.Register(r, service, business.DerivedMonitoring)
-		resourceshttp.Register(r, service, business.Resources)
-		engineeringhttp.Register(r, service, business.Engineering)
-		devicecataloghttp.Register(r, service, business.DeviceCatalog)
-		classificationhttp.Register(r, service, business.Classification)
-		deviceshttp.Register(r, service, business.Devices)
-		parsinghttp.Register(r, service, business.Parsing)
-		ingestionhttp.Register(r, service, business.Ingestion)
-		sourceshttp.Register(r, service, business.Sources)
+		handler.Register(registry)
+		accesshttp.Register(registry, service)
+		projectshttp.Register(registry, service, projects.New(service.Access()))
 		tenantService := tenancy.New(service.Access(), tenancy.Options{ConsoleURL: cfg.PublicConsoleURL, Limit: service.Limit, CredentialLimit: service.Rate})
-		tenancyhttp.Register(r, service, tenantService)
-		notificationshttp.Register(r, service, runtime.ComposeNotifications(service.Access()), tenantService)
-		taskService := runtime.ComposeTasks(service.Access(), business)
-		if cfg.Tasks.PageSize > 0 {
-			taskService.WithOptions(tasks.Options(cfg.Tasks))
-		}
-		taskshttp.Register(r, service, taskService)
-		for _, route := range r.Routes() {
-			if _, ok := access.RoutePolicy(route.Method, route.Path); !ok {
-				panic("route lacks authorization policy: " + route.Method + " " + route.Path)
+		tenancyhttp.Register(registry, service, tenantService)
+		notificationshttp.Register(registry, service, runtime.ComposeNotifications(service.Access()), tenantService)
+		if owner != config.Identity {
+			business := runtime.Compose(service.Access(), storage...).Configure(cfg)
+			if configure != nil {
+				configure(business)
 			}
+			if len(storage) > 0 && storage[0] != nil {
+				calculationReady = business.DerivedMonitoring.Ready
+			}
+			audithttp.Register(registry, service, business.Audit)
+			fileshttp.Register(registry, service, business.Files)
+			displayhttp.Register(registry, service, business.Displays)
+			spatialhttp.Register(registry, service, business.Spatial)
+			monitoringhttp.Register(registry, service, business.Monitoring)
+			derivedmonitoringhttp.Register(registry, service, business.DerivedMonitoring)
+			resourceshttp.Register(registry, service, business.Resources)
+			engineeringhttp.Register(registry, service, business.Engineering)
+			devicecataloghttp.Register(registry, service, business.DeviceCatalog)
+			classificationhttp.Register(registry, service, business.Classification)
+			deviceshttp.Register(registry, service, business.Devices)
+			parsinghttp.Register(registry, service, business.Parsing)
+			ingestionhttp.Register(registry, service, business.Ingestion)
+			sourceshttp.Register(registry, service, business.Sources)
+			taskService := runtime.ComposeTasks(service.Access(), business)
+			if cfg.Tasks.PageSize > 0 {
+				taskService.WithOptions(tasks.Options(cfg.Tasks))
+			}
+			taskshttp.Register(registry, service, taskService)
 		}
+		registry.Check()
 	}
 	r.NoRoute(func(c *gin.Context) { identityhttp.RespondError(c, identity.ErrNotFound) })
 	r.NoMethod(func(c *gin.Context) {
 		identityhttp.RespondError(c, &identity.Error{Code: "method_not_allowed", Message: "请求方法不支持。", Status: 405})
 	})
+	return publicHTTP(cfg, r), r.Routes()
+}
+
+func verifyPrincipal(c *gin.Context, verify privateapi.VerifyFunc) (identity.Principal, bool) {
+	token, _ := c.Cookie(identityhttp.SessionCookie)
+	p, e := verify(privateapi.SessionRoute(c.Request.Context(), c.Request.Method, c.FullPath()), token)
+	if e != nil {
+		identityhttp.RespondError(c, e)
+		return p, false
+	}
+	identityhttp.SetPrincipal(c, p)
+	return p, true
+}
+
+func publicHTTP(cfg config.Config, r http.Handler) http.Handler {
 	origins := []string{}
 	for _, o := range cfg.TrustedOrigins {
 		u, _ := url.Parse(o)
@@ -175,7 +213,11 @@ func NewRouter(logger *slog.Logger, service *identity.Service, cfg config.Config
 		writeError(w, 403, "csrf_invalid", "页面验证已过期，请刷新验证后重新提交。")
 	})))(r)
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		id := rand.Text()
+		id := privateapi.Trace(req.Context())
+		if id == "" {
+			id = rand.Text()
+		}
+		req = req.WithContext(privateapi.WithTrace(req.Context(), id))
 		w.Header().Set("X-Request-ID", id)
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -197,4 +239,12 @@ func writeError(w http.ResponseWriter, status int, code, message string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(map[string]string{"code": code, "message": message, "request_id": w.Header().Get("X-Request-ID")})
+}
+
+// Gin serializes domain errors without a trailing newline.
+func ginError(w http.ResponseWriter, e *identity.Error) {
+	b, _ := json.Marshal(gin.H{"code": e.Code, "message": e.Message, "request_id": w.Header().Get("X-Request-ID")})
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(e.Status)
+	_, _ = w.Write(b)
 }

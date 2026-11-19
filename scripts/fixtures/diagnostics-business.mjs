@@ -40,7 +40,10 @@ export async function prepareBusiness(lab) {
   for (const id of ownedContainers(lab)) { checkContainerOwnership(lab, id); const value = JSON.parse(command('docker', ['inspect', '--format', '{"id":{{json .Id}},"image":{{json .Image}},"configured_image":{{json .Config.Image}},"memory_limit":{{json .HostConfig.Memory}},"cpu_limit":{{json .HostConfig.NanoCpus}}}', id])); actual.push(value); }
   privateJSON(join(lab.directory, 'evidence/container-versions.json'), { type: 'real-container', architecture: process.arch, containers: actual });
   for (const name of ['monitoring', 'files', 'audit', 'spatial', 'checker']) mkdirSync(join(lab.directory, name), { mode: 0o700 });
+  const keyring = join(lab.directory, 'mfa-keyring.json');
+  privateJSON(keyring, { format_version: 1, active_key_id: 'lab', keys: [{id: 'lab', key_base64: randomBytes(32).toString('base64')}] });
   const business = {
+    mfa_keyring_file: keyring,
     support_contact: "diagnostics-lab@example.test",
     database_url: `postgres://diagnostics_lab:${passwords.postgres}@127.0.0.1:${lab.ports.postgres}/diagnostics_lab`, redis_url: `redis://:${passwords.redis}@127.0.0.1:${lab.ports.redis}/0`, redis_key_prefix: `infrapro:${lab.run_id}:identity:v1:`, http_addr: `127.0.0.1:${lab.ports.api}`, public_console_url: `http://127.0.0.1:${lab.ports.web}`, trusted_origins: `http://127.0.0.1:${lab.ports.web}`, csrf_auth_key: randomBytes(32).toString('hex'),
     monitoring_clickhouse_replicas: `127.0.0.1:${lab.ports.clickhouse},127.0.0.1:${lab.ports.clickhouse2}`, monitoring_clickhouse_database: 'diagnostics_monitoring', monitoring_clickhouse_user: 'default', monitoring_clickhouse_password: passwords.clickhouse, monitoring_clickhouse_policy: 'monitoring_tiered', monitoring_object_endpoint: `http://127.0.0.1:${lab.ports.s3}`, monitoring_object_access_key: 'diagnostics-lab', monitoring_object_secret_key: passwords.s3, monitoring_source_bucket: 'diagnostics-source', monitoring_temp_directory: join(lab.directory, 'monitoring'),
@@ -55,7 +58,11 @@ export async function prepareBusiness(lab) {
   const s3Credential=join(lab.directory,'lab-s3.json');privateJSON(s3Credential,{schema_version:1,kind:'s3',access_key_id:'diagnostics-lab',secret_access_key:passwords.s3});
   let bucketsReady=false;for(let i=0;i<30;i++){try{command(lab.helper,['buckets',business.monitoring_object_endpoint,s3Credential]);bucketsReady=true;break;}catch{await sleep(1000);}}if(!bucketsReady)throw Error('Owned S3 buckets did not initialize');
   let initialized = false; for (let attempt = 0; attempt < 30; attempt++) { try { maintenance(['monitoring', 'storage', 'init']); initialized = true; break; } catch { await sleep(1000); } } if (!initialized) throw Error('Owned monitoring storage did not initialize');
-  const catalog = readJSON(join(root, 'contracts/diagnostics/runtime-catalog.json')).entries.filter((c) => c.entry_point?.startsWith('services/api/cmd/'));
+  const roles = readJSON(join(root, 'deploy/architecture/roles.json')).roles;
+  // This fixture exercises the compatible business topology; the split executable
+  // and its independent observer are validated by diagnostics-architecture-check.
+  const catalog = readJSON(join(root, 'contracts/diagnostics/runtime-catalog.json')).entries.filter((c) =>
+    c.entry_point?.startsWith('services/api/cmd/') && ['both', 'compat'].includes(roles[c.id]?.mode) && c.default_expectation === 'continuous');
   const binaries = join(lab.directory, 'bin'); mkdirSync(binaries, { mode: 0o700 });
   for (const c of catalog) { console.log(`Building owned runtime ${c.id}`); execFileSync('go', ['build', '-trimpath', '-ldflags', `-X github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport.BuildID=${lab.run_id}`, '-o', join(binaries, c.id), `./services/api/cmd/${c.id}`], { cwd: root, stdio: 'inherit' }); }
   const manifest = readJSON(lab.manifest_file); const bindingFile = join(lab.directory, 'native-a/bindings.json'); const b = readJSON(bindingFile);

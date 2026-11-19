@@ -348,3 +348,34 @@ func TestExpiryMaintenancePersistsOnceWithoutOpeningInvitation(t *testing.T) {
 		t.Fatal("expired invitation accepted")
 	}
 }
+
+func TestKeyedDeliveryChecksScopeAndOnlyAdvancesReferencedIntent(t *testing.T) {
+	f := setup(t)
+	first := f.emit(t, event(f.a.ID))
+	second := f.emit(t, event(f.b.ID))
+	for _, v := range []struct {
+		version int64
+		scope   string
+	}{{2, "platform"}, {1, uuid.NewString()}} {
+		if _, err := f.s.DeliverEvent(ctx, first, v.version, v.scope); !errors.Is(err, pgx.ErrNoRows) {
+			t.Fatal("bad notification fact accepted", err)
+		}
+	}
+	for range 2 {
+		pending, err := f.s.DeliverEvent(ctx, second, 1, "platform")
+		must(t, err)
+		if pending {
+			t.Fatal("finished intent still pending")
+		}
+	}
+	var a, b int
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FILTER(WHERE event_id=$1),count(*) FILTER(WHERE event_id=$2) FROM account_notifications`, first, second).Scan(&a, &b))
+	if a != 0 || b != 1 {
+		t.Fatal("unrelated or duplicate inbox effect", a, b)
+	}
+	f.drain(t)
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM account_notifications WHERE event_id=$1`, first).Scan(&a))
+	if a != 1 {
+		t.Fatal("PG reconciliation missed the unhinted intent")
+	}
+}

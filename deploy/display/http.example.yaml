@@ -19,3 +19,7 @@ display:
   max_package_jobs: '8'
   max_result_bytes: '8388608'
   max_file_bytes: '4194304'
+
+# Split installation uses the same three origin addresses. The shell process
+# receives its own INFRAPRO_ARCHITECTURE_FILE and display-runtime certificate.
+# display-assets binds the configured asset_addr with the sealed-prefix identity.

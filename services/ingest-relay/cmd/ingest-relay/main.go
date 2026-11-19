@@ -73,6 +73,7 @@ func run() (result error) {
 		_, e = pool.Exec(ctx, `UPDATE relay_state SET spool_epoch=$1 WHERE id=1`, uuid.NewString())
 		return e
 	case "serve":
+		diagnosticreport.SetMetric(reporter, "quota.pg_connections", int64(pool.Config().MaxConns))
 	default:
 		return fmt.Errorf("unknown command")
 	}

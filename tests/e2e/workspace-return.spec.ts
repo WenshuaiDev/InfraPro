@@ -47,7 +47,7 @@ test('tenant and project monitoring return survives notifications, settings and 
     await expect(back).toHaveAttribute('href', source.replace(consoleURL, ''));
     await expect(back).toHaveAccessibleName(`返回工作台：${name} · 监测浏览`);
     await page.getByRole('button', { name: /^通知，/ }).click();
-    await page.getByRole('link', { name: '通知接收设置', exact: true }).click();
+    await page.getByRole('dialog', { name: /^通知(?:\s|$)/ }).getByRole('link', { name: '通知接收设置', exact: true }).click();
     await expect(page).toHaveURL(`${consoleURL}/notifications/preferences`);
     await page.getByRole('link', { name: /^任务中心/ }).click();
     await expect(page.getByRole('heading', { name: '任务中心', exact: true })).toBeVisible();

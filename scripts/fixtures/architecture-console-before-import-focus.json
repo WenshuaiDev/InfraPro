@@ -1,0 +1,64 @@
+{
+  "description": "冻结的第一份共用控制台。使用同一组仪器核验后续监测导入回焦修正。",
+  "frozenReleaseSHA256": "cf757341bc3c429d49147611e019c21a643aad36ef54b57aa9ffabb00cedaaa3",
+  "issuerReleaseSHA256": "c0583da0ac5c9b6e66cbff50a264c79bcac1b91d83fb0f04863f6d6388252298",
+  "consoleSHA256": "b5ded7f1404a6f6aff17a3919a9ce8dd9c5fba4873fdab6c0d0b75939cde3ab4",
+  "files": 554,
+  "sourceChanges": [
+    {
+      "path": "apps/console/src/features/projects/governance-page.tsx",
+      "before": "f5aec2bf6815b9696a5d0f643a88766cd58cd0c71f6ba0bb28cf7c20fc4a6c18",
+      "after": "ab438e3413ef1eacdc2f5ecf7554f31c39e7aa0ac7415f1bbc80f1dadc5c7f19"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/context.tsx",
+      "before": "96ea05f43426acc940897535175a0d242fe6961b977bdf7465584627008f2631",
+      "after": "fb8a203df7fcbbed240cce8db9ce8965e71dfe218442eade211d9c8980f01fbf"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/directory-action.ts",
+      "before": null,
+      "after": "48bc7a332203b79438f2105b9a8cf546e6eef3276a0b9586898f5e040f881198"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/invitation-actions.tsx",
+      "before": "41f65d3ac2b0a53a02608d9c127677846570f8de891ff5e3374ad500b164dd9d",
+      "after": "486bf4aa25dfc3254697e0bc6f748f1b3e90d4ed42ab4ea9d2ba00c137c22036"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/invitations-page.tsx",
+      "before": "ec9befa23d10dfc800aa658b91dafff43e5d37a3e3dbfbe0b3f918cb44438433",
+      "after": "6d98a705b5cc1c56f355ac930f3c49a9e4a0798c37e01433257f8f6458c313c2"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/member-actions.tsx",
+      "before": "e15c9bed87e3e1074a85311d56feea4948cc68fb40412a8d59d75c1fce1059f9",
+      "after": "032f1afa7335c0611bf64fcb22a06ed386b68d88e01a92ec10fafa9c6b097a08"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/members-page.tsx",
+      "before": "4bf626afc57187440636f704008feeccd73c177f8ee5a37256bf0f784eb15135",
+      "after": "2381715e28494a860d4e0fdf421aff9233a9151e6635425a79b55fc911fe196f"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/membership-shared.tsx",
+      "before": "a9c2c33f5088a6fe9dcfec3b79958546201e09a7b2487b949df935758200cadd",
+      "after": "c679df372a5bd947566bb107b490dc613c2caca3aed43aa7c39ea8ec8fa42ae1"
+    },
+    {
+      "path": "apps/console/src/features/tenancy/membership-ui.tsx",
+      "before": "374c11a0c8539248916a9e36abce9fd4a260dd2052a5f1209f4ee80ee768ed60",
+      "after": "fced269b8e39f335dff308a5c165598e9f3b7bdb7c4567ba075068307bb2aeb3"
+    },
+    {
+      "path": "apps/console/src/hooks/use-cursor-list.ts",
+      "before": "fb5d48720eb98257532e554a27683790c01f0dfa2746712b75c3a1bc7077cee1",
+      "after": "2534a07a01959dceae0158c729a6aed2c166ae86882e600a0659f4151300f4f3"
+    },
+    {
+      "path": "packages/ts/ui/src/hooks/use-paged-query.tsx",
+      "before": "da85763ffa0d3f8207f0c9c52564531b30fd46d6da55c56e85d6c38dc9be1242",
+      "after": "0c4c844cfa8b3b0e9f2224befda2cbaea32b020e923761ebe7a9532c6e2420c5"
+    }
+  ]
+}

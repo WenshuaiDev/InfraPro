@@ -1,6 +1,7 @@
 package monitoringhttp
 
 import (
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"mime"
 	"net/http"
 	"strconv"
@@ -23,7 +24,7 @@ func bind[T any, R any](c *gin.Context, status int, call func(T) (R, error)) {
 	out, e := call(in)
 	reply(c, status, out, e)
 }
-func registerData(r *gin.Engine, i *identity.Service, s *md.Service) {
+func registerData(r routes.Registrar, i *identity.Service, s *md.Service) {
 	implemented := map[string]bool{}
 	for _, name := range []string{"exports.create", "exports.files", "exports.download", "points.list", "channels.list", "channels.directory", "overview", "latest", "statistics", "trends", "imports.list", "imports.detail", "imports.create", "upload.part", "upload.complete", "imports.mapping", "imports.validate", "imports.publish", "imports.issues", "imports.resolve", "imports.cancel", "imports.retry", "imports.readopt", "batches.detail", "batches.preview", "batches.revoke", "sources.download", "jobs.list", "jobs.detail", "jobs.cancel", "selections.create", "details", "snapshots.renew"} {
 		implemented[name] = true

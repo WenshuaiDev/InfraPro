@@ -1,0 +1,951 @@
+{
+  "version": 1,
+  "freezeOrder": [
+    "ingress",
+    "edge",
+    "http",
+    "worker",
+    "events",
+    "checker",
+    "broker",
+    "diagnostics"
+  ],
+  "privatePorts": {
+    "identity-api": 18441,
+    "control-api": 18442,
+    "monitoring-query-api": 18443,
+    "transfer-api": 18444,
+    "monitoring-incremental-worker": 18445,
+    "compat-api": 18446,
+    "api": 18447
+  },
+  "roles": {
+    "api": {
+      "binary": "api",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "ingress",
+      "listener": "public-http + private-mtls-health",
+      "callers": [
+        "console",
+        "nginx",
+        "cli"
+      ],
+      "dependencies": [
+        "identity-api",
+        "control-api",
+        "monitoring-query-api",
+        "transfer-api"
+      ],
+      "sqlRole": "compatibility API login when architecture file absent",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 192,
+      "tempMiB": 32,
+      "maxInflight": 128,
+      "stopSeconds": 40,
+      "systemUser": "infrapro-api"
+    },
+    "identity-api": {
+      "binary": "identity-api",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "http",
+      "listener": "private-mtls",
+      "callers": [
+        "api",
+        "control-api",
+        "monitoring-query-api",
+        "transfer-api"
+      ],
+      "dependencies": [
+        "pg",
+        "redis",
+        "files"
+      ],
+      "sqlRole": "infrapro_identity_api",
+      "pgConnections": 8,
+      "objects": {
+        "files:account-avatars/v1/": "rd"
+      },
+      "cpu": 1,
+      "memoryMiB": 256,
+      "tempMiB": 32,
+      "maxInflight": 24,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-identity-api"
+    },
+    "control-api": {
+      "binary": "control-api",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "http",
+      "listener": "private-mtls",
+      "callers": [
+        "api"
+      ],
+      "dependencies": [
+        "pg",
+        "redis",
+        "identity-api",
+        "monitoring-incremental-worker",
+        "files",
+        "source",
+        "parsing",
+        "parser",
+        "ch"
+      ],
+      "sqlRole": "infrapro_control_api",
+      "pgConnections": 12,
+      "objects": {
+        "files:files/v1/": "rwd",
+        "source:display/": "rwd",
+        "source:spatial/": "rwd",
+        "parsing:ingestion/": "r",
+        "parsing:parsing/": "r",
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 768,
+      "tempMiB": 1024,
+      "maxInflight": 32,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-control-api"
+    },
+    "monitoring-query-api": {
+      "binary": "monitoring-query-api",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "http",
+      "listener": "private-mtls",
+      "callers": [
+        "api",
+        "display-runtime"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "identity-api",
+        "source"
+      ],
+      "sqlRole": "infrapro_query_api",
+      "pgConnections": 10,
+      "objects": {
+        "source:spatial/": "r",
+        "source:*/sources/": "r",
+        "source:*/uploads/": "r",
+        "source:*/summaries/": "r",
+        "source:*/exports/": "r",
+        "source:*/derived/": "r",
+        "source:*/analysis/": "r"
+      },
+      "cpu": 2,
+      "memoryMiB": 640,
+      "tempMiB": 256,
+      "maxInflight": 24,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-monitoring-query-api"
+    },
+    "transfer-api": {
+      "binary": "transfer-api",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "http",
+      "listener": "private-mtls",
+      "callers": [
+        "api"
+      ],
+      "dependencies": [
+        "pg",
+        "redis",
+        "ch",
+        "source",
+        "files",
+        "audit",
+        "parsing",
+        "identity-api"
+      ],
+      "sqlRole": "infrapro_transfer_api",
+      "pgConnections": 10,
+      "objects": {
+        "files:files/v1/": "rwd",
+        "files:account-avatars/v1/": "rwd",
+        "audit:audit-exports/": "r",
+        "source:display/": "rwd",
+        "source:spatial/": "rwd",
+        "parsing:ingestion/": "r",
+        "parsing:parsing/": "rw",
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 768,
+      "tempMiB": 2048,
+      "maxInflight": 12,
+      "stopSeconds": 120,
+      "systemUser": "infrapro-transfer-api"
+    },
+    "compat-api": {
+      "binary": "compat-api",
+      "module": "services/api",
+      "mode": "standby",
+      "placement": "application",
+      "phase": "http",
+      "listener": "private-mtls",
+      "callers": [
+        "api"
+      ],
+      "dependencies": [
+        "pg",
+        "redis",
+        "ch",
+        "source",
+        "files",
+        "audit",
+        "parsing",
+        "parser"
+      ],
+      "sqlRole": "infrapro_compat_api",
+      "pgConnections": 12,
+      "objects": {
+        "files:files/v1/": "rwd",
+        "files:account-avatars/v1/": "rwd",
+        "audit:audit-exports/": "r",
+        "source:display/": "rwd",
+        "source:spatial/": "rwd",
+        "parsing:ingestion/": "rwd",
+        "parsing:parsing/": "rwd",
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 768,
+      "tempMiB": 2048,
+      "maxInflight": 24,
+      "stopSeconds": 120,
+      "systemUser": "infrapro-compat-api"
+    },
+    "ingest-relay": {
+      "binary": "ingest-relay",
+      "module": "services/ingest-relay",
+      "mode": "both",
+      "placement": "edge",
+      "phase": "edge",
+      "listener": "device + relay-mtls",
+      "callers": [
+        "device",
+        "manufacturer",
+        "ingest-custody-worker"
+      ],
+      "dependencies": [
+        "relay-pg"
+      ],
+      "sqlRole": "relay installation identity",
+      "pgConnections": 8,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 256,
+      "tempMiB": 128,
+      "maxInflight": 16,
+      "stopSeconds": 45
+    },
+    "ingest-custody-worker": {
+      "binary": "ingest-custody-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "ingest-relay",
+        "pg",
+        "parsing"
+      ],
+      "sqlRole": "infrapro_ingest_custody",
+      "pgConnections": 10,
+      "objects": {
+        "parsing:ingestion/": "rwd"
+      },
+      "cpu": 1,
+      "memoryMiB": 384,
+      "tempMiB": 128,
+      "maxInflight": 8,
+      "stopSeconds": 60,
+      "systemUser": "infrapro-ingest-custody-worker"
+    },
+    "parsing-dispatch-worker": {
+      "binary": "parsing-dispatch-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "broker",
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "nats-server",
+        "parser",
+        "parsing"
+      ],
+      "sqlRole": "infrapro_parsing_dispatch",
+      "pgConnections": 12,
+      "objects": {
+        "parsing:ingestion/": "rw",
+        "parsing:parsing/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 512,
+      "tempMiB": 256,
+      "maxInflight": 5,
+      "stopSeconds": 90,
+      "systemUser": "ip-parsing-dispatch"
+    },
+    "parser": {
+      "binary": "parser",
+      "module": "services/parser",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "machine-http",
+      "callers": [
+        "parsing-dispatch-worker",
+        "control-api"
+      ],
+      "dependencies": [
+        "parser-runner"
+      ],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 2,
+      "memoryMiB": 512,
+      "tempMiB": 256,
+      "maxInflight": 4,
+      "stopSeconds": 60
+    },
+    "parser-runner": {
+      "binary": "parser-runner",
+      "module": "services/parser",
+      "mode": "child",
+      "placement": "application",
+      "phase": "parent",
+      "listener": "",
+      "callers": [
+        "parser"
+      ],
+      "dependencies": [],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 128,
+      "tempMiB": 16,
+      "maxInflight": 1,
+      "stopSeconds": 30
+    },
+    "monitoring-publish-worker": {
+      "binary": "monitoring-publish-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source"
+      ],
+      "sqlRole": "infrapro_monitoring_publish",
+      "pgConnections": 10,
+      "objects": {
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 768,
+      "tempMiB": 2048,
+      "maxInflight": 2,
+      "stopSeconds": 90,
+      "systemUser": "ip-monitoring-publish"
+    },
+    "monitoring-incremental-worker": {
+      "binary": "monitoring-incremental-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "private-mtls",
+      "callers": [
+        "control-api",
+        "clock",
+        "broker"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source",
+        "nats-server"
+      ],
+      "sqlRole": "infrapro_monitoring_incremental",
+      "pgConnections": 10,
+      "objects": {
+        "source:*/sources/": "rw",
+        "source:*/uploads/": "rw",
+        "source:*/summaries/": "rw",
+        "source:*/exports/": "rw",
+        "source:*/derived/": "rw",
+        "source:*/analysis/": "rw"
+      },
+      "cpu": 2,
+      "memoryMiB": 768,
+      "tempMiB": 512,
+      "maxInflight": 3,
+      "stopSeconds": 90,
+      "systemUser": "ip-monitoring-incremental"
+    },
+    "monitoring-history-worker": {
+      "binary": "monitoring-history-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source"
+      ],
+      "sqlRole": "infrapro_monitoring_history",
+      "pgConnections": 6,
+      "objects": {
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 896,
+      "tempMiB": 2048,
+      "maxInflight": 2,
+      "stopSeconds": 120,
+      "systemUser": "ip-monitoring-history"
+    },
+    "monitoring-read-worker": {
+      "binary": "monitoring-read-worker",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source"
+      ],
+      "sqlRole": "infrapro_monitoring_read",
+      "pgConnections": 6,
+      "objects": {
+        "source:spatial/": "r",
+        "source:*/sources/": "r",
+        "source:*/uploads/": "r",
+        "source:*/summaries/": "r",
+        "source:*/exports/": "r",
+        "source:*/derived/": "r",
+        "source:*/analysis/": "r"
+      },
+      "cpu": 2,
+      "memoryMiB": 640,
+      "tempMiB": 512,
+      "maxInflight": 2,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-monitoring-read-worker"
+    },
+    "ingest-worker": {
+      "binary": "ingest-worker",
+      "module": "services/api",
+      "mode": "compat",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "parser",
+        "ingest-relay",
+        "parsing"
+      ],
+      "sqlRole": "infrapro_compat_ingest_worker",
+      "pgConnections": 12,
+      "objects": {
+        "parsing:ingestion/": "rwd",
+        "parsing:parsing/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 512,
+      "tempMiB": 256,
+      "maxInflight": 4,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-ingest-worker"
+    },
+    "monitoring-worker": {
+      "binary": "monitoring-worker",
+      "module": "services/api",
+      "mode": "compat",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source",
+        "parser",
+        "parsing"
+      ],
+      "sqlRole": "infrapro_compat_monitoring_worker",
+      "pgConnections": 12,
+      "objects": {
+        "parsing:parsing/": "rwd",
+        "source:*/sources/": "rwd",
+        "source:*/uploads/": "rwd",
+        "source:*/summaries/": "rwd",
+        "source:*/exports/": "rwd",
+        "source:*/derived/": "rwd",
+        "source:*/analysis/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 896,
+      "tempMiB": 2048,
+      "maxInflight": 4,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-monitoring-worker"
+    },
+    "spatial-worker": {
+      "binary": "spatial-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "source",
+        "spatial-converter"
+      ],
+      "sqlRole": "infrapro_spatial_worker",
+      "pgConnections": 6,
+      "objects": {
+        "source:spatial/": "rwd"
+      },
+      "cpu": 2,
+      "memoryMiB": 1024,
+      "tempMiB": 2048,
+      "maxInflight": 2,
+      "stopSeconds": 120,
+      "systemUser": "infrapro-spatial-worker"
+    },
+    "files-worker": {
+      "binary": "files-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "files",
+        "files-checker"
+      ],
+      "sqlRole": "infrapro_files_worker",
+      "pgConnections": 6,
+      "objects": {
+        "files:files/v1/": "rwd"
+      },
+      "cpu": 1,
+      "memoryMiB": 512,
+      "tempMiB": 2048,
+      "maxInflight": 2,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-files-worker"
+    },
+    "files-checker": {
+      "binary": "files-checker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "checker",
+      "listener": "unix-socket",
+      "callers": [
+        "files-worker"
+      ],
+      "dependencies": [],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 256,
+      "tempMiB": 256,
+      "maxInflight": 1,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-files-checker"
+    },
+    "display-package-worker": {
+      "binary": "display-package-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "source"
+      ],
+      "sqlRole": "infrapro_display_packager",
+      "pgConnections": 4,
+      "objects": {
+        "source:display/": "rwd"
+      },
+      "cpu": 1,
+      "memoryMiB": 384,
+      "tempMiB": 512,
+      "maxInflight": 2,
+      "stopSeconds": 60,
+      "systemUser": "infrapro-display-package-worker"
+    },
+    "display-runtime": {
+      "binary": "display-runtime",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "http",
+      "listener": "runtime-origin",
+      "callers": [
+        "nginx",
+        "trusted-shell"
+      ],
+      "dependencies": [
+        "pg",
+        "monitoring-query-api",
+        "source"
+      ],
+      "sqlRole": "infrapro_display_runtime",
+      "pgConnections": 8,
+      "objects": {
+        "source:display/": "rw"
+      },
+      "cpu": 1,
+      "memoryMiB": 384,
+      "tempMiB": 128,
+      "maxInflight": 24,
+      "stopSeconds": 60,
+      "systemUser": "infrapro-display-runtime"
+    },
+    "display-assets": {
+      "binary": "display-assets",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "http",
+      "listener": "asset-origin",
+      "callers": [
+        "nginx",
+        "iframe"
+      ],
+      "dependencies": [
+        "pg",
+        "source"
+      ],
+      "sqlRole": "infrapro_display_assets",
+      "pgConnections": 4,
+      "objects": {
+        "source:display/sealed/": "r"
+      },
+      "cpu": 1,
+      "memoryMiB": 192,
+      "tempMiB": 64,
+      "maxInflight": 16,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-display-assets"
+    },
+    "task-index-worker": {
+      "binary": "task-index-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "broker",
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "nats-server"
+      ],
+      "sqlRole": "infrapro_task_index",
+      "pgConnections": 4,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 192,
+      "tempMiB": 32,
+      "maxInflight": 2,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-task-index-worker"
+    },
+    "notification-worker": {
+      "binary": "notification-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "broker",
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "nats-server"
+      ],
+      "sqlRole": "infrapro_notification_worker",
+      "pgConnections": 4,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 192,
+      "tempMiB": 32,
+      "maxInflight": 2,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-notification-worker"
+    },
+    "audit-worker": {
+      "binary": "audit-worker",
+      "module": "services/api",
+      "mode": "both",
+      "placement": "application",
+      "phase": "worker",
+      "listener": "",
+      "callers": [
+        "broker",
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "audit",
+        "nats-server"
+      ],
+      "sqlRole": "infrapro_audit_worker",
+      "pgConnections": 4,
+      "objects": {
+        "audit:audit-exports/": "rwd"
+      },
+      "cpu": 1,
+      "memoryMiB": 512,
+      "tempMiB": 2048,
+      "maxInflight": 2,
+      "stopSeconds": 90,
+      "systemUser": "infrapro-audit-worker"
+    },
+    "event-relay": {
+      "binary": "event-relay",
+      "module": "services/api",
+      "mode": "split",
+      "placement": "application",
+      "phase": "events",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "pg",
+        "nats-server"
+      ],
+      "sqlRole": "infrapro_event_relay",
+      "pgConnections": 4,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 192,
+      "tempMiB": 32,
+      "maxInflight": 16,
+      "stopSeconds": 45,
+      "systemUser": "infrapro-event-relay"
+    },
+    "nats-server": {
+      "binary": "nats-server",
+      "module": "external",
+      "mode": "split",
+      "placement": "broker",
+      "phase": "broker",
+      "listener": "internal-nats-mtls",
+      "callers": [
+        "event-relay",
+        "consumers",
+        "peer-brokers"
+      ],
+      "dependencies": [
+        "nats-volume"
+      ],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 512,
+      "tempMiB": 4096,
+      "maxInflight": 64,
+      "stopSeconds": 60
+    },
+    "diagnostics": {
+      "binary": "infrapro-diagnostics",
+      "module": "services/diagnostics",
+      "mode": "both",
+      "placement": "diagnostics",
+      "phase": "diagnostics",
+      "listener": "diagnostics-https",
+      "callers": [
+        "observer",
+        "operator"
+      ],
+      "dependencies": [
+        "bbolt"
+      ],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 256,
+      "tempMiB": 128,
+      "maxInflight": 12,
+      "stopSeconds": 45
+    },
+    "observer": {
+      "binary": "infrapro-diagnostics",
+      "module": "services/diagnostics",
+      "mode": "both",
+      "placement": "each-host",
+      "phase": "observe",
+      "listener": "",
+      "callers": [
+        "clock"
+      ],
+      "dependencies": [
+        "diagnostics",
+        "systemd",
+        "docker"
+      ],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 0.5,
+      "memoryMiB": 128,
+      "tempMiB": 32,
+      "maxInflight": 4,
+      "stopSeconds": 30
+    },
+    "infrapro": {
+      "binary": "infrapro",
+      "module": "tools/infrapro",
+      "mode": "manual",
+      "placement": "application",
+      "phase": "maintenance",
+      "listener": "",
+      "callers": [
+        "operator"
+      ],
+      "dependencies": [
+        "pg",
+        "ch",
+        "source",
+        "files",
+        "audit",
+        "parsing"
+      ],
+      "sqlRole": "maintenance identity",
+      "pgConnections": 4,
+      "objects": {},
+      "cpu": 1,
+      "memoryMiB": 512,
+      "tempMiB": 2048,
+      "maxInflight": 1,
+      "stopSeconds": 120
+    },
+    "replica-proxy": {
+      "binary": "python3",
+      "entrypoint": "deploy/architecture/replica-proxy.py",
+      "module": "python/stdlib",
+      "mode": "conditional",
+      "placement": "application",
+      "phase": "ingress",
+      "listener": "private TCP and existing origins for explicitly scaled host-network roles",
+      "callers": [
+        "nginx",
+        "api",
+        "control-api",
+        "display-runtime"
+      ],
+      "dependencies": [
+        "configured backend slots"
+      ],
+      "sqlRole": "",
+      "pgConnections": 0,
+      "objects": {},
+      "cpu": 0.5,
+      "memoryMiB": 128,
+      "tempMiB": 16,
+      "maxInflight": 419,
+      "stopSeconds": 90,
+      "systemUser": "dynamic"
+    }
+  }
+}

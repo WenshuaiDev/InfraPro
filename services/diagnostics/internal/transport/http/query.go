@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	"net/http"
 	"net/url"
 	"sort"
@@ -448,6 +449,10 @@ func metrics(s ingest.Snapshot, q url.Values) (any, error) {
 	}
 	if strings.HasPrefix(key, "disk.") || strings.HasPrefix(key, "network.") {
 		if !settings.ValidID(q.Get("dimension_id")) {
+			return nil, settings.Error("invalid_request")
+		}
+	} else if key == diagnosticreport.TenantQueueKey {
+		if !(diagnosticreport.ProcessMetric{Key: key, Dimension: q.Get("dimension_id")}).Valid() {
 			return nil, settings.Error("invalid_request")
 		}
 	} else if q.Get("dimension_id") != "" {

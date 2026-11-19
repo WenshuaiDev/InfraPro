@@ -4,10 +4,12 @@ package blobstore
 import (
 	"context"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/requestlimit"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 	"io/fs"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -17,12 +19,20 @@ type Store struct {
 	bucket, prefix string
 }
 
-func Open(endpoint, accessKey, secretKey, bucket, prefix string) (*Store, error) {
+func Open(endpoint, accessKey, secretKey, bucket, prefix string, budgets ...*requestlimit.Limit) (*Store, error) {
 	u, e := url.Parse(endpoint)
 	if e != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") || u.Path != "" && u.Path != "/" || bucket == "" || prefix == "" {
 		return nil, fmt.Errorf("invalid private object storage configuration")
 	}
-	client, e := minio.New(u.Host, &minio.Options{Creds: credentials.NewStaticV4(accessKey, secretKey, ""), Secure: u.Scheme == "https", BucketLookup: minio.BucketLookupPath})
+	var budget *requestlimit.Limit
+	if len(budgets) > 0 {
+		budget = budgets[0]
+	}
+	tr, e := Transport(u.Scheme == "https", budget)
+	if e != nil {
+		return nil, e
+	}
+	client, e := minio.New(u.Host, &minio.Options{Creds: credentials.NewStaticV4(accessKey, secretKey, ""), Secure: u.Scheme == "https", Transport: tr, BucketLookup: minio.BucketLookupPath})
 	if e != nil {
 		return nil, e
 	}
@@ -98,4 +108,16 @@ func (s *Store) Inventory(ctx context.Context, after string, limit int) ([]strin
 func (s *Store) Probe(ctx context.Context) error {
 	_, _, err := s.Inventory(ctx, "", 1)
 	return err
+}
+
+// Transport shares the process budget across all bucket and domain clients.
+func Transport(secure bool, budget *requestlimit.Limit) (http.RoundTripper, error) {
+	if budget == nil {
+		return nil, nil
+	}
+	base, err := minio.DefaultTransport(secure)
+	if err != nil {
+		return nil, err
+	}
+	return budget.Transport(base), nil
 }

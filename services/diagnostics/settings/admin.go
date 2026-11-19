@@ -186,7 +186,7 @@ func EditNodeKey(serverFile, action, node, output string) error {
 	return Save(s.NodeKeysFile, keys, false)
 }
 func strconvUint(n uint64) string { raw, _ := json.Marshal(n); return string(raw) }
-func Init(directory, instance, profile, executable string) (string, error) {
+func Init(directory, instance, profile, executable string, split ...SplitOptions) (string, error) {
 	if !ValidID(instance) || !OneOf(profile, "native", "docker", "mixed") {
 		return "", Invalid
 	}
@@ -252,9 +252,31 @@ func Init(directory, instance, profile, executable string) (string, error) {
 		m.Nodes = append(m.Nodes, Node{ID: "docker-observer", DisplayName: "独立容器观察器（待配置）", Kind: "logical_test", ResourceScope: "none", AssignmentRevision: "1", Enabled: false})
 		m.Nodes = append(m.Nodes, Node{ID: "docker-vm", DisplayName: "容器宿主 VM（未接入宿主资源）", Kind: "vm", ParentNodeID: "local", ResourceScope: "vm", AssignmentRevision: "1", Enabled: false})
 	}
+	var remoteBindings map[string]*Bindings
+	if len(split) > 0 {
+		if len(split) != 1 {
+			return "", Invalid
+		}
+		remoteBindings, e = splitTopology(&m, &bindings, profile, split[0])
+		if e != nil {
+			return "", e
+		}
+	}
 	server := Server{SchemaVersion: 1, InstanceID: instance, Listen: "127.0.0.1:8096", PublicOrigin: "http://127.0.0.1:8096", AllowedHosts: []string{"127.0.0.1:8096"}, TrustedProxyCIDRs: []string{}, ManifestFile: filepath.Join(root, "manifest.json"), AuthFile: filepath.Join(root, "auth.json"), NodeKeysFile: filepath.Join(root, "node-keys.json"), StateDir: filepath.Join(root, "state"), LocalObserver: &LocalObserver{"local", "1", filepath.Join(root, "bindings.json")}, ResourceHints: ResourceHints{true, .9, 3, .1, .1, "1073741824"}}
 	if m.Validate(DefaultLimits()) != nil || bindings.Validate(m) != nil || server.Validate(false) != nil {
 		return "", Invalid
+	}
+	for node, remote := range remoteBindings {
+		if e = remote.Validate(m); e != nil {
+			return "", e
+		}
+		name := "observer-" + node + "-bindings.json"
+		if node == "docker-observer" {
+			name = "observer-bindings.json"
+		}
+		if e = Save(filepath.Join(root, name), remote, true); e != nil {
+			return "", e
+		}
 	}
 	for _, item := range []struct {
 		name  string

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/dispatch"
 	"log/slog"
 	"os"
 	"slices"
@@ -180,7 +181,16 @@ func (a *App) monitoring(ctx context.Context, args []string) error {
 				_ = output(v)
 				return fmt.Errorf("任务未完成，请按收据修复原因后重试")
 			}
-			worked, e := service.RunOne(ctx, "operator-cli")
+			role, e := service.JobOwner(ctx, tenant, job)
+			if e != nil {
+				return e
+			}
+			worked := false
+			_, e = dispatch.Try(ctx, pool, string(role), "compat", func(c context.Context) error {
+				var err error
+				worked, err = service.RunTask(md.WorkerContext(c, role), "operator-cli", tenant, job)
+				return err
+			})
 			if e != nil {
 				return e
 			}

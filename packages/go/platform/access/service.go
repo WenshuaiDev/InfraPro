@@ -16,9 +16,10 @@ import (
 
 // Actor comes only from verified identity. Check revalidates the session in the SAME transaction.
 type Actor struct {
-	subject *ReadSubject
-	ID      string
-	Check   func(context.Context, pgx.Tx, bool) error
+	subject          *ReadSubject
+	personnelSession bool
+	ID               string
+	Check            func(context.Context, pgx.Tx, bool) error
 }
 
 func (s *Service) read(ctx context.Context, a Actor, op Operation, fn func(pgx.Tx, string) error) error {

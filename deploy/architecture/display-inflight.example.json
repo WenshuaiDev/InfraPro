@@ -1,0 +1,8 @@
+{
+  "control-api": 2,
+  "transfer-api": 2,
+  "monitoring-publish-worker": 2,
+  "monitoring-incremental-worker": 1,
+  "monitoring-history-worker": 3,
+  "monitoring-read-worker": 2
+}

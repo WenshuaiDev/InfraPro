@@ -114,11 +114,11 @@ func (s *Service) checkInputSourcesTx(ctx context.Context, tx pgx.Tx, auth input
 			}
 		}
 		for _, basis := range proof.Baselines {
-			fixed, found, e := loadBaselineTx(ctx, tx, auth.Scope.Tenant, proof.Config, basis.Reference)
+			fixed, found, e := loadBaselineMetadataTx(ctx, tx, auth.Scope.Tenant, proof.Config, basis.Reference, &basis.Hash)
 			if e != nil {
 				return e
 			}
-			if !found || fixed.Snapshot.ID != basis.Snapshot || fingerprint(fixed) != basis.Hash {
+			if !found || fixed.Snapshot.ID != basis.Snapshot {
 				return problem("result_integrity_unavailable", "上游固定基准证据不完整。", 503)
 			}
 			var state monitoring.RawSnapshotState

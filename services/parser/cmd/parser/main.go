@@ -95,6 +95,7 @@ func run() (resultErr error) {
 		}
 	}()
 	reporter.Ready()
+	diagnosticreport.SetMetric(reporter, "quota.parser_slots", int64(concurrency))
 	reporter.Idle("parse", time.Time{})
 	select {
 	case e = <-done:

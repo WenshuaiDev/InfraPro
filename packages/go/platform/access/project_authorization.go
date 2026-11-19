@@ -224,31 +224,37 @@ func RequireProjectTx(ctx context.Context, tx pgx.Tx, account string, op Operati
 	if e != nil {
 		return v, e
 	}
+	return v, v.Require(op)
+}
+
+// Require checks an operation against the project authorization previously
+// resolved by ProjectSnapshotTx in the caller's current transaction.
+func (v ProjectAuthorization) Require(op Operation) error {
 	p, ok := PolicyFor(op)
 	if !ok {
-		return v, ErrDenied
+		return ErrDenied
 	}
 	if p.Class == "project_context" {
-		return v, nil
+		return nil
 	}
 	if p.Class != "project" {
-		return v, ErrDenied
+		return ErrDenied
 	}
 	if v.TenantStatus != "active" {
-		return v, ErrTenantDisabled
+		return ErrTenantDisabled
 	}
 	if v.MembershipStatus != "active" {
-		return v, ErrDenied
+		return ErrDenied
 	}
 	for _, code := range p.Permissions {
 		if !slices.Contains(v.Permissions, code) {
-			return v, ErrDenied
+			return ErrDenied
 		}
 	}
 	if v.ProjectStatus == "archived" && ProjectActiveOnly(op) && op != OpProjectArchive && op != OpProjectArchivePreview {
-		return v, &Error{Code: "project_archived", Message: "项目已归档，仅可读取当前获准资源。", Status: 409}
+		return &Error{Code: "project_archived", Message: "项目已归档，仅可读取当前获准资源。", Status: 409}
 	}
-	return v, nil
+	return nil
 }
 func CheckProjectStructure(ctx context.Context, tx pgx.Tx) error {
 	var ok bool

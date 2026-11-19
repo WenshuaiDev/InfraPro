@@ -207,9 +207,28 @@ func (r *Repository) Sessions(ctx context.Context, tx pgx.Tx, id string) ([]Prin
 	return list, rows.Err()
 }
 func (r *Repository) SaveActivity(ctx context.Context, id string, version int64, at time.Time, idle time.Duration) error {
-	// The verified Redis activity may be ahead of durable activity. It may never revive a revoked session.
-	_, e := r.pool.Exec(ctx, `UPDATE account_sessions s SET last_activity_at=GREATEST(s.last_activity_at,$3) FROM accounts a WHERE s.id=$1 AND a.id=s.account_id AND s.auth_version=$2 AND a.auth_version=$2 AND a.status='active' AND s.revoked_at IS NULL AND s.expires_at>now() AND $3::timestamptz<=now() AND $3::timestamptz>now()-$4::interval`, id, version, at, interval(idle))
-	return e
+	_, err := r.flushActivity(ctx, id, version, at, idle)
+	return err
+}
+
+// flushActivity reports how long the observation is still ahead of the exact
+// PostgreSQL timestamp used to decide eligibility. A due observation is final.
+func (r *Repository) flushActivity(ctx context.Context, id string, version int64, at time.Time, idle time.Duration) (time.Duration, error) {
+	var dbNow time.Time
+	var saved bool
+	err := r.pool.QueryRow(ctx, `WITH saved AS (
+		UPDATE account_sessions s SET last_activity_at = GREATEST(s.last_activity_at, $3)
+		FROM accounts a
+		WHERE s.id = $1 AND a.id = s.account_id
+		  AND s.auth_version = $2 AND a.auth_version = $2 AND a.status = 'active'
+		  AND s.revoked_at IS NULL AND s.expires_at > now()
+		  AND $3::timestamptz <= now() AND $3::timestamptz > now() - $4::interval
+		RETURNING s.id
+	) SELECT EXISTS(SELECT 1 FROM saved), now()`, id, version, at, interval(idle)).Scan(&saved, &dbNow)
+	if err != nil || saved {
+		return 0, err
+	}
+	return max(0, at.Sub(dbNow)), nil
 }
 
 type invalidation struct{ ID, Hash string }

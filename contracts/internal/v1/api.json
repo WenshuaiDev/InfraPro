@@ -1,0 +1,505 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "InfraPro internal service operations",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "serviceCertificate": []
+    }
+  ],
+  "paths": {
+    "/internal/v1/sessions/verify": {
+      "post": {
+        "operationId": "verifySession",
+        "x-callers": [
+          "api",
+          "control-api",
+          "monitoring-query-api",
+          "transfer-api"
+        ],
+        "x-max-request-bytes": 16384,
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Infrapro-Request-Id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed private operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Unknown operation or caller"
+          },
+          "408": {
+            "description": "Expired request"
+          }
+        }
+      }
+    },
+    "/internal/v1/monitoring/reads/execute": {
+      "post": {
+        "operationId": "executeBoundRead",
+        "x-callers": [
+          "display-runtime"
+        ],
+        "x-max-request-bytes": 1048576,
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Infrapro-Request-Id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed private operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Unknown operation or caller"
+          },
+          "408": {
+            "description": "Expired request"
+          }
+        }
+      }
+    },
+    "/internal/v1/monitoring/trials/attempt": {
+      "post": {
+        "operationId": "attemptTrial",
+        "x-callers": [
+          "control-api"
+        ],
+        "x-max-request-bytes": 2048,
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Infrapro-Request-Id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrialRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completed private operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrialResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Unknown operation or caller"
+          },
+          "408": {
+            "description": "Expired request"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "serviceCertificate": {
+        "type": "mutualTLS"
+      }
+    },
+    "schemas": {
+      "Route": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "template": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "method",
+          "template"
+        ]
+      },
+      "SessionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "route": {
+            "$ref": "#/components/schemas/Route"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "session": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "route",
+          "deadline",
+          "session"
+        ]
+      },
+      "Principal": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "auth_version": {
+            "type": "integer"
+          },
+          "last_activity": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reauthenticated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "factor_version": {
+            "type": "integer"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policy_generation": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "account_id",
+          "session_id",
+          "auth_version",
+          "last_activity",
+          "reauthenticated_at",
+          "policy_generation"
+        ]
+      },
+      "IdentityError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "retry_after": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "status"
+        ]
+      },
+      "SessionResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "principal": {
+                "$ref": "#/components/schemas/Principal"
+              }
+            },
+            "required": [
+              "principal"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "$ref": "#/components/schemas/IdentityError"
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        ]
+      },
+      "ReadBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "session": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenant": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "project": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "environment": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "config": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "grant_revision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "terminal_generation": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "required": [
+          "session",
+          "subject",
+          "tenant",
+          "project",
+          "instance",
+          "environment",
+          "package",
+          "config",
+          "generation",
+          "grant_revision",
+          "terminal_generation"
+        ]
+      },
+      "ReadRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "binding": {
+            "$ref": "#/components/schemas/ReadBinding"
+          },
+          "authority": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "call": {
+            "$ref": "../../display/v1/runtime.openapi.json#/components/schemas/Call"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "binding",
+          "authority",
+          "call",
+          "deadline"
+        ]
+      },
+      "ReadResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "result": {
+                "$ref": "../../display/v1/runtime.openapi.json#/components/schemas/Envelope"
+              },
+              "named": {
+                "type": "boolean"
+              },
+              "status": {
+                "const": 200
+              }
+            },
+            "required": [
+              "result",
+              "named",
+              "status"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "$ref": "../../display/v1/runtime.openapi.json#/components/schemas/Error"
+              },
+              "named": {
+                "const": false
+              },
+              "status": {
+                "type": "integer",
+                "minimum": 400,
+                "maximum": 599
+              }
+            },
+            "required": [
+              "error",
+              "named",
+              "status"
+            ]
+          }
+        ]
+      },
+      "TrialRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "job_id",
+          "request_id",
+          "deadline"
+        ]
+      },
+      "TrialResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "enum": [
+              "executed",
+              "already_claimed",
+              "background"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      }
+    }
+  }
+}

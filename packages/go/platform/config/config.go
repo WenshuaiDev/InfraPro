@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ import (
 )
 
 type Config struct {
+	Architecture                                                *Architecture
 	MFAKeyringFile, MFAIssuer                                   string
 	Uploads                                                     Uploads
 	IngestionFile                                               string
@@ -179,7 +181,20 @@ func validateConnectionURL(name, value string) error {
 	return nil
 }
 
-func Load(path string) (Config, error) {
+func Load(path string) (Config, error) { return loadRole(path, "", nil) }
+
+func LoadRole(path, role string) (Config, error) {
+	arch, err := readArchitecture(os.Getenv("INFRAPRO_ARCHITECTURE_FILE"), role)
+	if err != nil {
+		return Config{}, err
+	}
+	if arch == nil && (role == Identity || role == Control || role == Query || role == Transfer || role == "display-assets" || role == "event-relay") {
+		return Config{}, fmt.Errorf("architecture file required by %s", role)
+	}
+	return loadRole(path, role, arch)
+}
+
+func loadRole(path, role string, arch *Architecture) (Config, error) {
 	raw, err := loadInput(path)
 	if err != nil {
 		return Config{}, err
@@ -188,8 +203,11 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	c := Config{Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
-	c.MFAKeyringFile, c.MFAIssuer = raw.MFAKeyringFile, strings.TrimSpace(raw.MFAIssuer)
+	c := Config{Architecture: arch, Config: base, DatabaseURL: raw.DatabaseURL, RedisURL: raw.RedisURL, RedisKeyPrefix: raw.RedisKeyPrefix, PublicConsoleURL: raw.PublicConsoleURL, SupportContact: strings.TrimSpace(raw.SupportContact)}
+	if arch == nil || role == Identity || role == "compat-api" {
+		c.MFAKeyringFile = raw.MFAKeyringFile
+	}
+	c.MFAIssuer = strings.TrimSpace(raw.MFAIssuer)
 	if c.MFAIssuer == "" {
 		c.MFAIssuer = "InfraPro"
 	}
@@ -226,11 +244,24 @@ func Load(path string) (Config, error) {
 	if err != nil {
 		return c, err
 	}
-	c.Monitoring, err = resolveMonitoring(raw)
+	c.Monitoring, err = roleMonitoring(raw, role, arch)
 	if err != nil {
 		return c, err
 	}
-	for name, value := range map[string]string{"database_url": c.DatabaseURL, "redis_url": c.RedisURL, "support_contact": c.SupportContact} {
+	httpOwner := arch == nil || slices.Contains(Owners, role) || role == "compat-api"
+	needsDB := arch == nil || role != Gateway
+	needsRedis := arch == nil || role == Identity || role == Transfer || role == Control || role == "compat-api"
+	required := map[string]string{}
+	if needsDB {
+		required["database_url"] = c.DatabaseURL
+	}
+	if needsRedis {
+		required["redis_url"] = c.RedisURL
+	}
+	if arch == nil || role == Identity || role == "compat-api" {
+		required["support_contact"] = c.SupportContact
+	}
+	for name, value := range required {
 		if value == "" {
 			return c, fmt.Errorf("%s is required", name)
 		}
@@ -239,6 +270,9 @@ func Load(path string) (Config, error) {
 		return c, fmt.Errorf("redis_key_prefix must be infrapro:<environment>:identity:v1:")
 	}
 	for name, value := range map[string]string{"database_url": c.DatabaseURL, "redis_url": c.RedisURL} {
+		if value == "" {
+			continue
+		}
 		if e := validateConnectionURL(name, value); e != nil {
 			return c, e
 		}
@@ -279,7 +313,7 @@ func Load(path string) (Config, error) {
 		}
 	}
 	c.CSRFKey, err = hex.DecodeString(raw.CSRFKey)
-	if err != nil || len(c.CSRFKey) != 32 {
+	if (httpOwner || role == Gateway) && (err != nil || len(c.CSRFKey) != 32) {
 		return c, fmt.Errorf("csrf_auth_key must be 64 hexadecimal characters (32 random bytes)")
 	}
 	c.CookieSecure, err = strconv.ParseBool(raw.CookieSecure)

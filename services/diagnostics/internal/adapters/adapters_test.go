@@ -282,3 +282,130 @@ func TestDockerReadAllowlistAndCardinality(t *testing.T) {
 		}
 	}
 }
+
+func TestSplitMetricsPrecisePositionAndRejectPrivateDimensions(t *testing.T) {
+	r, p, b, report := fixtureReport(t)
+	report.Metrics = []diagnosticreport.ProcessMetric{
+		{Key: "event.consumer_position", Value: 1<<54 + 1},
+		{Key: "event.outbox_oldest_ms", Value: 800},
+		{Key: "tenant.queue_depth", Dimension: "tenant-0123456789abcdef01234567", Value: 2},
+	}
+	if err := settings.Save(b.ReportFile, report, true); err != nil {
+		t.Fatal(err)
+	}
+	o := r.Collect(context.Background(), p, b)
+	if err := model.Validate(o, p, r.BootID); err != nil || o.Outcome != "ok" || len(o.Metrics) != 3 {
+		t.Fatalf("valid metrics rejected: %s %v", o.ReasonCode, err)
+	}
+	if o.Metrics[0].Value != "18014398509481985" || o.Metrics[1].Value != "800" || o.Metrics[2].Value != float64(2) {
+		t.Fatal("precision or unit mismatch", o.Metrics)
+	}
+	for _, bad := range []diagnosticreport.ProcessMetric{{Key: "tenant.queue_depth", Dimension: uuid.NewString(), Value: 1}, {Key: "event.payload", Value: 1}, report.Metrics[0]} {
+		report.Metrics = append(report.Metrics, bad)
+		if err := settings.Save(b.ReportFile, report, false); err != nil {
+			t.Fatal(err)
+		}
+		o := r.Collect(context.Background(), p, b)
+		if o.ReasonCode != "report_invalid" || len(o.Metrics) > 0 {
+			t.Fatal("invalid metric exposed", o.ReasonCode)
+		}
+		report.Metrics = report.Metrics[:len(report.Metrics)-1]
+	}
+}
+
+func TestProxyListenerDistinguishesTCPFromBusinessReadiness(t *testing.T) {
+	m := testfixture.Manifest()
+	p := m.Probes[0]
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer listener.Close()
+	go func() {
+		for {
+			c, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			c.Close()
+		}
+	}()
+	r := New(m, settings.Bindings{}, uuid.NewString())
+	for _, pair := range []struct{ adapter, readiness string }{{"tcp", "unknown"}, {"proxy_listener", "ready"}} {
+		p.Adapter = pair.adapter
+		b := settings.Binding{ID: p.ID, Adapter: p.Adapter, Host: "127.0.0.1", Port: listener.Addr().(*net.TCPAddr).Port}
+		v := r.Collect(t.Context(), p, b)
+		if v.Outcome != "ok" || v.Facets.Readiness != pair.readiness {
+			t.Fatal(pair.adapter, v.Outcome, v.Facets.Readiness)
+		}
+	}
+}
+
+func TestJetStreamProbeChecksOnlyLocalReadiness(t *testing.T) {
+	m := testfixture.Manifest()
+	p := m.Probes[0]
+	p.Adapter = "jetstream_health"
+	p.Facet = "readiness"
+	served := "ok"
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if req.Method != "GET" || req.URL.Path != "/healthz" || req.URL.RawQuery != "js-enabled-only=true" || req.Header.Get("Authorization") != "" {
+			t.Errorf("unexpected probe %s %s", req.Method, req.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": served})
+	}))
+	defer s.Close()
+	_, portText, e := net.SplitHostPort(s.Listener.Addr().String())
+	if e != nil {
+		t.Fatal(e)
+	}
+	port, e := strconv.Atoi(portText)
+	if e != nil {
+		t.Fatal(e)
+	}
+	b := settings.Binding{ID: p.ID, Adapter: p.Adapter, Host: "127.0.0.1", Port: port}
+	r := New(m, settings.Bindings{}, uuid.NewString())
+	if got := r.Collect(context.Background(), p, b); got.Outcome != "ok" || got.Facets.Readiness != "ready" {
+		t.Fatal("healthy JetStream", got)
+	}
+	served = "error"
+	if got := r.Collect(context.Background(), p, b); got.ReasonCode != "response_mismatch" || got.Facets.Readiness != "not_ready" {
+		t.Fatal("health JSON ignored", got)
+	}
+}
+
+func TestContainerReportRequiresRuntimeIdentity(t *testing.T) {
+	ts := time.Now().Truncate(time.Millisecond)
+	id := 10001
+	b := settings.Binding{ExpectedUID: &id, ExpectedExecutable: "/usr/local/bin/files-checker", AllowedRoot: "/srv/checker", ReportFile: "/srv/checker/process.json"}
+	good := dockerInspect{Path: b.ExpectedExecutable}
+	good.Config.User = "10001:10001"
+	good.State.Running = true
+	good.State.StartedAt = ts
+	mounts := []byte(`[{"Source":"/srv/checker","Destination":"/run/infrapro-report","RW":true}]`)
+	if err := json.Unmarshal(mounts, &good.Mounts); err != nil {
+		t.Fatal(err)
+	}
+	report := diagnosticreport.Report{EmittedAt: ts.Add(time.Second), Process: diagnosticreport.Identity{PID: 1, PIDNamespace: "container", OSStartTimeMS: strconv.FormatInt(ts.Add(-500*time.Millisecond).UnixMilli(), 10)}}
+	if !matchesReportIdentity(good, b, report) {
+		t.Fatal("current attested process rejected")
+	}
+	for _, change := range []func(*dockerInspect, *diagnosticreport.Report){
+		func(i *dockerInspect, _ *diagnosticreport.Report) { i.Path = "/usr/local/bin/another" },
+		func(i *dockerInspect, _ *diagnosticreport.Report) { i.Config.User = "10002" },
+		func(i *dockerInspect, _ *diagnosticreport.Report) { i.HostConfig.PidMode = "host" },
+		func(i *dockerInspect, _ *diagnosticreport.Report) { enable := true; i.HostConfig.Init = &enable },
+		func(i *dockerInspect, _ *diagnosticreport.Report) { i.State.Running = false },
+		func(i *dockerInspect, _ *diagnosticreport.Report) { i.Mounts = nil },
+		func(_ *dockerInspect, r *diagnosticreport.Report) { r.Process.PID = 7 },
+		func(_ *dockerInspect, r *diagnosticreport.Report) { r.EmittedAt = ts.Add(-time.Second) },
+		func(_ *dockerInspect, r *diagnosticreport.Report) {
+			r.Process.OSStartTimeMS = strconv.FormatInt(ts.Add(-10*time.Second).UnixMilli(), 10)
+		},
+	} {
+		i, r := good, report
+		change(&i, &r)
+		if matchesReportIdentity(i, b, r) {
+			t.Fatal("wrong container accepted")
+		}
+	}
+}

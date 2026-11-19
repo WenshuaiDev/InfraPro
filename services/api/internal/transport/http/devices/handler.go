@@ -6,6 +6,7 @@ import (
 	c "github.com/WenshuaiDev/InfraPro/packages/go/platform/devicecatalog"
 	d "github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	h "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecommon"
 	ih "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,7 @@ import (
 	"strings"
 )
 
-func Register(r *gin.Engine, i *identity.Service, s *d.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *d.Service) {
 	for _, p := range access.Policies() {
 		parts := strings.Split(string(p.Operation), ":")
 		if len(parts) != 4 || parts[0] != "Device" || !slices.Contains([]string{"device", "output", "installation", "tree", "access", "request"}, parts[2]) || slices.Contains([]string{"channel-candidates", "source-history"}, parts[3]) {

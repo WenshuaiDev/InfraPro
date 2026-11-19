@@ -1,0 +1,145 @@
+package http_test
+
+import (
+	"bufio"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"hash"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"os"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+)
+
+type originalRouter func(*slog.Logger, *identity.Service, config.Config, ...*monitoring.Storage) http.Handler
+
+type recordedHTTP struct {
+	http.ResponseWriter
+	status int
+	size   int
+	sum    hash.Hash
+}
+
+func (w *recordedHTTP) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+func (w *recordedHTTP) WriteHeader(code int) {
+	if code >= 200 && w.status == 0 {
+		w.status = code
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+func (w *recordedHTTP) Write(b []byte) (int, error) {
+	if w.status == 0 {
+		w.status = 200
+	}
+	n, e := w.ResponseWriter.Write(b)
+	w.sum.Write(b[:n])
+	w.size += n
+	return n, e
+}
+func (w *recordedHTTP) Flush() {
+	if w.status == 0 {
+		w.status = 200
+	}
+	_ = http.NewResponseController(w.ResponseWriter).Flush()
+}
+func (w *recordedHTTP) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return http.NewResponseController(w.ResponseWriter).Hijack()
+}
+
+type sampleRoute struct {
+	path  string
+	parts []string
+}
+
+var recordRoutes = sync.OnceValue(func() map[string][]sampleRoute {
+	result := map[string][]sampleRoute{}
+	b, err := os.ReadFile(os.Getenv("INFRAPRO_ARCH_TEST_ROUTES"))
+	if err != nil {
+		panic(err)
+	}
+	for _, row := range strings.Split(strings.TrimSpace(string(b)), "\n") {
+		f := strings.Split(row, "\t")
+		result[f[0]] = append(result[f[0]], sampleRoute{f[1], strings.Split(f[1], "/")})
+	}
+	return result
+})
+
+func recordedTemplate(method, path string) string {
+	pieces := strings.Split(path, "/")
+	best, bestScore := "", -1
+	for _, r := range recordRoutes()[method] {
+		if len(r.parts) != len(pieces) {
+			continue
+		}
+		score := 0
+		valid := true
+		for i, part := range r.parts {
+			score *= 2
+			if part == pieces[i] {
+				score++
+				continue
+			}
+			if !strings.HasPrefix(part, ":") || pieces[i] == "" {
+				valid = false
+				break
+			}
+		}
+		if valid && score > bestScore {
+			best, bestScore = r.path, score
+		}
+	}
+	return best
+}
+func architectureRecord(t *testing.T, h http.Handler) http.Handler {
+	t.Helper()
+	dir := os.Getenv("INFRAPRO_ARCH_TEST_RECORD")
+	if dir == "" {
+		return h
+	}
+	file, e := os.CreateTemp(dir, "requests-*.jsonl")
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() { file.Close() })
+	var mu sync.Mutex
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		started := time.Now()
+		out := &recordedHTTP{ResponseWriter: w, sum: sha256.New()}
+		h.ServeHTTP(out, r)
+		status := out.status
+		if status == 0 {
+			status = 200
+		}
+		templ := recordedTemplate(r.Method, r.URL.Path)
+		if templ == "" {
+			return
+		}
+		record := struct {
+			Test, Method, Template string
+			Started, Finished int64
+			Status, Bytes          int
+			Digest                 string
+			Session                bool
+		}{t.Name(), r.Method, templ, started.UnixMilli(), time.Now().UnixMilli(), status, out.size, hex.EncodeToString(out.sum.Sum(nil)), false}
+		session, _ := r.Cookie("infrapro_session")
+		record.Session = session != nil && session.Value != ""
+		mu.Lock()
+		defer mu.Unlock()
+		if err := json.NewEncoder(file).Encode(record); err != nil && err != io.ErrClosedPipe {
+			t.Error(err)
+		}
+	})
+}
+func architectureRouter(t *testing.T, original originalRouter, logger *slog.Logger, service *identity.Service, cfg config.Config, storage ...*monitoring.Storage) http.Handler {
+	t.Helper()
+	return architectureRecord(t, architectureOwners(t, original, logger, service, cfg, storage...))
+}

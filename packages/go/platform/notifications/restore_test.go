@@ -59,9 +59,9 @@ func TestUpgradeFrom35AndIndependentNotificationRestore(t *testing.T) {
 	}
 	must(t, migrations.Up(ctx, parsed.String()))
 	must(t, migrations.Check(ctx, old))
-	// Migration 57 adds an empty avatar to existing accounts. Compare every original field
-	// and require the new fields to have their documented defaults.
-	must(t, old.QueryRow(ctx, `SELECT (to_jsonb(a)-'avatar_revision'-'avatar_object_id')::text FROM accounts a WHERE avatar_revision=0 AND avatar_object_id IS NULL`).Scan(&after))
+	// Compare every account field present in v35 and verify the defaults of the
+	// avatar (v57) and the column-level lock permission marker (v59).
+	must(t, old.QueryRow(ctx, `SELECT (to_jsonb(a)-'avatar_revision'-'avatar_object_id'-'architecture_lock')::text FROM accounts a WHERE avatar_revision=0 AND avatar_object_id IS NULL AND architecture_lock IS NULL`).Scan(&after))
 	if before != after {
 		t.Fatal("existing account changed on upgrade")
 	}

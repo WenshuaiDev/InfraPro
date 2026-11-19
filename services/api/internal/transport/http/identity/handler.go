@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"strconv"
@@ -103,7 +104,7 @@ func (h *Handler) PublicReady(c *gin.Context) {
 	}
 	c.Next()
 }
-func (h *Handler) Register(r *gin.Engine) {
+func (h *Handler) Register(r routes.Registrar) {
 	h.registerMFA(r)
 	h.registerAvatars(r)
 	pub := r.Group("/api/v1", h.PublicReady)

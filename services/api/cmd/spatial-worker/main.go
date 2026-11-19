@@ -29,7 +29,7 @@ func run() (resultErr error) {
 		}
 		reporter.Close()
 	}()
-	cfg, e := config.Load(os.Getenv("INFRAPRO_CONFIG"))
+	cfg, e := config.LoadRole(os.Getenv("INFRAPRO_CONFIG"), "spatial-worker")
 	if e != nil {
 		return e
 	}
@@ -49,8 +49,13 @@ func run() (resultErr error) {
 	if e != nil {
 		return e
 	}
-	defer host.Close()
+	defer host.CloseResult(&resultErr)
+	ctx = host.Context
 	business := runtime.Compose(host.Access, host.Monitoring).Configure(cfg)
+	diagnosticreport.SetMetric(reporter, "quota.pg_connections", int64(host.Pool.Config().MaxConns))
+	if limit := cfg.Architecture.ObjectRequests(); limit.Attached() {
+		diagnosticreport.SetMetric(reporter, "quota.s3_inflight", int64(limit.Capacity()))
+	}
 	reporter.Ready()
 	logger.Info("spatial worker ready")
 	business.Spatial.RunWorker(ctx, uuid.NewString(), func(e error) { logger.Warn("spatial task did not complete", "error", e) }, reporter)

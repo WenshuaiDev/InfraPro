@@ -12,26 +12,28 @@ import (
 )
 
 func (s *Service) sourceVectorTx(ctx context.Context, tx pgx.Tx, v Session, ids []string) (map[string]string, error) {
-	out := map[string]string{"environment": v.Environment, "config": v.ConfigID, "grant": v.Authorization}
-	for name, q := range map[string]string{
-		"raw":             `SELECT COALESCE((SELECT commit_sequence::text FROM monitoring_tenant_states WHERE tenant_id=$1),'0')`,
-		"derived":         `SELECT COALESCE(md5(string_agg(channel_id::text||':'||head_revision::text,',' ORDER BY channel_id)),'0') FROM derived_channel_heads WHERE tenant_id=$1 AND channel_id=ANY($2::uuid[])`,
-		"resources":       `SELECT COALESCE(md5(string_agg(id::text||':'||revision::text||':'||COALESCE(deleted_at::text,''),',' ORDER BY id)),'0') FROM engineering_resource_nodes WHERE tenant_id=$1 AND id=ANY($2::uuid[])`,
-		"control":         `SELECT COALESCE(max(id),0)::text FROM display_events WHERE tenant_id=$1 AND project_id=$3 AND (instance_id=$4 OR instance_id IS NULL) AND kind NOT IN ('query_failed','budget_rejected','resynchronized','session_ended')`,
-		"data_grants":     `SELECT COALESCE((SELECT revision::text FROM monitoring_access_states WHERE tenant_id=$1 AND project_id=$3),'0')`,
-		"resource_grants": `SELECT revision::text FROM project_resource_policies WHERE tenant_id=$1 AND project_id=$3`,
-	} {
-		args := []any{v.Tenant, ids, v.Project, v.InstanceID}
-		q = "WITH display_input AS (SELECT $1::uuid tenant,$2::uuid[] ids,$3::uuid project,$4::uuid instance) " + q
-		var value string
-		if e := tx.QueryRow(ctx, q, args...).Scan(&value); e != nil {
-			return nil, e
-		}
-		out[name] = value
+	var raw, derived, resources, control, dataGrants, resourceGrants string
+	err := tx.QueryRow(ctx, `SELECT
+        coalesce((SELECT commit_sequence::text FROM monitoring_tenant_states WHERE tenant_id=$1), '0'),
+        (SELECT coalesce(md5(string_agg(channel_id::text||':'||head_revision::text, ',' ORDER BY channel_id)), '0')
+           FROM derived_channel_heads WHERE tenant_id=$1 AND channel_id=ANY($2::uuid[])),
+        (SELECT coalesce(md5(string_agg(id::text||':'||revision::text||':'||coalesce(deleted_at::text,''), ',' ORDER BY id)), '0')
+           FROM engineering_resource_nodes WHERE tenant_id=$1 AND id=ANY($2::uuid[])),
+        (SELECT coalesce(max(id),0)::text FROM display_events WHERE tenant_id=$1 AND project_id=$3
+           AND (instance_id=$4 OR instance_id IS NULL) AND kind NOT IN ('query_failed','budget_rejected','resynchronized','session_ended')),
+        coalesce((SELECT revision::text FROM monitoring_access_states WHERE tenant_id=$1 AND project_id=$3), '0'),
+        policy.revision::text
+      FROM project_resource_policies policy WHERE policy.tenant_id=$1 AND policy.project_id=$3`, v.Tenant, ids, v.Project, v.InstanceID).
+		Scan(&raw, &derived, &resources, &control, &dataGrants, &resourceGrants)
+	if err != nil {
+		return nil, err
 	}
-	rev, e := access.Lock(ctx, tx, false)
-	out["authorization"] = rev
-	return out, e
+	authorization, err := access.Lock(ctx, tx, false)
+	return map[string]string{
+		"environment": v.Environment, "config": v.ConfigID, "grant": v.Authorization,
+		"raw": raw, "derived": derived, "resources": resources, "control": control,
+		"data_grants": dataGrants, "resource_grants": resourceGrants, "authorization": authorization,
+	}, err
 }
 func (s *Service) Query(ctx context.Context, v Session, call Call) (result Envelope, queryErr error) {
 	parent := ctx
@@ -49,6 +51,25 @@ func (s *Service) Query(ctx context.Context, v Session, call Call) (result Envel
 			s.RecordDiagnostic(parent, v, kind, code)
 		}
 	}()
+	if s.remoteRead != nil {
+		result, queryErr = s.queryRemote(ctx, v, call)
+	} else {
+		result, queryErr = s.queryLocal(ctx, v, call)
+	}
+	if queryErr == nil && !newReadCall(call) {
+		// The runtime owns the session. Record a legacy SDK delivery only after
+		// the final authorization check, also when another process read the data.
+		activity, cancel := context.WithDeadline(ctx, started.Add(15*time.Second))
+		defer cancel()
+		_ = s.access.Transact(activity, func(tx pgx.Tx) error {
+			_, err := tx.Exec(activity, `UPDATE display_sessions SET last_data_at=CASE WHEN $2<>'pending' THEN clock_timestamp() ELSE last_data_at END,last_query_state=$2 WHERE id=$1 AND state IN ('starting','ready','degraded')`, v.ID, result.State)
+			return err
+		})
+		result.ReadAt = time.Now().UTC().Format(time.RFC3339Nano)
+	}
+	return result, queryErr
+}
+func (s *Service) queryLocal(ctx context.Context, v Session, call Call) (Envelope, error) {
 	if newReadCall(call) {
 		return s.readQuery(ctx, v, call)
 	}
@@ -155,10 +176,6 @@ func (s *Service) Query(ctx context.Context, v Session, call Call) (result Envel
 	if slices.Contains([]string{"failed", "needs_action", "canceled"}, out.State) {
 		return out, problem("query_failed", "业务查询未完成，请检查数据准备状态。", 409)
 	}
-	_ = s.access.Transact(ctx, func(tx pgx.Tx) error {
-		_, e := tx.Exec(ctx, `UPDATE display_sessions SET last_data_at=CASE WHEN $2<>'pending' THEN clock_timestamp() ELSE last_data_at END,last_query_state=$2 WHERE id=$1 AND state IN ('starting','ready','degraded')`, v.ID, out.State)
-		return e
-	})
 	out.ReadAt = time.Now().UTC().Format(time.RFC3339Nano)
 	return out, nil
 }

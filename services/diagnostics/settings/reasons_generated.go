@@ -85,6 +85,12 @@ var Reasons = map[string]Reason{
 	"state_instance_mismatch":        {Code: "state_instance_mismatch", Title: "状态库属于其他实例", Hint: "在服务器本地核对相关配置、权限和最近采样时间；结果只代表已登记检查的范围。"},
 	"config_rollback":                {Code: "config_rollback", Title: "配置版本倒退，已拒绝加载", Hint: "在服务器本地核对相关配置、权限和最近采样时间；结果只代表已登记检查的范围。"},
 	"ok":                             {Code: "ok", Title: "检查通过", Hint: "在服务器本地核对相关配置、权限和最近采样时间；结果只代表已登记检查的范围。"},
+	"event_publish_failed":           {Code: "event_publish_failed", Title: "消息发布尚未确认", Hint: "检查转发器的发布确认数、最老待发送时间和消息流容量。"},
+	"event_position_gap":             {Code: "event_position_gap", Title: "消费位置存在缺口", Hint: "检查该消费组的上一连续位置和已隔离事件。"},
+	"event_quarantined":              {Code: "event_quarantined", Title: "事件已隔离", Hint: "在该消费组核对事实引用和隔离原因，再执行重驱。"},
+	"outbox_backpressure":            {Code: "outbox_backpressure", Title: "事件积压达到水位", Hint: "核对 PostgreSQL 待发送量与消息存储剩余容量。"},
+	"dispatch_fence_rejected":        {Code: "dispatch_fence_rejected", Title: "旧执行代次被拒绝", Hint: "核对执行归属、租约和最近切换时间。"},
+	"broker_unavailable":             {Code: "broker_unavailable", Title: "消息服务不可用", Hint: "检查消息节点、流副本状态及 PostgreSQL 回补进度。"},
 }
 
 func KnownReason(code string) bool { _, ok := Reasons[code]; return ok }

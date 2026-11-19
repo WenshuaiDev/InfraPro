@@ -6,10 +6,13 @@ import (
 	"crypto/tls"
 	"encoding/hex"
 	"fmt"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/requestlimit"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"io"
 	"net"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -35,6 +38,8 @@ type PhysicalShardConfig struct {
 }
 
 type StorageConfig struct {
+	ObjectRequests                                           *requestlimit.Limit
+	ConnectionsPerReplica                                    int
 	Shards                                                   []PhysicalShardConfig
 	HotDays                                                  int
 	OnlineVolume                                             string
@@ -55,6 +60,15 @@ type Storage struct {
 }
 
 func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
+	return openStorage(ctx, cfg, true)
+}
+
+// ConnectStorage constructs lazy clients so an unrelated control request can start during a storage outage.
+func ConnectStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
+	return openStorage(ctx, cfg, false)
+}
+
+func openStorage(ctx context.Context, cfg StorageConfig, probe bool) (*Storage, error) {
 	if cfg.HotDays == 0 {
 		cfg.HotDays = 90
 	}
@@ -64,6 +78,8 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 	if cfg.HotDays < 1 || cfg.HotDays > 3650 || !regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`).MatchString(cfg.OnlineVolume) {
 		return nil, fmt.Errorf("invalid monitoring online tier configuration")
 	}
+	// Independently starting roles can share the caller's replica endpoints.
+	cfg.Replicas = slices.Clone(cfg.Replicas)
 	seen := map[string]bool{}
 	for i, addr := range cfg.Replicas {
 		host, port, e := net.SplitHostPort(strings.TrimSpace(addr))
@@ -95,13 +111,20 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 	if e != nil || endpoint.Host == "" || (endpoint.Scheme != "https" && endpoint.Scheme != "http") || endpoint.User != nil || endpoint.RawQuery != "" || endpoint.Fragment != "" || (endpoint.Path != "" && endpoint.Path != "/") || cfg.Bucket == "" {
 		return nil, fmt.Errorf("invalid monitoring object configuration")
 	}
-	client, e := minio.New(endpoint.Host, &minio.Options{Creds: credentials.NewStaticV4(cfg.ObjectAccessKey, cfg.ObjectSecretKey, ""), Secure: endpoint.Scheme == "https", BucketLookup: minio.BucketLookupPath})
+	tr, e := blobstore.Transport(endpoint.Scheme == "https", cfg.ObjectRequests)
+	if e != nil {
+		return nil, e
+	}
+	client, e := minio.New(endpoint.Host, &minio.Options{Creds: credentials.NewStaticV4(cfg.ObjectAccessKey, cfg.ObjectSecretKey, ""), Secure: endpoint.Scheme == "https", Transport: tr, BucketLookup: minio.BucketLookupPath})
 	if e != nil {
 		return nil, fmt.Errorf("invalid monitoring object client")
 	}
+	if cfg.ConnectionsPerReplica == 0 {
+		cfg.ConnectionsPerReplica = 6
+	}
 	s := &Storage{config: cfg, objects: client, shards: map[string]*Storage{}}
 	for _, addr := range cfg.Replicas {
-		opt := &clickhouse.Options{Addr: []string{addr}, Auth: clickhouse.Auth{Username: cfg.User, Password: cfg.Password}, DialTimeout: 5 * time.Second, ReadTimeout: 2 * time.Minute, MaxOpenConns: 6, MaxIdleConns: 2, Settings: clickhouse.Settings{
+		opt := &clickhouse.Options{Addr: []string{addr}, Auth: clickhouse.Auth{Username: cfg.User, Password: cfg.Password}, DialTimeout: 5 * time.Second, ReadTimeout: 2 * time.Minute, MaxOpenConns: cfg.ConnectionsPerReplica, MaxIdleConns: min(2, cfg.ConnectionsPerReplica), Settings: clickhouse.Settings{
 			"max_execution_time": 120, "max_memory_usage": 512 << 20, "max_threads": 2, "skip_unavailable_shards": 0,
 			"max_block_size": 8192, "preferred_block_size_bytes": 1 << 20, "max_streams_to_max_threads_ratio": 1,
 			// Authorization joins can require a sort even when the underlying
@@ -117,9 +140,11 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 			return nil, fmt.Errorf("invalid monitoring replica configuration")
 		}
 		s.replicas = append(s.replicas, c)
-		if e = c.Ping(ctx); e != nil {
-			s.Close()
-			return nil, fmt.Errorf("monitoring replica unavailable")
+		if probe {
+			if e = c.Ping(ctx); e != nil {
+				s.Close()
+				return nil, fmt.Errorf("monitoring replica unavailable")
+			}
 		}
 	}
 	if len(cfg.Shards) > 32 {
@@ -137,7 +162,7 @@ func OpenStorage(ctx context.Context, cfg StorageConfig) (*Storage, error) {
 		child.Shards = nil
 		child.Database = shard.Database
 		child.Replicas = shard.Replicas
-		part, err := OpenStorage(ctx, child)
+		part, err := openStorage(ctx, child, probe)
 		if err != nil {
 			s.Close()
 			return nil, err
@@ -613,11 +638,15 @@ func (s *Storage) put(ctx context.Context, key string, r io.Reader, size int64, 
 	}
 	return e
 }
-func (s *Storage) get(ctx context.Context, key string) (objectReader, error) {
+func (s *Storage) openObject(ctx context.Context, key string) (*minio.Object, error) {
 	if key == "" || strings.Contains(key, "..") || strings.HasPrefix(key, "/") {
 		return nil, fmt.Errorf("invalid object reference")
 	}
-	object, e := s.objects.GetObject(ctx, s.config.Bucket, key, minio.GetObjectOptions{})
+	return s.objects.GetObject(ctx, s.config.Bucket, key, minio.GetObjectOptions{})
+}
+
+func (s *Storage) get(ctx context.Context, key string) (objectReader, error) {
+	object, e := s.openObject(ctx, key)
 	if e != nil {
 		return nil, e
 	}
@@ -625,9 +654,27 @@ func (s *Storage) get(ctx context.Context, key string) (objectReader, error) {
 		object.Close()
 		return nil, e
 	}
+	return measureObjectRead(ctx, object), nil
+}
+
+func measureObjectRead(ctx context.Context, object *minio.Object) objectReader {
 	if m, ok := ctx.Value(traceKey{}).(*traceMetrics); ok {
 		m.objectReads.Add(1)
-		return &measuredObject{object, m}, nil
+		return &measuredObject{object, m}
 	}
-	return object, nil
+	return object
+}
+
+func (s *Storage) ConnectionLimit() int {
+	if s == nil {
+		return 0
+	}
+	limit := 0
+	for _, replica := range s.replicas {
+		limit += replica.Stats().MaxOpenConns
+	}
+	for _, shard := range s.shards {
+		limit += shard.ConnectionLimit()
+	}
+	return limit
 }

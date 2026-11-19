@@ -11,6 +11,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/resources"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/spatial"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -63,7 +64,7 @@ func reply(c *gin.Context, out any, e error) {
 	}
 	c.JSON(200, out)
 }
-func Register(r *gin.Engine, auth *identity.Service, s *display.Service) {
+func Register(r routes.Registrar, auth *identity.Service, s *display.Service) {
 	for _, policy := range access.Policies() {
 		if !strings.HasPrefix(string(policy.Operation), "Display:") {
 			continue

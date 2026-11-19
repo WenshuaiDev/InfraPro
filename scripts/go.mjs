@@ -1,3 +1,4 @@
+import { inventory } from './architecture-runtime.mjs';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { resolve, join, basename } from 'node:path';
@@ -56,5 +57,9 @@ if (action === 'build') {
       names.add(name);
       go(['build', '-trimpath', '-o', join(outputDir, name), `./cmd/${name}`], module);
     }
+  }
+  for (const {binary,module,entrypoint} of Object.values(inventory.roles)) {
+    if(entrypoint){if(!existsSync(join(root,entrypoint)))throw Error('Runtime entrypoint missing: '+entrypoint);continue;}
+    if (module !== 'external' && !names.has(binary)) throw Error('Runtime inventory binary missing from release: ' + binary);
   }
 }

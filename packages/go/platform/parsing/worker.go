@@ -118,11 +118,14 @@ func (s *Service) claim(ctx context.Context) (*claim, error) {
 			if failure != "" {
 				return s.terminalTx(ctx, tx, r, x, "failed", failure, nil, "", nil)
 			}
-			var running int
-			if e = tx.QueryRow(ctx, `SELECT count(*) FROM parsing_runs r JOIN parsing_run_executions e ON e.run_id=r.id AND e.generation=r.current_generation WHERE r.scope_key=$1 AND e.state='running' AND e.lease_until>clock_timestamp()`, scopeKey(auth.Scope)).Scan(&running); e != nil {
+			if _, e = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(754048)`); e != nil {
 				return e
 			}
-			if running >= s.options.Concurrency {
+			var running, all int
+			if e = tx.QueryRow(ctx, `SELECT count(*) FILTER(WHERE r.scope_key=$1),count(*) FROM parsing_runs r JOIN parsing_run_executions e ON e.run_id=r.id AND e.generation=r.current_generation WHERE e.state='running' AND e.lease_until>clock_timestamp()`, scopeKey(auth.Scope)).Scan(&running, &all); e != nil {
+				return e
+			}
+			if running >= s.options.Concurrency || all >= ExecutorSlots {
 				return nil
 			}
 			if _, e = tx.Exec(ctx, `UPDATE parsing_run_executions SET state='running',fence=fence+1,lease_until=clock_timestamp()+interval '45 seconds',started_at=COALESCE(started_at,clock_timestamp()) WHERE run_id=$1 AND generation=$2`, r.ID, r.Generation); e != nil {
@@ -172,6 +175,12 @@ func (s *Service) terminalTx(ctx context.Context, tx pgx.Tx, r Run, x Execution,
 	return e
 }
 func (s *Service) RunOne(ctx context.Context) (bool, error) {
+	return s.runOne(ctx, func(ctx context.Context, scope, attempt string, req c.Request, entry c.Entry) ([]byte, c.Response, error) {
+		return s.ExecuteFixed(MachineWork(ctx, scope, attempt, false), req, entry)
+	})
+}
+
+func (s *Service) runOne(ctx context.Context, execute func(context.Context, string, string, c.Request, c.Entry) ([]byte, c.Response, error)) (bool, error) {
 	if !s.options.Enabled {
 		return false, nil
 	}
@@ -199,8 +208,18 @@ func (s *Service) RunOne(ctx context.Context) (bool, error) {
 	if e != nil {
 		return true, s.finish(ctx, r, x, "failed", codeOf(e), nil, "", nil)
 	}
+	var machineID string
+	for _, recorded := range x.Attempts {
+		if recorded.Attempt == 1 {
+			machineID = recorded.ExecutionID
+			break
+		}
+	}
 	for attempt := len(x.Attempts) + 1; attempt <= 3; attempt++ {
 		executionID := uuid.NewString()
+		if machineID == "" {
+			machineID = executionID
+		}
 		var resultObject object
 		allowed := false
 		e = s.workerTx(ctx, r, x.ActorID, func(tx pgx.Tx, _ k.Authorization, authorizationErr error) error {
@@ -234,7 +253,7 @@ func (s *Service) RunOne(ctx context.Context) (bool, error) {
 		if e != nil || !allowed {
 			return true, e
 		}
-		req := c.Request{ContractVersion: 1, ExecutionID: executionID, Method: r.Input.Entry.Method(), Input: c.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: r.Input.Sample.SHA256, ByteLength: len(raw)}, Context: r.Input.Context, TraceID: r.Input.TraceID}
+		req := c.Request{ContractVersion: 1, ExecutionID: machineID, Method: r.Input.Entry.Method(), Input: c.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: r.Input.Sample.SHA256, ByteLength: len(raw)}, Context: r.Input.Context, TraceID: r.Input.TraceID}
 		callCtx, cancel := context.WithCancel(ctx)
 		watchDone := make(chan struct{})
 		go func() {
@@ -255,7 +274,7 @@ func (s *Service) RunOne(ctx context.Context) (bool, error) {
 				}
 			}
 		}()
-		responseBytes, response, callErr := s.ExecuteFixed(callCtx, req, r.Input.Entry)
+		responseBytes, response, callErr := execute(callCtx, scopeKey(runScope(r)), executionID, req, r.Input.Entry)
 		cancel()
 		<-watchDone
 		var stored *object
@@ -348,6 +367,8 @@ func (s *Service) finish(ctx context.Context, r Run, x Execution, state, code st
 	})
 }
 func (s *Service) RunWorker(ctx context.Context, reporter diagnosticreport.Sink) error {
+	reporter = diagnosticreport.OrNoop(reporter)
+
 	group := diagnosticreport.NewGroup(reporter, "parsing", 4)
 	var wg sync.WaitGroup
 	for i := 0; i < 4; i++ {
@@ -384,7 +405,7 @@ func (s *Service) RunWorker(ctx context.Context, reporter diagnosticreport.Sink)
 				return
 			case <-timer.C:
 				reporter.Begin("parsing-maintenance", time.Now().Add(30*time.Second))
-				e := s.Cleanup(ctx)
+				e := s.access.RunScheduled(ctx, "manual-parsing-cleanup", time.Minute, s.Cleanup)
 				reason := ""
 				if e != nil {
 					reason = "loop_failed"

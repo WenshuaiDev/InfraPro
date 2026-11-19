@@ -243,6 +243,32 @@
             "additionalProperties": false,
             "properties": {
               "adapter": {
+                "const": "jetstream_health",
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "adapter",
+              "host",
+              "port"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
                 "const": "keeper_live",
                 "type": "string"
               },
@@ -355,6 +381,30 @@
               "database",
               "username",
               "tls_mode"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "adapter": {
+                "const": "proxy_listener",
+                "type": "string"
+              },
+              "host": {
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "adapter"
             ],
             "type": "object"
           },

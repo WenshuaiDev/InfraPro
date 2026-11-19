@@ -1,6 +1,7 @@
 package classificationhttp
 
 import (
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"strconv"
@@ -21,7 +22,7 @@ func decode(ctx *gin.Context, v any) error {
 	}
 	return c.Decode(raw, v)
 }
-func Register(r *gin.Engine, i *identity.Service, s *c.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *c.Service) {
 	for _, p := range access.Policies() {
 		parts := strings.Split(string(p.Operation), ":")
 		if len(parts) != 4 || parts[0] != "Device" || parts[2] != "classification" {

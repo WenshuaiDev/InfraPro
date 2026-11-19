@@ -1,0 +1,23 @@
+[Unit]
+Description=InfraPro private replica TCP listeners
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/infrapro/current/deploy/architecture/replica-proxy.py /etc/infrapro/replica-proxy.json
+DynamicUser=true
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
+PrivateDevices=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6
+MemoryMax=128M
+CPUQuota=50%
+TasksMax=32
+TemporaryFileSystem=/tmp:rw,size=16M,mode=1777
+Restart=on-failure
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

@@ -26,7 +26,7 @@ window.addEventListener('pagehide', () => sdk.dispose(), { once: true });
 
 ## 读取 API
 
-1.1 新增命名读取视图，和下述旧绑定接口并存。Manifest 2 在 `read_views` 声明领域、用途和 required 字段；管理端将它映射到当前实例授权范围。调用形态决定返回类型，旧绑定语义保持不变。
+1.1 新增命名读取视图，和下述旧绑定接口并存。程序在 Manifest 2 的 `read_view_schema` 声明视图名称、领域、用途和是否必需。管理端在 `read_scopes` 授予范围与字段，再用配置的 `read_views` 将程序视图映射到授权范围。调用形态决定返回类型。
 
 ```ts
 const handle = sdk.queries.consume('statistics.monitoring', {

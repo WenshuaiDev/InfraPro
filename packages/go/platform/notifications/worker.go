@@ -34,14 +34,20 @@ type claim struct {
 }
 
 func (s *Service) claim(ctx context.Context) ([]claim, error) {
+	return s.claimDeliveries(ctx, "")
+}
+
+// An empty ID runs bounded reconciliation. A message targets the same
+// recipient rows and leases by their immutable, indexed source event ID.
+func (s *Service) claimDeliveries(ctx context.Context, eventID string) ([]claim, error) {
 	out := []claim{}
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
 		// Expand a bounded piece of the original immutable recipient set. A late
 		// commit remains pending even when larger IDs have already been consumed.
-		if _, e := tx.Exec(ctx, `WITH batch AS (SELECT event_id,account_id FROM notification_recipients WHERE expanded_at IS NULL ORDER BY event_id,account_id LIMIT $1 FOR UPDATE SKIP LOCKED), staged AS (INSERT INTO notification_deliveries(event_id,account_id) SELECT event_id,account_id FROM batch ON CONFLICT DO NOTHING) UPDATE notification_recipients r SET expanded_at=clock_timestamp() FROM batch b WHERE r.event_id=b.event_id AND r.account_id=b.account_id`, s.options.Batch); e != nil {
+		if _, e := tx.Exec(ctx, `WITH batch AS (SELECT event_id,account_id FROM notification_recipients WHERE expanded_at IS NULL AND ($2::uuid IS NULL OR event_id=$2) ORDER BY event_id,account_id LIMIT $1 FOR UPDATE SKIP LOCKED), staged AS (INSERT INTO notification_deliveries(event_id,account_id) SELECT event_id,account_id FROM batch ON CONFLICT DO NOTHING) UPDATE notification_recipients r SET expanded_at=clock_timestamp() FROM batch b WHERE r.event_id=b.event_id AND r.account_id=b.account_id`, s.options.Batch, eventKey(eventID)); e != nil {
 			return e
 		}
-		rows, e := tx.Query(ctx, `WITH candidates AS (SELECT event_id,account_id FROM notification_deliveries WHERE (state IN ('pending','retry') AND available_at<=clock_timestamp()) OR (state='processing' AND lease_until<clock_timestamp()) ORDER BY available_at,event_id,account_id LIMIT $1 FOR UPDATE SKIP LOCKED) UPDATE notification_deliveries d SET state='processing',lease_until=clock_timestamp()+$2::bigint*interval '1 millisecond',fence=fence+1,attempts=attempts+1,updated_at=clock_timestamp() FROM candidates c WHERE d.event_id=c.event_id AND d.account_id=c.account_id RETURNING d.event_id::text,d.account_id::text,d.fence,d.attempts`, s.options.Batch, s.options.Lease.Milliseconds())
+		rows, e := tx.Query(ctx, `WITH candidates AS (SELECT event_id,account_id FROM notification_deliveries WHERE ($3::uuid IS NULL OR event_id=$3) AND ((state IN ('pending','retry') AND available_at<=clock_timestamp()) OR (state='processing' AND lease_until<clock_timestamp())) ORDER BY available_at,event_id,account_id LIMIT $1 FOR UPDATE SKIP LOCKED) UPDATE notification_deliveries d SET state='processing',lease_until=clock_timestamp()+$2::bigint*interval '1 millisecond',fence=fence+1,attempts=attempts+1,updated_at=clock_timestamp() FROM candidates c WHERE d.event_id=c.event_id AND d.account_id=c.account_id RETURNING d.event_id::text,d.account_id::text,d.fence,d.attempts`, s.options.Batch, s.options.Lease.Milliseconds(), eventKey(eventID))
 		if e != nil {
 			return e
 		}
@@ -147,14 +153,41 @@ func (s *Service) failure(ctx context.Context, c claim, cause error) error {
 	})
 }
 func (s *Service) Tick(ctx context.Context) (int, error) {
-	var errs []error
-	// A failing source bridge must not prevent independent account notifications.
-	for _, f := range s.maintenance {
-		if e := f(ctx); e != nil {
-			errs = append(errs, e)
+	return s.tick(ctx, true, false)
+}
+func (s *Service) tick(ctx context.Context, scan, scheduled bool) (int, error) {
+	maintain := func(ctx context.Context) error {
+		var errs []error
+		// A failing source bridge must not prevent independent account notifications.
+		for _, operation := range s.maintenance {
+			if e := operation(ctx); e != nil {
+				errs = append(errs, e)
+			}
 		}
+		return errors.Join(errs...)
 	}
-	claims, e := s.claim(ctx)
+	var e error
+	if scheduled {
+		e = s.access.RunScheduled(ctx, "notification-maintenance", s.options.Poll, maintain)
+	} else {
+		e = maintain(ctx)
+	}
+	if !scan {
+		return 0, e
+	}
+	n, delivery := s.deliverBatch(ctx, "")
+	return n, errors.Join(e, delivery)
+}
+
+func eventKey(id string) any {
+	if id == "" {
+		return nil
+	}
+	return id
+}
+func (s *Service) deliverBatch(ctx context.Context, id string) (int, error) {
+	var errs []error
+	claims, e := s.claimDeliveries(ctx, id)
 	if e != nil {
 		return 0, errors.Join(append(errs, e)...)
 	}
@@ -169,7 +202,36 @@ func (s *Service) Tick(ctx context.Context) (int, error) {
 	return len(claims), errors.Join(errs...)
 }
 
+// DeliverEvent finishes a bounded page and tells the dispatcher whether this
+// event still has recoverable deliveries. A failed/suppressed/de-duplicated
+// recipient is a durable outcome handled by the existing delivery protocol.
+func (s *Service) DeliverEvent(ctx context.Context, id string, version int64, scope string) (pending bool, err error) {
+	if !access.ValidID(id) || version != 1 {
+		return false, pgx.ErrNoRows
+	}
+	err = s.access.Transact(ctx, func(tx pgx.Tx) error {
+		var authorized bool
+		return tx.QueryRow(ctx, `SELECT true FROM notification_events WHERE id=$1 AND COALESCE(tenant_id::text,'platform')=$2`, id, scope).Scan(&authorized)
+	})
+	if err != nil {
+		return false, err
+	}
+	if _, err = s.deliverBatch(ctx, id); err != nil {
+		return false, err
+	}
+	err = s.access.Transact(ctx, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM notification_recipients WHERE event_id=e.id AND expanded_at IS NULL)
+			OR EXISTS(SELECT 1 FROM notification_deliveries WHERE event_id=e.id AND state IN ('pending','processing','retry'))
+			FROM notification_events e WHERE e.id=$1`, id).Scan(&pending)
+	})
+	return pending, err
+}
+
 func (s *Service) Run(ctx context.Context, worker string, report func(error), reporters ...diagnosticreport.Sink) {
+	s.RunWithFallback(ctx, 0, worker, report, reporters...)
+}
+func (s *Service) RunWithFallback(ctx context.Context, interval time.Duration, worker string, report func(error), reporters ...diagnosticreport.Sink) {
+	var nextScan time.Time
 	reporter := diagnosticreport.Optional(reporters)
 	ticker := time.NewTicker(s.options.Poll)
 	defer ticker.Stop()
@@ -181,7 +243,11 @@ func (s *Service) Run(ctx context.Context, worker string, report func(error), re
 		})
 		reporter.Dependency("postgres", e == nil, diagnosticreport.Result(e))
 		if e == nil {
-			_, e = s.Tick(ctx)
+			scan := !time.Now().Before(nextScan)
+			_, e = s.tick(ctx, scan, true)
+			if scan {
+				nextScan = time.Now().Add(interval)
+			}
 		}
 		reporter.End("delivery", diagnosticreport.Result(e), time.Now().Add(s.options.Poll))
 		if e != nil && ctx.Err() == nil && report != nil {

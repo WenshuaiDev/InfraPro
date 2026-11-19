@@ -6,13 +6,14 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/devices"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	s "github.com/WenshuaiDev/InfraPro/packages/go/platform/sources"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	h "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecommon"
 	ih "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
-func Register(r *gin.Engine, i *identity.Service, service *s.Service) {
+func Register(r routes.Registrar, i *identity.Service, service *s.Service) {
 	for _, p := range access.Policies() {
 		parts := strings.Split(string(p.Operation), ":")
 		if len(parts) != 4 || parts[0] != "Device" || (parts[2] != "source" && !(parts[2] == "output" && (parts[3] == "channel-candidates" || parts[3] == "source-history"))) {

@@ -91,20 +91,33 @@ test('governance B uses real summaries, filters, pagination and accessible respo
     await page.getByRole('link', { name: '返回项目治理', exact: true }).click();
 
     // Cross the real page boundary; totals remain tenant-wide on every page.
-    for (let index = 0; index < 19; index++) await f.create('extra-' + index);
+    const expectedProjects = [first, second];
+    for (let index = 0; index < 19; index++) expectedProjects.push(await f.create('extra-' + index));
     await page.reload();
     await expect(cards).toHaveCount(20);
     await expect(page.getByRole('button', { name: '查看全部项目', exact: true })).toContainText('21');
-    await page.getByRole('button', { name: '加载更多项目', exact: true }).click();
-    await expect(cards).toHaveCount(21);
-    await expect(page.getByRole('main').getByRole('status')).toContainText('已显示 21 / 21 个项目');
+    const pager = page.getByRole('navigation', { name: '项目治理分页', exact: true });
+    const cardIDs = () => cards.evaluateAll(rows => rows.map(row => row.getAttribute('data-project-card')));
+    const firstPage = await cardIDs();
+    const next = pager.getByRole('button', { name: '下一页', exact: true });
+    await next.click();
+    await expect(cards).toHaveCount(1);
+    const lastPage = await cardIDs();
+    expect([...firstPage, ...lastPage].sort()).toEqual([...expectedProjects].sort());
+    await expect(pager.getByRole('status')).toContainText('第 2 页 · 末页');
+    await expect(page.getByText('已显示 1 / 21 个项目', { exact: false })).toBeVisible();
+    await expect(next).toBeDisabled();
+    await pager.getByRole('button', { name: '上一页', exact: true }).click();
+    await expect(cards).toHaveCount(20);
+    expect(await cardIDs()).toEqual(firstPage);
     await page.route(`**/api/v1/tenants/${f.tid}/project-governance?*`, route => route.fulfill({ status: 503, json: { code: 'unavailable', message: '项目列表暂时不可用' } }));
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(page.getByRole('alert')).toContainText('项目列表暂时不可用');
     await expect(cards).toHaveCount(0);
     await page.unroute(`**/api/v1/tenants/${f.tid}/project-governance?*`);
     await page.getByRole('button', { name: '重新加载', exact: true }).click();
-    await expect(cards).toHaveCount(21);
+    await expect(cards).toHaveCount(20);
+    expect(await cardIDs()).toEqual(firstPage);
     // A changed qualification response must dispose of already-rendered cards.
     // Server-side role boundaries are independently verified by the Go tests.
     await page.route(`**/api/v1/tenants/${f.tid}/context`, async route => {

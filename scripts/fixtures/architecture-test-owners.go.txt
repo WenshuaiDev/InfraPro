@@ -1,0 +1,84 @@
+package http_test
+
+import (
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/privateapi"
+	api "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http"
+	"log/slog"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
+// Domain tests inject existing object/checker/parser adapters. Keep each test's
+// prerequisites, then exercise the real gateway, TLS/route owners, verifier,
+// read executor and short-trial RPC. Independent binary tests cover startup.
+func architectureOwners(t *testing.T, original originalRouter, logger *slog.Logger, s *identity.Service, cfg config.Config, storage ...*monitoring.Storage) http.Handler {
+	if s == nil || cfg.DatabaseURL == "" {
+		return original(logger, s, cfg, storage...)
+	}
+	endpoints := map[string]string{}
+	servers := map[string]*httptest.Server{}
+	const incremental = "monitoring-incremental-worker"
+	for _, role := range append([]string{incremental}, config.Owners...) {
+		srv := httptest.NewUnstartedServer(nil)
+		servers[role] = srv
+		endpoints[role] = "https://" + srv.Listener.Addr().String()
+		t.Cleanup(srv.Close)
+	}
+	netFor := func(role string) *privateapi.Network {
+		n, err := privateapi.Open(&config.Architecture{Role: role, Endpoints: endpoints, CertDirectory: filepath.Join(os.Getenv("INFRAPRO_ARCH_TEST_TOPOLOGY"), "roles", role, "tls"), DisplaySplit: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(n.Close)
+		return n
+	}
+	for role, srv := range servers {
+		n := netFor(role)
+		local := cfg
+		local.Architecture = n.Arch
+		srv.TLS = n.TLS
+		mux := http.NewServeMux()
+		verify := n.Verify
+		if role == config.Identity {
+			verify = privateapi.LocalVerify(s)
+			mux.Handle(privateapi.SessionPath, privateapi.VerifyHandler(s))
+		}
+		if role == incremental {
+			b := runtime.Compose(s.Access(), storage...).Configure(local)
+			mux.Handle(privateapi.TrialPath, privateapi.TrialHandler(b.DerivedMonitoring, 5*time.Second))
+			srv.Config.Handler = mux
+			srv.StartTLS()
+			continue
+		}
+		mux.Handle(api.ReadyPath, privateapi.Allow([]string{config.Gateway}, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { privateapi.Write(w, s.Ready(r.Context()) == nil) })))
+		domain := api.OwnerRouter(logger, s, local, role, verify, func(b runtime.Business) {
+			if role == config.Control {
+				b.DerivedMonitoring.WithTrialAttempt(n.AttemptTrial)
+			}
+			if role == config.Query {
+				mux.Handle(privateapi.ReadsPath, privateapi.ReadsHandler(b.Displays))
+			}
+		}, storage...)
+		pub := api.FromGateway(domain)
+		srv.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/internal/") {
+				mux.ServeHTTP(w, r)
+				return
+			}
+			pub.ServeHTTP(w, r)
+		})
+		srv.StartTLS()
+	}
+	gateway := netFor(config.Gateway)
+	cfg.Architecture = gateway.Arch
+	return api.Gateway(cfg, gateway, logger)
+}

@@ -4,11 +4,13 @@ export function label(value: string) { return labels[value] ?? reason(value).tit
 export function timestamp(value?: string | null) { return value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '尚未采集'; }
 export function metricValue(metric: Metric) {
   if (metric.value === null || metric.availability !== 'available') return metric.availability === 'unlimited' ? '无限制' : metric.availability === 'permission_denied' ? '无权限' : metric.availability === 'unsupported' ? '不适用' : '未获取';
+  if (metric.unit === 'position' && typeof metric.value === 'string') return metric.value;
   const value = Number(metric.value); if (!Number.isFinite(value)) return '未获取';
   if (metric.unit === 'bytes') { if (value >= 1024 ** 3) return `${(value / 1024 ** 3).toFixed(1)} GiB`; if (value >= 1024 ** 2) return `${(value / 1024 ** 2).toFixed(1)} MiB`; return `${value.toLocaleString()} B`; }
   if (metric.unit === 'ratio') return `${(value * 100).toFixed(1)}%`;
   if (metric.unit === 'cores') return `${value.toFixed(2)} 核`;
   if (metric.unit === 'bytes_per_second') return `${(value / 1024).toFixed(1)} KiB/s`;
+  if (metric.unit === 'milliseconds') return `${value.toLocaleString()} 毫秒`;
   return value.toLocaleString();
 }
 

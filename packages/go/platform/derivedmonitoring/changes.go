@@ -143,13 +143,24 @@ func (s *Service) impactGraphTx(ctx context.Context, tx pgx.Tx, tenant string) (
 // ConsumeChanges commits invalidation and cursor advancement together. A
 // rollback repeats the same bounded source batch; a restart cannot skip it.
 func (s *Service) ConsumeChanges(ctx context.Context, tenant string, now time.Time) (int, error) {
+	n, _, e := s.consumeThrough(ctx, tenant, now, math.MaxInt64)
+	return n, e
+}
+
+// ConsumeThrough advances at most one bounded transaction. The caller can retry
+// the same notice until the durable cursor reaches its requested position.
+func (s *Service) ConsumeThrough(ctx context.Context, tenant string, position int64, now time.Time) (bool, error) {
+	_, cursor, e := s.consumeThrough(ctx, tenant, now, position)
+	return cursor >= position, e
+}
+func (s *Service) consumeThrough(ctx context.Context, tenant string, now time.Time, target int64) (int, int64, error) {
 	processed := 0
+	var cursor int64
 	e := s.systemTx(ctx, tenant, func(tx pgx.Tx, graph string) error {
 		if _, e := tx.Exec(ctx, `INSERT INTO monitoring_change_consumers(tenant_id,consumer) VALUES($1,$2) ON CONFLICT DO NOTHING`, tenant, changeConsumer); e != nil {
 			return e
 		}
-		var cursor int64
-		if e := tx.QueryRow(ctx, `SELECT durable_cursor FROM monitoring_change_consumers WHERE tenant_id=$1 AND consumer=$2 FOR UPDATE`, tenant, changeConsumer).Scan(&cursor); e != nil {
+		if e := tx.QueryRow(ctx, `SELECT greatest(durable_cursor,COALESCE((SELECT prior_position FROM monitoring_change_origins WHERE tenant_id=$1),0)) FROM monitoring_change_consumers WHERE tenant_id=$1 AND consumer=$2 FOR UPDATE`, tenant, changeConsumer).Scan(&cursor); e != nil {
 			return e
 		}
 		type event struct {
@@ -157,7 +168,7 @@ func (s *Service) ConsumeChanges(ctx context.Context, tenant string, now time.Ti
 			kind     string
 			position int64
 		}
-		rows, e := tx.Query(ctx, `SELECT id::text,change_type,source_position FROM monitoring_changes WHERE tenant_id=$1 AND source_position>$2 ORDER BY source_position LIMIT $3`, tenant, cursor, s.options.EventBatch)
+		rows, e := tx.Query(ctx, `SELECT id::text,change_type,source_position FROM monitoring_changes WHERE tenant_id=$1 AND source_position>$2 AND source_position<=$4 ORDER BY source_position LIMIT $3`, tenant, cursor, s.options.EventBatch, target)
 		if e != nil {
 			return e
 		}
@@ -181,6 +192,9 @@ func (s *Service) ConsumeChanges(ctx context.Context, tenant string, now time.Ti
 				return e
 			}
 			for _, event := range events {
+				if event.position != cursor+1 {
+					break
+				} // wait for the missing immutable fact
 				changed := map[string][]planning.Range{}
 				horizon := now.UnixNano()
 				if horizon < math.MaxInt64 {
@@ -270,5 +284,5 @@ func (s *Service) ConsumeChanges(ctx context.Context, tenant string, now time.Ti
 		_, e = tx.Exec(ctx, `UPDATE monitoring_change_consumers SET durable_cursor=$3,updated_at=clock_timestamp() WHERE tenant_id=$1 AND consumer=$2`, tenant, changeConsumer, cursor)
 		return e
 	})
-	return processed, e
+	return processed, cursor, e
 }

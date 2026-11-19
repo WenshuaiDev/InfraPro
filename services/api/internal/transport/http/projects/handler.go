@@ -5,13 +5,13 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/projects"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"slices"
 	"strconv"
-	"strings"
 )
 
 func decode[T any](c *gin.Context) (T, bool) {
@@ -61,7 +61,7 @@ func filter(c *gin.Context) projects.Filter {
 	}
 	return projects.Filter{Query: c.Query("q"), Cursor: c.Query("cursor"), Limit: n, Status: c.Query("status"), Source: c.Query("source"), Owner: c.Query("owner_tenant_membership_id"), Unavailable: c.Query("administrator_unavailable"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), ObjectID: c.Query("object_id"), ActorID: c.Query("actor_id")}
 }
-func Register(r *gin.Engine, i *identity.Service, s *projects.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *projects.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}
@@ -239,13 +239,6 @@ func Register(r *gin.Engine, i *identity.Service, s *projects.Service) {
 					reply(c, v, e)
 				}
 			})
-		}
-	}
-	for _, route := range r.Routes() {
-		if strings.Contains(route.Path, "/projects") || strings.Contains(route.Path, "/project-") {
-			if _, ok := access.RoutePolicy(route.Method, route.Path); !ok {
-				panic("project policy missing")
-			}
 		}
 	}
 }

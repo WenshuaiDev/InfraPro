@@ -13,7 +13,8 @@ import { ListFilter, ListPagination } from '@infrapro/ui/patterns/list-controls'
 import { ResponsivePanel } from '@infrapro/ui/patterns/responsive-panel';
 import { useCursorList } from '../../hooks/use-cursor-list';
 import { useTenant } from './context';
-import { MemberActions } from './member-actions';
+import { MemberActions, MemberMenu } from './member-actions';
+import { useDirectoryAction } from './directory-action';
 import { TenantMemberDetails } from './member-details';
 import { MemberRoles, MemberStatus, MembershipIdentity } from './membership-ui';
 import { membershipDate } from './membership-utils';
@@ -27,7 +28,8 @@ export function TenantMembersPage({ membershipId }: { membershipId?: string } = 
   const selected = selection ?? membershipId;
   const returnFocus = useRef<HTMLElement | null>(null);
   const allowed = ctx.permissions.includes(P.TenantMemberRead);
-  const list = useCursorList({ pageSize, queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'members', q, status, role, pageSize], load: (cursor, signal) => client.tenantMembers(ctx.tenant.id, { q, status: status === 'current' ? '' : status, role, cursor, limit: pageSize }, signal), enabled: allowed && ctx.available, refetchInterval: 30_000 });
+  const list = useCursorList({ pageSize, queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'members', q, status, role, pageSize], load: (cursor, signal) => client.tenantMembers(ctx.tenant.id, { q, status: status === 'current' ? '' : status, role, cursor, limit: pageSize }, signal), enabled: allowed, paused: !ctx.available, staleTime: 0, refetchInterval: 30_000 });
+  const action = useDirectoryAction(list.items, ctx.available, list);
   const open = (id: string, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelection(id); };
   const close = () => { setSelection(undefined); if (membershipId) void navigate({ to: '/t/$tenantId/members', params: { tenantId: ctx.tenant.id } }); };
   const columns: DirectoryColumn<TenantMember>[] = [
@@ -36,7 +38,7 @@ export function TenantMembersPage({ membershipId }: { membershipId?: string } = 
     { id: 'roles', label: '绑定角色', secondary: true, cell: (item) => <MemberRoles item={item} onMore={(trigger) => open(item.id, trigger)} /> },
     { id: 'joined', label: '加入时间', secondary: true, className: 'lg:w-40', cell: (item) => <time className="text-sm tabular-nums text-muted-foreground" dateTime={item.joined_at} title={`${membershipDate(item.joined_at)}（北京时间）`}>{membershipDate(item.joined_at)}</time> },
     { id: 'changed', label: '状态变更时间', secondary: true, className: 'lg:w-40', cell: (item) => <time className="text-sm tabular-nums text-muted-foreground" dateTime={item.status_changed_at}>{membershipDate(item.status_changed_at)}</time> },
-    { id: 'actions', label: '操作', className: 'w-14 text-right', cell: (item) => <MemberActions item={item} details={(trigger) => open(item.id, trigger)} /> },
+    { id: 'actions', label: '操作', className: 'w-14 text-right', cell: (item) => <MemberMenu item={item} select={action.select} details={(trigger) => open(item.id, trigger)} /> },
   ];
   if (!allowed) return <FormNotice error>无权查看本租户成员。</FormNotice>;
   return <>
@@ -53,6 +55,7 @@ export function TenantMembersPage({ membershipId }: { membershipId?: string } = 
         <p className="text-xs text-muted-foreground">时间均为北京时间；历史成员保留本次关系及角色授予记录。</p>
       </TabsContent>
     </Tabs>
+    {action.item && action.dialog && <MemberActions key={action.item.id + action.dialog.command} item={action.item} dialog={action.dialog} />}
     {selected && <ResponsivePanel open onOpenChange={(open) => { if (!open) close(); }} title="成员详情" description={`${ctx.tenant.name} · 查看本次成员关系与授权情况。`} returnFocus={returnFocus} fallbackFocusSelector="[data-member-search]"><TenantMemberDetails key={selected} id={selected} /></ResponsivePanel>}
   </>;
 }

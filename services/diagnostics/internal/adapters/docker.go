@@ -24,6 +24,7 @@ type dockerReader struct {
 }
 type dockerInspect struct {
 	ID    string `json:"Id"`
+	Path  string `json:"Path"`
 	State struct {
 		Running    bool
 		Status     string
@@ -35,12 +36,17 @@ type dockerInspect struct {
 	} `json:"State"`
 	RestartCount int `json:"RestartCount"`
 	HostConfig   struct {
+		PidMode   string
+		Init      *bool
 		Memory    int64
 		NanoCPUs  int64
 		CPUQuota  int64 `json:"CpuQuota"`
 		CPUPeriod int64 `json:"CpuPeriod"`
 	} `json:"HostConfig"`
-	Config struct{ Labels map[string]string } `json:"Config"`
+	Config struct {
+		User   string
+		Labels map[string]string
+	} `json:"Config"`
 	Mounts []struct {
 		Source, Destination string
 		RW                  bool
@@ -196,6 +202,10 @@ func (r *Runtime) docker(ctx context.Context, p settings.Probe, b settings.Bindi
 			o = model.Failure(o, "failed", "response_mismatch")
 		}
 	}
+	if p.Facet == "readiness" && info.State.Running && o.Evidence.Health == "none" {
+		o.Facets.Readiness = "unknown"
+		o = model.Failure(o, "not_configured", "not_configured")
+	}
 	id := uuid.NewSHA1(uuid.NameSpaceOID, []byte(info.ID+":"+info.State.StartedAt.Format(time.RFC3339Nano))).String()
 	o.Process = &model.ProcessIdentity{ReplicaID: b.ExpectedReplicaID, BootID: id, ContainerID: info.ID, ContainerStartedAt: &info.State.StartedAt}
 	o.Metrics = append(o.Metrics, metric("process.restart_count", "", float64(info.RestartCount)))
@@ -249,13 +259,38 @@ func (r *Runtime) verifyContainerReport(ctx context.Context, p settings.Probe, b
 		}
 		info, e := d.find(ctx, candidate)
 		d.client.CloseIdleConnections()
-		if e != nil || !info.State.Running || report.EmittedAt.Before(info.State.StartedAt) || settings.Number(report.Process.OSStartTimeMS) < uint64(info.State.StartedAt.UnixMilli()) {
-			return false
-		}
-		for _, mount := range info.Mounts {
-			if filepath.Clean(mount.Source) == b.AllowedRoot && settings.Within(b.ReportFile, b.AllowedRoot) {
-				return true
-			}
+		return e == nil && matchesReportIdentity(info, b, report)
+	}
+	return false
+}
+
+// The split images invoke the declared binary directly as PID 1 in a private
+// namespace. Containers with an init wrapper need a different source of
+// process identity. Inspect never grants access to exec, logs or environment.
+func matchesReportIdentity(info dockerInspect, b settings.Binding, report diagnosticreport.Report) bool {
+	if !info.State.Running || info.State.StartedAt.IsZero() || report.EmittedAt.Before(info.State.StartedAt) ||
+		info.Path != b.ExpectedExecutable || report.Process.PID != 1 || b.ExpectedUID == nil ||
+		info.HostConfig.PidMode != "" && info.HostConfig.PidMode != "private" || info.HostConfig.Init != nil && *info.HostConfig.Init {
+		return false
+	}
+	user, _, _ := strings.Cut(info.Config.User, ":")
+	if user == "" {
+		user = "0"
+	}
+	uid, err := strconv.Atoi(user)
+	if err != nil || uid != *b.ExpectedUID {
+		return false
+	}
+	// Linux /proc provides boot time in whole seconds. Compare it with Docker's
+	// nanosecond start time, while still requiring a report emitted after this
+	// container generation.
+	start := time.UnixMilli(int64(settings.Number(report.Process.OSStartTimeMS)))
+	if start.Before(info.State.StartedAt.Add(-2*time.Second)) || start.After(info.State.StartedAt.Add(2*time.Second)) {
+		return false
+	}
+	for _, mount := range info.Mounts {
+		if mount.RW && filepath.Clean(mount.Source) == b.AllowedRoot && filepath.IsAbs(mount.Destination) && mount.Destination != "/" && settings.Within(b.ReportFile, b.AllowedRoot) {
+			return true
 		}
 	}
 	return false

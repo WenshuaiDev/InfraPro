@@ -51,7 +51,7 @@ func (s *Service) exportAuthorizationTx(ctx context.Context, tx pgx.Tx, v export
 	}
 	return a, nil
 }
-func (s *Service) claimExport(ctx context.Context) (exportRecord, bool, error) {
+func (s *Service) claimExport(ctx context.Context, target string, targetGeneration int64) (exportRecord, bool, error) {
 	v := exportRecord{}
 	claimed := false
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
@@ -78,7 +78,11 @@ func (s *Service) claimExport(ctx context.Context) (exportRecord, bool, error) {
 			return nil
 		}
 		var id, generation string
-		e = tx.QueryRow(ctx, `SELECT g.export_id::text,g.generation::text FROM audit_export_generations g JOIN audit_exports x ON x.id=g.export_id AND x.current_generation=g.generation WHERE g.state='queued' OR (g.state='retry_wait' AND g.next_attempt_at<=clock_timestamp()) OR (g.state IN ('running','cancelling') AND g.lease_until<clock_timestamp()) ORDER BY g.created_at,g.export_id FOR UPDATE OF x,g SKIP LOCKED LIMIT 1`).Scan(&id, &generation)
+		var targetID any
+		if target != "" {
+			targetID = target
+		}
+		e = tx.QueryRow(ctx, `SELECT g.export_id::text,g.generation::text FROM audit_export_generations g JOIN audit_exports x ON x.id=g.export_id AND x.current_generation=g.generation WHERE ($1::uuid IS NULL OR (g.export_id=$1 AND g.generation=$2)) AND (g.state='queued' OR (g.state='retry_wait' AND g.next_attempt_at<=clock_timestamp()) OR (g.state IN ('running','cancelling') AND g.lease_until<clock_timestamp())) ORDER BY g.created_at,g.export_id FOR UPDATE OF x,g SKIP LOCKED LIMIT 1`, targetID, targetGeneration).Scan(&id, &generation)
 		if e == pgx.ErrNoRows {
 			return nil
 		}
@@ -510,11 +514,37 @@ func (s *Service) failExport(ctx context.Context, expected exportRecord, cause e
 
 // RunExportOnce owns one bounded claim. A crash after Put leaves a registered
 // intent; another fenced attempt never overwrites its key.
-func (s *Service) RunExportOnce(ctx context.Context) (bool, error) {
+func (s *Service) RunExportOnce(ctx context.Context) (bool, error) { return s.runExport(ctx, "", 0) }
+
+// RunExportGeneration can only attempt the generation declared in the fact.
+// A competing claim or retry window leaves the same durable generation pending.
+func (s *Service) RunExportGeneration(ctx context.Context, id string, generation int64, scope string) (pending bool, err error) {
+	if !access.ValidID(id) || generation < 1 {
+		return false, pgx.ErrNoRows
+	}
+	err = s.access.Transact(ctx, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT g.state IN ('queued','running','cancelling','retry_wait') FROM audit_exports e JOIN audit_export_generations g ON g.export_id=e.id WHERE e.id=$1 AND g.generation=$2 AND COALESCE(e.tenant_id::text,'platform')=$3`, id, generation, scope).Scan(&pending)
+	})
+	if err != nil || !pending {
+		return false, err
+	}
+	if s.objects == nil {
+		return true, nil
+	}
+	if _, err = s.runExport(ctx, id, generation); err != nil {
+		return false, err
+	}
+	err = s.access.Transact(ctx, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT state IN ('queued','running','cancelling','retry_wait') FROM audit_export_generations WHERE export_id=$1 AND generation=$2`, id, generation).Scan(&pending)
+	})
+	return pending, err
+}
+
+func (s *Service) runExport(ctx context.Context, id string, generation int64) (bool, error) {
 	if s.objects == nil {
 		return false, Problem("audit_storage_unavailable", 503)
 	}
-	v, ok, e := s.claimExport(ctx)
+	v, ok, e := s.claimExport(ctx, id, generation)
 	if e != nil || !ok {
 		return ok, e
 	}

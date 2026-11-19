@@ -5,21 +5,21 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/eventbus"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/notifications"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/auxworker"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
 	if e := run(); e != nil {
-		slog.Error("notification worker stopped", "error", e)
+		slog.Error("notification worker stopped", "code", "delivery_unavailable")
 		os.Exit(1)
 	}
 }
@@ -37,17 +37,12 @@ func run() (resultErr error) {
 	if e != nil {
 		return e
 	}
-	pc, e := pgxpool.ParseConfig(cfg.URL)
+	slot, e := auxworker.Pool(ctx, "notification-worker", cfg.URL, 6)
 	if e != nil {
 		return e
 	}
-	pc.ConnConfig.ConnectTimeout = 3 * time.Second
-	pc.MaxConns = 6
-	pool, e := pgxpool.NewWithConfig(ctx, pc)
-	if e != nil {
-		return e
-	}
-	defer pool.Close()
+	defer slot.CloseResult(&resultErr)
+	pool, ctx := slot.Pool, slot.Context
 	if e = migrations.Check(ctx, pool); e != nil {
 		return e
 	}
@@ -64,6 +59,8 @@ func run() (resultErr error) {
 	}
 	reporter.Ready()
 	slog.Info("notification worker ready")
-	s.Run(ctx, uuid.NewString(), func(e error) { slog.Warn("notification worker iteration failed", "error", e) }, reporter)
-	return nil
+	return auxworker.Run(ctx, pool, "notification", s.DeliverEvent, func(ctx context.Context) error {
+		s.RunWithFallback(ctx, eventbus.FallbackInterval(), uuid.NewString(), func(error) { slog.Warn("notification worker iteration failed", "code", "delivery_unavailable") }, reporter)
+		return nil
+	}, reporter)
 }

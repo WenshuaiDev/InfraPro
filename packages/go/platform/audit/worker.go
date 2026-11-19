@@ -48,6 +48,9 @@ func (s *Service) Reconcile(ctx context.Context) (int, error) {
 	return count + closed, e
 }
 func (s *Service) RunWorker(ctx context.Context, reporters ...diagnosticreport.Sink) error {
+	return s.RunWithFallback(ctx, 0, reporters...)
+}
+func (s *Service) RunWithFallback(ctx context.Context, interval time.Duration, reporters ...diagnosticreport.Sink) error {
 	reporter := diagnosticreport.Optional(reporters)
 	reconcile := diagnosticreport.NewGroup(reporter, "reconcile", s.options.Workers)
 	exports := diagnosticreport.NewGroup(reporter, "export", s.options.Workers)
@@ -59,6 +62,7 @@ func (s *Service) RunWorker(ctx context.Context, reporters ...diagnosticreport.S
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			var nextScan time.Time
 			for {
 				if ctx.Err() != nil {
 					return
@@ -70,8 +74,10 @@ func (s *Service) RunWorker(ctx context.Context, reporters ...diagnosticreport.S
 					next = time.Now().Add(5 * time.Second)
 				}
 				reconcile.End(i, diagnosticreport.Result(e), next)
+				reporter.Dependency("postgres", e == nil, diagnosticreport.Result(e))
 				worked := false
-				if e == nil && s.objects != nil {
+				if e == nil && s.objects != nil && !time.Now().Before(nextScan) {
+					nextScan = time.Now().Add(interval)
 					exports.Begin(i, diagnosticreport.Deadline(ctx))
 					worked, e = s.RunExportOnce(exports.Context(ctx, i))
 					next = time.Now().Add(time.Second)
@@ -80,6 +86,9 @@ func (s *Service) RunWorker(ctx context.Context, reporters ...diagnosticreport.S
 					}
 					if e != nil {
 						next = time.Now().Add(5 * time.Second)
+					}
+					if nextScan.After(next) {
+						next = nextScan
 					}
 					exports.End(i, diagnosticreport.Result(e), next)
 				}

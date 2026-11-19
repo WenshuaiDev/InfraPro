@@ -20,10 +20,12 @@ var BindingFields = map[string][]string{
 	"http_live":        {"url", "expected_status", "expected_json", "credential_file", "tls_ca_file"},
 	"http_ready":       {"url", "expected_status", "expected_json", "credential_file", "tls_ca_file"},
 	"tcp":              {"host", "port", "tls", "server_name", "tls_ca_file"},
+	"proxy_listener":   {"host", "port"},
 	"postgres":         {"host", "port", "database", "username", "credential_file", "tls_mode", "tls_ca_file"},
 	"redis":            {"address", "username", "credential_file", "database", "tls", "tls_ca_file"},
 	"clickhouse":       {"address", "database", "username", "credential_file", "tls", "tls_ca_file"},
 	"s3":               {"endpoint", "region", "bucket", "credential_file", "tls_ca_file"},
+	"jetstream_health": {"host", "port"},
 	"keeper_live":      {"host", "port", "enabled"},
 }
 
@@ -154,6 +156,12 @@ func (b Bindings) Validate(m Manifest) error {
 		if p.TargetKind == "dependency" && v.Adapter == "self_report" && v.DependencyKey == "" {
 			return Invalid
 		}
+		if v.Adapter == "proxy_listener" {
+			replica, ok := m.ReplicaFor(p)
+			if !ok || replica.ComponentID != "replica-proxy" || p.Facet != "readiness" {
+				return Invalid
+			}
+		}
 		if v.Adapter == "self_report" || v.Adapter == "docker_container" {
 			r, ok := m.ReplicaFor(p)
 			if !ok || v.ExpectedReplicaID != r.ID {
@@ -223,6 +231,10 @@ func (b Binding) validate(root Bindings) error {
 		if !regexp.MustCompile(`^[a-zA-Z0-9_.@:-]{1,240}\.service$`).MatchString(b.UnitName) {
 			return Invalid
 		}
+	case "jetstream_health":
+		if !isLoop(b.Host) || b.Port < 1 || b.Port > 65535 {
+			return Invalid
+		}
 	case "docker_container":
 		if !Absolute(b.SocketPath) || !ValidID(b.ExpectedReplicaID) || len(b.SelectorLabels) < 2 || len(b.SelectorLabels) > 8 || b.SelectorLabels["io.infrapro.instance"] != root.InstanceID || b.SelectorLabels["io.infrapro.replica"] != b.ExpectedReplicaID {
 			return Invalid
@@ -250,7 +262,7 @@ func (b Binding) validate(root Bindings) error {
 				return Invalid
 			}
 		}
-	case "tcp", "postgres", "keeper_live":
+	case "tcp", "proxy_listener", "postgres", "keeper_live":
 		if !TargetHost(b.Host, root.AllowedTargetHosts) || b.Port < 1 || b.Port > 65535 {
 			return Invalid
 		}

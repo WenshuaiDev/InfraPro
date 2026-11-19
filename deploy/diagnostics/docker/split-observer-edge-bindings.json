@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "edge",
+  "assignment_revision": "1",
+  "bindings": [
+    {
+      "id": "ingest-relay-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001
+    },
+    {
+      "id": "ingest-relay-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-relay-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "ingest-relay-ingest-relay-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-relay-1",
+      "pid_namespace": "host",
+      "dependency_key": "ingest-relay-postgres"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 // Read-only regression probe against an explicitly named, populated isolated fixture.
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { dirname } from 'node:path';
 const schema = process.argv[2];
 if (!/^identity_test_[a-z0-9]+$/.test(schema ?? '')) throw Error('Pass an owned identity_test_ schema; production schemas are not accepted');
 function sql(query) {
@@ -8,9 +9,8 @@ function sql(query) {
 }
 const queries = {};
 for (const stage of ['identify', 'parse']) {
-  const source = readFileSync(`packages/go/platform/ingestion/${stage}.go`, 'utf8');
-  queries[stage] = source.match(/rows, e := tx.Query\(ctx, `(WITH busy [\s\S]*?)`\)/)?.[1];
-  if (!queries[stage]) throw Error(`${stage} call-site candidate query not found`);
+  // The production compatibility scanner embeds these exact statements.
+  queries[stage] = readFileSync(`packages/go/platform/ingestion/candidates/${stage}.sql`, 'utf8');
 }
 const [tenant, grant] = sql("SELECT tenant_id::text,snapshot->'execution_grant'->>'id' FROM ingestion_parse_plans LIMIT 1").trim().split('\n').at(-1).split('|');
 const uuid = /^[0-9a-f-]{36}$/;
@@ -28,7 +28,8 @@ for (const [stage, query] of Object.entries(queries)) {
   results[stage] = { passed: times[2] < 25, execution_ms: times, median_ms: times[2], budget_ms: 25, plans };
 }
 const result = { passed: Object.values(results).every(r => r.passed), results };
-mkdirSync('.artifacts/ingestion', { recursive: true });
-writeFileSync('.artifacts/ingestion/queue-profile.json', JSON.stringify(result, null, 2));
+const resultFile = process.argv[3] || '.artifacts/ingestion/queue-profile.json';
+mkdirSync(dirname(resultFile), { recursive: true });
+writeFileSync(resultFile, JSON.stringify(result, null, 2));
 console.log(JSON.stringify({ passed: result.passed, stages: Object.fromEntries(Object.entries(results).map(([k, v]) => [k, { passed: v.passed, median_ms: v.median_ms, budget_ms: v.budget_ms }])) }));
 if (!result.passed) process.exitCode = 1;

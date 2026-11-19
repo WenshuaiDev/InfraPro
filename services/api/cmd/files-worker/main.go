@@ -11,8 +11,8 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/files"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/auxworker"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -53,17 +53,26 @@ func run() (resultErr error) {
 		<-ctx.Done()
 		return nil
 	}
-	pool, e := pgxpool.New(ctx, db.URL)
+	slot, e := auxworker.Pool(ctx, "files-worker", db.URL, 0)
 	if e != nil {
 		return e
 	}
-	defer pool.Close()
+	defer slot.CloseResult(&resultErr)
+	pool, ctx := slot.Pool, slot.Context
+	diagnosticreport.SetMetric(reporter, "quota.pg_connections", int64(pool.Config().MaxConns))
 	if e = migrations.Check(ctx, pool); e != nil {
 		return e
 	}
 	a := access.New(pool, slog.Default())
 	s := runtime.Compose(a).Files.WithOptions(o).WithChecker(files.SocketChecker{Socket: o.CheckerSocket, Timeout: o.CheckerTimeout})
-	objects, e := blobstore.Open(o.ObjectEndpoint, o.ObjectAccessKey, o.ObjectSecretKey, o.Bucket, "files/v1")
+	budget, e := config.WorkerObjectBudget("files-worker")
+	if e != nil {
+		return e
+	}
+	if budget != nil {
+		diagnosticreport.SetMetric(reporter, "quota.s3_inflight", int64(budget.Capacity()))
+	}
+	objects, e := blobstore.Open(o.ObjectEndpoint, o.ObjectAccessKey, o.ObjectSecretKey, o.Bucket, "files/v1", budget)
 	if e != nil {
 		return e
 	}

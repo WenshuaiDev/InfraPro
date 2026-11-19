@@ -152991,6 +152991,304 @@
           }
         }
       }
+    },
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/read-scope-preview": {
+      "post": {
+        "operationId": "display_read_scope_preview",
+        "tags": [
+          "Displays"
+        ],
+        "summary": "Project display read-scope-preview",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisplayReadReadScopePreview"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority is insufficient"
+          },
+          "409": {
+            "description": "Revision, binding or capability changed"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Resource budget exceeded"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisplayReadReadScopePreviewInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/projects/{project_id}/displays/instances/{id}/read-scope-options": {
+      "get": {
+        "operationId": "display_read_scope_options",
+        "tags": [
+          "Displays"
+        ],
+        "summary": "Project display read-scope-options",
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "resources",
+                "channels",
+                "devices",
+                "spatial"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "config",
+                "grant"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maxLength": 120,
+              "type": "string"
+            }
+          },
+          {
+            "name": "structure_model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                1,
+                2
+              ],
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "resources",
+                "channels",
+                "devices",
+                "spatial"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "purpose",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "config",
+                "grant"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "maxLength": 120,
+              "type": "string"
+            }
+          },
+          {
+            "name": "structure_model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                1,
+                2
+              ],
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisplayReadScopeOptionsPage"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Current authority is insufficient"
+          },
+          "409": {
+            "description": "Revision, binding or capability changed"
+          },
+          "422": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Resource budget exceeded"
+          }
+        }
+      }
     }
   },
   "components": {

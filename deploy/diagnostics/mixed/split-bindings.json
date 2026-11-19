@@ -1,0 +1,592 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "local",
+  "assignment_revision": "1",
+  "bindings": [
+    {
+      "id": "diagnostics-process",
+      "adapter": "native_process",
+      "pid_file": "/var/lib/infrapro-diagnostics/process.json",
+      "pid_file_format": "diagnostics",
+      "allowed_root": "/var/lib/infrapro-diagnostics",
+      "expected_executable": "/usr/local/bin/infrapro-diagnostics",
+      "expected_uid": 10001
+    },
+    {
+      "id": "diagnostics-ready",
+      "adapter": "http_ready",
+      "url": "http://127.0.0.1:8096/readyz",
+      "expected_status": 200,
+      "expected_json": {
+        "status": "ready"
+      }
+    },
+    {
+      "id": "local-resources",
+      "adapter": "host_resources",
+      "scope": "host",
+      "mount_paths": [
+        {
+          "id": "diagnostics",
+          "path": "/var/lib/infrapro-diagnostics"
+        }
+      ]
+    },
+    {
+      "id": "identity-api-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-identity-api/process.json",
+      "allowed_root": "/run/infrapro-identity-api",
+      "expected_executable": "/opt/infrapro/current/bin/identity-api",
+      "expected_uid": 10001
+    },
+    {
+      "id": "identity-api-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-identity-api/process.json",
+      "allowed_root": "/run/infrapro-identity-api",
+      "expected_executable": "/opt/infrapro/current/bin/identity-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "identity-api-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "control-api-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-control-api/process.json",
+      "allowed_root": "/run/infrapro-control-api",
+      "expected_executable": "/opt/infrapro/current/bin/control-api",
+      "expected_uid": 10001
+    },
+    {
+      "id": "control-api-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-control-api/process.json",
+      "allowed_root": "/run/infrapro-control-api",
+      "expected_executable": "/opt/infrapro/current/bin/control-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "control-api-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "monitoring-query-api-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-monitoring-query-api/process.json",
+      "allowed_root": "/run/infrapro-monitoring-query-api",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-query-api",
+      "expected_uid": 10001
+    },
+    {
+      "id": "monitoring-query-api-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-monitoring-query-api/process.json",
+      "allowed_root": "/run/infrapro-monitoring-query-api",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-query-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-query-api-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "transfer-api-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-transfer-api/process.json",
+      "allowed_root": "/run/infrapro-transfer-api",
+      "expected_executable": "/opt/infrapro/current/bin/transfer-api",
+      "expected_uid": 10001
+    },
+    {
+      "id": "transfer-api-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-transfer-api/process.json",
+      "allowed_root": "/run/infrapro-transfer-api",
+      "expected_executable": "/opt/infrapro/current/bin/transfer-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "transfer-api-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "ingest-custody-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-ingest-custody-worker/process.json",
+      "allowed_root": "/run/infrapro-ingest-custody-worker",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-custody-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "ingest-custody-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-custody-worker/process.json",
+      "allowed_root": "/run/infrapro-ingest-custody-worker",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "ingest-custody-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-custody-worker/process.json",
+      "allowed_root": "/run/infrapro-ingest-custody-worker",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "ingest-custody-worker-s3-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-custody-worker/process.json",
+      "allowed_root": "/run/infrapro-ingest-custody-worker",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "s3"
+    },
+    {
+      "id": "parsing-dispatch-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-parsing-dispatch-worker/process.json",
+      "allowed_root": "/run/infrapro-parsing-dispatch-worker",
+      "expected_executable": "/opt/infrapro/current/bin/parsing-dispatch-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "parsing-dispatch-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-parsing-dispatch-worker/process.json",
+      "allowed_root": "/run/infrapro-parsing-dispatch-worker",
+      "expected_executable": "/opt/infrapro/current/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "parsing-dispatch-worker-parser-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-parsing-dispatch-worker/process.json",
+      "allowed_root": "/run/infrapro-parsing-dispatch-worker",
+      "expected_executable": "/opt/infrapro/current/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "parser"
+    },
+    {
+      "id": "parsing-dispatch-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-parsing-dispatch-worker/process.json",
+      "allowed_root": "/run/infrapro-parsing-dispatch-worker",
+      "expected_executable": "/opt/infrapro/current/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "monitoring-publish-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-monitoring-publish-worker/process.json",
+      "allowed_root": "/run/infrapro-monitoring-publish-worker",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-publish-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "monitoring-publish-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-monitoring-publish-worker/process.json",
+      "allowed_root": "/run/infrapro-monitoring-publish-worker",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-publish-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-publish-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "monitoring-incremental-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-monitoring-incremental-worker/process.json",
+      "allowed_root": "/run/infrapro-monitoring-incremental-worker",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-incremental-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "monitoring-incremental-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-monitoring-incremental-worker/process.json",
+      "allowed_root": "/run/infrapro-monitoring-incremental-worker",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-incremental-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-incremental-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "monitoring-incremental-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-monitoring-incremental-worker/process.json",
+      "allowed_root": "/run/infrapro-monitoring-incremental-worker",
+      "expected_executable": "/opt/infrapro/current/bin/monitoring-incremental-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-incremental-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "event-relay-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-event-relay/process.json",
+      "allowed_root": "/run/infrapro-event-relay",
+      "expected_executable": "/opt/infrapro/current/bin/event-relay",
+      "expected_uid": 10001
+    },
+    {
+      "id": "event-relay-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-event-relay/process.json",
+      "allowed_root": "/run/infrapro-event-relay",
+      "expected_executable": "/opt/infrapro/current/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "event-relay-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-event-relay/process.json",
+      "allowed_root": "/run/infrapro-event-relay",
+      "expected_executable": "/opt/infrapro/current/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "event-relay-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-event-relay/process.json",
+      "allowed_root": "/run/infrapro-event-relay",
+      "expected_executable": "/opt/infrapro/current/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "nats-server-presence",
+      "adapter": "systemd_unit",
+      "expected_uid": 10001,
+      "unit_name": "infrapro-nats-server.service"
+    },
+    {
+      "id": "nats-server-ready",
+      "adapter": "jetstream_health",
+      "host": "127.0.0.1",
+      "port": 8222
+    },
+    {
+      "id": "display-assets-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-display-assets/process.json",
+      "allowed_root": "/run/infrapro-display-assets",
+      "expected_executable": "/opt/infrapro/current/bin/display-assets",
+      "expected_uid": 10001
+    },
+    {
+      "id": "display-assets-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-display-assets/process.json",
+      "allowed_root": "/run/infrapro-display-assets",
+      "expected_executable": "/opt/infrapro/current/bin/display-assets",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-assets-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "ingest-relay-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001
+    },
+    {
+      "id": "ingest-relay-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-relay-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "ingest-relay-ingest-relay-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-ingest-relay/process.json",
+      "allowed_root": "/run/infrapro-ingest-relay",
+      "expected_executable": "/opt/infrapro/current/bin/ingest-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-relay-1",
+      "pid_namespace": "host",
+      "dependency_key": "ingest-relay-postgres"
+    },
+    {
+      "id": "parser-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-parser/process.json",
+      "allowed_root": "/run/infrapro-parser",
+      "expected_executable": "/opt/infrapro/current/bin/parser",
+      "expected_uid": 10001
+    },
+    {
+      "id": "parser-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-parser/process.json",
+      "allowed_root": "/run/infrapro-parser",
+      "expected_executable": "/opt/infrapro/current/bin/parser",
+      "expected_uid": 10001,
+      "expected_replica_id": "parser-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "api-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-api/process.json",
+      "allowed_root": "/run/infrapro-api",
+      "expected_executable": "/opt/infrapro/current/bin/api",
+      "expected_uid": 10001
+    },
+    {
+      "id": "api-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-api/process.json",
+      "allowed_root": "/run/infrapro-api",
+      "expected_executable": "/opt/infrapro/current/bin/api",
+      "expected_uid": 10001,
+      "expected_replica_id": "api-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "notification-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-notification-worker/process.json",
+      "allowed_root": "/run/infrapro-notification-worker",
+      "expected_executable": "/opt/infrapro/current/bin/notification-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "notification-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-notification-worker/process.json",
+      "allowed_root": "/run/infrapro-notification-worker",
+      "expected_executable": "/opt/infrapro/current/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "notification-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-notification-worker/process.json",
+      "allowed_root": "/run/infrapro-notification-worker",
+      "expected_executable": "/opt/infrapro/current/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "notification-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-notification-worker/process.json",
+      "allowed_root": "/run/infrapro-notification-worker",
+      "expected_executable": "/opt/infrapro/current/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "task-index-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-task-index-worker/process.json",
+      "allowed_root": "/run/infrapro-task-index-worker",
+      "expected_executable": "/opt/infrapro/current/bin/task-index-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "task-index-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-task-index-worker/process.json",
+      "allowed_root": "/run/infrapro-task-index-worker",
+      "expected_executable": "/opt/infrapro/current/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "task-index-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-task-index-worker/process.json",
+      "allowed_root": "/run/infrapro-task-index-worker",
+      "expected_executable": "/opt/infrapro/current/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "task-index-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-task-index-worker/process.json",
+      "allowed_root": "/run/infrapro-task-index-worker",
+      "expected_executable": "/opt/infrapro/current/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "spatial-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-spatial-worker/process.json",
+      "allowed_root": "/run/infrapro-spatial-worker",
+      "expected_executable": "/opt/infrapro/current/bin/spatial-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "spatial-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-spatial-worker/process.json",
+      "allowed_root": "/run/infrapro-spatial-worker",
+      "expected_executable": "/opt/infrapro/current/bin/spatial-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "spatial-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "display-package-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-display-package-worker/process.json",
+      "allowed_root": "/run/infrapro-display-package-worker",
+      "expected_executable": "/opt/infrapro/current/bin/display-package-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "display-package-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-display-package-worker/process.json",
+      "allowed_root": "/run/infrapro-display-package-worker",
+      "expected_executable": "/opt/infrapro/current/bin/display-package-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-package-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "display-runtime-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-display-runtime/process.json",
+      "allowed_root": "/run/infrapro-display-runtime",
+      "expected_executable": "/opt/infrapro/current/bin/display-runtime",
+      "expected_uid": 10001
+    },
+    {
+      "id": "display-runtime-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-display-runtime/process.json",
+      "allowed_root": "/run/infrapro-display-runtime",
+      "expected_executable": "/opt/infrapro/current/bin/display-runtime",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-runtime-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "files-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-files-worker/process.json",
+      "allowed_root": "/run/infrapro-files-worker",
+      "expected_executable": "/opt/infrapro/current/bin/files-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "files-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-files-worker/process.json",
+      "allowed_root": "/run/infrapro-files-worker",
+      "expected_executable": "/opt/infrapro/current/bin/files-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "files-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-files-worker/process.json",
+      "allowed_root": "/run/infrapro-files-worker",
+      "expected_executable": "/opt/infrapro/current/bin/files-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "files-checker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-files-checker/process.json",
+      "allowed_root": "/run/infrapro-files-checker",
+      "expected_executable": "/opt/infrapro/current/bin/files-checker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "files-checker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-files-checker/process.json",
+      "allowed_root": "/run/infrapro-files-checker",
+      "expected_executable": "/opt/infrapro/current/bin/files-checker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-checker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "audit-worker-presence",
+      "adapter": "native_process",
+      "report_file": "/run/infrapro-audit-worker/process.json",
+      "allowed_root": "/run/infrapro-audit-worker",
+      "expected_executable": "/opt/infrapro/current/bin/audit-worker",
+      "expected_uid": 10001
+    },
+    {
+      "id": "audit-worker-report",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-audit-worker/process.json",
+      "allowed_root": "/run/infrapro-audit-worker",
+      "expected_executable": "/opt/infrapro/current/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "host"
+    },
+    {
+      "id": "audit-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-audit-worker/process.json",
+      "allowed_root": "/run/infrapro-audit-worker",
+      "expected_executable": "/opt/infrapro/current/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "audit-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/run/infrapro-audit-worker/process.json",
+      "allowed_root": "/run/infrapro-audit-worker",
+      "expected_executable": "/opt/infrapro/current/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "host",
+      "dependency_key": "jetstream"
+    }
+  ]
+}

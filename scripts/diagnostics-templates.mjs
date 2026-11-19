@@ -25,6 +25,24 @@ try{
    files['observer.json']={schema_version:1,instance_id:'example',node_id:'docker-observer',assignment_revision:'1',server_url:'https://diagnostics.example.invalid:8096',manifest_file:'/etc/infrapro/observer/manifest.json',bindings_file:'/etc/infrapro/observer/bindings.json',credential_file:'/etc/infrapro/observer/key.json',state_dir:'/var/lib/infrapro-observer',tls_ca_file:'/etc/infrapro/observer/ca.pem'};
    files['observer-bindings.json']={schema_version:1,instance_id:'example',node_id:'docker-observer',assignment_revision:'1',bindings:[{id:'observer-resources',adapter:'host_resources',scope:'container',mount_paths:[{id:'observer-state',path:'/var/lib/infrapro-observer'}],network_interfaces:[]}]};
   }
+  const splitDir=join(temp,profile+'-split');
+  const args=['run','./tools/infrapro/cmd/infrapro','diagnostics','config','init','--directory',splitDir,'--instance-id','example','--profile',profile,'--topology','split'];
+  if(profile!=='native')args.push('--container-report-directory','/var/lib/infrapro-architecture/reports');
+  execFileSync('go',args,{stdio:'pipe'});
+  const split=name=>JSON.parse(readFileSync(join(splitDir,name),'utf8'));
+  const splitManifest=split('manifest.json'),splitLocal=split('bindings.json');
+  const additional=splitManifest.nodes.filter(n=>!manifest.nodes.some(existing=>existing.id===n.id));
+  splitManifest.nodes=[...manifest.nodes,...additional];
+  for(const node of additional)files['split-observer-'+node.id+'-bindings.json']=split('observer-'+node.id+'-bindings.json');
+  splitLocal.bindings.splice(0,3,...bindings.bindings.slice(0,3));
+  if(profile!=='native'){
+    splitManifest.probes.push(manifest.probes.find(p=>p.id==='observer-resources'));
+    const reader=split('observer-bindings.json');
+    reader.bindings.push(...files['observer-bindings.json'].bindings);
+    files['split-observer-bindings.json']=reader;
+  }
+  files['split-manifest.json']=splitManifest;
+  files['split-bindings.json']=splitLocal;
   for(const [name,value]of Object.entries(files)){const path=join('deploy/diagnostics',profile,name),text=JSON.stringify(value,null,2)+'\n';if(check){if(!existsSync(path)||readFileSync(path,'utf8')!==text)throw Error('Deployment template drift: '+path)}else{mkdirSync(join('deploy/diagnostics',profile),{recursive:true});writeFileSync(path,text)}}
  }
  console.log('Diagnostics native/docker/mixed templates '+(check?'checked':'generated'));

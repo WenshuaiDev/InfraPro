@@ -7,7 +7,6 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"log/slog"
 	"strings"
-	"sync/atomic"
 	"time"
 	"unicode/utf8"
 
@@ -19,18 +18,17 @@ import (
 )
 
 type Service struct {
-	avatars        AvatarStore
-	avatarSlots    chan struct{}
-	mfa            *mfaKeyring
-	now            func() time.Time
-	access         *access.Service
-	repo           *Repository
-	cache          *Cache
-	cfg            config.Config
-	logger         *slog.Logger
-	dummy          string
-	passwordSlots  chan struct{}
-	activityFailed atomic.Bool
+	avatars       AvatarStore
+	avatarSlots   chan struct{}
+	mfa           *mfaKeyring
+	now           func() time.Time
+	access        *access.Service
+	repo          *Repository
+	cache         *Cache
+	cfg           config.Config
+	logger        *slog.Logger
+	dummy         string
+	passwordSlots chan struct{}
 }
 
 func NewService(pool *pgxpool.Pool, client *redis.Client, cfg config.Config, logger *slog.Logger) (*Service, error) {
@@ -48,15 +46,28 @@ func NewService(pool *pgxpool.Pool, client *redis.Client, cfg config.Config, log
 	if e != nil {
 		return nil, e
 	}
+	s, err := NewDomainService(pool, client, cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+	s.mfa = keys
+	s.dummy = dummy
+	s.passwordSlots = make(chan struct{}, 4)
+	return s, nil
+}
+
+// NewDomainService supplies transaction rechecks, rate limits and avatar storage
+// to HTTP owners. Only NewService loads credential-handling secrets.
+func NewDomainService(pool *pgxpool.Pool, client *redis.Client, cfg config.Config, logger *slog.Logger) (*Service, error) {
 	var avatarStore AvatarStore
-	if cfg.Files.ObjectEndpoint != "" {
-		store, err := blobstore.Open(cfg.Files.ObjectEndpoint, cfg.Files.ObjectAccessKey, cfg.Files.ObjectSecretKey, cfg.Files.Bucket, "account-avatars/v1")
+	if cfg.Architecture.Uses(config.Identity, config.Transfer) && cfg.Files.ObjectEndpoint != "" {
+		store, err := blobstore.Open(cfg.Files.ObjectEndpoint, cfg.Files.ObjectAccessKey, cfg.Files.ObjectSecretKey, cfg.Files.Bucket, "account-avatars/v1", cfg.Architecture.ObjectRequests())
 		if err != nil {
 			return nil, err
 		}
 		avatarStore = store
 	}
-	return &Service{avatars: avatarStore, avatarSlots: make(chan struct{}, 2), mfa: keys, now: time.Now, access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger, dummy: dummy, passwordSlots: make(chan struct{}, 4)}, nil
+	return &Service{avatars: avatarStore, avatarSlots: make(chan struct{}, 2), now: time.Now, access: access.New(pool, logger), repo: NewRepository(pool), cache: NewCache(client, cfg.RedisKeyPrefix, logger), cfg: cfg, logger: logger}, nil
 }
 func (s *Service) Ready(ctx context.Context) error {
 	if e := s.repo.pool.Ping(ctx); e != nil {
@@ -266,14 +277,18 @@ func (s *Service) Sessions(ctx context.Context, p Principal) (Page[Session], err
 	return page, nil
 }
 func (s *Service) Activity(ctx context.Context, p Principal) error {
-	if s.activityFailed.Load() {
+	failed, e := s.cache.activityFailure(ctx)
+	if e != nil {
+		return ErrUnavailable
+	}
+	if failed {
 		return ErrUnavailable
 	}
 	if e := s.cache.Rate(ctx, "activity", p.Session.ID, 6, time.Minute); e != nil {
 		return e
 	}
 	now := time.Now()
-	return s.cache.RecordActivity(ctx, p, now, min(s.cfg.SessionIdle, time.Until(p.Session.ExpiresAt)))
+	return s.cache.recordActivity(ctx, p, now, min(s.cfg.SessionIdle, time.Until(p.Session.ExpiresAt)), true)
 }
 func (s *Service) CreateInvitation(ctx context.Context, p Principal, oldID, note string, m Meta) (Link, error) {
 	if oldID != "" && !uuidPattern.MatchString(oldID) {
@@ -394,47 +409,75 @@ func (s *Service) DrainInvalidations(ctx context.Context) error {
 	return nil
 }
 
-// RunJobs is canceled with the service. Activity is flushed every 30 seconds to stay within the 60 second loss bound.
+// Each time-triggered action leases its own durable next-run timestamp. The
+// work deadline is shorter than every lease, including on a slow shutdown.
 func (s *Service) RunJobs(ctx context.Context) {
-	ticker := time.NewTicker(30 * time.Second)
-	defer ticker.Stop()
-	n := 0
+	jobs := []struct {
+		name     string
+		interval time.Duration
+		run      func(context.Context)
+	}{
+		{"session-activity", 30 * time.Second, func(job context.Context) {
+			e := s.cache.FlushActivities(job, s.repo, s.cfg.SessionIdle)
+			if e != nil {
+				s.logger.Warn("activity persistence unavailable; activity renewal suspended")
+			}
+			if err := s.cache.setActivityFailure(job, e != nil); err != nil {
+				s.logger.Warn("activity health unavailable")
+			}
+			if err := s.DrainInvalidations(job); err != nil {
+				s.logger.Warn("cache invalidation retry pending")
+			}
+		}},
+		{"identity-cleanup", time.Minute, func(job context.Context) {
+			if e := s.SweepAvatars(job); e != nil {
+				s.logger.Warn("avatar cleanup pending")
+			}
+			if e := s.repo.CleanupMFA(job); e != nil {
+				s.logger.Warn("MFA challenge cleanup pending")
+			}
+			if e := s.LogMFACounts(job); e != nil {
+				s.logger.Warn("MFA count observation unavailable")
+			}
+		}},
+		{"identity-retention", 10 * time.Minute, func(job context.Context) {
+			if e := s.repo.Cleanup(job, s.cfg.AuditRetention); e != nil {
+				s.logger.Warn("identity cleanup pending")
+			}
+			s.cache.LogStats()
+		}},
+	}
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	next := make([]time.Time, len(jobs))
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
-			job, cancel := context.WithTimeout(ctx, 20*time.Second)
-			e := s.cache.FlushActivities(job, s.repo, s.cfg.SessionIdle)
-			s.activityFailed.Store(e != nil)
-			if e != nil {
-				s.logger.Warn("activity persistence unavailable; activity renewal suspended")
-			}
-			if e = s.DrainInvalidations(job); e != nil {
-				s.logger.Warn("cache invalidation retry pending")
-			}
-			if n%2 == 0 {
-				if e = s.SweepAvatars(job); e != nil {
-					s.logger.Warn("avatar cleanup pending")
+		case now := <-tick.C:
+			for i, task := range jobs {
+				if now.Before(next[i]) {
+					continue
 				}
-				if e = s.repo.CleanupMFA(job); e != nil {
-					s.logger.Warn("MFA challenge cleanup pending")
+				job, cancel := context.WithTimeout(ctx, 20*time.Second)
+				var due bool
+				e := s.repo.pool.QueryRow(job, `WITH lease AS (
+				INSERT INTO monitoring_scheduler_leases(lane,next_run) VALUES($1,clock_timestamp()+$2*interval '1 millisecond')
+				ON CONFLICT(lane) DO UPDATE SET next_run=EXCLUDED.next_run WHERE monitoring_scheduler_leases.next_run<=clock_timestamp()
+				RETURNING 1) SELECT EXISTS(SELECT FROM lease)`, "identity/"+task.name, task.interval.Milliseconds()).Scan(&due)
+				if e == nil && due {
+					task.run(job)
 				}
-				if e = s.LogMFACounts(job); e != nil {
-					s.logger.Warn("MFA count observation unavailable")
+				cancel()
+				if e == nil && due {
+					next[i] = now.Add(task.interval)
+				} else {
+					next[i] = now.Add(5 * time.Second)
 				}
 			}
-			if n%20 == 0 {
-				if e = s.repo.Cleanup(job, s.cfg.AuditRetention); e != nil {
-					s.logger.Warn("identity cleanup pending")
-				}
-				s.cache.LogStats()
-			}
-			n++
-			cancel()
 		}
 	}
 }
 func (s *Service) Flush(ctx context.Context) error {
-	return s.cache.FlushActivities(ctx, s.repo, s.cfg.SessionIdle)
+	return s.cache.flushActivities(ctx, s.repo, s.cfg.SessionIdle, 25*time.Millisecond)
 }

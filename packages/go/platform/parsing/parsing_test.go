@@ -30,6 +30,15 @@ import (
 
 var ctx = context.Background()
 
+// Keep the existing local contract endpoint by default. Architecture loads use
+// a separate copy of the same S3 service, isolated from other fault drills.
+func fixtureObjectEndpoint() string {
+	if endpoint := os.Getenv("INFRAPRO_INGESTION_TEST_S3"); endpoint != "" {
+		return endpoint
+	}
+	return "http://127.0.0.1:58333"
+}
+
 const password = "Device river 橋梁 2026!"
 
 func must(t *testing.T, e error) {
@@ -154,10 +163,12 @@ func setupAt(t *testing.T, version int64) fixture {
 	}
 	f.ps.WithOptions(opts)
 	bucket := "parsing-" + uuid.NewString()
-	client, e := minio.New("127.0.0.1:58333", &minio.Options{Creds: credentials.NewStaticV4("contract-admin", "contract-admin-test-only", ""), BucketLookup: minio.BucketLookupPath})
+	endpoint, e := url.Parse(fixtureObjectEndpoint())
+	must(t, e)
+	client, e := minio.New(endpoint.Host, &minio.Options{Creds: credentials.NewStaticV4("contract-admin", "contract-admin-test-only", ""), BucketLookup: minio.BucketLookupPath})
 	must(t, e)
 	must(t, client.MakeBucket(ctx, bucket, minio.MakeBucketOptions{}))
-	store, e := blobstore.Open("http://127.0.0.1:58333", "contract-admin", "contract-admin-test-only", bucket, "parsing")
+	store, e := blobstore.Open(fixtureObjectEndpoint(), "contract-admin", "contract-admin-test-only", bucket, "parsing")
 	must(t, e)
 	f.ps.WithStorage(store)
 	f.store = store

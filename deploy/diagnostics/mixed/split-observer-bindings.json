@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "docker-observer",
+  "assignment_revision": "1",
+  "bindings": [
+    {
+      "id": "monitoring-history-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-history-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-history-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-history-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-history-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-history-worker",
+      "expected_executable": "/usr/local/bin/monitoring-history-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-history-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-read-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-read-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-read-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-read-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-read-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-read-worker",
+      "expected_executable": "/usr/local/bin/monitoring-read-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-read-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-read-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-read-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-read-worker",
+      "expected_executable": "/usr/local/bin/monitoring-read-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-read-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "observer-resources",
+      "adapter": "host_resources",
+      "scope": "container",
+      "mount_paths": [
+        {
+          "id": "observer-state",
+          "path": "/var/lib/infrapro-observer"
+        }
+      ],
+      "network_interfaces": []
+    }
+  ]
+}

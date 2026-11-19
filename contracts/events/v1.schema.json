@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InfraPro committed fact reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "type", "version", "scope", "aggregate_id", "generation_or_position", "occurred_at", "restore_epoch"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "type": {"enum": ["ingestion.receipt.stored", "ingestion.units.ready", "ingestion.plan.ready", "monitoring.changed", "task.projection.ready", "notification.intent.ready", "audit.work.ready"]},
+    "version": {"const": 1},
+    "scope": {"oneOf": [{"const": "platform"}, {"type": "string", "format": "uuid"}]},
+    "aggregate_id": {"type": "string", "format": "uuid"},
+    "generation_or_position": {"type": "integer", "minimum": 0},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "restore_epoch": {"type": "string", "format": "uuid"},
+    "cause_id": {"type": "string", "format": "uuid"},
+    "trace_id": {"type": "string", "format": "uuid"}
+  }
+}

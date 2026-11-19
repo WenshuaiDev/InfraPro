@@ -2,6 +2,7 @@ package monitoringhttp
 
 import (
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"strings"
@@ -41,7 +42,7 @@ func body(c *gin.Context, out any) error {
 	return md.DecodeRequest(raw, out)
 }
 
-func Register(r *gin.Engine, i *identity.Service, s *md.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *md.Service) {
 	registerData(r, i, s)
 	for _, policy := range access.Policies() {
 		op := string(policy.Operation)

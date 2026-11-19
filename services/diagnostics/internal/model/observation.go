@@ -99,6 +99,12 @@ var MetricUnits = map[string]string{
 	"cpu.utilization_ratio": "ratio", "process.cpu_cores": "cores", "memory.total_bytes": "bytes", "memory.available_bytes": "bytes", "memory.used_bytes": "bytes", "process.rss_bytes": "bytes", "container.memory_used_bytes": "bytes", "container.memory_limit_bytes": "bytes", "container.cpu_cores": "cores", "container.cpu_limit_cores": "cores", "disk.total_bytes": "bytes", "disk.available_bytes": "bytes", "disk.used_ratio": "ratio", "network.rx_bytes_per_second": "bytes_per_second", "network.tx_bytes_per_second": "bytes_per_second", "process.restart_count": "count", "uptime_ms": "milliseconds",
 }
 
+func init() {
+	for _, key := range diagnosticreport.MetricKeys() {
+		MetricUnits[key] = diagnosticreport.MetricUnit(key)
+	}
+}
+
 func Pending(p settings.Probe, boot string) Observation {
 	return Observation{ProbeID: p.ID, ObserverBootID: boot, Outcome: "pending", Facets: UnknownFacets(), ReasonCode: "check_pending", Metrics: []Metric{}, Evidence: Evidence{Source: Source(p.Adapter), VantageNodeID: p.NodeID, Scope: "none", Codes: []string{"check_pending"}}}
 }
@@ -176,12 +182,19 @@ func Validate(o Observation, p settings.Probe, boot string) error {
 	seen := map[string]bool{}
 	for _, m := range o.Metrics {
 		key := m.Key + ":" + m.DimensionID
+		if diagnosticreport.MetricUnit(m.Key) != "" && o.Evidence.Source != "self_report" {
+			return settings.Error("invalid_report")
+		}
 		if seen[key] || MetricUnits[m.Key] != m.Unit || m.Unit == "" || m.DimensionID != "" && !settings.ValidID(m.DimensionID) || !settings.OneOf(m.Availability, "available", "unlimited", "unsupported", "permission_denied", "not_configured", "error") || m.ReasonCode != "" && !settings.KnownReason(m.ReasonCode) {
 			return settings.Error("invalid_report")
 		}
 		seen[key] = true
 		if strings.HasPrefix(m.Key, "disk.") || strings.HasPrefix(m.Key, "network.") {
 			if m.DimensionID == "" {
+				return settings.Error("invalid_report")
+			}
+		} else if m.Key == diagnosticreport.TenantQueueKey {
+			if !(diagnosticreport.ProcessMetric{Key: m.Key, Dimension: m.DimensionID}).Valid() {
 				return settings.Error("invalid_report")
 			}
 		} else if m.DimensionID != "" {
@@ -193,7 +206,7 @@ func Validate(o Observation, p settings.Probe, boot string) error {
 			}
 			continue
 		}
-		if m.Unit == "bytes" || m.Unit == "milliseconds" {
+		if m.Unit == "bytes" || m.Unit == "milliseconds" || m.Unit == "position" {
 			s, ok := m.Value.(string)
 			if !ok || !settings.Decimal(s, true) {
 				return settings.Error("invalid_report")
@@ -219,7 +232,7 @@ func Validate(o Observation, p settings.Probe, boot string) error {
 	return nil
 }
 func ValidateLane(l diagnosticreport.Lane) error {
-	if !settings.ValidID(l.ID) || !settings.OneOf(l.State, "idle", "working", "blocked") || l.CheckGraceMS < 15000 || l.CheckGraceMS > 60000 || l.ReasonCode != nil && !settings.OneOf(*l.ReasonCode, "dependency_unavailable", "configuration_invalid", "storage_unconfigured", "checker_unavailable", "loop_failed", "deadline_exceeded") {
+	if !settings.ValidID(l.ID) || !settings.OneOf(l.State, "idle", "working", "blocked") || l.CheckGraceMS < 15000 || l.CheckGraceMS > 60000 || l.ReasonCode != nil && !diagnosticreport.KnownReason(*l.ReasonCode) {
 		return settings.Error("invalid_report")
 	}
 	return nil

@@ -1,0 +1,90 @@
+{
+  "roles": {
+    "api": {
+      "cpu": 1,
+      "memory_mib": 80,
+      "go_threads": 1,
+      "go_memory_mib": 64
+    },
+    "identity-api": {
+      "cpu": 2,
+      "memory_mib": 320,
+      "go_threads": 2,
+      "go_memory_mib": 256
+    },
+    "control-api": {
+      "cpu": 1,
+      "memory_mib": 160,
+      "go_threads": 1,
+      "go_memory_mib": 128
+    },
+    "monitoring-query-api": {
+      "cpu": 2,
+      "memory_mib": 480,
+      "go_threads": 2,
+      "go_memory_mib": 384
+    },
+    "transfer-api": {
+      "cpu": 1,
+      "memory_mib": 160,
+      "go_threads": 1,
+      "go_memory_mib": 128
+    },
+    "display-runtime": {
+      "cpu": 1,
+      "memory_mib": 160,
+      "go_threads": 1,
+      "go_memory_mib": 128
+    },
+    "display-assets": {
+      "cpu": 1,
+      "memory_mib": 80,
+      "go_threads": 1,
+      "go_memory_mib": 64
+    },
+    "monitoring-publish-worker": {
+      "cpu": 1,
+      "memory_mib": 240,
+      "go_threads": 1,
+      "go_memory_mib": 192
+    },
+    "monitoring-incremental-worker": {
+      "cpu": 1,
+      "memory_mib": 160,
+      "go_threads": 1,
+      "go_memory_mib": 128
+    },
+    "monitoring-history-worker": {
+      "cpu": 1,
+      "memory_mib": 400,
+      "go_threads": 1,
+      "go_memory_mib": 320
+    },
+    "monitoring-read-worker": {
+      "cpu": 1,
+      "memory_mib": 320,
+      "go_threads": 1,
+      "go_memory_mib": 256
+    }
+  },
+  "schema58": {
+    "api": {
+      "cpu": 5,
+      "memory_mib": 640,
+      "go_threads": 5,
+      "go_memory_mib": 512
+    },
+    "display-runtime": {
+      "cpu": 4,
+      "memory_mib": 960,
+      "go_threads": 4,
+      "go_memory_mib": 768
+    },
+    "monitoring-worker": {
+      "cpu": 4,
+      "memory_mib": 960,
+      "go_threads": 4,
+      "go_memory_mib": 768
+    }
+  }
+}

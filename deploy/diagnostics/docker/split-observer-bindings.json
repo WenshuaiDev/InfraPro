@@ -1,0 +1,710 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "node_id": "docker-observer",
+  "assignment_revision": "1",
+  "bindings": [
+    {
+      "id": "identity-api-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "identity-api-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "identity-api-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "identity-api-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/identity-api/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/identity-api",
+      "expected_executable": "/usr/local/bin/identity-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "identity-api-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "control-api-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "control-api-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "control-api-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "control-api-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/control-api/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/control-api",
+      "expected_executable": "/usr/local/bin/control-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "control-api-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-query-api-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-query-api-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-query-api-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-query-api-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-query-api/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-query-api",
+      "expected_executable": "/usr/local/bin/monitoring-query-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-query-api-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "transfer-api-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "transfer-api-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "transfer-api-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "transfer-api-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/transfer-api/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/transfer-api",
+      "expected_executable": "/usr/local/bin/transfer-api",
+      "expected_uid": 10001,
+      "expected_replica_id": "transfer-api-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "ingest-custody-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "ingest-custody-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "ingest-custody-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "ingest-custody-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/ingest-custody-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/ingest-custody-worker",
+      "expected_executable": "/usr/local/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "ingest-custody-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/ingest-custody-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/ingest-custody-worker",
+      "expected_executable": "/usr/local/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "ingest-custody-worker-s3-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/ingest-custody-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/ingest-custody-worker",
+      "expected_executable": "/usr/local/bin/ingest-custody-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "ingest-custody-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "s3"
+    },
+    {
+      "id": "parsing-dispatch-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "parsing-dispatch-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "parsing-dispatch-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker",
+      "expected_executable": "/usr/local/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "parsing-dispatch-worker-parser-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker",
+      "expected_executable": "/usr/local/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "parser"
+    },
+    {
+      "id": "parsing-dispatch-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/parsing-dispatch-worker",
+      "expected_executable": "/usr/local/bin/parsing-dispatch-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "parsing-dispatch-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "monitoring-publish-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-publish-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-publish-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-publish-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-publish-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-publish-worker",
+      "expected_executable": "/usr/local/bin/monitoring-publish-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-publish-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-incremental-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-incremental-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-incremental-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-incremental-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-incremental-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-incremental-worker",
+      "expected_executable": "/usr/local/bin/monitoring-incremental-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-incremental-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-incremental-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-incremental-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-incremental-worker",
+      "expected_executable": "/usr/local/bin/monitoring-incremental-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-incremental-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "monitoring-history-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-history-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-history-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-history-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-history-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-history-worker",
+      "expected_executable": "/usr/local/bin/monitoring-history-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-history-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-read-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "monitoring-read-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "monitoring-read-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "monitoring-read-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-read-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-read-worker",
+      "expected_executable": "/usr/local/bin/monitoring-read-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-read-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "monitoring-read-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/monitoring-read-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/monitoring-read-worker",
+      "expected_executable": "/usr/local/bin/monitoring-read-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "monitoring-read-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "event-relay-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "event-relay-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "event-relay-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "event-relay-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/event-relay/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/event-relay",
+      "expected_executable": "/usr/local/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "event-relay-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/event-relay/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/event-relay",
+      "expected_executable": "/usr/local/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "event-relay-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/event-relay/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/event-relay",
+      "expected_executable": "/usr/local/bin/event-relay",
+      "expected_uid": 10001,
+      "expected_replica_id": "event-relay-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "nats-server-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "nats-server-ready",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-1"
+      }
+    },
+    {
+      "id": "display-assets-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "display-assets-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "display-assets-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "display-assets-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/display-assets/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/display-assets",
+      "expected_executable": "/usr/local/bin/display-assets",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-assets-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "parser-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "parser-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "parser-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "parser-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/parser/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/parser",
+      "expected_executable": "/parser",
+      "expected_uid": 10001,
+      "expected_replica_id": "parser-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "api-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "api-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "api-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "api-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/api/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/api",
+      "expected_executable": "/usr/local/bin/api",
+      "expected_uid": 10001,
+      "expected_replica_id": "api-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "notification-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "notification-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "notification-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "notification-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/notification-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/notification-worker",
+      "expected_executable": "/usr/local/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "notification-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/notification-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/notification-worker",
+      "expected_executable": "/usr/local/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "notification-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/notification-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/notification-worker",
+      "expected_executable": "/usr/local/bin/notification-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "notification-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "task-index-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "task-index-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "task-index-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "task-index-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/task-index-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/task-index-worker",
+      "expected_executable": "/usr/local/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "task-index-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/task-index-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/task-index-worker",
+      "expected_executable": "/usr/local/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "task-index-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/task-index-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/task-index-worker",
+      "expected_executable": "/usr/local/bin/task-index-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "task-index-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "spatial-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "spatial-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "spatial-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "spatial-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/spatial-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/spatial-worker",
+      "expected_executable": "/usr/local/bin/spatial-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "spatial-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "display-package-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "display-package-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "display-package-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "display-package-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/display-package-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/display-package-worker",
+      "expected_executable": "/usr/local/bin/display-package-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-package-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "display-runtime-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "display-runtime-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "display-runtime-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "display-runtime-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/display-runtime/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/display-runtime",
+      "expected_executable": "/usr/local/bin/display-runtime",
+      "expected_uid": 10001,
+      "expected_replica_id": "display-runtime-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "files-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "files-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "files-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "files-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/files-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/files-worker",
+      "expected_executable": "/usr/local/bin/files-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "files-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/files-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/files-worker",
+      "expected_executable": "/usr/local/bin/files-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "files-checker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "files-checker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "files-checker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "files-checker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/files-checker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/files-checker",
+      "expected_executable": "/usr/local/bin/files-checker",
+      "expected_uid": 10001,
+      "expected_replica_id": "files-checker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "audit-worker-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "audit-worker-1",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "audit-worker-1"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "audit-worker-report",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/audit-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/audit-worker",
+      "expected_executable": "/usr/local/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "container"
+    },
+    {
+      "id": "audit-worker-postgres-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/audit-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/audit-worker",
+      "expected_executable": "/usr/local/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "postgres"
+    },
+    {
+      "id": "audit-worker-jetstream-check",
+      "adapter": "self_report",
+      "report_file": "/var/lib/infrapro-architecture/reports/audit-worker/process.json",
+      "allowed_root": "/var/lib/infrapro-architecture/reports/audit-worker",
+      "expected_executable": "/usr/local/bin/audit-worker",
+      "expected_uid": 10001,
+      "expected_replica_id": "audit-worker-1",
+      "pid_namespace": "container",
+      "dependency_key": "jetstream"
+    },
+    {
+      "id": "nats-server-2-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-2",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-2"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "nats-server-2-ready",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-2",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-2"
+      }
+    },
+    {
+      "id": "nats-server-3-presence",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-3",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-3"
+      },
+      "stats_enabled": true
+    },
+    {
+      "id": "nats-server-3-ready",
+      "adapter": "docker_container",
+      "expected_replica_id": "nats-server-3",
+      "socket_path": "/var/run/docker.sock",
+      "selector_labels": {
+        "io.infrapro.instance": "example",
+        "io.infrapro.replica": "nats-server-3"
+      }
+    },
+    {
+      "id": "observer-resources",
+      "adapter": "host_resources",
+      "scope": "container",
+      "mount_paths": [
+        {
+          "id": "observer-state",
+          "path": "/var/lib/infrapro-observer"
+        }
+      ],
+      "network_interfaces": []
+    }
+  ]
+}

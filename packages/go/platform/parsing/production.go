@@ -78,7 +78,16 @@ func (s *Service) ProductionSnapshotTx(ctx context.Context, tx pgx.Tx, tenantID,
 	return out, e
 }
 func (s *Service) ValidateProductionTx(ctx context.Context, tx pgx.Tx, tenantID string, p ProductionSnapshot) error {
-	m, e := methodTx(ctx, tx, p.Entry.MethodID, p.Entry.MethodVersion)
+	var m Method
+	var adopted bool
+	e := tx.QueryRow(ctx, `SELECT `+methodJSON+`,
+		EXISTS(SELECT 1 FROM devices d JOIN parsing_device_adoptions a ON a.device_id=d.id
+			WHERE d.tenant_id=$3 AND d.id=$4 AND d.status='enabled' AND d.deleted_at IS NULL AND a.id=$5)
+		FROM parsing_method_versions m WHERE method_id=$1 AND method_version=$2`,
+		p.Entry.MethodID, p.Entry.MethodVersion, tenantID, p.DeviceID, p.AdoptionID).Scan(&m, &adopted)
+	if e == pgx.ErrNoRows {
+		return k.NotFound("parsing")
+	}
 	if e != nil {
 		return e
 	}
@@ -88,12 +97,7 @@ func (s *Service) ValidateProductionTx(ctx context.Context, tx pgx.Tx, tenantID 
 	if !m.Available || m.Entry.Method() != p.Entry.Method() {
 		return k.Problem("method_unavailable", "固定方法不可用。", 409)
 	}
-	var ok bool
-	e = tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM devices d JOIN parsing_device_adoptions a ON a.device_id=d.id WHERE d.tenant_id=$1 AND d.id=$2 AND d.status='enabled' AND d.deleted_at IS NULL AND a.id=$3)`, tenantID, p.DeviceID, p.AdoptionID).Scan(&ok)
-	if e != nil {
-		return e
-	}
-	if !ok {
+	if !adopted {
 		return access.ErrDenied
 	}
 	return nil

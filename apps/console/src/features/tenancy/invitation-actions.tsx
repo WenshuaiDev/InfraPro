@@ -10,6 +10,7 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogDe
 import { FormNotice } from '@infrapro/ui/patterns/feedback';
 import { useTenant } from './context';
 import { ManagementForm, MembershipConfirm, useLivePage } from './membership-shared';
+import { useDiscardInvalidCommand, type DirectoryDialog } from './directory-action';
 import { MembershipMenu } from './membership-ui';
 import { invitationStatus, requestUUID } from './membership-utils';
 import { useOperation } from '../account/use-operation';
@@ -28,22 +29,51 @@ function CreateForm({ resolve, done }: { resolve: (username: string) => Promise<
   </ManagementForm>;
 }
 
-export function InvitationActions({ item, done, details }: { item: TenantInvitation; done: (value: TenantInvitationCreated) => void; details?: (trigger: HTMLElement | null) => void }) {
-  const ctx = useTenant(); const { account, client } = useIdentity(); const cache = useQueryClient(); const live = useLivePage();
-  const [target, setTarget] = useState(item), [requestId, setRequestId] = useState(requestUUID), [selected, setSelected] = useState('');
-  const [returnTarget, setReturnTarget] = useState<HTMLElement | null>(null);
-  const refresh = async () => { setTarget(await client.tenantInvitation(ctx.tenant.id, item.id)); setRequestId(requestUUID()); };
-  const actions = [
-    { key: 'regenerate', title: '重新生成', icon: RotateCcw, show: !['accepted', 'replaced'].includes(item.status) && !item.replaced_by_id && ctx.permissions.includes(P.TenantInvitationRegenerate) && ctx.permissions.includes(P.TenantInvitationCreate), effect: '旧链接永久失效，新链接有效 24 小时；请重新交付本人。' },
-    { key: 'revoke', title: '撤销邀请', icon: Ban, show: item.status === 'pending' && ctx.permissions.includes(P.TenantInvitationRevoke), effect: '旧链接将不能领取，邀请记录仍会保留。' },
+function invitationCommands(item: TenantInvitation, permissions: readonly string[]) {
+  return [
+    { key: 'regenerate', title: '重新生成', icon: RotateCcw, show: !['accepted', 'replaced'].includes(item.status) && !item.replaced_by_id && permissions.includes(P.TenantInvitationRegenerate) && permissions.includes(P.TenantInvitationCreate), effect: '旧链接永久失效，新链接有效 24 小时；请重新交付本人。' },
+    { key: 'revoke', title: '撤销邀请', icon: Ban, show: item.status === 'pending' && permissions.includes(P.TenantInvitationRevoke), effect: '旧链接将不能领取，邀请记录仍会保留。' },
   ].filter((action) => action.show);
-  const select = (key: string, trigger: HTMLButtonElement | null) => { setReturnTarget(trigger); setTarget(item); setRequestId(requestUUID()); setSelected(key); };
-  return <>
-    {details && <MembershipMenu name={item.target.display_name} label="邀请操作" actions={[{ label: '查看详情', icon: Eye, onSelect: details }, ...actions.map((action) => ({ label: action.title, icon: action.icon, destructive: action.key === 'revoke', disabled: !ctx.available, onSelect: (trigger: HTMLButtonElement | null) => select(action.key, trigger) }))]} />}
-    <div className={details ? undefined : 'flex flex-wrap gap-2'}>{actions.map((action) => <MembershipConfirm key={action.key} prepare={() => { setTarget(item); setRequestId(requestUUID()); }} title={action.title} description={`${ctx.tenant.name} · ${item.target.display_name}（${item.target.username}）。${action.effect}`} open={details ? selected === action.key : undefined} onOpenChange={details ? (open) => { if (!open) setSelected(''); } : undefined} returnFocus={details ? { current: returnTarget } : undefined} refresh={refresh} submit={async (reason) => {
-      if (action.key === 'revoke') await client.revokeTenantInvitation(ctx.tenant.id, item.id, { expected_version: target.version, reason });
-      else { const value = await client.regenerateTenantInvitation(ctx.tenant.id, item.id, { expected_version: target.version, reason, client_request_id: requestId }); if (live.current) done(value); }
-      void cache.invalidateQueries({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id] });
-    }}><p>当前状态：{invitationStatus[target.status]}</p></MembershipConfirm>)}</div>
-  </>;
+}
+
+export function InvitationMenu({ item, details, select }: {
+  item: TenantInvitation;
+  details: (trigger: HTMLElement | null) => void;
+  select: (item: TenantInvitation, command: string, trigger: HTMLButtonElement | null) => void;
+}) {
+  const ctx = useTenant();
+  const actions = invitationCommands(item, ctx.permissions);
+  return <MembershipMenu triggerId={'tenant-invitation-actions-' + item.id} name={item.target.display_name} label="邀请操作"
+    actions={[{ label: '查看详情', icon: Eye, onSelect: details }, ...actions.map(action => ({
+      label: action.title, icon: action.icon, destructive: action.key === 'revoke', disabled: !ctx.available,
+      onSelect: (trigger: HTMLButtonElement | null) => select(item, action.key, trigger),
+    }))]} />;
+}
+
+export function InvitationActions({ item, done, dialog }: { item: TenantInvitation; done: (value: TenantInvitationCreated) => void; dialog?: DirectoryDialog }) {
+  const ctx = useTenant();
+  const { account, client } = useIdentity();
+  const cache = useQueryClient();
+  const live = useLivePage();
+  const [target, setTarget] = useState(item), [requestId, setRequestId] = useState(requestUUID);
+  const actions = invitationCommands(item, ctx.permissions);
+  useDiscardInvalidCommand(dialog, actions.some(action => action.key === dialog?.command));
+  const refresh = async () => { setTarget(await client.tenantInvitation(ctx.tenant.id, item.id)); setRequestId(requestUUID()); };
+  return <div className={dialog ? undefined : 'flex flex-wrap gap-2'}>{actions.map(action => (
+    <MembershipConfirm key={action.key} title={action.title}
+      description={`${ctx.tenant.name} · ${item.target.display_name}（${item.target.username}）。${action.effect}`}
+      prepare={() => { setTarget(item); setRequestId(requestUUID()); }}
+      open={dialog ? dialog.command === action.key : undefined}
+      onOpenChange={open => { if (!open) dialog?.close(); }} paused={dialog?.paused}
+      returnFocus={dialog ? { current: dialog.trigger } : undefined} refresh={refresh} submit={async reason => {
+        if (action.key === 'revoke') await client.revokeTenantInvitation(ctx.tenant.id, item.id, { expected_version: target.version, reason });
+        else {
+          const value = await client.regenerateTenantInvitation(ctx.tenant.id, item.id, { expected_version: target.version, reason, client_request_id: requestId });
+          if (live.current) done(value);
+        }
+        void cache.invalidateQueries({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id] });
+      }}>
+      <p>当前状态：{invitationStatus[target.status]}</p>
+    </MembershipConfirm>
+  ))}</div>;
 }

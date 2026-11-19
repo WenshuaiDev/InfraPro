@@ -82,7 +82,7 @@ func TestIngestionStorageIsolationRecoveryAndGovernance(t *testing.T) {
 	scope := c.TenantScope(f.tenant)
 	batch, e := os.ReadFile("../../../../samples/ingestion/vendor-batch.json")
 	must(t, e)
-	store, e := blobstore.Open("http://127.0.0.1:58333", "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
+	store, e := blobstore.Open(fixtureObjectEndpoint(), "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
 	must(t, e)
 	if f.send(t, batch, uuid.NewString()) != 202 {
 		t.Fatal("send")
@@ -256,8 +256,8 @@ func TestIngestionStorageIsolationRecoveryAndGovernance(t *testing.T) {
 	t.Log("real S3 failure/loss/repair, PG commit fault/outbox, routing conflicts, fixed recovery task, late binding/backfill, paused planning and current project revocation verified")
 }
 
-func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
-	f := setupIngestion(t)
+func (f ingestionFixture) receiveGatewayReadings(t *testing.T) (string, []string, *tls.Conn, []byte) {
+	t.Helper()
 	scope := c.TenantScope(f.tenant)
 	var maker string
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT p.manufacturer_id::text FROM devices d JOIN device_products p ON p.id=d.product_id WHERE d.id=$1`, f.device).Scan(&maker))
@@ -276,7 +276,7 @@ func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
 	_, e = f.s.ReviseTerminal(ctx, f.owner, scope, gateway.ID, ig.TerminalInput{Meta: f.meta(t), Revision: "1", SourceID: f.ddpSource, Key: "00000000003", Name: "模拟网关", Mode: "multiple", Demultiplexer: &demux.Method})
 	must(t, e)
 	devicesIDs := []string{}
-	for n, child := range []string{"A", "B"} {
+	for _, child := range []string{"A", "B"} {
 		product := f.product(t, c.PlatformScope(), f.actor(), maker, "reading"+child, []c.Slot{f.fixed()})
 		cfg, e := f.ps.SaveConfig(ctx, f.actor(), c.PlatformScope(), product.ID, product.VersionID, "", "", parse.ConfigInput{Meta: f.meta(t), Revision: "0", Name: "独立 reading", MethodID: "example.monitoring-json.reading", MethodVersion: "1.0.0", Bindings: []parse.Binding{{OutputKey: "displacement", SlotKey: "x", Confirmed: true}}})
 		must(t, e)
@@ -299,13 +299,12 @@ func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
 		must(t, e)
 		_, e = f.s.ChangeOne(ctx)
 		must(t, e)
-		_ = n
 	}
 	_, e = f.s.SaveGrant(ctx, f.owner, scope, ig.GrantInput{Meta: f.meta(t), Revision: "0", SourceID: f.ddpSource, TerminalID: gateway.ID, Measure: true, Enabled: true, Budget: 100})
 	must(t, e)
 	conn, e := tls.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", f.ddpPort), f.tls)
 	must(t, e)
-	defer conn.Close()
+	t.Cleanup(func() { _ = conn.Close() })
 	conn.SetDeadline(time.Now().Add(10 * time.Second))
 	registration, e := ddp.Encode(1, "00000000003", make([]byte, 6))
 	must(t, e)
@@ -321,6 +320,13 @@ func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
 	must(t, e)
 	_, e = f.s.Pull(ctx, f.opts.Relays[0])
 	must(t, e)
+	return gateway.ID, devicesIDs, conn, raw
+}
+
+func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
+	f := setupIngestion(t)
+	scope := c.TenantScope(f.tenant)
+	gateway, devicesIDs, conn, raw := f.receiveGatewayReadings(t)
 	f.work(t, 20)
 	for n, dev := range devicesIDs {
 		var id string
@@ -368,7 +374,7 @@ func TestIngestionGatewayExactViewsAndAdoption(t *testing.T) {
 	if unknownCount != 1 || knownCount != 4 {
 		t.Fatal("unknown gateway child borrowed an identity or blocked valid siblings", unknownCount, knownCount)
 	}
-	history, e := f.s.TerminalHistory(ctx, f.owner, scope, gateway.ID)
+	history, e := f.s.TerminalHistory(ctx, f.owner, scope, gateway)
 	must(t, e)
 	if len(history) != 4 {
 		t.Fatal("terminal history", len(history))
@@ -457,7 +463,7 @@ func TestIngestionMachineGrantAndLateResponseFence(t *testing.T) {
 	must(t, e)
 	_, e = f.s.PlanOne(ctx)
 	must(t, e)
-	store, e := blobstore.Open("http://127.0.0.1:58333", "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
+	store, e := blobstore.Open(fixtureObjectEndpoint(), "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
 	must(t, e)
 	f.s.WithStorage(&faultStore{ObjectStore: store, after: func(int) error {
 		_, e := f.env.Pool.Exec(ctx, `UPDATE ingestion_parse_plans SET fence=fence+1,lease_until=clock_timestamp()-interval '1 second' WHERE state='parsing'`)
@@ -519,8 +525,8 @@ func TestIngestionMachineGrantAndLateResponseFence(t *testing.T) {
 	t.Log("human disable leaves machine grant valid; expired workers cannot commit; post-call machine revocation blocks result; frozen decisions and plans reject mutation")
 }
 
-func TestIngestionRecoveryTaskGenerationsRevocationAndAuditRollback(t *testing.T) {
-	f := setupIngestion(t)
+func (f ingestionFixture) startReparse(t *testing.T) (string, ig.Result) {
+	t.Helper()
 	scope := c.TenantScope(f.tenant)
 	batch, e := os.ReadFile("../../../../samples/ingestion/vendor-batch.json")
 	must(t, e)
@@ -536,7 +542,37 @@ func TestIngestionRecoveryTaskGenerationsRevocationAndAuditRollback(t *testing.T
 	must(t, e)
 	_, e = f.s.RecoveryOne(ctx)
 	must(t, e)
-	_, e = f.s.IdentifyOne(ctx)
+	return unit, job
+}
+
+func TestIngestionUnchangedRecoveryKeepsRevisionAndTaskEvents(t *testing.T) {
+	f := setupIngestion(t)
+	_, job := f.startReparse(t)
+	// Keep the decision pending across two identical scheduler observations.
+	_, e := f.s.RecoveryOne(ctx)
+	must(t, e)
+	progress := func() (int, int) {
+		t.Helper()
+		var revision, facts int
+		must(t, f.env.Pool.QueryRow(ctx, `SELECT j.revision,
+			(SELECT count(*) FROM task_events e JOIN task_records r ON r.id=e.task_id
+			 WHERE r.source_module='ingestion' AND r.source_kind='recovery' AND r.source_root_id=j.id)
+			FROM ingestion_recovery_jobs j WHERE j.id=$1`, job.ID).Scan(&revision, &facts))
+		return revision, facts
+	}
+	beforeRevision, beforeFacts := progress()
+	_, e = f.s.RecoveryOne(ctx)
+	must(t, e)
+	if revision, facts := progress(); revision != beforeRevision || facts != beforeFacts {
+		t.Fatalf("unchanged recovery was republished: revisions %d/%d, task events %d/%d", beforeRevision, revision, beforeFacts, facts)
+	}
+}
+
+func TestIngestionRecoveryTaskGenerationsRevocationAndAuditRollback(t *testing.T) {
+	f := setupIngestion(t)
+	scope := c.TenantScope(f.tenant)
+	unit, job := f.startReparse(t)
+	_, e := f.s.IdentifyOne(ctx)
 	must(t, e)
 	for n := 0; n < 4; n++ {
 		_, e = f.s.PlanOne(ctx)
@@ -550,7 +586,7 @@ func TestIngestionRecoveryTaskGenerationsRevocationAndAuditRollback(t *testing.T
 		_, e = f.s.TaskControl(ctx, f.owner, ref, tasks.Command{RequestID: f.meta(t).RequestID, Action: action, ExpectedGeneration: generation, ExpectedRevision: current.Revision, Reason: "固定范围代次验收"})
 		must(t, e)
 	}
-	store, e := blobstore.Open("http://127.0.0.1:58333", "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
+	store, e := blobstore.Open(fixtureObjectEndpoint(), "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
 	must(t, e)
 	f.s.WithStorage(&faultStore{ObjectStore: store, after: func(int) error { control("cancel", "1"); control("retry", "1"); return nil }})
 	_, e = f.s.ParseOne(ctx)

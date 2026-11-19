@@ -4,11 +4,12 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tenancy"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 )
 
-func registerLifecycle(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
+func registerLifecycle(r routes.Registrar, i *identity.Service, s *tenancy.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	r.GET("/api/v1/account/tenants/:tenant_id/availability", query(), func(c *gin.Context) {
 		v, e := s.Availability(c.Request.Context(), actor(c), c.Param("tenant_id"))

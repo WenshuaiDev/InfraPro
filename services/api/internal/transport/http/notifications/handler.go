@@ -2,6 +2,7 @@ package notificationshttp
 
 import (
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"slices"
@@ -64,7 +65,7 @@ func filter(c *gin.Context) notifications.Filter {
 	}
 	return notifications.Filter{PageIndexOnly: c.Query("page_index_only") == "true", Status: c.Query("status"), Category: c.Query("category"), Tenant: c.Query("tenant_id"), Project: c.Query("project_id"), Scope: c.Query("scope"), Cursor: c.Query("cursor"), Limit: limit}
 }
-func Register(r *gin.Engine, i *identity.Service, s *notifications.Service, t *tenancy.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *notifications.Service, t *tenancy.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", RequestID: c.Writer.Header().Get("X-Request-ID")}

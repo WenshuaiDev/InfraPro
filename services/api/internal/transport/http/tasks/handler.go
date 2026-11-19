@@ -6,6 +6,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/taskrecord"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/tasks"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	identityhttp "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -55,7 +56,7 @@ func reply(c *gin.Context, v any, e error) {
 	}
 	c.JSON(status, v)
 }
-func Register(r *gin.Engine, i *identity.Service, s *tasks.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *tasks.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	filters := []string{"scope_kind", "source", "mode", "tenant_id", "project_id", "type", "group", "from", "to", "q", "sort", "cursor", "limit"}
 	r.GET("/api/v1/tasks", query(filters...), func(c *gin.Context) { v, e := s.List(c.Request.Context(), actor(c), filter(c)); reply(c, v, e) })

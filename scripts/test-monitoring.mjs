@@ -28,6 +28,11 @@ try {
   await run('node', ['--test', 'tests/unit/monitoring-client.test.mjs'], 'client-rules.log');
   await run('go', ['test', '-race', '-count=1', './packages/go/platform/monitoring/...'], 'rules.log');
   await run('go', ['test', '-race', '-tags', 'monitoringintegration', '-count=1', '-v', '-timeout=15m', './packages/go/platform/resources', '-run', '^TestMonitoring'], 'integration.log');
+  if (!env.INFRAPRO_FILES_CHECKER_EXECUTABLE) {
+    const checker = join(output, 'files-checker');
+    await run('go', ['build', '-o', checker, './services/api/cmd/files-checker'], 'build-files-checker.log');
+    env.INFRAPRO_FILES_CHECKER_EXECUTABLE = checker;
+  }
   await run('go', ['test', '-count=1', './services/api/internal/transport/http/...', './tools/infrapro/internal/command'], 'http-cli.log');
   passed = true;
 } finally {

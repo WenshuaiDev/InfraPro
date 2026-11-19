@@ -25,6 +25,7 @@ import (
 )
 
 type Service struct {
+	trialAttempt    TrialAttempt
 	readiness       func(context.Context) error
 	options         config.Derived
 	access          *access.Service

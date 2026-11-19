@@ -20,9 +20,13 @@ type Profile struct {
 
 func (s *Service) Access() *access.Service { return s.access }
 func (s *Service) AccessActor(p Principal) access.Actor {
-	return access.Actor{ID: p.Account.ID, Check: func(ctx context.Context, tx pgx.Tx, recent bool) error {
-		return lockPrincipal(ctx, tx, p, s.cfg.SessionIdle, recent)
-	}}
+	return TransactionActor(p, s.cfg.SessionIdle)
+}
+
+func TransactionActor(p Principal, idle time.Duration) access.Actor {
+	return access.SessionActor(p.Account.ID, func(ctx context.Context, tx pgx.Tx, recent, shared bool) error {
+		return checkPrincipal(ctx, tx, p, idle, recent, shared)
+	})
 }
 func (s *Service) readAuthorized(ctx context.Context, p Principal, op access.Operation, fn func(pgx.Tx) error) error {
 	e := s.repo.transact(ctx, func(tx pgx.Tx) error {

@@ -156,7 +156,11 @@ func (r *Runtime) native(ctx context.Context, p settings.Probe, b settings.Bindi
 				o.Outcome = "ok"
 				o.ReasonCode = "ok"
 				if d.State != "ready" {
-					o = model.Failure(o, "failed", "dependency_unavailable")
+					reason := "dependency_unavailable"
+					if d.ReasonCode != nil {
+						reason = *d.ReasonCode
+					}
+					o = model.Failure(o, "failed", reason)
 				}
 				break
 			}
@@ -165,6 +169,16 @@ func (r *Runtime) native(ctx context.Context, p settings.Probe, b settings.Bindi
 			return model.Failure(o, "not_configured", "not_configured")
 		}
 	} else {
+		if b.LaneID == "" {
+			for _, m := range report.Metrics {
+				var value any = float64(m.Value)
+				unit := diagnosticreport.MetricUnit(m.Key)
+				if unit == "milliseconds" || unit == "position" {
+					value = strconv.FormatInt(m.Value, 10)
+				}
+				o.Metrics = append(o.Metrics, metric(m.Key, m.Dimension, value))
+			}
+		}
 		lanes := []diagnosticreport.Lane{}
 		for _, l := range report.Lanes {
 			if b.LaneID == "" || b.LaneID == l.ID {
@@ -186,7 +200,11 @@ func (r *Runtime) native(ctx context.Context, p settings.Probe, b settings.Bindi
 				o = model.Failure(o, "failed", "deadline_exceeded")
 			} else if state == "blocked" && o.Facets.Loop != "stalled" {
 				o.Facets.Loop = "blocked"
-				o = model.Failure(o, "failed", "loop_failed")
+				reason := "loop_failed"
+				if l.ReasonCode != nil {
+					reason = *l.ReasonCode
+				}
+				o = model.Failure(o, "failed", reason)
 			} else if state == "working" && o.Facets.Loop != "blocked" && o.Facets.Loop != "stalled" {
 				o.Facets.Loop = "working"
 			} else if o.Facets.Loop == "not_applicable" {
@@ -207,7 +225,7 @@ func (r *Runtime) native(ctx context.Context, p settings.Probe, b settings.Bindi
 }
 func (r *Runtime) validateReport(v diagnosticreport.Report, p settings.Probe, b settings.Binding, self bool) error {
 	replica, ok := r.Manifest.ReplicaFor(p)
-	if !ok || v.SchemaVersion != 1 || v.InstanceID != r.Manifest.InstanceID || v.ReplicaID != replica.ID || v.NodeID != replica.NodeID || self && v.ReplicaID != b.ExpectedReplicaID || !model.UUID(v.Process.BootID) || v.Process.PID < 1 || !settings.Decimal(v.Process.OSStartTimeMS, false) || !settings.OneOf(v.Process.PIDNamespace, "host", "container") || !model.SafeBuild(v.Process.BuildID) || !settings.Decimal(v.ReportSeq, false) || !settings.Decimal(v.UptimeMS, true) || v.EmittedAt.IsZero() || v.EmittedAt.Nanosecond()%1e6 != 0 || !settings.OneOf(v.Phase, "starting", "ready", "unconfigured", "stopping", "failed") || v.Lanes == nil || len(v.Lanes) > 16 || v.Dependencies == nil || len(v.Dependencies) > 16 {
+	if !ok || v.SchemaVersion != 1 || v.InstanceID != r.Manifest.InstanceID || v.ReplicaID != replica.ID || v.NodeID != replica.NodeID || self && v.ReplicaID != b.ExpectedReplicaID || !model.UUID(v.Process.BootID) || v.Process.PID < 1 || !settings.Decimal(v.Process.OSStartTimeMS, false) || !settings.OneOf(v.Process.PIDNamespace, "host", "container") || !model.SafeBuild(v.Process.BuildID) || !settings.Decimal(v.ReportSeq, false) || !settings.Decimal(v.UptimeMS, true) || v.EmittedAt.IsZero() || v.EmittedAt.Nanosecond()%1e6 != 0 || !settings.OneOf(v.Phase, "starting", "ready", "unconfigured", "stopping", "failed") || v.Lanes == nil || len(v.Lanes) > 16 || v.Dependencies == nil || len(v.Dependencies) > 16 || len(v.Metrics) > diagnosticreport.MaxProcessMetrics {
 		return settings.Invalid
 	}
 	if self && v.Process.PIDNamespace != b.PIDNamespace {
@@ -227,10 +245,25 @@ func (r *Runtime) validateReport(v diagnosticreport.Report, p settings.Probe, b 
 	}
 	seen = map[string]bool{}
 	for _, d := range v.Dependencies {
-		if !settings.ValidID(d.ID) || seen[d.ID] || !settings.OneOf(d.State, "ready", "not_ready") || d.CheckedAt.IsZero() || d.CheckedAt.After(v.EmittedAt) || d.ReasonCode != nil && !settings.OneOf(*d.ReasonCode, "dependency_unavailable", "configuration_invalid", "storage_unconfigured", "checker_unavailable", "loop_failed", "deadline_exceeded") {
+		if !settings.ValidID(d.ID) || seen[d.ID] || !settings.OneOf(d.State, "ready", "not_ready") || d.CheckedAt.IsZero() || d.CheckedAt.After(v.EmittedAt) || d.ReasonCode != nil && !diagnosticreport.KnownReason(*d.ReasonCode) {
 			return settings.Invalid
 		}
 		seen[d.ID] = true
+	}
+	seen = map[string]bool{}
+	tenantCount := 0
+	for _, metric := range v.Metrics {
+		key := metric.Key + ":" + metric.Dimension
+		if seen[key] || !metric.Valid() {
+			return settings.Invalid
+		}
+		seen[key] = true
+		if metric.Key == diagnosticreport.TenantQueueKey {
+			tenantCount++
+		}
+	}
+	if tenantCount > diagnosticreport.MaxQueueDimensions {
+		return settings.Invalid
 	}
 	return nil
 }

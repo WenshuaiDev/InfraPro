@@ -1,6 +1,7 @@
 package tenancyhttp
 
 import (
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"strings"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
@@ -9,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func registerRoles(r *gin.Engine, i *identity.Service) {
+func registerRoles(r routes.Registrar, i *identity.Service) {
 	s := i.Access()
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {

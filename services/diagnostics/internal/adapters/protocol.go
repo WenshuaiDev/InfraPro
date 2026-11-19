@@ -28,9 +28,14 @@ func (r *Runtime) protocol(ctx context.Context, p settings.Probe, b settings.Bin
 	o.Facets.Readiness = "not_ready"
 	var err error
 	switch b.Adapter {
+	case "jetstream_health":
+		b.URL = "http://" + net.JoinHostPort(b.Host, strconv.Itoa(b.Port)) + "/healthz"
+		b.ExpectedStatus = http.StatusOK
+		b.ExpectedJSON = map[string]json.RawMessage{"status": json.RawMessage(`"ok"`)}
+		err = r.httpCheck(ctx, b, &o)
 	case "http_live", "http_ready":
 		err = r.httpCheck(ctx, b, &o)
-	case "tcp", "keeper_live":
+	case "tcp", "proxy_listener", "keeper_live":
 		if b.Adapter == "keeper_live" && !b.Enabled {
 			return model.Failure(o, "not_configured", "not_configured")
 		}
@@ -63,7 +68,9 @@ func (r *Runtime) protocol(ctx context.Context, p settings.Probe, b settings.Bin
 				}
 			}
 		}
-		o.Facets.Readiness = "unknown"
+		if b.Adapter != "proxy_listener" {
+			o.Facets.Readiness = "unknown"
+		}
 	case "postgres":
 		err = r.postgres(ctx, b)
 	case "redis":
@@ -144,6 +151,9 @@ func (r *Runtime) httpCheck(ctx context.Context, b settings.Binding, o *model.Ob
 	u, e := settings.TargetURL(b.URL, r.Bindings.AllowedTargetHosts)
 	if e != nil {
 		return e
+	}
+	if b.Adapter == "jetstream_health" {
+		u.RawQuery = "js-enabled-only=true"
 	}
 	client, e := r.httpClient(b.TLSCAFile, u.Hostname())
 	if e != nil {

@@ -186,11 +186,11 @@ func (s *Service) recheckHistoryTx(ctx context.Context, tx pgx.Tx, a access.Acto
 		proof.generation.InputState = "revoked"
 	}
 	for _, baseline := range proof.manifest.Baselines {
-		fixed, exists, e := loadBaselineTx(ctx, tx, scope.Tenant, g.ConfigID, baseline.Reference)
+		fixed, exists, e := loadBaselineMetadataTx(ctx, tx, scope.Tenant, g.ConfigID, baseline.Reference, &baseline.Hash)
 		if e != nil {
 			return e
 		}
-		if !exists || fingerprint(fixed) != baseline.Hash || fixed.Snapshot.ID != baseline.Snapshot {
+		if !exists || fixed.Snapshot.ID != baseline.Snapshot {
 			return problem("result_integrity_unavailable", "历史固定基准依据不完整。", 503)
 		}
 		baselineState, e := s.checkFixedBaselineHistoryTx(ctx, tx, inputAccess{Actor: a, Scope: monitoringScope(scope), History: true}, fixed)

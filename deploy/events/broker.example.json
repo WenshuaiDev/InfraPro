@@ -1,0 +1,16 @@
+{
+  "environment": "acceptance",
+  "name": "broker-1",
+  "listen": "0.0.0.0:4222",
+  "monitor_port": 8222,
+  "cluster_listen": "0.0.0.0:6222",
+  "routes": ["nats-route://broker-1.internal:6222", "nats-route://broker-2.internal:6222", "nats-route://broker-3.internal:6222"],
+  "cert_file": "/etc/infrapro/broker/tls/server.pem",
+  "key_file": "/etc/infrapro/broker/tls/server.key",
+  "ca_file": "/etc/infrapro/broker/tls/ca.pem",
+  "route_cert_file": "/etc/infrapro/broker/cluster/node.pem",
+  "route_key_file": "/etc/infrapro/broker/cluster/node.key",
+  "route_ca_file": "/etc/infrapro/broker/cluster/ca.pem",
+  "store_dir": "/var/lib/infrapro/jetstream",
+  "max_file_bytes": 4294967296
+}

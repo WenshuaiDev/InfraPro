@@ -16,9 +16,10 @@ import { useOperation } from '../account/use-operation';
 import { useTenant } from './context';
 
 const reasonSchema = z.object({ reason: z.string().trim().refine((v) => Array.from(v).length >= 1 && Array.from(v).length <= 500, '请填写 1–500 个字符的操作原因。') });
-export function ManagementForm({ submit, refresh, children, label = '确认操作', cancel, disabled, onPendingChange, stickyActions }: { submit: (reason: string) => Promise<void>; refresh?: () => Promise<void>; children?: ReactNode; label?: string; cancel?: ReactNode; disabled?: boolean; onPendingChange?: (pending: boolean) => void; stickyActions?: boolean }) {
+export function ManagementForm({ submit, refresh, children, label = '确认操作', cancel, disabled, onPendingChange, stickyActions, present }: { submit: (reason: string) => Promise<void>; refresh?: () => Promise<void>; children?: ReactNode; label?: string; cancel?: ReactNode; disabled?: boolean; onPendingChange?: (pending: boolean) => void; stickyActions?: boolean; present?: (form: ReactNode) => ReactNode }) {
   const ctx = useTenant(); const { client, phase } = useIdentity(); const [password, setPassword] = useState(''); const [notice, setNotice] = useState('');
   const form = useForm({ resolver: zodResolver(reasonSchema), defaultValues: { reason: '' } });
+  if (!ctx.available && password) setPassword('');
   const action = useOperation({ mutationFn: submit });
   const error = action.error; const reauth = error instanceof ApiError && error.code === 'reauthentication_required';
   const conflict = error instanceof ApiError && ['version_conflict', 'member_state_conflict', 'invitation_not_pending', 'idempotency_conflict', 'impact_changed', 'request_conflict'].includes(error.code ?? '');
@@ -27,25 +28,48 @@ export function ManagementForm({ submit, refresh, children, label = '确认操�
   const reload = useOperation({ mutationFn: refresh, onSuccess: () => { action.reset(); setNotice('已加载最新状态，请核对影响后再次确认。'); } });
   const pending = action.isPending || verify.isPending;
   useEffect(() => { onPendingChange?.(pending); return () => onPendingChange?.(false); }, [pending, onPendingChange]);
-  if (error instanceof ApiError && ([404].includes(error.status ?? 0) || error.code === 'permission_denied')) return <FormNotice error>当前操作权限或目标已不可用，原表单已清理。请关闭后重新进入。</FormNotice>;
-  return <div className="space-y-4"><Form {...form}><form className="space-y-4" onSubmit={form.handleSubmit(({ reason }) => action.mutate(reason))}>
+  const render = present ?? ((body: ReactNode) => body);
+  if (error instanceof ApiError && ([404].includes(error.status ?? 0) || error.code === 'permission_denied')) return render(<FormNotice error>当前操作权限或目标已不可用，原表单已清理。请关闭后重新进入。</FormNotice>);
+  const canSubmit = !disabled && phase === 'authenticated' && ctx.available && !action.isPending && !reauth && !conflict && !unknown;
+  return render(<div className="space-y-4"><Form {...form}><form className="space-y-4" onSubmit={form.handleSubmit(({ reason }) => { if (canSubmit) action.mutate(reason); })}>
     <fieldset disabled={action.isPending} className="min-w-0 space-y-4">{children}<FormInput control={form.control} name="reason" label="操作原因" hint="仅供本租户治理审计，不向受邀人展示。" /></fieldset>
     {!ctx.available && <FormNotice error>服务暂不可用，输入已保留，请重新核验后提交。</FormNotice>}
     <FormNotice error>{error?.message ?? reload.error?.message}</FormNotice><FormNotice>{notice}</FormNotice>
     {unknown && <FormNotice>结果尚未确认。请关闭后查看对应成员或邀请记录；生成链接的响应丢失时，可明确重新生成。</FormNotice>}
     {(conflict || unknown) && refresh && <Button type="button" variant="outline" disabled={reload.isPending} onClick={() => reload.mutate()}>刷新状态并重新核对</Button>}
-    <div className={stickyActions ? "sticky -bottom-6 -mx-5 flex justify-end gap-2 border-t bg-background/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6" : "flex flex-wrap gap-3"}>{cancel}<Button type="submit" disabled={disabled || phase !== 'authenticated' || !ctx.available || action.isPending || reauth || conflict || unknown}>{action.isPending ? '正在处理…' : label}</Button></div>
-  </form></Form>{reauth && <form className="space-y-3 rounded-md border p-3" onSubmit={(e) => { e.preventDefault(); verify.mutate(); }}><Label htmlFor="membership-password">当前密码</Label><Input id="membership-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /><FormNotice error>{verify.error?.message}</FormNotice><Button disabled={verify.isPending}>确认密码</Button></form>}</div>;
+    <div className={stickyActions ? "sticky -bottom-6 -mx-5 flex justify-end gap-2 border-t bg-background/95 px-5 py-4 backdrop-blur sm:-mx-6 sm:px-6" : "flex flex-wrap gap-3"}>{cancel}<Button type="submit" disabled={!canSubmit}>{action.isPending ? '正在处理…' : label}</Button></div>
+  </form></Form>{reauth && <form className="space-y-3 rounded-md border p-3" onSubmit={(e) => { e.preventDefault(); verify.mutate(); }}><Label htmlFor="membership-password">当前密码</Label><Input id="membership-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /><FormNotice error>{verify.error?.message}</FormNotice><Button disabled={verify.isPending}>确认密码</Button></form>}</div>);
 }
-export function MembershipConfirm({ title, description, submit, refresh, children, prepare, open: controlledOpen, onOpenChange, returnFocus }: { title: string; description: string; submit: (reason: string) => Promise<void>; refresh: () => Promise<void>; children?: ReactNode; prepare?: () => void; open?: boolean; onOpenChange?: (open: boolean) => void; returnFocus?: RefObject<HTMLElement | null> }) {
-  const [localOpen, setLocalOpen] = useState(false); const ctx = useTenant();
+export function MembershipConfirm({ title, description, submit, refresh, children, prepare, open: controlledOpen, onOpenChange, returnFocus, paused = false }: { title: string; description: string; submit: (reason: string) => Promise<void>; refresh: () => Promise<void>; children?: ReactNode; prepare?: () => void; open?: boolean; onOpenChange?: (open: boolean) => void; returnFocus?: RefObject<HTMLElement | null>; paused?: boolean }) {
+  const [localOpen, setLocalOpen] = useState(false);
+  const ctx = useTenant();
   const open = controlledOpen ?? localOpen;
-  const setOpen = (next: boolean) => { if (next) prepare?.(); setLocalOpen(next); onOpenChange?.(next); };
-  return <AlertDialog open={open} onOpenChange={setOpen}>{controlledOpen === undefined && <AlertDialogTrigger asChild><Button variant="outline" disabled={!ctx.available}>{title}</Button></AlertDialogTrigger>}<AlertDialogContent className="max-h-[85dvh] overflow-y-auto" onCloseAutoFocus={(event) => { if (returnFocus?.current?.isConnected) { event.preventDefault(); returnFocus.current.focus(); } }}><AlertDialogHeader><AlertDialogTitle>{title}</AlertDialogTitle><AlertDialogDescription>{description}</AlertDialogDescription></AlertDialogHeader>{open && <ManagementForm submit={async (reason) => { await submit(reason); setOpen(false); }} refresh={refresh} cancel={<AlertDialogCancel>取消</AlertDialogCancel>}>{children}</ManagementForm>}</AlertDialogContent></AlertDialog>;
+  const setOpen = (next: boolean) => {
+    if (next) prepare?.();
+    setLocalOpen(next);
+    onOpenChange?.(next);
+  };
+  const present = (form: ReactNode) => paused ? null : (
+    <AlertDialogContent className="max-h-[85dvh] overflow-y-auto" onCloseAutoFocus={event => {
+      const initial = returnFocus?.current;
+      const trigger = initial?.isConnected ? initial : initial?.id ? document.getElementById(initial.id) : null;
+      if (trigger) { event.preventDefault(); trigger.focus(); }
+    }}>
+      <AlertDialogHeader><AlertDialogTitle>{title}</AlertDialogTitle><AlertDialogDescription>{description}</AlertDialogDescription></AlertDialogHeader>
+      {form}
+    </AlertDialogContent>
+  );
+  return <AlertDialog open={open && !paused} onOpenChange={setOpen}>
+    {controlledOpen === undefined && <AlertDialogTrigger asChild><Button variant="outline" disabled={!ctx.available}>{title}</Button></AlertDialogTrigger>}
+    {open && <ManagementForm disabled={paused} present={present} submit={async reason => {
+      await submit(reason);
+      setOpen(false);
+    }} refresh={refresh} cancel={<AlertDialogCancel>取消</AlertDialogCancel>}>{children}</ManagementForm>}
+  </AlertDialog>;
 }
 export function InvitationLink({ value, close }: { value?: TenantInvitationCreated; close: () => void }) {
   const [notice, setNotice] = useState(''); const ctx = useTenant();
-  return <Dialog open={!!value} onOpenChange={(open) => { if (!open) { setNotice(''); close(); } }}><DialogContent><DialogHeader><DialogTitle>{value?.link ? '成员邀请链接已生成' : '已确认此前邀请结果'}</DialogTitle><DialogDescription>链接只在本次生成后展示。关闭后无法取回，可在邀请详情明确重新生成。</DialogDescription></DialogHeader>{value && <div className="min-w-0 space-y-4"><p className="break-words">{ctx.tenant.name} · {ctx.tenant.code}</p><p className="break-words">受邀账号：{value.invitation.target.display_name}（{value.invitation.target.username}）</p><p>租户普通成员 · 可查看本租户基本资料</p><p className="text-sm">有效至 {new Date(value.invitation.expires_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}（上海）</p>{value.link ? <><Label htmlFor="tenant-invite-link">完整邀请链接</Label><Input id="tenant-invite-link" value={value.link} readOnly onFocus={(e) => e.currentTarget.select()} /><Button variant="outline" onClick={() => { if (!navigator.clipboard?.writeText) { setNotice('请选中上方链接手动复制。'); return; } void navigator.clipboard.writeText(value.link!).then(() => setNotice('已复制邀请链接。'), () => setNotice('请选中上方链接手动复制。')); }}>复制链接</Button></> : <p>此前结果已存在，不能重取明文链接，请查看邀请记录后重新生成。</p>}<FormNotice>{notice}</FormNotice><Button onClick={close}>关闭链接</Button></div>}</DialogContent></Dialog>;
+  return <Dialog open={!!value && ctx.available} onOpenChange={(open) => { if (!open) { setNotice(''); close(); } }}><DialogContent><DialogHeader><DialogTitle>{value?.link ? '成员邀请链接已生成' : '已确认此前邀请结果'}</DialogTitle><DialogDescription>链接只在本次生成后展示。关闭后无法取回，可在邀请详情明确重新生成。</DialogDescription></DialogHeader>{value && ctx.available && <div className="min-w-0 space-y-4"><p className="break-words">{ctx.tenant.name} · {ctx.tenant.code}</p><p className="break-words">受邀账号：{value.invitation.target.display_name}（{value.invitation.target.username}）</p><p>租户普通成员 · 可查看本租户基本资料</p><p className="text-sm">有效至 {new Date(value.invitation.expires_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}（上海）</p>{value.link ? <><Label htmlFor="tenant-invite-link">完整邀请链接</Label><Input id="tenant-invite-link" value={value.link} readOnly onFocus={(e) => e.currentTarget.select()} /><Button variant="outline" onClick={() => { if (!navigator.clipboard?.writeText) { setNotice('请选中上方链接手动复制。'); return; } void navigator.clipboard.writeText(value.link!).then(() => setNotice('已复制邀请链接。'), () => setNotice('请选中上方链接手动复制。')); }}>复制链接</Button></> : <p>此前结果已存在，不能重取明文链接，请查看邀请记录后重新生成。</p>}<FormNotice>{notice}</FormNotice><Button onClick={close}>关闭链接</Button></div>}</DialogContent></Dialog>;
 }
 // Async continuations must not store one-time links after an account, member or route unmount.
 // eslint-disable-next-line react-refresh/only-export-components

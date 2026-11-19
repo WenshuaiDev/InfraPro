@@ -147,6 +147,50 @@
       },
       "type": "array"
     },
+    "metrics": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "dimension_id": {
+            "pattern": "^tenant-[0-9a-f]{24}$",
+            "type": "string"
+          },
+          "key": {
+            "enum": [
+              "dispatch.rejected_fences",
+              "event.consumer_position",
+              "event.delivery_lag_ms",
+              "event.outbox_oldest_ms",
+              "event.outbox_pending",
+              "event.pg_reconciliations",
+              "event.position_gaps",
+              "event.publish_acks",
+              "event.quarantined",
+              "event.redeliveries",
+              "parser.duration_ms",
+              "quota.ch_connections",
+              "quota.http_inflight",
+              "quota.parser_slots",
+              "quota.pg_connections",
+              "quota.s3_inflight",
+              "tenant.queue_depth"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object"
+      },
+      "maxItems": 48,
+      "type": "array"
+    },
     "node_id": {
       "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
       "type": "string"

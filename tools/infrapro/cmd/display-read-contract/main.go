@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/displayread"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
@@ -21,6 +22,16 @@ type schema = map[string]any
 type DirectObservation monitoring.Observation
 
 func main() {
+	if len(os.Args) == 2 && os.Args[1] == "--routes" {
+		routes := []access.Policy{}
+		for _, op := range access.Policies() {
+			if strings.HasPrefix(string(op.Operation), "Display:") {
+				routes = append(routes, op)
+			}
+		}
+		must(json.NewEncoder(os.Stdout).Encode(routes))
+		return
+	}
 	raw, e := os.ReadFile("contracts/display/v1/protocol.json")
 	must(e)
 	var protocol struct {

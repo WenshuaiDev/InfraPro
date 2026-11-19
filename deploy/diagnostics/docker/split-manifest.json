@@ -1,0 +1,1876 @@
+{
+  "schema_version": 1,
+  "instance_id": "example",
+  "revision": "1",
+  "display_name": "InfraPro 独立运行诊断",
+  "nodes": [
+    {
+      "id": "local",
+      "display_name": "诊断 server 容器",
+      "kind": "container",
+      "resource_scope": "container",
+      "assignment_revision": "1",
+      "enabled": true
+    },
+    {
+      "id": "docker-observer",
+      "display_name": "独立网络观察器",
+      "kind": "container",
+      "resource_scope": "container",
+      "assignment_revision": "1",
+      "enabled": true
+    },
+    {
+      "id": "docker-vm",
+      "display_name": "容器宿主 VM（未接入宿主资源）",
+      "kind": "vm",
+      "parent_node_id": "local",
+      "resource_scope": "vm",
+      "assignment_revision": "1",
+      "enabled": false
+    },
+    {
+      "id": "edge",
+      "display_name": "edge",
+      "kind": "physical",
+      "resource_scope": "host",
+      "assignment_revision": "1",
+      "enabled": true
+    }
+  ],
+  "components": [
+    {
+      "id": "replica-proxy",
+      "display_name": "副本 TCP 转发",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "identity-api",
+      "display_name": "身份与空间治理",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "会话验证、身份维护及工作空间治理"
+    },
+    {
+      "id": "control-api",
+      "display_name": "工程与业务控制",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "原授权和命令事务"
+    },
+    {
+      "id": "monitoring-query-api",
+      "display_name": "监测查询",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "有界监测和大屏读取"
+    },
+    {
+      "id": "transfer-api",
+      "display_name": "受控传输",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "已授权文件的字节流及完成操作"
+    },
+    {
+      "id": "compat-api",
+      "display_name": "兼容业务 API",
+      "kind": "application",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "ingest-custody-worker",
+      "display_name": "原文接管",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "持久接管、核实对象与交接确认"
+    },
+    {
+      "id": "parsing-dispatch-worker",
+      "display_name": "解析调度",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "识别、方法计划、人工与自动试解析"
+    },
+    {
+      "id": "monitoring-publish-worker",
+      "display_name": "正式监测发布",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "导入校验、正式采用、核验与搬迁"
+    },
+    {
+      "id": "monitoring-incremental-worker",
+      "display_name": "监测增量计算",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "变更位置消费、派生计算与试算"
+    },
+    {
+      "id": "monitoring-history-worker",
+      "display_name": "历史分析",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "历史回算、比较、重放和导出"
+    },
+    {
+      "id": "monitoring-read-worker",
+      "display_name": "后台读取",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "后台查询与大屏持久读取"
+    },
+    {
+      "id": "event-relay",
+      "display_name": "内部事件转发",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "将已提交事实交给 JetStream 并记录确认"
+    },
+    {
+      "id": "nats-server",
+      "display_name": "内部消息存储",
+      "kind": "gateway",
+      "expectation": "continuous",
+      "min_ready_replicas": 2,
+      "expectation_reason": "JetStream 文件流与副本健康"
+    },
+    {
+      "id": "display-assets",
+      "display_name": "大屏包资产",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "permit、会话与固定版本资产检查"
+    },
+    {
+      "id": "parser-runner",
+      "display_name": "方法执行子进程",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "由 parser 按版本与预算启动"
+    },
+    {
+      "id": "ingest-worker",
+      "display_name": "设备接入流水",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "ingest-relay",
+      "display_name": "云端转发",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "独立云 PG 持久缓冲；只接受 mTLS 机器身份，无业务库凭证"
+    },
+    {
+      "id": "ingest-relay-postgres",
+      "display_name": "云端缓冲 PostgreSQL",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "parser",
+      "display_name": "独立解析服务",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "启用试解析时部署；不读取业务存储，按固定产物启动有界子进程"
+    },
+    {
+      "id": "api",
+      "display_name": "业务 API",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "同源路由网关，兼容拓扑可承接原操作"
+    },
+    {
+      "id": "monitoring-worker",
+      "display_name": "监测、派生计算与试解析",
+      "kind": "worker",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "notification-worker",
+      "display_name": "通知投递",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "实际投递循环，本地报告独立于数据库心跳"
+    },
+    {
+      "id": "task-index-worker",
+      "display_name": "任务索引",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "任务索引回填与对账"
+    },
+    {
+      "id": "spatial-worker",
+      "display_name": "空间转换",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "Python 子进程按需运行"
+    },
+    {
+      "id": "display-package-worker",
+      "display_name": "大屏包处理",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "包校验和维护"
+    },
+    {
+      "id": "display-runtime",
+      "display_name": "大屏运行服务",
+      "kind": "application",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "可信壳与 SDK 运行入口，兼容拓扑也承接资产监听"
+    },
+    {
+      "id": "files-worker",
+      "display_name": "普通文件处理",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "文件准备和清理，缺存储时未配置"
+    },
+    {
+      "id": "files-checker",
+      "display_name": "文件检查器",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "只观察父进程，不探测解析 socket"
+    },
+    {
+      "id": "audit-worker",
+      "display_name": "审计维护",
+      "kind": "worker",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "沿用独立审计方案，不读取审计正文"
+    },
+    {
+      "id": "web",
+      "display_name": "业务静态网页",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "postgres",
+      "display_name": "PostgreSQL",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "redis",
+      "display_name": "Redis",
+      "kind": "cache",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "clickhouse",
+      "display_name": "ClickHouse",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "keeper",
+      "display_name": "ClickHouse Keeper",
+      "kind": "database",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "s3",
+      "display_name": "对象存储",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-master",
+      "display_name": "SeaweedFS Master",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-filer",
+      "display_name": "SeaweedFS Filer",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-volume",
+      "display_name": "SeaweedFS Volume",
+      "kind": "object_store",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "seaweed-gateway",
+      "display_name": "SeaweedFS S3 Gateway",
+      "kind": "gateway",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    },
+    {
+      "id": "python-converter",
+      "display_name": "Python 转换器",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "由 spatial-worker 按需启动；空闲时没有子进程正常"
+    },
+    {
+      "id": "maintenance-cli",
+      "display_name": "迁移与维护命令",
+      "kind": "tool",
+      "expectation": "on_demand",
+      "min_ready_replicas": 0,
+      "expectation_reason": "一次性 CLI 不属于常驻故障分母"
+    },
+    {
+      "id": "diagnostics-server",
+      "display_name": "独立诊断服务",
+      "kind": "diagnostics",
+      "expectation": "continuous",
+      "min_ready_replicas": 1,
+      "expectation_reason": "不依赖业务初始化"
+    },
+    {
+      "id": "diagnostics-observer",
+      "display_name": "节点观察器",
+      "kind": "diagnostics",
+      "expectation": "disabled",
+      "min_ready_replicas": 0,
+      "expectation_reason": "模板尚未启用；请按实际部署登记绑定"
+    }
+  ],
+  "replicas": [
+    {
+      "id": "replica-proxy-1",
+      "component_id": "replica-proxy",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "identity-api-1",
+      "component_id": "identity-api",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "identity-api-presence",
+        "identity-api-report"
+      ]
+    },
+    {
+      "id": "control-api-1",
+      "component_id": "control-api",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "control-api-presence",
+        "control-api-report"
+      ]
+    },
+    {
+      "id": "monitoring-query-api-1",
+      "component_id": "monitoring-query-api",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "monitoring-query-api-presence",
+        "monitoring-query-api-report"
+      ]
+    },
+    {
+      "id": "transfer-api-1",
+      "component_id": "transfer-api",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "transfer-api-presence",
+        "transfer-api-report"
+      ]
+    },
+    {
+      "id": "compat-api-1",
+      "component_id": "compat-api",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-custody-worker-1",
+      "component_id": "ingest-custody-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "ingest-custody-worker-presence",
+        "ingest-custody-worker-report"
+      ]
+    },
+    {
+      "id": "parsing-dispatch-worker-1",
+      "component_id": "parsing-dispatch-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "parsing-dispatch-worker-presence",
+        "parsing-dispatch-worker-report"
+      ]
+    },
+    {
+      "id": "monitoring-publish-worker-1",
+      "component_id": "monitoring-publish-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "monitoring-publish-worker-presence",
+        "monitoring-publish-worker-report"
+      ]
+    },
+    {
+      "id": "monitoring-incremental-worker-1",
+      "component_id": "monitoring-incremental-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "monitoring-incremental-worker-presence",
+        "monitoring-incremental-worker-report"
+      ]
+    },
+    {
+      "id": "monitoring-history-worker-1",
+      "component_id": "monitoring-history-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "monitoring-history-worker-presence",
+        "monitoring-history-worker-report"
+      ]
+    },
+    {
+      "id": "monitoring-read-worker-1",
+      "component_id": "monitoring-read-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "monitoring-read-worker-presence",
+        "monitoring-read-worker-report"
+      ]
+    },
+    {
+      "id": "event-relay-1",
+      "component_id": "event-relay",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "event-relay-presence",
+        "event-relay-report"
+      ]
+    },
+    {
+      "id": "nats-server-1",
+      "component_id": "nats-server",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "nats-server-presence",
+        "nats-server-ready"
+      ]
+    },
+    {
+      "id": "display-assets-1",
+      "component_id": "display-assets",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "display-assets-presence",
+        "display-assets-report"
+      ]
+    },
+    {
+      "id": "parser-runner-1",
+      "component_id": "parser-runner",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-worker-1",
+      "component_id": "ingest-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "ingest-relay-1",
+      "component_id": "ingest-relay",
+      "node_id": "edge",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "ingest-relay-presence",
+        "ingest-relay-report"
+      ]
+    },
+    {
+      "id": "ingest-relay-postgres-1",
+      "component_id": "ingest-relay-postgres",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "parser-1",
+      "component_id": "parser",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "parser-presence",
+        "parser-report"
+      ]
+    },
+    {
+      "id": "api-1",
+      "component_id": "api",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "api-presence",
+        "api-report"
+      ]
+    },
+    {
+      "id": "monitoring-worker-1",
+      "component_id": "monitoring-worker",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "notification-worker-1",
+      "component_id": "notification-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "notification-worker-presence",
+        "notification-worker-report"
+      ]
+    },
+    {
+      "id": "task-index-worker-1",
+      "component_id": "task-index-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "task-index-worker-presence",
+        "task-index-worker-report"
+      ]
+    },
+    {
+      "id": "spatial-worker-1",
+      "component_id": "spatial-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "spatial-worker-presence",
+        "spatial-worker-report"
+      ]
+    },
+    {
+      "id": "display-package-worker-1",
+      "component_id": "display-package-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "display-package-worker-presence",
+        "display-package-worker-report"
+      ]
+    },
+    {
+      "id": "display-runtime-1",
+      "component_id": "display-runtime",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "display-runtime-presence",
+        "display-runtime-report"
+      ]
+    },
+    {
+      "id": "files-worker-1",
+      "component_id": "files-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "files-worker-presence",
+        "files-worker-report"
+      ]
+    },
+    {
+      "id": "files-checker-1",
+      "component_id": "files-checker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "files-checker-presence",
+        "files-checker-report"
+      ]
+    },
+    {
+      "id": "audit-worker-1",
+      "component_id": "audit-worker",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "audit-worker-presence",
+        "audit-worker-report"
+      ]
+    },
+    {
+      "id": "web-1",
+      "component_id": "web",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "postgres-1",
+      "component_id": "postgres",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "redis-1",
+      "component_id": "redis",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "clickhouse-1",
+      "component_id": "clickhouse",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "keeper-1",
+      "component_id": "keeper",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "s3-1",
+      "component_id": "s3",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-master-1",
+      "component_id": "seaweed-master",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-filer-1",
+      "component_id": "seaweed-filer",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-volume-1",
+      "component_id": "seaweed-volume",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "seaweed-gateway-1",
+      "component_id": "seaweed-gateway",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "python-converter-1",
+      "component_id": "python-converter",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "maintenance-cli-1",
+      "component_id": "maintenance-cli",
+      "node_id": "local",
+      "expectation": "on_demand",
+      "required_probe_ids": []
+    },
+    {
+      "id": "diagnostics-server-1",
+      "component_id": "diagnostics-server",
+      "node_id": "local",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "diagnostics-process",
+        "diagnostics-ready"
+      ]
+    },
+    {
+      "id": "diagnostics-observer-1",
+      "component_id": "diagnostics-observer",
+      "node_id": "local",
+      "expectation": "disabled",
+      "required_probe_ids": []
+    },
+    {
+      "id": "nats-server-2",
+      "component_id": "nats-server",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "nats-server-2-presence",
+        "nats-server-2-ready"
+      ]
+    },
+    {
+      "id": "nats-server-3",
+      "component_id": "nats-server",
+      "node_id": "docker-observer",
+      "expectation": "continuous",
+      "required_probe_ids": [
+        "nats-server-3-presence",
+        "nats-server-3-ready"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "diagnostics-http",
+      "replica_id": "diagnostics-server-1",
+      "purpose": "readiness",
+      "display_name": "独立诊断 HTTP"
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "ingest-custody-worker-postgres",
+      "from_replica_id": "ingest-custody-worker-1",
+      "to_component_id": "postgres",
+      "probe_id": "ingest-custody-worker-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "ingest-custody-worker-s3",
+      "from_replica_id": "ingest-custody-worker-1",
+      "to_component_id": "s3",
+      "probe_id": "ingest-custody-worker-s3-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "parsing-dispatch-worker-parser",
+      "from_replica_id": "parsing-dispatch-worker-1",
+      "to_component_id": "parser",
+      "probe_id": "parsing-dispatch-worker-parser-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "parsing-dispatch-worker-jetstream",
+      "from_replica_id": "parsing-dispatch-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "parsing-dispatch-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "monitoring-incremental-worker-jetstream",
+      "from_replica_id": "monitoring-incremental-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "monitoring-incremental-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "monitoring-read-worker-jetstream",
+      "from_replica_id": "monitoring-read-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "monitoring-read-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "event-relay-postgres",
+      "from_replica_id": "event-relay-1",
+      "to_component_id": "postgres",
+      "probe_id": "event-relay-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "event-relay-jetstream",
+      "from_replica_id": "event-relay-1",
+      "to_component_id": "nats-server",
+      "probe_id": "event-relay-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "ingest-relay-ingest-relay-postgres",
+      "from_replica_id": "ingest-relay-1",
+      "to_component_id": "ingest-relay-postgres",
+      "probe_id": "ingest-relay-ingest-relay-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "notification-worker-postgres",
+      "from_replica_id": "notification-worker-1",
+      "to_component_id": "postgres",
+      "probe_id": "notification-worker-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "notification-worker-jetstream",
+      "from_replica_id": "notification-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "notification-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "task-index-worker-postgres",
+      "from_replica_id": "task-index-worker-1",
+      "to_component_id": "postgres",
+      "probe_id": "task-index-worker-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "task-index-worker-jetstream",
+      "from_replica_id": "task-index-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "task-index-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "files-worker-postgres",
+      "from_replica_id": "files-worker-1",
+      "to_component_id": "postgres",
+      "probe_id": "files-worker-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "audit-worker-postgres",
+      "from_replica_id": "audit-worker-1",
+      "to_component_id": "postgres",
+      "probe_id": "audit-worker-postgres-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    },
+    {
+      "id": "audit-worker-jetstream",
+      "from_replica_id": "audit-worker-1",
+      "to_component_id": "nats-server",
+      "probe_id": "audit-worker-jetstream-check",
+      "required": false,
+      "evidence_mode": "self_report"
+    }
+  ],
+  "probes": [
+    {
+      "id": "diagnostics-process",
+      "node_id": "local",
+      "target_kind": "replica",
+      "target_id": "diagnostics-server-1",
+      "adapter": "native_process",
+      "binding_id": "diagnostics-process",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 1000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "diagnostics-ready",
+      "node_id": "local",
+      "target_kind": "endpoint",
+      "target_id": "diagnostics-http",
+      "adapter": "http_ready",
+      "binding_id": "diagnostics-ready",
+      "facet": "readiness",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "local-resources",
+      "node_id": "local",
+      "target_kind": "node",
+      "target_id": "local",
+      "adapter": "host_resources",
+      "binding_id": "local-resources",
+      "facet": "resource",
+      "required": false,
+      "interval_ms": 10000,
+      "timeout_ms": 1000,
+      "stale_after_ms": 30000
+    },
+    {
+      "id": "identity-api-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "identity-api-1",
+      "adapter": "docker_container",
+      "binding_id": "identity-api-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "identity-api-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "identity-api-1",
+      "adapter": "self_report",
+      "binding_id": "identity-api-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "control-api-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "control-api-1",
+      "adapter": "docker_container",
+      "binding_id": "control-api-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "control-api-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "control-api-1",
+      "adapter": "self_report",
+      "binding_id": "control-api-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-query-api-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-query-api-1",
+      "adapter": "docker_container",
+      "binding_id": "monitoring-query-api-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-query-api-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-query-api-1",
+      "adapter": "self_report",
+      "binding_id": "monitoring-query-api-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "transfer-api-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "transfer-api-1",
+      "adapter": "docker_container",
+      "binding_id": "transfer-api-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "transfer-api-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "transfer-api-1",
+      "adapter": "self_report",
+      "binding_id": "transfer-api-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-custody-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "ingest-custody-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "ingest-custody-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-custody-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "ingest-custody-worker-1",
+      "adapter": "self_report",
+      "binding_id": "ingest-custody-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-custody-worker-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "ingest-custody-worker-postgres",
+      "adapter": "self_report",
+      "binding_id": "ingest-custody-worker-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-custody-worker-s3-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "ingest-custody-worker-s3",
+      "adapter": "self_report",
+      "binding_id": "ingest-custody-worker-s3-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parsing-dispatch-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "parsing-dispatch-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "parsing-dispatch-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parsing-dispatch-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "parsing-dispatch-worker-1",
+      "adapter": "self_report",
+      "binding_id": "parsing-dispatch-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parsing-dispatch-worker-parser-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "parsing-dispatch-worker-parser",
+      "adapter": "self_report",
+      "binding_id": "parsing-dispatch-worker-parser-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parsing-dispatch-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "parsing-dispatch-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "parsing-dispatch-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-publish-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-publish-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "monitoring-publish-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-publish-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-publish-worker-1",
+      "adapter": "self_report",
+      "binding_id": "monitoring-publish-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-incremental-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-incremental-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "monitoring-incremental-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-incremental-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-incremental-worker-1",
+      "adapter": "self_report",
+      "binding_id": "monitoring-incremental-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-incremental-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "monitoring-incremental-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "monitoring-incremental-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-history-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-history-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "monitoring-history-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-history-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-history-worker-1",
+      "adapter": "self_report",
+      "binding_id": "monitoring-history-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-read-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-read-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "monitoring-read-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-read-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "monitoring-read-worker-1",
+      "adapter": "self_report",
+      "binding_id": "monitoring-read-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "monitoring-read-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "monitoring-read-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "monitoring-read-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "event-relay-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "event-relay-1",
+      "adapter": "docker_container",
+      "binding_id": "event-relay-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "event-relay-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "event-relay-1",
+      "adapter": "self_report",
+      "binding_id": "event-relay-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "event-relay-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "event-relay-postgres",
+      "adapter": "self_report",
+      "binding_id": "event-relay-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "event-relay-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "event-relay-jetstream",
+      "adapter": "self_report",
+      "binding_id": "event-relay-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-1",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-ready",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-1",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-ready",
+      "facet": "readiness",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-assets-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-assets-1",
+      "adapter": "docker_container",
+      "binding_id": "display-assets-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-assets-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-assets-1",
+      "adapter": "self_report",
+      "binding_id": "display-assets-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-relay-presence",
+      "node_id": "edge",
+      "target_kind": "replica",
+      "target_id": "ingest-relay-1",
+      "adapter": "native_process",
+      "binding_id": "ingest-relay-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-relay-report",
+      "node_id": "edge",
+      "target_kind": "replica",
+      "target_id": "ingest-relay-1",
+      "adapter": "self_report",
+      "binding_id": "ingest-relay-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "ingest-relay-ingest-relay-postgres-check",
+      "node_id": "edge",
+      "target_kind": "dependency",
+      "target_id": "ingest-relay-ingest-relay-postgres",
+      "adapter": "self_report",
+      "binding_id": "ingest-relay-ingest-relay-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parser-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "parser-1",
+      "adapter": "docker_container",
+      "binding_id": "parser-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "parser-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "parser-1",
+      "adapter": "self_report",
+      "binding_id": "parser-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "api-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "api-1",
+      "adapter": "docker_container",
+      "binding_id": "api-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "api-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "api-1",
+      "adapter": "self_report",
+      "binding_id": "api-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "notification-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "notification-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "notification-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "notification-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "notification-worker-1",
+      "adapter": "self_report",
+      "binding_id": "notification-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "notification-worker-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "notification-worker-postgres",
+      "adapter": "self_report",
+      "binding_id": "notification-worker-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "notification-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "notification-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "notification-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "task-index-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "task-index-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "task-index-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "task-index-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "task-index-worker-1",
+      "adapter": "self_report",
+      "binding_id": "task-index-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "task-index-worker-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "task-index-worker-postgres",
+      "adapter": "self_report",
+      "binding_id": "task-index-worker-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "task-index-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "task-index-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "task-index-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "spatial-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "spatial-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "spatial-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "spatial-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "spatial-worker-1",
+      "adapter": "self_report",
+      "binding_id": "spatial-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-package-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-package-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "display-package-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-package-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-package-worker-1",
+      "adapter": "self_report",
+      "binding_id": "display-package-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-runtime-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-runtime-1",
+      "adapter": "docker_container",
+      "binding_id": "display-runtime-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "display-runtime-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "display-runtime-1",
+      "adapter": "self_report",
+      "binding_id": "display-runtime-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "files-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "files-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "files-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "files-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "files-worker-1",
+      "adapter": "self_report",
+      "binding_id": "files-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "files-worker-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "files-worker-postgres",
+      "adapter": "self_report",
+      "binding_id": "files-worker-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "files-checker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "files-checker-1",
+      "adapter": "docker_container",
+      "binding_id": "files-checker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "files-checker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "files-checker-1",
+      "adapter": "self_report",
+      "binding_id": "files-checker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "audit-worker-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "audit-worker-1",
+      "adapter": "docker_container",
+      "binding_id": "audit-worker-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "audit-worker-report",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "audit-worker-1",
+      "adapter": "self_report",
+      "binding_id": "audit-worker-report",
+      "facet": "loop",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "audit-worker-postgres-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "audit-worker-postgres",
+      "adapter": "self_report",
+      "binding_id": "audit-worker-postgres-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "audit-worker-jetstream-check",
+      "node_id": "docker-observer",
+      "target_kind": "dependency",
+      "target_id": "audit-worker-jetstream",
+      "adapter": "self_report",
+      "binding_id": "audit-worker-jetstream-check",
+      "facet": "readiness",
+      "required": false,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-2-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-2",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-2-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-2-ready",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-2",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-2-ready",
+      "facet": "readiness",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-3-presence",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-3",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-3-presence",
+      "facet": "presence",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "nats-server-3-ready",
+      "node_id": "docker-observer",
+      "target_kind": "replica",
+      "target_id": "nats-server-3",
+      "adapter": "docker_container",
+      "binding_id": "nats-server-3-ready",
+      "facet": "readiness",
+      "required": true,
+      "interval_ms": 5000,
+      "timeout_ms": 2000,
+      "stale_after_ms": 20000
+    },
+    {
+      "id": "observer-resources",
+      "node_id": "docker-observer",
+      "target_kind": "node",
+      "target_id": "docker-observer",
+      "adapter": "host_resources",
+      "binding_id": "observer-resources",
+      "facet": "resource",
+      "required": false,
+      "interval_ms": 10000,
+      "timeout_ms": 1000,
+      "stale_after_ms": 30000
+    }
+  ]
+}

@@ -22,7 +22,9 @@ import (
 	"time"
 
 	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/securefile"
+	"github.com/WenshuaiDev/InfraPro/services/diagnostics/internal/adapters"
 	"github.com/WenshuaiDev/InfraPro/services/diagnostics/settings"
+	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/shirou/gopsutil/v4/process"
@@ -66,6 +68,31 @@ func run() error {
 		return settings.Invalid
 	}
 	switch args[0] {
+	case "probe":
+		if len(args) != 4 {
+			return settings.Invalid
+		}
+		var m settings.Manifest
+		var b settings.Bindings
+		if _, err := settings.Load(args[1], &m); err != nil || m.Validate(settings.DefaultLimits()) != nil {
+			return settings.Invalid
+		}
+		if _, err := settings.Load(args[2], &b); err != nil || b.Validate(m) != nil {
+			return settings.Invalid
+		}
+		for _, p := range m.Assigned(b.NodeID) {
+			if p.ID != args[3] {
+				continue
+			}
+			binding, ok := b.Find(p.BindingID)
+			if !ok {
+				return settings.Invalid
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(p.TimeoutMS)*time.Millisecond)
+			defer cancel()
+			return json.NewEncoder(os.Stdout).Encode(adapters.New(m, b, uuid.NewString()).Collect(ctx, p, binding))
+		}
+		return settings.Invalid
 	case "identity":
 		if len(args) != 2 {
 			return settings.Invalid

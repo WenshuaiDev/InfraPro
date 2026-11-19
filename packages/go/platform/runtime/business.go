@@ -101,7 +101,7 @@ func (b Business) Configure(cfg config.Config) Business {
 	limits := cfg.EffectiveUploads()
 	b.Spatial.WithMaxFileBytes(limits.SpatialMaxFileBytes)
 	b.Monitoring.WithUploadLimits(limits.MonitoringCSVMaxBytes, limits.MonitoringXLSXMaxBytes)
-	if cfg.IngestionFile != "" {
+	if cfg.Architecture.Uses(config.Control, config.Transfer, "ingest-custody-worker", "parsing-dispatch-worker", "ingest-worker") && cfg.IngestionFile != "" {
 		options, e := ingestion.LoadOptions(cfg.IngestionFile)
 		if e != nil {
 			panic("invalid ingestion deployment configuration")
@@ -112,30 +112,19 @@ func (b Business) Configure(cfg config.Config) Business {
 	if cfg.Audit.PageSize > 0 {
 		b.Audit.WithOptions(cfg.Audit)
 	}
-	if cfg.Audit.ObjectEndpoint != "" {
-		objects, err := blobstore.Open(cfg.Audit.ObjectEndpoint, cfg.Audit.ObjectAccessKey, cfg.Audit.ObjectSecretKey, cfg.Audit.Bucket, "audit-exports")
+	if cfg.Architecture.Uses(config.Control, config.Transfer, "audit-worker") && cfg.Audit.ObjectEndpoint != "" {
+		objects, err := blobstore.Open(cfg.Audit.ObjectEndpoint, cfg.Audit.ObjectAccessKey, cfg.Audit.ObjectSecretKey, cfg.Audit.Bucket, "audit-exports", cfg.Architecture.ObjectRequests())
 		if err != nil {
 			panic(err)
 		}
 		b.Audit.WithStorage(objects)
 	}
-	b.configureFiles(cfg.Files)
+	if cfg.Architecture.Uses(config.Control, config.Transfer, "files-worker") {
+		b.configureFiles(cfg.Files, cfg.Architecture.ObjectRequests())
+	}
 	if cfg.Parsing.Timeout > 0 {
 		p := cfg.Parsing
 		b.Parsing.WithOptions(parsing.Options{Enabled: p.Enabled, URL: p.URL, TokenFile: p.TokenFile, Timeout: p.Timeout, Queue: p.Queue, Concurrency: p.Concurrency, StorageBudget: p.StorageBudget})
-	}
-	if cfg.Parsing.ObjectEndpoint != "" {
-		p := cfg.Parsing
-		objects, e := blobstore.Open(p.ObjectEndpoint, p.ObjectAccessKey, p.ObjectSecretKey, p.Bucket, "parsing")
-		if e != nil {
-			panic(e)
-		}
-		b.Parsing.WithStorage(objects)
-		ingressObjects, err := blobstore.Open(p.ObjectEndpoint, p.ObjectAccessKey, p.ObjectSecretKey, p.Bucket, "ingestion")
-		if err != nil {
-			panic(err)
-		}
-		b.Ingestion.WithStorage(ingressObjects)
 	}
 	displayOptions := display.DefaultOptions()
 	displayOptions.MaxPackageBytes = limits.DisplayMaxPackageBytes
@@ -165,30 +154,40 @@ func (b Business) Configure(cfg config.Config) Business {
 		return identity.CheckDisplaySessionTx(ctx, tx, account, session, cfg.SessionIdle)
 	})
 
-	if cfg.Monitoring.ObjectEndpoint != "" {
-		parsingObjects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "parsing")
-		if err != nil {
-			panic(err)
-		}
-		if cfg.Parsing.ObjectEndpoint == "" {
-			b.Parsing.WithStorage(parsingObjects)
-			ingressObjects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "ingestion")
+	var parseEndpoint, parseKey, parseSecret, parseBucket = cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket
+	if p := cfg.Parsing; p.ObjectEndpoint != "" {
+		parseEndpoint, parseKey, parseSecret, parseBucket = p.ObjectEndpoint, p.ObjectAccessKey, p.ObjectSecretKey, p.Bucket
+	}
+	if parseEndpoint != "" {
+		if cfg.Architecture.Uses(config.Control, config.Transfer, "parsing-dispatch-worker", "ingest-worker", "monitoring-worker") {
+			store, err := blobstore.Open(parseEndpoint, parseKey, parseSecret, parseBucket, "parsing", cfg.Architecture.ObjectRequests())
 			if err != nil {
 				panic(err)
 			}
-			b.Ingestion.WithStorage(ingressObjects)
+			b.Parsing.WithStorage(store)
 		}
-		objects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "spatial")
+		if cfg.Architecture.Uses(config.Control, config.Transfer, "ingest-custody-worker", "parsing-dispatch-worker", "ingest-worker") {
+			store, err := blobstore.Open(parseEndpoint, parseKey, parseSecret, parseBucket, "ingestion", cfg.Architecture.ObjectRequests())
+			if err != nil {
+				panic(err)
+			}
+			b.Ingestion.WithStorage(store)
+		}
+	}
+	m := cfg.Monitoring
+	if m.ObjectEndpoint != "" && cfg.Architecture.Uses(config.Control, config.Query, config.Transfer, "spatial-worker", "monitoring-read-worker", "monitoring-worker") {
+		store, err := blobstore.Open(m.ObjectEndpoint, m.ObjectAccessKey, m.ObjectSecretKey, m.Bucket, "spatial", cfg.Architecture.ObjectRequests())
 		if err != nil {
 			panic(err)
 		}
-		b.Spatial.WithStorage(objects)
-		displayObjects, err := blobstore.Open(cfg.Monitoring.ObjectEndpoint, cfg.Monitoring.ObjectAccessKey, cfg.Monitoring.ObjectSecretKey, cfg.Monitoring.Bucket, "display")
+		b.Spatial.WithStorage(store)
+	}
+	if m.ObjectEndpoint != "" && cfg.Architecture.Uses(config.Control, config.Query, config.Transfer, "display-runtime", "display-assets", "display-package-worker") {
+		store, err := blobstore.Open(m.ObjectEndpoint, m.ObjectAccessKey, m.ObjectSecretKey, m.Bucket, "display", cfg.Architecture.ObjectRequests())
 		if err != nil {
 			panic(err)
 		}
-		b.Displays.WithStorage(displayObjects)
-
+		b.Displays.WithStorage(store)
 	}
 	basemaps := []spatial.Basemap{}
 	for _, c := range cfg.SpatialBasemaps {

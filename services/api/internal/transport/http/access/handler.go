@@ -2,6 +2,7 @@ package accesshttp
 
 import (
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"strconv"
@@ -66,7 +67,7 @@ func filter(c *gin.Context) access.Filter {
 	}
 	return access.Filter{Cursor: c.Query("cursor"), Query: c.Query("q"), Status: c.Query("status"), RoleID: c.Query("role_id"), ObjectID: c.Query("object_id"), ObjectType: c.Query("object_type"), TenantID: c.Query("tenant_id"), Event: c.Query("event_type"), From: c.Query("from"), To: c.Query("to"), Limit: limit, Category: c.Query("category"), Outcome: c.Query("outcome")}
 }
-func Register(r *gin.Engine, s *identity.Service) {
+func Register(r routes.Registrar, s *identity.Service) {
 	a := s.Access()
 	g := r.Group("/api/v1/access")
 	actor := func(c *gin.Context) access.Actor { return s.AccessActor(identityhttp.Principal(c)) }

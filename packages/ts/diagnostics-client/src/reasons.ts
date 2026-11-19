@@ -307,5 +307,29 @@ export const reasons = {
   "ok": {
     "title": "检查通过",
     "hint": "在服务器本地核对相关配置、权限和最近采样时间；结果只代表已登记检查的范围。"
+  },
+  "event_publish_failed": {
+    "title": "消息发布尚未确认",
+    "hint": "检查转发器的发布确认数、最老待发送时间和消息流容量。"
+  },
+  "event_position_gap": {
+    "title": "消费位置存在缺口",
+    "hint": "检查该消费组的上一连续位置和已隔离事件。"
+  },
+  "event_quarantined": {
+    "title": "事件已隔离",
+    "hint": "在该消费组核对事实引用和隔离原因，再执行重驱。"
+  },
+  "outbox_backpressure": {
+    "title": "事件积压达到水位",
+    "hint": "核对 PostgreSQL 待发送量与消息存储剩余容量。"
+  },
+  "dispatch_fence_rejected": {
+    "title": "旧执行代次被拒绝",
+    "hint": "核对执行归属、租约和最近切换时间。"
+  },
+  "broker_unavailable": {
+    "title": "消息服务不可用",
+    "hint": "检查消息节点、流副本状态及 PostgreSQL 回补进度。"
   }
 } as const;

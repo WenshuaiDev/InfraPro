@@ -2,7 +2,7 @@ import {randomUUID,createHash} from 'node:crypto';
 
 // Section 9.5 is created with the public API, including publications, grants,
 // source bindings and formal observation adoption. The caller owns its session.
-export async function seedSensorStructure({call,client,api,headers,accountID,wait}) {
+export async function seedSensorStructure({call,client,api,headers,accountID,wait,categoryIDs}) {
  const meta=()=>({request_id:randomUUID(),reason:'SBM 方案9.5合成验收'}),wm=(revision='0')=>({...meta(),expected_revision:revision});
  const state={synthetic:true,fixture:'sensor-structure-proposal-9.5',nodes:{},channels:{},devices:[],categories:{},types:{}};
  const publish=async(kind,code,content)=>{const d=await call(`/platform/engineering/${kind}`,{...meta(),code,content:{metamodel_version:'1',...content}});return call(`/platform/engineering/${kind}/${d.definition_id}/publish`,{...meta(),revision:d.revision});};
@@ -26,7 +26,7 @@ export async function seedSensorStructure({call,client,api,headers,accountID,wai
  const pos={...meta(),expected_revision:point.revision,expected_structure_revision:facility.structure_revision,action:'position',position:{borehole_id:state.nodes.H1.id,borehole_revision:1,distance_m:0,vertical_depth_m:null,reference_start:'孔口',direction:'沿孔向下',unit:'m',vertical_datum:'',source:'合成实测记录',measured_at:null,consistency_reason:''}},posPath=rootPath('P1')+'/points/'+point.id;
  const posPreview=await call(posPath+'/structure-records-preview',pos);await call(posPath+'/structure-records',{...pos,preview_hash:posPreview.preview_hash});
  const dictPath='/platform/business-dictionaries/device-category',dictionary=await call(dictPath),names={sensor:'传感器',displacement:'位移传感器',temperature:'温度传感器',environment:'环境类',collector:'采集器'};
- for(const key of Object.keys(names))state.categories[key]=randomUUID();
+ for(const key of Object.keys(names))state.categories[key]=categoryIDs?.[key] || randomUUID();
  const content={dictionary_code:'device_category',sensor_root_id:state.categories.sensor,nodes:Object.entries(names).map(([code,name],order)=>({id:state.categories[code],code,name,description:'方案9.5合成分类',order,selectable:true,status:'active',...(code!=='sensor'&&code!=='collector'?{parent_id:state.categories.sensor}:{})}))};
  const saved=await call(dictPath+'/draft',{...wm(dictionary.draft_revision),content},'PUT'),publication=wm(saved.revision),preview=await call(dictPath+'/publish-preview',publication),release=await call(dictPath+'/publish',{...publication,preview_hash:preview.preview_hash});state.release=release.release_id;
  const template=await publish('monitoring-templates','sbm_public_template',{metamodel_version:'2',name:'SBM 公共孔内监测模板',template:{type_versions:[state.types.A.version_id,state.types.N.version_id],items:[{key:'movement',name:'孔内位移',enabled:true,suggested_category:{dictionary_release_id:state.release,category_id:state.categories.displacement},targets:[{type_version:state.types.A.version_id,component:'',applicability:'applicable',anchor_kind:'monitoring_section',point_scope:'descendant_points',requires_borehole_ancestor:true,quantity_basis:'per_point'},{type_version:state.types.N.version_id,component:'',applicability:'not_applicable',reason:'固定类型不支持孔位'}],bindings:[{metric_version:metric.version_id,unit_version:unit.version_id,resource_kind:'observation_channel',min_count:1}]}]}});

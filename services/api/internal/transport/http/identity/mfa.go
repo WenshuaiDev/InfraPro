@@ -2,6 +2,7 @@ package identityhttp
 
 import (
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"net/http"
 	"time"
 
@@ -55,7 +56,7 @@ func (h *Handler) beginLogin(c *gin.Context) {
 	d, e := h.service.BeginLogin(c.Request.Context(), v.Username, v.Password, challengeCookie(c), metadata(c))
 	h.authReply(c, d, e)
 }
-func (h *Handler) registerMFA(r *gin.Engine) {
+func (h *Handler) registerMFA(r routes.Registrar) {
 	pre := r.Group("/api/v1/auth/mfa", h.PublicReady)
 	pre.GET("/challenge", func(c *gin.Context) {
 		v, e := h.service.Challenge(c.Request.Context(), challengeCookie(c))

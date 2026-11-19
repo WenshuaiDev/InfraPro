@@ -43,7 +43,13 @@ test('invitation creation, manual copy, recipient validation, one-use and member
   const output = page.getByLabel('可手动复制的完整链接'); await expect(output).toBeVisible(); const link = await output.inputValue();
   await page.getByRole('button', { name: '复制链接', exact: true }).click(); await expect(page.getByText('自动复制不可用，请选中上方完整链接手动复制。')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('invitations.png'), fullPage: true, mask: [output] });
-  const recipientContext = await browser.newContext(); const recipient = await recipientContext.newPage(); await recipient.goto(link);
+  const recipientContext = await browser.newContext();
+  const recipient = await recipientContext.newPage();
+  const [inspected] = await Promise.all([
+    recipient.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/public/invitations/inspect'),
+    recipient.goto(link),
+  ]);
+  expect(inspected.status()).toBe(200);
   await expect(recipient.getByRole('heading', { name: '创建你的账号' })).toBeVisible(); expect(new URL(recipient.url()).hash).toBe('');
   await recipient.getByLabel('用户名', { exact: true }).fill(account.username);
   await recipient.getByLabel('新密码', { exact: true }).fill(password); await recipient.getByLabel('确认新密码', { exact: true }).fill(password);

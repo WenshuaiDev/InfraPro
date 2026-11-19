@@ -137,6 +137,69 @@ func pgCommand(ctx context.Context, dsn, container, tool string, args ...string)
 	cmd.Stderr = io.Discard
 	return cmd, nil
 }
+
+// precreatedPublicList keeps the rest of the archive intact when PG17 records a
+// CREATE SCHEMA public entry. The restore connection already created btree_gist
+// there. Only the TOC crosses into the tools container; the dump remains local.
+func precreatedPublicList(ctx context.Context, opt BackupOptions, dump *os.File) (string, func(), error) {
+	list, err := pgCommand(ctx, opt.DatabaseURL, opt.PGContainer, "pg_restore", "--list")
+	if err != nil {
+		return "", nil, err
+	}
+	list.Stdin = dump
+	raw, err := list.Output()
+	if err != nil {
+		return "", nil, fmt.Errorf("cannot inspect control database archive")
+	}
+	if _, err = dump.Seek(0, io.SeekStart); err != nil {
+		return "", nil, err
+	}
+	public := regexp.MustCompile(`^\d+;\s+\d+\s+\d+\s+SCHEMA\s+-\s+public\s+`)
+	lines := strings.Split(string(raw), "\n")
+	kept := make([]string, 0, len(lines))
+	removed := 0
+	for _, line := range lines {
+		if public.MatchString(line) {
+			removed++
+			continue
+		}
+		kept = append(kept, line)
+	}
+	if removed == 0 {
+		return "", func() {}, nil
+	}
+	if removed != 1 {
+		return "", nil, fmt.Errorf("duplicate public schema in archive")
+	}
+	body := strings.Join(kept, "\n")
+	if opt.PGContainer == "" {
+		file, err := os.CreateTemp("", "infrapro-restore-*.list")
+		if err != nil {
+			return "", nil, err
+		}
+		cleanup := func() { _ = os.Remove(file.Name()) }
+		_, writeErr := io.WriteString(file, body)
+		if err = file.Close(); err != nil || writeErr != nil {
+			cleanup()
+			return "", nil, fmt.Errorf("cannot save archive TOC")
+		}
+		return file.Name(), cleanup, nil
+	}
+	path := "/tmp/infrapro-restore-" + uuid.NewString() + ".list"
+	save := exec.CommandContext(ctx, "docker", "exec", "-i", opt.PGContainer, "sh", "-ec", `umask 077; set -C; cat > "$1"`, "restore-list", path)
+	save.Stdin = strings.NewReader(body)
+	cleanup := func() {
+		clean, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = exec.CommandContext(clean, "docker", "exec", opt.PGContainer, "rm", "-f", path).Run()
+	}
+	if err = save.Run(); err != nil {
+		cleanup()
+		return "", nil, fmt.Errorf("cannot stage archive TOC in PG tools container")
+	}
+	return path, cleanup, nil
+}
+
 func archiveWrite(dir, path string, r io.Reader) (ArchiveFile, error) {
 	out := ArchiveFile{Path: path}
 	full := filepath.Join(dir, path)
@@ -707,7 +770,19 @@ func Restore(ctx context.Context, pool *pgxpool.Pool, storage *Storage, opt Back
 	if e != nil {
 		return m, e
 	}
-	cmd, e := pgCommand(ctx, opt.DatabaseURL, opt.PGContainer, "pg_restore", "--exit-on-error", "--no-owner", "--no-acl", "--single-transaction", "--dbname="+pool.Config().ConnConfig.Database)
+	args := []string{"--exit-on-error", "--no-owner", "--no-acl", "--single-transaction", "--dbname=" + pool.Config().ConnConfig.Database}
+	if m.Schema == "public" {
+		list, cleanup, err := precreatedPublicList(ctx, opt, dump)
+		if err != nil {
+			dump.Close()
+			return m, err
+		}
+		defer cleanup()
+		if list != "" {
+			args = append(args, "--use-list="+list)
+		}
+	}
+	cmd, e := pgCommand(ctx, opt.DatabaseURL, opt.PGContainer, "pg_restore", args...)
 	if e != nil {
 		dump.Close()
 		return m, e

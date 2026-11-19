@@ -1,3 +1,5 @@
+import { prepare } from './architecture-deploy.mjs';
+import { provision } from './architecture-postgres.mjs';
 import { createMFAKeyring } from './mfa-keyring.mjs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -26,4 +28,12 @@ execFileSync('docker', ['compose', '--env-file', '.env', '-f', 'deploy/compose/l
 execFileSync('go', ['run', './tools/infrapro/cmd/infrapro', 'database', 'migrate'], { stdio: 'inherit' });
 execFileSync('go', ['run', './tools/infrapro/cmd/infrapro', 'access', 'sync'], { stdio: 'inherit' });
 execFileSync('go', ['run', './tools/infrapro/cmd/infrapro', 'access', 'check'], { stdio: 'inherit' });
+if (process.argv.includes('--split')) {
+  const directory=process.env.INFRAPRO_ROLE_CONFIG_ROOT || join(homedir(),'.local/share/infrapro/development/split');
+  const option=name=>process.argv.includes(name)?process.argv[process.argv.indexOf(name)+1]:undefined;
+  if (!existsSync(join(directory,'layout.json'))) prepare({directory,mode:'local',ingestion:process.env.INFRAPRO_INGESTION_FILE,replicas:option('--replicas'),'max-inflight':option('--max-inflight'),'process-budgets':option('--process-budgets'),'public-listeners':option('--public-listeners'),'relay-configs':option('--relay-configs')});
+  const container=execFileSync('docker',['compose','--env-file','.env','-f','deploy/compose/local.yaml','ps','-q','postgres'],{encoding:'utf8'}).trim();
+  provision({url:process.env.INFRAPRO_DATABASE_URL,container,directory,localLogins:true});
+  console.log('拆分模式已配置。以 INFRAPRO_ROLE_CONFIG_ROOT='+directory+' 运行 pnpm dev。');
+}
 console.log('本地依赖、迁移与权限目录已就绪。运行 pnpm infrapro account bootstrap 创建首个账号，然后 pnpm dev。');

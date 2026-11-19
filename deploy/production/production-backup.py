@@ -1,13 +1,18 @@
 #!/usr/bin/python3
 """Frozen joint checkpoint. Root/systemd only; application CLI keeps its own user."""
 import datetime,fcntl,hashlib,json,os,pathlib,pwd,shutil,subprocess,sys,tarfile,time,traceback
-from s3_archive import S3
+from s3_archive import S3,file_hash
+from checkpoint_roles import Checkpoint
 os.umask(0o077);B=pathlib.Path('/home/uadmin/env/infrapro');cfg=json.loads((B/'config/app/maintenance.json').read_text());release=json.loads((B/'config/release.json').read_text())['release'];cli=B/'releases'/release/'bin/infrapro';uid=pwd.getpwnam('uadmin').pw_uid
 lock=open(B/'run/production-backup.lock','w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
 ident=datetime.datetime.now(datetime.timezone.utc).strftime('checkpoint-%Y%m%dT%H%M%SZ');D=B/'data/backups'/ident;D.mkdir(mode=0o700);os.chown(D,uid,uid);started=time.monotonic();reason='Scheduled consistent production checkpoint '+ident
-units=['api','monitoring-worker','notification-worker','task-index-worker','spatial-worker','display-package-worker','display-runtime','files-worker','audit-worker','parser','ingest-worker'];units=['infrapro-'+s+'.service' for s in units]
+local_checkpoint=Checkpoint(B,ident)
+# One coordinator per installation. Each host resolves its own installed replicas.
+nodes=[152,37,151,38]
+phases=local_checkpoint.spec['freezeOrder']
+prepared_nodes=[]
 state={'id':ident,'release':release,'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'state':'incomplete'}
-sshconf=B/'config/backup-access/ssh_config';audit_readonly=False;file_prepared=None;services_stopped=False;relay_stopped=False;file_sealed=False
+sshconf=B/'config/backup-access/ssh_config';audit_readonly=False;maintenance_owned=False;file_prepared=None;file_sealed=False
 
 def run(args,output=None):
  r=subprocess.run([str(a) for a in args],stdout=output or subprocess.PIPE,stderr=subprocess.PIPE)
@@ -20,15 +25,42 @@ def app(*args):
 def ssh(node,command,output=None):return run(['runuser','-u','uadmin','--','ssh','-F',sshconf,'backup-'+str(node),command],output)
 def save(name,v):p=D/(name+'.json');p.write_text(json.dumps(v,ensure_ascii=False,indent=2));os.chown(p,uid,uid)
 def status(phase):state['phase']=phase;save('checkpoint',state);print(phase,flush=True)
+def checkpoint(node,action,phase=None):
+ if node==152:
+  if action=='prepare':return local_checkpoint.prepare()
+  if action=='frozen':return local_checkpoint.frozen()
+  return local_checkpoint.change(phase,action=='start')
+ return json.loads(ssh(node,'checkpoint-'+action+' '+ident+(' '+phase if phase else '')))
 def resume():
- global audit_readonly,services_stopped,relay_stopped
+ global audit_readonly,maintenance_owned
  if audit_readonly:app('audit','mode','--mode','ready','--reason',reason);audit_readonly=False
- if services_stopped:run(['systemctl','start',*units]);services_stopped=False
- if relay_stopped:ssh(151,'relay-start');relay_stopped=False
- (B/'run/maintenance').unlink(missing_ok=True)
+ state.setdefault('resume',{})
+ for phase in reversed(phases):
+  for node in prepared_nodes:
+   outcome=checkpoint(node,'start',phase)
+   state['resume'].setdefault(str(node),{})[phase]=outcome
+   save('checkpoint',state)
+ if maintenance_owned:(B/'run/maintenance').unlink(missing_ok=True);maintenance_owned=False
 try:
- status('freezing');(B/'run/maintenance').touch();ssh(151,'relay-stop');relay_stopped=True
- run(['systemctl','stop',*units]);services_stopped=True
+ status('freezing');state['initial_audit_mode']=app('audit','status')['mode']
+ if state['initial_audit_mode']!='ready':raise RuntimeError('Audit must finish its prior maintenance operation before a new joint checkpoint')
+ with (B/'run/maintenance').open('x') as marker:marker.write(ident+'\n')
+ maintenance_owned=True;state['writers']={}
+ for node in nodes:
+  state['writers'][str(node)]=checkpoint(node,'prepare');prepared_nodes.append(node);save('checkpoint',state)
+ for phase in phases:
+  for node in nodes:checkpoint(node,'stop',phase)
+ for node in nodes:state['writers'][str(node)]=checkpoint(node,'frozen')
+ save('writer-boundaries',state['writers']);save('checkpoint',state)
+ save('display-files',app('display','backup-manifest'))
+ # Both sides are stopped. Save authoritative per-receipt storage/ACK frontiers.
+ ingestion=(B/'releases'/release/'bin/ingestion-operator')
+ if any(entry['role'] in ('ingest-worker','ingest-custody-worker') for host in state['writers'].values() for entry in host['units'].values()):
+  run(['runuser','-u','uadmin','--','env','INFRAPRO_CONFIG='+str(B/'config/app/maintenance.json'),'SSL_CERT_FILE='+str(B/'config/tls/ca.pem'),ingestion,'manifest',D/'inner-receipts.json'])
+ relay=B/'releases'/release/'bin/event-relay'
+ if relay.is_file():
+  output=run(['runuser','-u','uadmin','--','env','INFRAPRO_CONFIG='+str(B/'config/app/maintenance.json'),'INFRAPRO_EVENTS_FILE='+str(B/'config/architecture/maintenance-events.json'),relay,'status'])
+  save('event-watermarks',json.loads(output))
  hold=app('audit','backup','hold','--kind','backup','--object-id',ident,'--until',(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=7)).isoformat(),'--reason',reason);save('audit-hold',hold)
  file_prepared=app('files','backup','prepare','--directory',str(D/'files'),'--snapshot-ref',ident,'--reason',reason,'--external-dump');save('files-prepare',file_prepared)
  app('audit','mode','--mode','read_only','--reason',reason);audit_readonly=True
@@ -41,10 +73,12 @@ try:
    c=cfg[name];endpoint=c['object_endpoint'];key=c.get('access_key',c.get('object_access_key'));secret=c.get('secret_key',c.get('object_secret_key'));bucket=c['bucket']
   objects[name]=S3(endpoint,key,secret,B/'config/tls/ca.pem').archive(bucket,D/'objects'/name)
  state['objects']=objects
- for node in [37,151,38]:
+ for node in nodes[1:]:
   with (D/('node-'+str(node)+'.tar.gz')).open('wb') as f:ssh(node,'export '+ident,f)
  with tarfile.open(D/'node-152.tar.gz','w:gz',compresslevel=1) as tar:
+  local_checkpoint.add_node_data(tar)
   for name in ['config','units','ops']:tar.add(B/name,arcname=name)
+  if any(u['role']=='diagnostics' for u in state['writers']['152']['units'].values()):tar.add(B/'data/diagnostics',arcname='diagnostics-state')
   tar.add(B/'releases',arcname='releases')
  cursor='';pages=[]
  while True:
@@ -61,12 +95,12 @@ try:
  manifest=[]
  for p in sorted(D.rglob('*')):
   if p.is_file() and p.name not in ['checkpoint.json','archive-manifest.json']:
-   with p.open('rb') as f:h=hashlib.file_digest(f,'sha256').hexdigest()
+   h=file_hash(p)
    manifest.append({'path':str(p.relative_to(D)),'bytes':p.stat().st_size,'sha256':h})
  save('archive-manifest',manifest);state['state']='complete';state['files']=len(manifest);save('checkpoint',state)
  archive=D.with_suffix('.tar.gz')
  with tarfile.open(archive,'w:gz',compresslevel=1) as tar:tar.add(D,arcname=ident)
- with archive.open('rb') as f:h=hashlib.file_digest(f,'sha256').hexdigest()
+ h=file_hash(archive)
  with archive.open('rb') as f:
   proc=subprocess.Popen(['runuser','-u','uadmin','--','ssh','-F',str(sshconf),'backup-38','receive '+ident],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
   sent=0;transfer_start=time.monotonic()

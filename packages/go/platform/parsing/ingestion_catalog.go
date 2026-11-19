@@ -243,37 +243,52 @@ func capabilityAllowed(state string, available, newUse bool) error {
 	return nil
 }
 func (s *Service) IngressProtocolTx(ctx context.Context, tx pgx.Tx, id, version string, newUse bool) (i.Protocol, error) {
-	var out i.Protocol
-	var raw []byte
-	var state string
-	var available bool
-	e := tx.QueryRow(ctx, `SELECT entry,state,available FROM parsing_ingress_protocol_versions WHERE protocol_id=$1 AND protocol_version=$2`, id, version).Scan(&raw, &state, &available)
-	if e != nil {
-		return out, e
-	}
-	if e = capabilityAllowed(state, available, newUse); e != nil {
-		return out, e
-	}
-	if e = json.Unmarshal(raw, &out); e != nil {
-		return out, e
-	}
-	_, e = s.IdentificationTx(ctx, tx, out.Identification, newUse)
-	return out, e
+	protocol, _, err := s.IngressIdentificationTx(ctx, tx, id, version, newUse)
+	return protocol, err
 }
+
+// IngressIdentificationTx selects the protocol and its fixed identifier from
+// the same catalog snapshot. Each still has its own availability and digest check.
+func (s *Service) IngressIdentificationTx(ctx context.Context, tx pgx.Tx, id, version string, newUse bool) (i.Protocol, i.Identification, error) {
+	var protocol i.Protocol
+	var method i.Identification
+	var protocolBytes, methodBytes []byte
+	var protocolState, methodState string
+	var protocolAvailable, methodAvailable bool
+	err := tx.QueryRow(ctx, `SELECT p.entry,p.state,p.available,m.entry,m.state,m.available
+		FROM parsing_ingress_protocol_versions p JOIN parsing_identification_versions m
+		ON (m.method_id,m.method_version)=(p.identification_id,p.identification_version)
+		WHERE (p.protocol_id,p.protocol_version)=($1,$2)`, id, version).Scan(&protocolBytes, &protocolState, &protocolAvailable, &methodBytes, &methodState, &methodAvailable)
+	if err != nil {
+		return protocol, method, err
+	}
+	if err = capabilityAllowed(protocolState, protocolAvailable, newUse); err != nil {
+		return protocol, method, err
+	}
+	if err = json.Unmarshal(protocolBytes, &protocol); err != nil {
+		return protocol, method, err
+	}
+	method, err = checkedIdentification(methodBytes, methodState, methodAvailable, protocol.Identification, newUse)
+	return protocol, method, err
+}
+
 func (s *Service) IdentificationTx(ctx context.Context, tx pgx.Tx, ref i.Method, newUse bool) (i.Identification, error) {
-	var out i.Identification
 	var raw []byte
 	var state string
 	var available bool
-	e := tx.QueryRow(ctx, `SELECT entry,state,available FROM parsing_identification_versions WHERE method_id=$1 AND method_version=$2`, ref.ID, ref.Version).Scan(&raw, &state, &available)
-	if e != nil {
-		return out, e
+	err := tx.QueryRow(ctx, `SELECT entry,state,available FROM parsing_identification_versions WHERE method_id=$1 AND method_version=$2`, ref.ID, ref.Version).Scan(&raw, &state, &available)
+	if err != nil {
+		return i.Identification{}, err
 	}
-	if e = capabilityAllowed(state, available, newUse); e != nil {
-		return out, e
+	return checkedIdentification(raw, state, available, ref, newUse)
+}
+func checkedIdentification(raw []byte, state string, available bool, ref i.Method, newUse bool) (i.Identification, error) {
+	var out i.Identification
+	if err := capabilityAllowed(state, available, newUse); err != nil {
+		return out, err
 	}
-	if e = json.Unmarshal(raw, &out); e != nil {
-		return out, e
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return out, err
 	}
 	if out.Method != ref {
 		return out, k.Problem("version_conflict", "固定识别摘要不匹配。", 409)

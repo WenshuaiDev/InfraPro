@@ -7,12 +7,13 @@ type Options<P extends CursorPage> = Pick<UseQueryOptions<NoInfer<P>>, 'queryKey
   queryFn: (params: { cursor: string; signal: AbortSignal; limit: number; snapshot?: string }) => Promise<P>;
   getSnapshot?: (first: NoInfer<P>) => string | undefined;
   resumeSnapshot?: (previous: NoInfer<P>) => string | undefined;
+  paused?: boolean;
   initialPageSize?: number;
   pageSize?: number;
   setPageSize?: (size: number) => void;
 };
 
-export function usePagedQuery<P extends CursorPage>({ queryKey, queryFn, getSnapshot, resumeSnapshot, initialPageSize = 20, pageSize: controlledSize, setPageSize: changeSize, ...options }: Options<P>) {
+export function usePagedQuery<P extends CursorPage>({ queryKey, queryFn, getSnapshot, resumeSnapshot, paused = false, initialPageSize = 20, pageSize: controlledSize, setPageSize: changeSize, ...options }: Options<P>) {
   const [size, setSize] = useState(initialPageSize);
   const pageSize = controlledSize ?? size;
   const key = [...queryKey, 'pagination', pageSize];
@@ -22,11 +23,12 @@ export function usePagedQuery<P extends CursorPage>({ queryKey, queryFn, getSnap
   if (position.identity !== identity) setPosition(initial);
   const { page, requested } = position.identity === identity ? position : initial;
   const cache = useQueryClient();
-  const first = useQuery({ ...options, queryKey: key, queryFn: ({ signal }) => {
+  const first = useQuery({ ...options, enabled: paused ? false : options.enabled, queryKey: key, queryFn: ({ signal }) => {
     const previous = cache.getQueryData<P>(key);
     return queryFn({ cursor: '', signal, limit: pageSize, snapshot: previous && resumeSnapshot?.(previous) });
   } });
-  const source = options.enabled === false ? undefined : first.data;
+  // A temporary pause hides all rows and suspends reads while keeping the cursor position.
+  const source = paused || options.enabled === false ? undefined : first.data;
   const rows = source?.items ?? [];
   const snapshot = source && getSnapshot?.(source);
   const read = (cursor: string, signal: AbortSignal) => queryFn({ cursor, signal, limit: pageSize, snapshot });
@@ -62,7 +64,7 @@ export function usePagedQuery<P extends CursorPage>({ queryKey, queryFn, getSnap
   const ready = needsWindow ? window.data : firstWindow;
   const displayed = ready ? target : Math.min(page, last ?? page);
   const fallback = displayed === 0 ? firstWindow : cache.getQueryData<NonNullable<typeof ready>>(windowKey(displayed));
-  const view = first.isError ? undefined : ready ?? fallback;
+  const view = paused || first.isError ? undefined : ready ?? fallback;
   if (ready && (page !== target || requested !== target)) setPosition({ identity, page: target, requested: target });
   const go = (n: number) => {
     const requested = Math.max(0, Math.min(n, last ?? n));

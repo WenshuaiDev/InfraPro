@@ -7,7 +7,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/auxworker"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -35,20 +35,24 @@ func run() (resultErr error) {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	pc, e := pgxpool.ParseConfig(db.URL)
+	slot, e := auxworker.Pool(ctx, "display-package-worker", db.URL, 2)
 	if e != nil {
 		return e
 	}
-	pc.MaxConns = 2
-	pool, e := pgxpool.NewWithConfig(ctx, pc)
-	if e != nil {
-		return e
-	}
-	defer pool.Close()
+	defer slot.CloseResult(&resultErr)
+	pool, ctx := slot.Pool, slot.Context
+	diagnosticreport.SetMetric(reporter, "quota.pg_connections", int64(pool.Config().MaxConns))
 	if e = pool.Ping(ctx); e != nil {
 		return e
 	}
-	objects, e := blobstore.Open(storage.ObjectEndpoint, storage.ObjectAccessKey, storage.ObjectSecretKey, storage.Bucket, "display")
+	budget, e := config.WorkerObjectBudget("display-package-worker")
+	if e != nil {
+		return e
+	}
+	if budget != nil {
+		diagnosticreport.SetMetric(reporter, "quota.s3_inflight", int64(budget.Capacity()))
+	}
+	objects, e := blobstore.Open(storage.ObjectEndpoint, storage.ObjectAccessKey, storage.ObjectSecretKey, storage.Bucket, "display", budget)
 	if e != nil {
 		return e
 	}

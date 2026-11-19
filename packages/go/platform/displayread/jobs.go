@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/packages/go/foundation/diagnosticreport"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"log/slog"
 	"strconv"
@@ -36,8 +37,11 @@ type readJob struct {
 	work       json.RawMessage
 }
 
-// ProcessOne shares the monitoring worker process, while its durable lease only
-// owns read coordination. Monitoring summary jobs retain their own queue/fence.
+// WithWorkerLimit reserves an aggregate background-read budget across replicas.
+func (s *Service) WithWorkerLimit(n int) { s.workerLimit = n }
+
+// ProcessOne owns only display reads. Console summary jobs retain their own
+// distinct queue, bounds and execution fences.
 func (s *Service) ProcessOne(ctx context.Context, worker string) (bool, error) {
 	if s.authority == nil {
 		return false, nil
@@ -60,8 +64,8 @@ func (s *Service) ProcessOne(ctx context.Context, worker string) (bool, error) {
 		// Prefer projects with fewer running jobs, then oldest work; SKIP LOCKED
 		// prevents competing workers from occupying the same request.
 		e := tx.QueryRow(ctx, `SELECT j.query_id::text FROM display_read_jobs j JOIN display_read_queries q ON q.id=j.query_id
- WHERE j.deadline>clock_timestamp() AND j.available_at<=clock_timestamp() AND (j.state='queued' OR j.state='running' AND j.lease_until<=clock_timestamp()) AND q.state IN ('queued','running') AND q.expires_at>clock_timestamp() AND (SELECT count(*) FROM display_read_jobs busy JOIN display_read_queries bq ON bq.id=busy.query_id WHERE busy.state='running' AND busy.lease_until>clock_timestamp() AND bq.instance_id=q.instance_id)<2
- ORDER BY (SELECT count(*) FROM display_read_jobs active JOIN display_read_queries aq ON aq.id=active.query_id WHERE active.state='running' AND active.lease_until>clock_timestamp() AND aq.project_id=q.project_id),j.created_at,j.query_id FOR UPDATE OF j SKIP LOCKED LIMIT 1`).Scan(&j.id)
+ WHERE ($1::integer=0 OR (SELECT count(*) FROM display_read_jobs WHERE state='running' AND lease_until>clock_timestamp())<$1) AND j.deadline>clock_timestamp() AND j.available_at<=clock_timestamp() AND (j.state='queued' OR j.state='running' AND j.lease_until<=clock_timestamp()) AND q.state IN ('queued','running') AND q.expires_at>clock_timestamp() AND (SELECT count(*) FROM display_read_jobs busy JOIN display_read_queries bq ON bq.id=busy.query_id WHERE busy.state='running' AND busy.lease_until>clock_timestamp() AND bq.instance_id=q.instance_id)<2
+ ORDER BY (SELECT count(*) FROM display_read_jobs active JOIN display_read_queries aq ON aq.id=active.query_id WHERE active.state='running' AND active.lease_until>clock_timestamp() AND aq.project_id=q.project_id),j.created_at,j.query_id FOR UPDATE OF j SKIP LOCKED LIMIT 1`, s.workerLimit).Scan(&j.id)
 		if e == pgx.ErrNoRows {
 			return nil
 		}
@@ -248,7 +252,8 @@ func (s *Service) Cleanup(ctx context.Context) error {
 		return e
 	})
 }
-func (s *Service) RunWorker(ctx context.Context, owner string) error {
+func (s *Service) RunWorker(ctx context.Context, owner string, reporters ...diagnosticreport.Sink) error {
+	report := diagnosticreport.Optional(reporters)
 	ticker := time.NewTicker(250 * time.Millisecond)
 	defer ticker.Stop()
 	cleanup := time.NewTicker(time.Minute)
@@ -258,11 +263,14 @@ func (s *Service) RunWorker(ctx context.Context, owner string) error {
 		case <-ctx.Done():
 			return nil
 		case <-cleanup.C:
-			if e := s.Cleanup(ctx); e != nil {
+			if e := s.access.RunScheduled(ctx, "display-read-cleanup", time.Minute, s.Cleanup); e != nil {
 				return e
 			}
 		case <-ticker.C:
-			if _, e := s.ProcessOne(ctx, owner); e != nil && ctx.Err() == nil {
+			report.Begin("display-reads", diagnosticreport.Deadline(ctx))
+			_, e := s.ProcessOne(ctx, owner)
+			report.End("display-reads", diagnosticreport.Result(e), time.Now().Add(250*time.Millisecond))
+			if e != nil && ctx.Err() == nil {
 				slog.Warn("display read worker retry", "error", e)
 			}
 		}

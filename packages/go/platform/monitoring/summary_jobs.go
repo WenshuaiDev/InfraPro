@@ -116,7 +116,9 @@ func (s *Service) cachedAnalytic(ctx context.Context, a access.Actor, scope Scop
 	v := summaryJobInput{Mode: "query", Action: action, Query: in}
 	key := ""
 	e := s.db(ctx, func(tx pgx.Tx) error {
-		e := tx.QueryRow(ctx, `SELECT steps.result->>'object' FROM monitoring_jobs j JOIN monitoring_job_steps steps ON steps.tenant_id=j.tenant_id AND steps.job_id=j.id AND steps.step_key='analytic-result' AND steps.state='completed' WHERE j.tenant_id=$1 AND COALESCE(j.actor_id,j.display_subject_id)=$2 AND j.kind='summary' AND j.target_id=$3 AND j.input_hash=$4 AND j.state='succeeded'`, scope.Tenant, a.ID, plan.snapshot.ID, digest(v)).Scan(&key)
+		e := tx.QueryRow(ctx, `SELECT steps.result->>'object' FROM monitoring_jobs j JOIN monitoring_job_steps steps ON steps.tenant_id=j.tenant_id AND steps.job_id=j.id AND steps.step_key='analytic-result' AND steps.state='completed' WHERE j.tenant_id=$1 AND COALESCE(j.actor_id,j.display_subject_id)=$2 AND j.kind='summary' AND j.target_id=$3 AND j.input_hash=$4 AND j.state='succeeded'
+ AND NOT EXISTS (SELECT 1 FROM monitoring_snapshots sn JOIN monitoring_cache_floors f ON f.tenant_id=sn.tenant_id AND f.consumer='query-cache'
+ WHERE sn.id=j.target_id AND f.revision > (sn.revision_vector->'revokes'->>f.domain_key::text)::bigint)`, scope.Tenant, a.ID, plan.snapshot.ID, digest(v)).Scan(&key)
 		if e == pgx.ErrNoRows {
 			return nil
 		}

@@ -8,8 +8,8 @@ COPY tools/infrapro /src/tools/infrapro
 RUN CGO_ENABLED=0 go build -mod=readonly -trimpath -o /out/infrapro ./cmd/infrapro
 
 FROM alpine:3.22
-RUN addgroup -S infrapro && adduser -S -G infrapro infrapro
+RUN addgroup -g 101 -S infrapro && adduser -u 100 -S -G infrapro infrapro
 COPY --from=build /out/infrapro /usr/local/bin/infrapro
-USER infrapro
+USER 100:101
 ENTRYPOINT ["/usr/local/bin/infrapro"]
 CMD ["--help"]

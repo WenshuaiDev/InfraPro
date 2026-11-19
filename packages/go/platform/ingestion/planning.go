@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"strings"
+	"time"
+
 	i "github.com/WenshuaiDev/InfraPro/packages/go/foundation/ingestioncontract"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/parsing"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"strings"
 )
 
 type demuxClaim struct {
@@ -20,6 +22,7 @@ type demuxClaim struct {
 	Method      i.Identification
 	Input       object
 	ExecutionID string
+	MachineID   string
 	Fence       int64
 	Attempt     int
 }
@@ -30,39 +33,58 @@ func unitTx(ctx context.Context, tx pgx.Tx, id string) (Unit, error) {
 func decisionTx(ctx context.Context, tx pgx.Tx, id string) (Decision, error) {
 	return read[Decision](tx.QueryRow(ctx, `SELECT `+decisionJSON+` FROM ingestion_identity_decisions d WHERE id=$1`, id))
 }
-func (s *Service) PlanOne(ctx context.Context) (bool, error) {
+func (s *Service) PlanOne(ctx context.Context) (bool, error) { return s.plan(ctx, nil) }
+func (s *Service) plan(ctx context.Context, key *workKey) (bool, error) {
 	if !s.options.Enabled {
 		return false, nil
 	}
-	partition := shard{0, 1}
-	if v, ok := ctx.Value(workerSlot{}).(shard); ok {
-		partition = v
-	}
+	const joins = ` FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id
+		JOIN ingestion_sources s ON s.id=r.source_id JOIN ingestion_identity_decisions di ON di.id=u.decision_id `
+	const ready = ` (NOT s.planning_paused OR di.recovery_id IS NOT NULL) AND NOT s.blocked
+		AND (u.state='identified' AND u.available_at<=clock_timestamp() OR u.state='demultiplexing' AND u.lease_until<clock_timestamp()
+		OR u.state='demultiplex_retry' AND u.available_at<=clock_timestamp()) AND NOT EXISTS(
+		SELECT 1 FROM ingestion_change_intents c WHERE c.source_id=s.id AND c.state='pending')`
 	var id, tenantID string
-	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
-		return tx.QueryRow(ctx, `SELECT u.id::text,r.tenant_id::text FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id JOIN ingestion_sources s ON s.id=r.source_id JOIN ingestion_identity_decisions di ON di.id=u.decision_id WHERE ((hashtextextended(u.id::text,0) & 2147483647) % $1)=$2 AND (NOT s.planning_paused OR di.recovery_id IS NOT NULL) AND NOT s.blocked AND (u.state='identified' AND u.available_at<=clock_timestamp() OR u.state='demultiplexing' AND u.lease_until<clock_timestamp() OR u.state='demultiplex_retry' AND u.available_at<=clock_timestamp()) AND NOT EXISTS(SELECT 1 FROM ingestion_change_intents c WHERE c.source_id=s.id AND c.state='pending') ORDER BY u.created_at LIMIT 1`, partition.count, partition.slot).Scan(&id, &tenantID)
-	})
-	if e == pgx.ErrNoRows {
-		return false, nil
-	}
-	if e != nil {
-		return false, e
+	if key != nil {
+		id, tenantID = key.id, key.scope
+	} else {
+		partition := shard{0, 1}
+		if v, ok := ctx.Value(workerSlot{}).(shard); ok {
+			partition = v
+		}
+		err := s.access.Transact(ctx, func(tx pgx.Tx) error {
+			s.recordCandidateScan()
+			unrecorded := s.unrecorded("parsing-dispatch-worker", "ingestion.units.ready", "plan", "u.id", "di.generation")
+			return tx.QueryRow(ctx, `SELECT u.id::text,r.tenant_id::text`+joins+`WHERE ((hashtextextended(u.id::text,0) & 2147483647) % $1)=$2 AND `+ready+unrecorded+` ORDER BY u.created_at LIMIT 1`, partition.count, partition.slot).Scan(&id, &tenantID)
+		})
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
 	}
 	var demux *demuxClaim
-	e = s.machineTx(ctx, tenantID, false, func(tx pgx.Tx) error {
-		var live bool
-		if e := tx.QueryRow(ctx, `SELECT state='identified' OR state='demultiplexing' AND lease_until<clock_timestamp() OR state='demultiplex_retry' AND available_at<=clock_timestamp() FROM ingestion_units WHERE id=$1 FOR UPDATE`, id).Scan(&live); e != nil || !live {
-			return e
+	eligible := false
+	e := s.machineTx(ctx, tenantID, false, func(tx pgx.Tx) error {
+		var err error
+		if key != nil {
+			err = tx.QueryRow(ctx, `SELECT true`+joins+`WHERE u.id=$1 AND r.tenant_id=$2 AND di.generation=$3 AND `+ready+` FOR UPDATE OF u`, id, tenantID, key.generation).Scan(&eligible)
+			if err == pgx.ErrNoRows {
+				return nil
+			}
+		} else {
+			err = tx.QueryRow(ctx, `SELECT state='identified' AND available_at<=clock_timestamp() OR state='demultiplexing' AND lease_until<clock_timestamp() OR state='demultiplex_retry' AND available_at<=clock_timestamp() FROM ingestion_units WHERE id=$1 FOR UPDATE`, id).Scan(&eligible)
 		}
-		u, e := unitTx(ctx, tx, id)
-		if e != nil {
-			return e
+		if err != nil || !eligible {
+			return err
 		}
-		receipt, e := receiptTx(ctx, tx, u.ReceiptID)
-		if e != nil {
-			return e
-		}
-		decision, e := decisionTx(ctx, tx, u.DecisionID)
+		var u Unit
+		var receipt Receipt
+		var decision Decision
+		e := tx.QueryRow(ctx, `SELECT to_jsonb(u),`+receiptJSON+`,`+decisionJSON+`
+			FROM ingestion_units u JOIN ingestion_receipts r ON r.id=u.receipt_id
+			JOIN ingestion_identity_decisions d ON d.id=u.decision_id WHERE u.id=$1`, id).Scan(&u, &receipt, &decision)
 		if e != nil {
 			return e
 		}
@@ -70,7 +92,8 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 			_, e := tx.Exec(ctx, `UPDATE ingestion_units SET state=$2,error_code=$3,lease_until=NULL WHERE id=$1`, id, state, code(err))
 			return e
 		}
-		if e = s.identityAllowed(ctx, tx, receipt, decision); e != nil {
+		authority, e := s.identityAuthority(ctx, tx, receipt, decision)
+		if e != nil {
 			return fail("blocked", e)
 		}
 		recovery, e := recoveryConfig(ctx, tx, decision)
@@ -182,7 +205,7 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 			} else if e != nil {
 				return e
 			}
-			if _, e = tx.Exec(ctx, `INSERT INTO ingestion_attempts(execution_id,stage,target_id,fence,attempt) VALUES($1,'demultiplex',$2,$3,$4)`, v.ExecutionID, id, v.Fence, v.Attempt); e != nil {
+			if v.MachineID, e = recordAttempt(ctx, tx, "demultiplex", id, v.ExecutionID, v.Fence, v.Attempt); e != nil {
 				return e
 			}
 			demux = &v
@@ -196,10 +219,7 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 		if e != nil {
 			return fail("awaiting_association", c.Fail("association_missing"))
 		}
-		src, e := sourceTx(ctx, tx, k.Tenant(tenantID), receipt.SourceID)
-		if e != nil {
-			return e
-		}
+		src := authority.source
 		projectGrant, e := businessTx(ctx, tx, src, association.DeviceID)
 		if e != nil {
 			return fail("quarantined", e)
@@ -219,22 +239,12 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 		if e != nil || !grant.Enabled || !grant.Measure {
 			return fail("blocked", c.Fail("execution_unconfigured"))
 		}
-		sourceGrant, e := grantTx(ctx, tx, src.ID, "")
-		if e != nil {
-			return e
-		}
+		sourceGrant := authority.grant
 		frozen, e := s.parser.ProductionSnapshotTx(ctx, tx, tenantID, association.DeviceID, recovery.ConfigRevisionID)
 		if e != nil {
 			return fail("awaiting_configuration", e)
 		}
-		rev, e := revisionTx(ctx, tx, src.ID, receipt.SourceRevision)
-		if e != nil {
-			return e
-		}
-		protocol, e := s.parser.IngressProtocolTx(ctx, tx, rev.Snapshot.ProtocolID, rev.Snapshot.ProtocolVersion, false)
-		if e != nil {
-			return fail("blocked", e)
-		}
+		rev, protocol := authority.revision, authority.protocol
 		compat, e := s.parser.CompatibilityTx(ctx, tx, protocol, association.Demultiplexer, u.View.InputUnit, frozen.Snapshot.Method, false)
 		if e != nil {
 			return fail("awaiting_configuration", e)
@@ -256,7 +266,7 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 			return e
 		}
 		_, e = tx.Exec(ctx, `UPDATE ingestion_units SET state='planned',error_code='' WHERE id=$1`, id)
-		return e
+		return key.terminalWrite(e, true)
 	})
 	if e != nil {
 		return true, e
@@ -264,7 +274,7 @@ func (s *Service) PlanOne(ctx context.Context) (bool, error) {
 	if demux != nil {
 		return true, s.demultiplex(ctx, *demux)
 	}
-	return true, nil
+	return eligible, nil
 }
 func (s *Service) demultiplex(ctx context.Context, job demuxClaim) error {
 	raw, callErr := s.readObject(ctx, job.Input)
@@ -283,13 +293,15 @@ func (s *Service) demultiplex(ctx context.Context, job demuxClaim) error {
 	var response i.Response
 	var body []byte
 	if callErr == nil {
-		req := i.Request{Version: 1, ExecutionID: job.ExecutionID, Method: job.Method.Method, Input: i.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: c.Digest(raw), ByteLength: int64(len(raw))}, Context: i.Context{ReceivedAt: job.Receipt.ReceivedAt, Transport: job.Method.Transport, InputUnit: job.Method.InputUnit}, TraceID: job.Receipt.ID}
-		body, response, callErr = s.parser.Identify(ctx, req, job.Method)
+		req := i.Request{Version: 1, ExecutionID: job.MachineID, Method: job.Method.Method, Input: i.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: c.Digest(raw), ByteLength: int64(len(raw))}, Context: i.Context{ReceivedAt: job.Receipt.ReceivedAt, Transport: job.Method.Transport, InputUnit: job.Method.InputUnit}, TraceID: job.Receipt.ID}
+		started := time.Now()
+		body, response, callErr = s.parser.Identify(parsing.MachineWork(ctx, "tenant:"+*job.Receipt.TenantID, job.ExecutionID, true), req, job.Method)
+		s.parserDuration(started)
 		observeDependency(ctx, "parser", callErr)
 	}
 	var stored *object
 	if len(body) > 0 {
-		obj, e := s.saveObject(ctx, body)
+		obj, e := s.stageResponse(ctx, body)
 		if e != nil {
 			callErr = e
 		} else {
@@ -305,7 +317,7 @@ func (s *Service) demultiplex(ctx context.Context, job demuxClaim) error {
 		if callErr != nil {
 			state = "failed"
 		}
-		if _, e := tx.Exec(ctx, `UPDATE ingestion_attempts SET state=$2,error_code=$3,response_object_id=$4,finished_at=clock_timestamp() WHERE execution_id=$1`, job.ExecutionID, state, code(callErr), objectID); e != nil {
+		if e := finishAttemptTx(ctx, tx, job.ExecutionID, state, code(callErr), objectID); e != nil {
 			return e
 		}
 		var live bool
@@ -320,7 +332,7 @@ func (s *Service) demultiplex(ctx context.Context, job demuxClaim) error {
 		}
 		if callErr != nil {
 			state := "rejected"
-			if parsing.Retryable(callErr) && job.Attempt < 5 {
+			if retryableAttempt(callErr) && job.Attempt < 5 {
 				state = "demultiplex_retry"
 			}
 			_, e := tx.Exec(ctx, `UPDATE ingestion_units SET state=$2,error_code=$3,lease_until=NULL,available_at=clock_timestamp()+$4*interval '1 second' WHERE id=$1`, job.Unit.ID, state, code(callErr), retryDelay(job.Attempt))

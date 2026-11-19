@@ -153,6 +153,10 @@ func (r *Repository) Bootstrap(ctx context.Context, username, display, hash stri
 // Sensitive browser writes lock the account before any session or single-use credential.
 // The session is rechecked under that lock so a concurrent password reset cannot authorize a later write.
 func lockPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Duration, recent bool) error {
+	return checkPrincipal(ctx, tx, p, idle, recent, false)
+}
+
+func checkPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Duration, recent, shared bool) error {
 	if _, e := access.Lock(ctx, tx, false); e != nil {
 		return e
 	}
@@ -162,7 +166,11 @@ func lockPrincipal(ctx context.Context, tx pgx.Tx, p Principal, idle time.Durati
 	}
 	var active bool
 	var version int64
-	if e := tx.QueryRow(ctx, "SELECT status='active',auth_version FROM accounts WHERE id=$1 FOR UPDATE", p.Account.ID).Scan(&active, &version); e != nil {
+	lock := " FOR UPDATE"
+	if shared {
+		lock = " FOR SHARE"
+	}
+	if e := tx.QueryRow(ctx, "SELECT status='active',auth_version FROM accounts WHERE id=$1"+lock, p.Account.ID).Scan(&active, &version); e != nil {
 		return e
 	}
 	if !active || version != p.Version {

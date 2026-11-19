@@ -6,6 +6,8 @@ The owning InfraPro restore command first requires an empty independent database
 import os,pathlib,re,shutil,subprocess,sys,tempfile
 os.umask(0o077)
 real=str(pathlib.Path.home()/'env/infrapro/bin/pg_restore')
+if '--list' in sys.argv or any(a.startswith('--use-list=') for a in sys.argv):
+ os.execv(real,[real,*sys.argv[1:]])
 with tempfile.TemporaryDirectory(prefix='infrapro-pg17-restore-') as td:
  d=pathlib.Path(td);archive=d/'control.dump';toc=d/'restore.list'
  with archive.open('wb') as f:shutil.copyfileobj(sys.stdin.buffer,f,1<<20)

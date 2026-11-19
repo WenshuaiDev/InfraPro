@@ -8,3 +8,7 @@
 `migrate` 使用独立 CLI 镜像完成迁移，随后 `access-sync` 同步目录和内置角色，成功后才启动 API；`ops` 是按需运行的统一运维入口，不常驻。维护使用 `docker compose --env-file deploy/compose/.env -f deploy/compose/compose.yaml run --rm ops <命令组> <子命令>`；不再进入 API 容器执行 CLI。
 
 部署、配置、初始化、账号维护及备份步骤见 [架构设计：运行维护](../../docs/architecture.md#operations)。不要用测试环境的明文固定凭据配置正式环境，也不要对正式环境执行 `down --volumes`。
+
+## 拆分与混合部署
+
+执行 `node scripts/architecture-deploy.mjs prepare --mode compose --directory /ABS/EMPTY` 生成逐角色配置、三 origin Nginx、broker 及 worker 配置。混合部署使用 `--mode mixed --container-roles` 列出运行在容器内的角色。环境变量、私有网络、模板安装与冻结步骤见 [拆分架构运维](../../docs/operations/system-architecture-refactor.md)。

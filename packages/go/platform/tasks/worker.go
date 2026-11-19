@@ -38,6 +38,10 @@ func NewIndexer(a *access.Service, sources map[string]IndexSource, h HandoffSour
 }
 func (i *Indexer) WithOptions(o Options) *Indexer { i.options = o; return i }
 func (i *Indexer) Tick(ctx context.Context, worker string, reporters ...diagnosticreport.Sink) (int, error) {
+	return i.tick(ctx, worker, true, i.options.Poll, reporters...)
+}
+
+func (i *Indexer) tick(ctx context.Context, worker string, scan bool, scanInterval time.Duration, reporters ...diagnosticreport.Sink) (int, error) {
 	reporter := diagnosticreport.Optional(reporters)
 	reporter.Begin("reconcile", diagnosticreport.Deadline(ctx))
 	count := 0
@@ -47,7 +51,7 @@ func (i *Indexer) Tick(ctx context.Context, worker string, reporters ...diagnost
 			return e
 		}
 		if mode == "paused" {
-			return fmt.Errorf("task protocol paused")
+			return ErrProjectionPaused
 		}
 		if _, e := tx.Exec(ctx, `INSERT INTO task_worker_heartbeats(worker_id,heartbeat_at,protocol_version,restore_epoch) VALUES($1,clock_timestamp(),1,$2) ON CONFLICT(worker_id) DO UPDATE SET heartbeat_at=EXCLUDED.heartbeat_at,restore_epoch=EXCLUDED.restore_epoch,safe_error_code=''`, worker, epoch); e != nil {
 			return e
@@ -90,7 +94,7 @@ func (i *Indexer) Tick(ctx context.Context, worker string, reporters ...diagnost
 	})
 	reporter.End("reconcile", diagnosticreport.Result(e), time.Now().Add(i.options.Poll))
 	reporter.Dependency("postgres", e == nil, diagnosticreport.Result(e))
-	if e != nil {
+	if e != nil || !scan {
 		return count, e
 	}
 	reporter.Begin("backfill", diagnosticreport.Deadline(ctx))
@@ -112,12 +116,39 @@ func (i *Indexer) Tick(ctx context.Context, worker string, reporters ...diagnost
 		count += n
 	}
 	if len(failures) > 0 {
-		reporter.End("backfill", "loop_failed", time.Now().Add(i.options.Poll))
+		reporter.End("backfill", "loop_failed", time.Now().Add(scanInterval))
 		return count, errors.Join(failures...)
 	}
 	e = i.markReady(ctx)
-	reporter.End("backfill", diagnosticreport.Result(e), time.Now().Add(i.options.Poll))
+	reporter.End("backfill", diagnosticreport.Result(e), time.Now().Add(scanInterval))
 	return count, e
+}
+
+var ErrProjectionPaused = errors.New("task projection paused")
+
+// ProjectEvent repairs relation edges of the task referenced by a durable
+// snapshot. The projection itself was committed atomically by the producer.
+func (i *Indexer) ProjectEvent(ctx context.Context, eventID string, revision int64, scope string) error {
+	if !access.ValidID(eventID) || revision < 0 {
+		return pgx.ErrNoRows
+	}
+	return i.db.Transact(ctx, func(tx pgx.Tx) error {
+		var active bool
+		if e := tx.QueryRow(ctx, `SELECT mode<>'paused' FROM task_protocol WHERE id=1 AND schema_version=1 FOR SHARE`).Scan(&active); e != nil {
+			return e
+		}
+		if !active {
+			return ErrProjectionPaused
+		}
+		var ref taskrecord.SourceRef
+		e := tx.QueryRow(ctx, `SELECT t.source_module,t.source_kind,t.source_root_id::text
+			FROM task_events e JOIN task_records t ON t.id=e.task_id
+			WHERE e.id=$1 AND e.source_revision=$2 AND e.event_kind='snapshot' AND COALESCE(t.tenant_id::text,'platform')=$3`, eventID, revision, scope).Scan(&ref.Module, &ref.Kind, &ref.RootID)
+		if e != nil {
+			return e
+		}
+		return taskrecord.ReconcileRelationsTx(ctx, tx, ref)
+	})
 }
 func (i *Indexer) backfill(ctx context.Context, key, worker string, force bool) (int, error) {
 	source := i.sources[key]
@@ -336,6 +367,10 @@ func (i *Indexer) RestoreEpoch(ctx context.Context, reason string) error {
 	})
 }
 func (i *Indexer) Run(ctx context.Context, worker string, onError func(error), reporters ...diagnosticreport.Sink) {
+	i.RunWithFallback(ctx, 0, worker, onError, reporters...)
+}
+func (i *Indexer) RunWithFallback(ctx context.Context, interval time.Duration, worker string, onError func(error), reporters ...diagnosticreport.Sink) {
+	var nextScan time.Time
 	for ctx.Err() == nil {
 		tickCtx, cancel := context.WithCancel(context.WithoutCancel(ctx))
 		finished := make(chan struct{})
@@ -353,7 +388,11 @@ func (i *Indexer) Run(ctx context.Context, worker string, onError func(error), r
 				cancel()
 			}
 		}()
-		_, e := i.Tick(tickCtx, worker, reporters...)
+		scan := !time.Now().Before(nextScan)
+		_, e := i.tick(tickCtx, worker, scan, max(interval, i.options.Poll), reporters...)
+		if scan {
+			nextScan = time.Now().Add(interval)
+		}
 		close(finished)
 		cancel()
 		if e != nil && ctx.Err() == nil {

@@ -1,5 +1,5 @@
 import { clearProject, retryScopeRead } from '../projects/scope';
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError, type TenantContext } from '@infrapro/api-client';
@@ -11,10 +11,16 @@ import { Button } from '@infrapro/ui/components/button';
 const CurrentTenant = createContext<(TenantContext & { epoch: number; available: boolean }) | null>(null);
 let nextEpoch = 0;
 export function TenantBoundary({ id, children }: { id: string; children: ReactNode }) {
-  const { client, account, authorization_revision, phase } = useIdentity();
+  const { client, account, authorization_revision, phase, reload } = useIdentity();
   const cache = useQueryClient();
   const [epoch, setEpoch] = useState(() => ++nextEpoch);
   const [checking, setChecking] = useState(false);
+  const latestCheck = useRef(0);
+  const recheck = useCallback((load: () => Promise<unknown>) => {
+    const sequence = ++latestCheck.current;
+    setChecking(true);
+    void load().finally(() => { if (sequence === latestCheck.current) setChecking(false); });
+  }, []);
   const [restricted, setRestricted] = useState<'disabled' | 'lost' | null>(null);
   const context = useQuery({ queryKey: ['tenant', account?.id, id, 'context'], queryFn: ({ signal }) => client.tenantContext(id, signal), enabled: !restricted, staleTime: 0, retry: retryScopeRead, retryDelay: 0, refetchInterval: 30_000, refetchIntervalInBackground: false });
   const { refetch } = context;
@@ -31,15 +37,16 @@ export function TenantBoundary({ id, children }: { id: string; children: ReactNo
   useEffect(() => {
     const verify = () => {
       if (document.visibilityState !== 'visible' || restricted === 'disabled') return;
-      setChecking(true);
       // An ended relation keeps its data cleared, but a later explicit rejoin
       // must be discoverable. refetchQueries skips disabled queries; refetch
       // performs this single current-qualification read without enabling a loop.
-      void refetch().finally(() => setChecking(false));
+      // Identity and tenant qualification run concurrently; do not reveal an old
+      // scoped form while a changed account is still being reconciled.
+      recheck(() => Promise.all([refetch(), reload()]));
     };
     window.addEventListener('focus', verify); document.addEventListener('visibilitychange', verify);
     return () => { window.removeEventListener('focus', verify); document.removeEventListener('visibilitychange', verify); };
-  }, [refetch, restricted]);
+  }, [refetch, restricted, recheck, reload]);
   useEffect(() => () => { client.invalidateTenantScope(id); clearProject(cache, account?.id, id); for (const key of [['tenant', account?.id, id], ['project-governance', account?.id, id], ['project-context', account?.id, id]]) { void cache.cancelQueries({ queryKey: key }); cache.removeQueries({ queryKey: key }); } }, [cache, client, account?.id, id]);
   useEffect(() => client.onTenantRestriction((tenant, code) => {
     if (tenant !== id) return;
@@ -55,14 +62,13 @@ export function TenantBoundary({ id, children }: { id: string; children: ReactNo
       void cache.cancelQueries({ queryKey: ['tenant', account?.id, id] });
       cache.removeQueries({ queryKey: ['tenant', account?.id, id] });
     } else {
-      setChecking(true);
       void cache.cancelQueries({ queryKey: ['project-governance', account?.id, id] });
       cache.removeQueries({ queryKey: ['project-governance', account?.id, id] });
       void cache.cancelQueries({ predicate: (q) => q.queryKey[0] === 'tenant' && q.queryKey[1] === account?.id && q.queryKey[2] === id && q.queryKey[3] !== 'context' });
       cache.removeQueries({ predicate: (q) => q.queryKey[0] === 'tenant' && q.queryKey[1] === account?.id && q.queryKey[2] === id && q.queryKey[3] !== 'context' });
-      void cache.refetchQueries({ queryKey: ['tenant', account?.id, id, 'context'] }).finally(() => setChecking(false));
+      recheck(() => cache.refetchQueries({ queryKey: ['tenant', account?.id, id, 'context'] }));
     }
-  }), [client, cache, account?.id, id]);
+  }), [client, cache, account?.id, id, recheck]);
   useEffect(() => {
     if (context.data?.can_enter !== false) return;
     const predicate = (q: { queryKey: readonly unknown[] }) => q.queryKey[0] === 'tenant' && q.queryKey[1] === account?.id && q.queryKey[2] === id && q.queryKey[3] !== 'context';
@@ -72,7 +78,7 @@ export function TenantBoundary({ id, children }: { id: string; children: ReactNo
   const errorCode = context.error instanceof ApiError ? context.error.code : undefined;
   const disabled = restricted === 'disabled' || errorCode === 'tenant_disabled';
   const lost = context.data?.can_enter === false || restricted === 'lost' || (!disabled && context.error instanceof ApiError && [403, 404].includes(context.error.status ?? 0));
-  if (disabled) return <DisabledTenant id={id} onActive={() => { setEpoch(++nextEpoch); setChecking(true); setRestricted(null); void context.refetch().finally(() => setChecking(false)); }} />;
+  if (disabled) return <DisabledTenant id={id} onActive={() => { setEpoch(++nextEpoch); setRestricted(null); recheck(context.refetch); }} />;
   if (lost) return <section className="space-y-4"><h1 className="text-2xl font-semibold">当前租户不可访问</h1><p>成员关系或权限已变化，请重新选择租户。</p><div className="flex flex-wrap items-center gap-3"><WorkspacePickerButton filter="tenants">重新选择租户</WorkspacePickerButton><Link to="/" className="underline">返回首页</Link><Button variant="outline" disabled={context.isFetching} onClick={() => void refetch()}>重新检查租户资格</Button></div></section>;
   if (context.error && !context.data) return <ErrorState title="服务暂时不可用" message={context.error.message} onRetry={() => void context.refetch()} />;
   if (!context.data) return <p role="status">正在核验租户身份…</p>;

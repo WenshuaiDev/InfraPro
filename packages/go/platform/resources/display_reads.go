@@ -33,21 +33,30 @@ func (s *Service) DisplayDirectoryTx(ctx context.Context, tx pgx.Tx, a access.Ac
 		}
 		nodes = "engineering_resource_nodes_legacy"
 	}
+	// Materialize only the authorized tree's records once. Membership checks
+	// below are sets, so paging a broad grant does not re-scan the resource
+	// record view once per node. The project visibility check stays in this
+	// transaction even when the display has a stored grant.
 	query := strings.ReplaceAll(`WITH RECURSIVE nodes AS MATERIALIZED(SELECT * FROM engineering_resource_nodes WHERE tenant_id=$1 AND deleted_at IS NULL), visible AS MATERIALIZED(SELECT * FROM project_resource_visibility($1,$2,NULL)),
- selected AS MATERIALIZED(SELECT n.* FROM nodes n JOIN visible v ON v.id=n.id AND v.kind=n.kind AND v.full_access JOIN jsonb_to_recordset($3::jsonb) m(kind text,id uuid) ON m.kind=n.kind AND m.id=n.id WHERE n.tenant_id=$1 AND n.deleted_at IS NULL),
- tree AS (SELECT * FROM selected UNION SELECT n.* FROM nodes n JOIN tree child ON child.parent_id=n.id AND child.parent_kind=n.kind WHERE $4 AND n.tenant_id=$1 AND n.deleted_at IS NULL),
+ authorized AS MATERIALIZED(
+   SELECT kind,id FROM visible WHERE full_access
+   INTERSECT SELECT kind,id FROM jsonb_to_recordset($3::jsonb) m(kind text,id uuid)
+ ),
+ selected AS MATERIALIZED(SELECT n.* FROM nodes n JOIN authorized a USING(kind,id)),
+ tree AS (SELECT * FROM selected UNION SELECT n.* FROM nodes n JOIN tree child ON child.parent_id=n.id AND child.parent_kind=n.kind WHERE $4),
+ records AS MATERIALIZED(SELECT * FROM engineering_resource_records WHERE tenant_id=$1 AND (kind,id) IN (SELECT kind,id FROM tree)),
  parents AS MATERIALIZED(SELECT DISTINCT parent_kind,parent_id FROM tree WHERE parent_id IS NOT NULL)
  SELECT jsonb_build_object('id',n.id,'kind',n.kind,'facility_id',n.facility_id,'parent_ref',CASE WHEN n.parent_id IS NULL THEN NULL ELSE jsonb_build_object('kind',n.parent_kind,'id',n.parent_id) END,
- 'code',n.code,'name',n.name,'status',n.status,'revision',n.revision::text,'created_at',n.created_at,'visibility',CASE WHEN selected_node.id IS NOT NULL THEN 'full' ELSE 'context' END,
+ 'code',n.code,'name',n.name,'status',n.status,'revision',n.revision::text,'created_at',n.created_at,'visibility',CASE WHEN (n.kind,n.id) IN (SELECT kind,id FROM selected) THEN 'full' ELSE 'context' END,
  'type_ref',jsonb_build_object('definition_id',t.definition_id,'version_id',t.id,'name',t.content->>'name','version',t.number::text),
- 'has_visible_children',parent_node.parent_id IS NOT NULL,
+ 'has_visible_children',(n.kind,n.id) IN (SELECT parent_kind,parent_id FROM parents),
  'source_kind',COALESCE(ch.source_kind,''),'metric_version_id',COALESCE(ch.metric_version_id::text,''),
  'metric_ref',CASE WHEN ch.id IS NULL THEN NULL ELSE jsonb_build_object('kind',CASE WHEN ch.source_kind='derived' THEN 'derived' ELSE 'engineering' END,'version_id',COALESCE(ch.derived_metric_version_id,ch.metric_version_id)) END,
 	 'owner_ref',CASE WHEN ch.id IS NULL THEN NULL ELSE jsonb_build_object('kind',n.parent_kind,'id',n.parent_id) END),
  er.data||jsonb_build_object('facility_id',CASE WHEN n.kind='facility' THEN '' ELSE n.facility_id::text END), t.content
- FROM tree n JOIN engineering_resource_records er ON er.tenant_id=n.tenant_id AND er.kind=n.kind AND er.id=n.id LEFT JOIN selected selected_node ON selected_node.id=n.id AND selected_node.kind=n.kind LEFT JOIN parents parent_node ON parent_node.parent_id=n.id AND parent_node.parent_kind=n.kind
+ FROM tree n JOIN records er ON er.tenant_id=n.tenant_id AND er.kind=n.kind AND er.id=n.id
  JOIN engineering_facilities f ON f.tenant_id=n.tenant_id AND f.id=n.facility_id JOIN engineering_versions t ON t.id=f.type_version_id LEFT JOIN engineering_channels ch ON ch.tenant_id=n.tenant_id AND n.kind='channel' AND ch.id=n.id
- LEFT JOIN engineering_points ep ON ep.tenant_id=n.tenant_id AND n.kind='point' AND ep.id=n.id LEFT JOIN engineering_components ec ON ec.tenant_id=n.tenant_id AND n.kind='component' AND ec.id=n.id
+
  WHERE f.deleted_at IS NULL ORDER BY n.kind,n.code,n.id`, "engineering_resource_nodes", nodes)
 	rows, e := tx.Query(ctx, query, tenant, project, displayread.Bytes(scope.Members), ancestors)
 	if e != nil {

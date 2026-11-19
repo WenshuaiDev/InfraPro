@@ -171,21 +171,21 @@ test('account editing rejects stale versions and reloads the real binding', asyn
   const target = await createManaged(request), role = await makeRole(request, `冲突验收_${randomBytes(4).toString('hex')}`);
   await openAccount(page, target);
   const panel = page.getByRole('dialog'); await panel.getByRole('button', { name: '配置角色', exact: true }).click();
-  const option = async (name: RegExp) => {
+  const option = async (search: string, name: RegExp) => {
     await expect(panel.getByRole('checkbox').first()).toBeVisible();
-    await panel.getByLabel('搜索可选角色').fill(name.source);
+    await panel.getByLabel('搜索可选角色').fill(search);
     return panel.getByRole('checkbox', { name });
   };
-  await (await option(new RegExp(role.name))).check();
+  await (await option(role.name, new RegExp(role.name))).check();
   const headers = await owner(request);
   expect((await request.put(`${api}/access/accounts/${target.id}/roles`, { headers: { ...headers, 'X-Command-ID': randomUUID() }, data: { expected_version: target.management_version, role_ids: [], reason: '模拟另一位管理员修改' } })).status()).toBe(200);
   await panel.getByLabel('变更原因', { exact: true }).fill('过期草稿不能覆盖'); await panel.getByRole('button', { name: '保存角色绑定', exact: true }).click();
   await expect(panel.getByRole('button', { name: '重新加载并比较', exact: true })).toBeVisible(); await expect(panel.getByRole('button', { name: '保存角色绑定', exact: true })).toBeDisabled();
   await panel.getByRole('button', { name: '重新加载并比较', exact: true }).click(); await expect(panel.getByText('尚未绑定平台角色', { exact: true })).toBeVisible();
-  await panel.getByRole('button', { name: '配置角色', exact: true }).click(); await expect(await option(new RegExp(role.name))).not.toBeChecked();
+  await panel.getByRole('button', { name: '配置角色', exact: true }).click(); await expect(await option(role.name, new RegExp(role.name))).not.toBeChecked();
   // The full suite creates enough roles to move built-ins beyond the first page.
   // Load the option before asserting its binding; absence is not an unchecked state.
-  await expect(await option(/^基础成员/)).not.toBeChecked();
+  await expect(await option('基础成员', /^基础成员/)).not.toBeChecked();
 });
 
 test('account readers see allowed authorization without fetching protected directories', async ({ page, request }) => {

@@ -1,0 +1,238 @@
+//go:build monitoringintegration
+
+package resources_test
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log/slog"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	dm "github.com/WenshuaiDev/InfraPro/packages/go/platform/derivedmonitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/display"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
+	md "github.com/WenshuaiDev/InfraPro/packages/go/platform/monitoring"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
+	"testing"
+)
+
+type arcArtifactFixture struct {
+	RuntimeURL, Config, Account, Password, Tenant, Project, Version, Artifact, Generation, Snapshot, Grant, Output string
+	Channels                                                                                                       []string
+}
+
+func TestArchitectureDisplayArtifactPermissions(t *testing.T) {
+	var f arcArtifactFixture
+	bytes, err := os.ReadFile(os.Getenv("INFRAPRO_ARCHITECTURE_ARTIFACT_INPUT"))
+	must(t, err)
+	must(t, json.Unmarshal(bytes, &f))
+	cfg, err := config.Load(f.Config)
+	must(t, err)
+	pool := func(url string) *pgxpool.Pool {
+		p, e := pgxpool.New(ctx, url)
+		must(t, e)
+		t.Cleanup(p.Close)
+		return p
+	}
+	ownerURL, err := url.Parse(cfg.DatabaseURL)
+	must(t, err)
+	limitedURL, err := url.Parse(f.RuntimeURL)
+	must(t, err)
+	if ownerURL.Hostname() != "127.0.0.1" || ownerURL.Host != limitedURL.Host || ownerURL.Path != limitedURL.Path || !strings.HasPrefix(ownerURL.Path, "/arc_artifact_") {
+		t.Fatal("expected both roles on the same isolated analysis clone")
+	}
+	owner := pool(cfg.DatabaseURL)
+	restricted := pool(f.RuntimeURL)
+	auth := func(p *pgxpool.Pool) *access.Service { return access.New(p, slog.Default()) }
+	business := runtime.Compose(auth(owner))
+	runtimeService := runtime.Compose(auth(restricted))
+	ro, err := redis.ParseURL(cfg.RedisURL)
+	must(t, err)
+	if !strings.HasPrefix(cfg.RedisKeyPrefix, "infrapro:display-artifact-") {
+		t.Fatal("expected a private cache namespace for the analysis clone")
+	}
+	cache := redis.NewClient(ro)
+	defer func() {
+		defer cache.Close()
+		var cursor uint64
+		for {
+			keys, next, e := cache.Scan(ctx, cursor, cfg.RedisKeyPrefix+"*", 100).Result()
+			if e != nil {
+				t.Errorf("cache cleanup: %v", e)
+				return
+			}
+			if len(keys) > 0 {
+				if e = cache.Unlink(ctx, keys...).Err(); e != nil {
+					t.Errorf("cache cleanup: %v", e)
+					return
+				}
+			}
+			cursor = next
+			if cursor == 0 {
+				return
+			}
+		}
+	}()
+	identityService, err := identity.NewService(owner, cache, cfg, slog.Default())
+	must(t, err)
+	account, token, _, err := identityService.Login(ctx, f.Account, f.Password, identity.Meta{UserAgent: "architecture-display-qualification"})
+	must(t, err)
+	principal, err := identityService.Authenticate(ctx, token)
+	must(t, err)
+	actor := identityService.AccessActor(principal)
+	if actor.ID != account.ID {
+		t.Fatal("personnel identity mismatch")
+	}
+	var login string
+	var elevated bool
+	must(t, restricted.QueryRow(ctx, `SELECT current_user,rolsuper OR rolbypassrls FROM pg_roles WHERE rolname=session_user AND pg_has_role(current_user,'infrapro_display_runtime','USAGE')`).Scan(&login, &elevated))
+	if elevated {
+		t.Fatal("runtime login can bypass policy")
+	}
+	proof := map[string]any{"runtime": login, "actor": account.ID, "version": f.Version, "artifact": f.Artifact, "generation": f.Generation, "snapshot": f.Snapshot, "channels": f.Channels}
+	qualify := func(service runtime.Business, pg *pgxpool.Pool, requester access.Actor) error {
+		tx, e := pg.Begin(ctx)
+		if e != nil {
+			return e
+		}
+		defer tx.Rollback(ctx)
+		return service.DerivedMonitoring.QualifyArtifactVersionTx(ctx, tx, requester, dm.ProjectScope(f.Tenant, f.Project), f.Version)
+	}
+	must(t, qualify(business, owner, actor))
+	proof["qualifiedPublicationOwner"] = true
+	// The original public fixture library makes a checked manifest and ZIP. Only
+	// package preparation is privileged; both pairing and start use the real runtime.
+	store := &displayMemoryStore{files: map[string][]byte{}}
+	management := business.Displays.WithStorage(store)
+	displayRuntime := runtimeService.Displays.WithStorage(store)
+	h := &displayHarness{s: management, store: store, actor: actor, scope: display.Scope{Tenant: f.Tenant, Project: f.Project}}
+	var settings string
+	must(t, owner.QueryRow(ctx, `SELECT COALESCE((SELECT revision::text FROM display_settings WHERE tenant_id=$1 AND project_id=$2),'0')`, f.Tenant, f.Project).Scan(&settings))
+	cmd := func(revision string) display.Meta {
+		return display.Meta{Revision: revision, RequestID: uuid.NewString(), Reason: "isolated original fixed artifact display"}
+	}
+	_, err = management.Command(ctx, actor, h.scope, "", "settings", "", display.Command{Meta: cmd(settings), Enabled: true})
+	must(t, err)
+	created, err := management.Command(ctx, actor, h.scope, "", "create", "", display.Command{Meta: cmd("0"), Name: "Fixed version qualification"})
+	must(t, err)
+	h.id = created["id"].(string)
+	h.revision = created["revision"].(string)
+	bindings := map[string]display.Binding{"fixed": {Kind: "artifacts", IDs: []string{f.Version}}}
+	caps := []string{"artifacts.read", "monitoring.latest"}
+	body := displayZIPCustom(t, caps, bindings)
+	upload := h.command(t, "upload", "", display.Command{Size: int64(len(body)), SHA256: displayHash(body)})["upload_id"].(string)
+	must(t, management.UploadPart(ctx, actor, h.scope, h.id, upload, 0, displayHash(body), body))
+	h.command(t, "upload.complete", upload, display.Command{})
+	worked, err := management.ProcessOne(ctx)
+	must(t, err)
+	if !worked {
+		t.Fatal("checker did not claim this package")
+	}
+	detail, err := management.Detail(ctx, actor, h.scope, h.id)
+	must(t, err)
+	var pack display.Package
+	must(t, json.Unmarshal(detail["packages"].([]json.RawMessage)[0], &pack))
+	c := h.command(t, "config", "", display.Command{PackageID: pack.ID, Parameters: map[string]any{}, Bindings: bindings, Mode: "fixed"})
+	h.config = c["config_id"].(string)
+	grant := display.Grant{Capabilities: caps, Scope: display.ReadScope{Artifacts: []string{f.Version}, Channels: f.Channels}, ValidUntil: time.Now().Add(time.Hour)}
+	h.command(t, "grant", "", display.Command{Grant: &grant})
+	prepare := func(s *display.Service) (display.Preparation, error) {
+		return s.Prepare(ctx, actor, h.scope, h.id, display.Command{Meta: display.Meta{Revision: h.revision}, ConfigID: h.config})
+	}
+	original, err := prepare(management)
+	must(t, err)
+	if len(original.BindingSets["fixed"]) != 1 || original.BindingSets["fixed"][0] != f.Version {
+		t.Fatal("original preparation did not resolve the fixed version")
+	}
+	proof["fixedPreparation"] = original.Hash
+	h.command(t, "publish", "", display.Command{ConfigID: h.config, Preparation: original.Hash})
+	terminal := func() string {
+		return h.command(t, "terminal.create", "", display.Command{Name: "Fixture terminal", ValidUntil: time.Now().Add(time.Hour)})["pair_code"].(string)
+	}
+	first := terminal()
+	second := terminal()
+	credential, err := displayRuntime.PairTerminal(ctx, first)
+	must(t, err)
+	_, _, renewal, session, err := displayRuntime.StartTerminal(ctx, credential)
+	must(t, err)
+	if session.ID == "" || session.InstanceID != h.id {
+		t.Fatal("terminal failed to bind published instance")
+	}
+	proof["terminalSession"] = session.ID
+	bound, err := displayRuntime.Bindings(ctx, session, "fixed")
+	must(t, err)
+	resolved := bound["fixed"].(map[string]any)
+	ids := resolved["ids"].([]string)
+	if resolved["state"] != "ready" || len(ids) != 1 || ids[0] != f.Version {
+		t.Fatal("runtime did not accept the original fixed binding")
+	}
+	proof["runtimeBinding"] = resolved
+	subject, err := displayRuntime.ReadSubject(ctx, session.SubjectID)
+	must(t, err)
+	requester := subject.ReadActor()
+	must(t, qualify(business, owner, requester))
+	must(t, qualify(runtimeService, restricted, requester))
+	proof["qualifiedDisplaySubject"] = session.SubjectID
+	revoke, err := business.Monitoring.PreviewRevokeData(ctx, actor, f.Tenant, f.Project, f.Grant)
+	must(t, err)
+	_, err = business.Monitoring.RevokeData(ctx, actor, f.Tenant, f.Project, f.Grant, md.RevokeInput{WriteMeta: md.WriteMeta{RequestID: uuid.NewString(), ExpectedRevision: revoke.Grant.Revision, Reason: "Verify revocation of fixed version source"}, PreviewHash: revoke.Hash})
+	must(t, err)
+	status := func(e error) string {
+		t.Helper()
+		var dbErr *pgconn.PgError
+		if e == nil || errors.As(e, &dbErr) {
+			t.Fatalf("expected original authorization failure; got %v", e)
+		}
+		var a *access.Error
+		var m *md.Error
+		var d *dm.Error
+		var v *display.Error
+		switch {
+		case errors.As(e, &a):
+			return fmt.Sprintf("%d/%s", a.Status, a.Code)
+		case errors.As(e, &m):
+			return fmt.Sprintf("%d/%s", m.Status, m.Code)
+		case errors.As(e, &d):
+			return fmt.Sprintf("%d/%s", d.Status, d.Code)
+		case errors.As(e, &v):
+			return fmt.Sprintf("%d/%s", v.Status, v.Code)
+		default:
+			t.Fatalf("unknown authorization error %v", e)
+			return ""
+		}
+	}
+	ownerCode := status(qualify(business, owner, requester))
+	rtCode := status(qualify(runtimeService, restricted, requester))
+	if ownerCode != rtCode || ownerCode[0] != '4' {
+		t.Fatalf("authority mismatch %s/%s", ownerCode, rtCode)
+	}
+	_, err = prepare(management)
+	ownerPrepare := status(err)
+	_, err = displayRuntime.Bindings(ctx, session, "fixed")
+	bindingCode := status(err)
+	if ownerPrepare[0] != '4' || bindingCode[0] != '4' {
+		t.Fatalf("fixed binding bypassed revoked input %s/%s", ownerPrepare, bindingCode)
+	}
+	_, err = displayRuntime.PairTerminal(ctx, second)
+	pair := status(err)
+	_, _, _, _, err = displayRuntime.StartTerminal(ctx, renewal)
+	start := status(err)
+	if pair[0] != '4' || start[0] != '4' {
+		t.Fatalf("terminal did not enforce revoked input %s/%s", pair, start)
+	}
+	proof["revoked"] = map[string]string{"ownerQualification": ownerCode, "runtimeQualification": rtCode, "ownerPreparation": ownerPrepare, "runtimeBinding": bindingCode, "pair": pair, "renew": start}
+	proof["complete"] = true
+	encoded, err := json.MarshalIndent(proof, "", "  ")
+	must(t, err)
+	must(t, os.WriteFile(f.Output, encoded, 0600))
+}

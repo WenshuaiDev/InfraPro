@@ -48,7 +48,11 @@ func validMFAProof(f mfaFactor, policy SecurityPolicy, method string, verified *
 // Every personnel path calls this rule using current durable session fields,
 // never trusting a serialized cache proof or caller-supplied authentication level.
 func checkMFASession(ctx context.Context, tx pgx.Tx, account, session string, policy SecurityPolicy, p *Principal) error {
-	f, e := loadFactor(ctx, tx, account)
+	var f mfaFactor
+	e := tx.QueryRow(ctx, `SELECT state,factor_version FROM account_mfa WHERE account_id=$1`, account).Scan(&f.State, &f.Version)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return ErrUnavailable
+	}
 	if e != nil {
 		return e
 	}

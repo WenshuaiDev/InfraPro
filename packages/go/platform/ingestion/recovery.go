@@ -380,8 +380,20 @@ func (s *Service) RecoveryOne(ctx context.Context) (bool, error) {
 		} else if failed {
 			state = "failed"
 		}
-		if _, e = tx.Exec(ctx, `UPDATE ingestion_recovery_jobs SET state=$2,items=$3,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1`, id, state, k.JSON(items)); e != nil {
+		// Both deliveries and the periodic reconciliation lane may observe the
+		// same in-flight decision. Only a new item state is public progress.
+		var revision string
+		// The timestamp also rotates the scheduler queue when this decision
+		// is still pending, so slower work cannot starve another job.
+		e = tx.QueryRow(ctx, `UPDATE ingestion_recovery_jobs
+			SET state=$2,items=$3,updated_at=clock_timestamp(),
+			    revision=revision+CASE WHEN state IS DISTINCT FROM $2 OR items IS DISTINCT FROM $3::jsonb THEN 1 ELSE 0 END
+			WHERE id=$1 RETURNING revision::text`, id, state, k.JSON(items)).Scan(&revision)
+		if e != nil {
 			return e
+		}
+		if revision == current.Revision {
+			return nil
 		}
 		_, e = publishTaskTx(ctx, tx, id, "progress", "")
 		return e

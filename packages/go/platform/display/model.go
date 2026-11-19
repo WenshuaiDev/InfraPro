@@ -201,6 +201,7 @@ func DefaultOptions() Options {
 }
 
 type Service struct {
+	remoteRead      ReadExecutor
 	reads           *displayread.Service
 	readResolvers   map[string]displayread.Resolver
 	readOptions     map[string]displayread.OptionsReader

@@ -6,9 +6,10 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/blobstore"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/config"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/eventbus"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/migrations"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/runtime"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/auxworker"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -35,17 +36,25 @@ func run() (resultErr error) {
 	if e != nil {
 		return e
 	}
-	pool, e := pgxpool.New(ctx, db.URL)
+	slot, e := auxworker.Pool(ctx, "audit-worker", db.URL, 0)
 	if e != nil {
 		return e
 	}
-	defer pool.Close()
+	defer slot.CloseResult(&resultErr)
+	pool, ctx := slot.Pool, slot.Context
 	if e = migrations.Check(ctx, pool); e != nil {
 		return e
 	}
 	s := runtime.Compose(access.New(pool, slog.Default())).Audit.WithOptions(opts)
 	if opts.ObjectEndpoint != "" {
-		store, e := blobstore.Open(opts.ObjectEndpoint, opts.ObjectAccessKey, opts.ObjectSecretKey, opts.Bucket, "audit-exports")
+		budget, e := config.WorkerObjectBudget("audit-worker")
+		if e != nil {
+			return e
+		}
+		if budget != nil {
+			diagnosticreport.SetMetric(reporter, "quota.s3_inflight", int64(budget.Capacity()))
+		}
+		store, e := blobstore.Open(opts.ObjectEndpoint, opts.ObjectAccessKey, opts.ObjectSecretKey, opts.Bucket, "audit-exports", budget)
 		if e != nil {
 			return e
 		}
@@ -53,5 +62,5 @@ func run() (resultErr error) {
 	}
 	reporter.Ready()
 	slog.Info("audit worker ready")
-	return s.RunWorker(ctx, reporter)
+	return auxworker.Run(ctx, pool, "audit", s.RunExportGeneration, func(ctx context.Context) error { return s.RunWithFallback(ctx, eventbus.FallbackInterval(), reporter) }, reporter)
 }

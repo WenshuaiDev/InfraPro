@@ -122,7 +122,16 @@ test('binding workbench preserves complete paths, paged selection and real bind/
   await submitBinding(page, '拆除临时接线');
   await expect(current.getByText('尚未绑定设备通道', { exact: true })).toBeVisible();
   expect((await (await request.get(sourcePath)).json()).source.configured).toBe(false);
-  await page.goto(url + `?channel=${direct.id}`);
+  const directSourcePath = '/api/v1' + root + `/points/${directPoint.id}/channels/${direct.id}/source`;
+  const [directSourceResponse] = await Promise.all([
+    page.waitForResponse(response => {
+      const target = new URL(response.url());
+      return response.request().method() === 'GET' && target.origin === origin &&
+        target.pathname === directSourcePath && target.search === '' && target.hash === '';
+    }),
+    page.goto(url + `?channel=${direct.id}`),
+  ]);
+  expect(directSourceResponse.status()).toBe(200);
   await expect(pairing.getByText('回归桥梁 / 设施直属（无构件） / 桥面环境点', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '设计要求', exact: true }).click();
   await expect(page.getByRole('dialog').getByText('参考基准', { exact: true })).toBeVisible();

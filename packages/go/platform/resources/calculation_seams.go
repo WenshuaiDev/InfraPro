@@ -31,41 +31,7 @@ func (s *Service) CalculationTargetsTx(ctx context.Context, tx pgx.Tx, a access.
 	if e != nil {
 		return out, e
 	}
-	resolved := make([]Target, 0, len(targets))
-	facilities := []string{}
-	for _, t := range targets {
-		if tables[t.Kind] == "" || !access.ValidID(t.ID) {
-			return out, notFound()
-		}
-		var fid string
-		e := tx.QueryRow(ctx, `SELECT facility_id::text FROM engineering_resource_nodes WHERE tenant_id=$1 AND kind=$2 AND id=$3 AND deleted_at IS NULL`, scope.Tenant, t.Kind, t.ID).Scan(&fid)
-		if e == pgx.ErrNoRows {
-			return out, notFound()
-		}
-		if e != nil {
-			return out, e
-		}
-		if t.Facility != "" && t.Facility != fid {
-			return out, notFound()
-		}
-		t.Facility = fid
-		resolved = append(resolved, t)
-		facilities = append(facilities, fid)
-	}
-	slices.Sort(facilities)
-	facilities = slices.Compact(facilities)
-	lock := " FOR SHARE"
-	if write {
-		lock = " FOR UPDATE"
-	}
-	rows, e := tx.Query(ctx, `SELECT id FROM engineering_facilities WHERE tenant_id=$1 AND id=ANY($2::uuid[]) ORDER BY id`+lock, scope.Tenant, facilities)
-	if e != nil {
-		return out, e
-	}
-	for rows.Next() {
-	}
-	e = rows.Err()
-	rows.Close()
+	resolved, e := lockCalculationTargetsTx(ctx, tx, scope.Tenant, targets, write)
 	if e != nil {
 		return out, e
 	}
@@ -106,6 +72,126 @@ func (s *Service) CalculationTargetsTx(ctx context.Context, tx pgx.Tx, a access.
 		out[targetKey(t)] = v
 	}
 	return out, nil
+}
+
+// lockCalculationTargetsTx resolves each typed identity first and then locks all
+// facilities in the same order for both metadata reads and configuration writes.
+func lockCalculationTargetsTx(ctx context.Context, tx pgx.Tx, tenant string, targets []Target, write bool) ([]Target, error) {
+	resolved := make([]Target, 0, len(targets))
+	facilities := []string{}
+	for _, t := range targets {
+		if tables[t.Kind] == "" || !access.ValidID(t.ID) {
+			return nil, notFound()
+		}
+		var fid string
+		e := tx.QueryRow(ctx, `SELECT facility_id::text FROM engineering_resource_nodes WHERE tenant_id=$1 AND kind=$2 AND id=$3 AND deleted_at IS NULL`, tenant, t.Kind, t.ID).Scan(&fid)
+		if e == pgx.ErrNoRows {
+			return nil, notFound()
+		}
+		if e != nil {
+			return nil, e
+		}
+		if t.Facility != "" && t.Facility != fid {
+			return nil, notFound()
+		}
+		t.Facility = fid
+		resolved = append(resolved, t)
+		facilities = append(facilities, fid)
+	}
+	slices.Sort(facilities)
+	facilities = slices.Compact(facilities)
+	lock := " FOR SHARE"
+	if write {
+		lock = " FOR UPDATE"
+	}
+	rows, e := tx.Query(ctx, `SELECT id FROM engineering_facilities WHERE tenant_id=$1 AND id=ANY($2::uuid[]) ORDER BY id`+lock, tenant, facilities)
+	if e != nil {
+		return nil, e
+	}
+	for rows.Next() {
+	}
+	e = rows.Err()
+	rows.Close()
+	if e != nil {
+		return nil, e
+	}
+	return resolved, nil
+}
+
+// CheckCalculationInputChannelsTx checks the resource proof for a published
+// result without loading its input channels' engineering records. A retired
+// channel or ancestor still permits historical reads while a deleted one does not.
+func (s *Service) CheckCalculationInputChannelsTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, channelIDs []string) error {
+	if !scope.valid() || len(channelIDs) > 16 {
+		return notFound()
+	}
+	if _, err := s.authorizeTx(ctx, tx, a, scope.operation("channel", "detail"), scope); err != nil {
+		return err
+	}
+	targets := make([]Target, 0, len(channelIDs))
+	for _, id := range channelIDs {
+		targets = append(targets, Target{Kind: Channel, ID: id})
+	}
+	targets, err := lockCalculationTargetsTx(ctx, tx, scope.Tenant, targets, false)
+	if err != nil {
+		return err
+	}
+	seen := make(map[string]bool, len(targets))
+	for _, target := range targets {
+		if seen[target.ID] {
+			continue
+		}
+		seen[target.ID] = true
+		if scope.Entry == "project" {
+			var granted bool
+			err := tx.QueryRow(ctx, `SELECT EXISTS (
+				SELECT 1 FROM project_facility_links l JOIN project_resource_grants g ON g.link_id=l.id
+				WHERE g.tenant_id=$1 AND g.project_id=$2 AND g.facility_id=$3 AND l.status='active'
+				  AND g.resource_kind='channel' AND g.channel_id=$4 AND g.ended_at IS NULL
+			)`, scope.Tenant, scope.Project, target.Facility, target.ID).Scan(&granted)
+			if err != nil {
+				return err
+			}
+			if !granted {
+				return notFound()
+			}
+		}
+		if err := checkCalculationInputPathTx(ctx, tx, scope.Tenant, target); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkCalculationInputPathTx(ctx context.Context, tx pgx.Tx, tenant string, channel Target) error {
+	// A channel attached to a point may have one more ancestor than a structural
+	// node. Use the same bound and typed identity as structureAncestorsTx.
+	const query = `WITH RECURSIVE path(kind,id,parent_kind,parent_id,depth) AS (
+		SELECT n.kind,n.id,n.parent_kind,n.parent_id,0 FROM engineering_resource_nodes n
+		WHERE n.tenant_id=$1 AND n.facility_id=$2 AND n.kind='channel' AND n.id=$3 AND n.deleted_at IS NULL
+		UNION ALL
+		SELECT n.kind,n.id,n.parent_kind,n.parent_id,p.depth+1 FROM path p
+		JOIN engineering_resource_nodes n ON n.tenant_id=$1 AND n.facility_id=$2 AND n.kind=p.parent_kind AND n.id=p.parent_id
+		WHERE n.deleted_at IS NULL AND p.depth<$4
+	) CYCLE kind,id SET is_cycle USING visited
+	SELECT COALESCE(bool_or(depth=0 AND (parent_id IS NULL OR parent_kind IS NULL OR parent_kind NOT IN ('facility','component','monitoring_section','borehole','point'))),false),
+	       COALESCE(bool_or(is_cycle AND kind='channel' AND id=$3),false),
+	       COALESCE(bool_or(kind='facility' AND id=$2 AND parent_id IS NULL),false)
+	FROM path`
+	var invalidParent, selfCycle, reachedFacility bool
+	if err := tx.QueryRow(ctx, query, tenant, channel.Facility, channel.ID, MaxStructureDepth+1).Scan(&invalidParent, &selfCycle, &reachedFacility); err != nil {
+		return err
+	}
+	switch {
+	case invalidParent:
+		return invalid("/parent_ref", "parent_reference", "请选择合法的同设施父对象。")
+	case selfCycle:
+		return invalid("/parent_ref", "cycle", "不能指向自身或后代。")
+	case !reachedFacility:
+		return notFound()
+	default:
+		return nil
+	}
 }
 
 // CreateCalculationChannelTx inserts the established engineering resource and

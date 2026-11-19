@@ -282,11 +282,11 @@ func (s *Service) analysisAffectedNeedsTx(ctx context.Context, tx pgx.Tx, tenant
 			if len(visited) > 10000 {
 				return problem("plan_limit_exceeded", "基准来源超过规划预算。", 422)
 			}
-			basis, found, e := loadBaselineTx(ctx, tx, tenant, config, proof.Reference)
+			basis, found, e := loadBaselineMetadataTx(ctx, tx, tenant, config, proof.Reference, &proof.Hash)
 			if e != nil {
 				return e
 			}
-			if !found || fingerprint(basis) != proof.Hash {
+			if !found || basis.Snapshot.ID != proof.Snapshot {
 				return problem("result_integrity_unavailable", "基准范围证据缺失。", 503)
 			}
 			needs = append(needs, basis.Needs...)

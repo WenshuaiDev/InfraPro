@@ -2,6 +2,7 @@ package tenancyhttp
 
 import (
 	"encoding/json"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"net/http"
 	"slices"
@@ -74,7 +75,7 @@ func query(allowed ...string) gin.HandlerFunc {
 		c.Next()
 	}
 }
-func Register(r *gin.Engine, i *identity.Service, s *tenancy.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *tenancy.Service) {
 	actor := func(c *gin.Context) access.Actor { return i.AccessActor(identityhttp.Principal(c)) }
 	meta := func(c *gin.Context) access.Meta {
 		return access.Meta{ActorType: "account", IP: c.ClientIP(), UserAgent: c.Request.UserAgent(), RequestID: c.Writer.Header().Get("X-Request-ID")}

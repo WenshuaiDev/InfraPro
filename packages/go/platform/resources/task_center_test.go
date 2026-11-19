@@ -29,6 +29,20 @@ func TestTaskRecordAtomicHistoryAndOutOfOrder(t *testing.T) {
 	}
 	must(t, apply(c))
 	must(t, apply(c))
+	var eventID string
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT id::text FROM task_events WHERE task_id=$1 AND event_kind='snapshot' AND source_revision=1`, source.ID()).Scan(&eventID))
+	indexer := runtime.ComposeTaskIndexer(f.env.Service.Access())
+	for _, bad := range []struct {
+		revision int64
+		scope    string
+	}{{2, f.tenant}, {1, uuid.NewString()}} {
+		if err := indexer.ProjectEvent(ctx, eventID, bad.revision, bad.scope); !errors.Is(err, pgx.ErrNoRows) {
+			t.Fatal("bad task fact accepted", err)
+		}
+	}
+	for range 2 {
+		must(t, indexer.ProjectEvent(ctx, eventID, 1, f.tenant))
+	}
 	changed := c
 	changed.InputHash = "tampered"
 	if !errors.Is(apply(changed), taskrecord.ErrConflict) {

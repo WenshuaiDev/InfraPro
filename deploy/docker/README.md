@@ -11,3 +11,5 @@
 ## 统一任务索引进程
 
 API 镜像同时构建 `task-index-worker`。Compose 的 `tasks` profile 使用独立 `TASK_INDEX_DATABASE_URL`，须由 DBA 在 v39 迁移后授予 `infrapro_task_index` 角色及部署 schema USAGE；示例见 `deploy/tasks/index-worker-role.sql`。该账号不能改写源执行队列或读取报告、通知和账号数据。索引只依赖 PostgreSQL，SIGTERM 后按任务配置有界结束。完整升级、回填、故障重放及恢复见[任务运维](../../docs/operations/task-center.md)。
+
+拆分发行物的 API、辅助进程、两种大屏监听和独立 broker 镜像使用相同目标平台。broker 从已核对摘要的离线发行目录中复制 NATS 与 `event-relay broker-health`。镜像入口、逐角色配置挂载、主机 UID 与资源上限见 [拆分架构运维](../../docs/operations/system-architecture-refactor.md)。

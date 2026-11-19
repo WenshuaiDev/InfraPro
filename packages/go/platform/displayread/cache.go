@@ -36,7 +36,8 @@ func (s *Service) copyCacheTx(ctx context.Context, tx pgx.Tx, p Plan) (string, e
 	}
 	var source string
 	var proof json.RawMessage
-	e := tx.QueryRow(ctx, `SELECT id::text,proof FROM display_read_queries WHERE session_id=$1 AND config_id=$2 AND environment=$3 AND method=$4 AND scope_hash=$5 AND filter_hash=$6 AND authority_hash=$7 AND source_vector->'source_vector'=$8::jsonb AND state IN ('ready','partial','empty') AND parent_query_id IS NULL AND expires_at>clock_timestamp() AND completed_at>clock_timestamp()-$9*interval '1 second' ORDER BY completed_at DESC LIMIT 1`, p.Authority.Owner.Session, p.Authority.Owner.Config, p.Authority.Owner.Environment, p.Method, Hash(p.Scopes), requestHash(p.Request), Hash([]string{p.Evidence.Authorization, p.Evidence.Safety}), Bytes(p.Evidence.Vector), seconds).Scan(&source, &proof)
+	e := tx.QueryRow(ctx, `SELECT id::text,proof FROM display_read_queries WHERE session_id=$1 AND config_id=$2 AND environment=$3 AND method=$4 AND scope_hash=$5 AND filter_hash=$6 AND authority_hash=$7 AND source_vector->'source_vector'=$8::jsonb
+ AND NOT EXISTS (SELECT 1 FROM monitoring_cache_floors f WHERE f.consumer='display-cache' AND f.tenant_id=display_read_queries.tenant_id AND f.domain_key=f.tenant_id AND f.revision>(source_vector->'source_vector'->>'raw')::bigint) AND state IN ('ready','partial','empty') AND parent_query_id IS NULL AND expires_at>clock_timestamp() AND completed_at>clock_timestamp()-$9*interval '1 second' ORDER BY completed_at DESC LIMIT 1`, p.Authority.Owner.Session, p.Authority.Owner.Config, p.Authority.Owner.Environment, p.Method, Hash(p.Scopes), requestHash(p.Request), Hash([]string{p.Evidence.Authorization, p.Evidence.Safety}), Bytes(p.Evidence.Vector), seconds).Scan(&source, &proof)
 	if e == pgx.ErrNoRows {
 		return "", nil
 	}

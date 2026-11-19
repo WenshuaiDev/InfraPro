@@ -9,6 +9,8 @@ import sys
 import time
 
 BASE = ['docker', 'compose', '-f', 'deploy/compose/http-test.yaml', 'run', '--rm', '--no-deps', 'ops', 'account']
+if os.environ.get('INFRAPRO_ACCEPTANCE_CLI'):
+    BASE = [os.environ['INFRAPRO_ACCEPTANCE_CLI'], 'account']
 PASSWORD = 'Real browser 河流 secret 592'
 
 def run(args, prompts=()):

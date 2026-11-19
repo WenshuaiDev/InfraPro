@@ -6,6 +6,7 @@ import (
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/access"
 	"github.com/WenshuaiDev/InfraPro/packages/go/platform/identity"
 	p "github.com/WenshuaiDev/InfraPro/packages/go/platform/ingestion"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	h "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/devicecommon"
 	ih "github.com/WenshuaiDev/InfraPro/services/api/internal/transport/http/identity"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-func Register(r *gin.Engine, identity *identity.Service, service *p.Service) {
+func Register(r routes.Registrar, identity *identity.Service, service *p.Service) {
 	for _, policy := range access.Policies() {
 		parts := strings.Split(string(policy.Operation), ":")
 		if len(parts) != 4 || parts[0] != "Ingestion" {

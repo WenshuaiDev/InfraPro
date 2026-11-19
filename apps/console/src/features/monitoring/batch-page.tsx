@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from '@tanstack/react-router';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { MonitoringImportBatch as Batch } from '@infrapro/api-client';
 import { FileSpreadsheet, X } from 'lucide-react';
@@ -20,6 +20,7 @@ import { ImportStatus } from './import-status';
 import { ImportOverview, ImportMappingSummary, ImportSectionTitle } from './import-overview';
 import { ImportReport } from './import-report';
 import { ImportHistory } from './import-history';
+import { ImportReturnFocus } from './import-return-focus';
 import { ImportCommandForm, ImportReadoptForm, ImportRevokeForm, type ImportCommand } from './import-actions';
 
 type Action = { kind: ImportCommand | 'revoke' | 'readopt'; batch: Batch };
@@ -28,7 +29,7 @@ export function MonitoringBatchPage({ id, search }: { id: string; search: Import
 }
 function BatchDrawer({ id, search }: { id: string; search: ImportSearch }) {
   const m = useMonitoring(), cache = useQueryClient(), navigate = useNavigate(), mobile = useIsMobile();
-  const history = useLocation({ select: l => l.state });
+  const returnFocus = useContext(ImportReturnFocus);
   const [busy, setBusy] = useState(false);
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
@@ -36,10 +37,10 @@ function BatchDrawer({ id, search }: { id: string; search: ImportSearch }) {
   // Reverification hides cached content without discarding an in-progress form.
   // A real authority change remounts MonitoringBoundary and clears it.
   const b = result.data, verified = m.available && !result.error;
-  const focus = () => document.getElementById(history.importReturnFocus || `import-${id}`) ?? document.getElementById('import-search');
   const close = () => {
     if (busy) { toast('正在提交操作，请稍候。'); return; }
-    void navigate({ to: m.paths.imports, search: importFilter(search), state: state => ({ ...state }), resetScroll: false }).then(() => { requestAnimationFrame(() => focus()?.focus()); });
+    returnFocus(id);
+    void navigate({ to: m.paths.imports, search: importFilter(search), state: state => ({ ...state }), resetScroll: false });
   };
   const tab = search.tab ?? (b?.state === 'received' && b.mapping_revision === '0' ? 'mapping' : 'overview');
   const setTab = (value: ImportTab) => { void navigate({ to: m.paths.batch(id), search: { ...search, tab: value }, replace: true, state: state => ({ ...state }), resetScroll: false }); };
@@ -52,7 +53,7 @@ function BatchDrawer({ id, search }: { id: string; search: ImportSearch }) {
     if (batch && batch.id !== id) { void navigate({ to: m.paths.batch(batch.id), search: { ...importFilter(search), tab: 'overview' }, state: state => ({ ...state }), resetScroll: false }); }
     else void result.refetch();
   };
-  return <Drawer open onOpenChange={open => { if (!open) close(); }} swipeDirection={mobile ? 'down' : 'right'} showSwipeHandle={mobile}><DrawerContent finalFocus={() => focus() ?? true} className="bg-background shadow-xl [--drawer-bleed-background:transparent] data-[swipe-axis=x]:h-[calc(100dvh-1.5rem)] data-[swipe-axis=x]:w-[min(48rem,calc(100vw-1.5rem))] data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-direction=right]:rounded-2xl data-[swipe-direction=right]:border data-[swipe-axis=y]:h-[94dvh] data-[swipe-axis=y]:max-h-[94dvh]">
+  return <Drawer open onOpenChange={open => { if (!open) close(); }} swipeDirection={mobile ? 'down' : 'right'} showSwipeHandle={mobile}><DrawerContent finalFocus={false} className="bg-background shadow-xl [--drawer-bleed-background:transparent] data-[swipe-axis=x]:h-[calc(100dvh-1.5rem)] data-[swipe-axis=x]:w-[min(48rem,calc(100vw-1.5rem))] data-[swipe-axis=x]:[--drawer-inset:0.75rem] data-[swipe-direction=right]:rounded-2xl data-[swipe-direction=right]:border data-[swipe-axis=y]:h-[94dvh] data-[swipe-axis=y]:max-h-[94dvh]">
     <DrawerHeader className="relative border-b px-6 pb-5 pt-6 pr-16 group-data-[swipe-axis=y]/drawer-popup:text-left"><div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><FileSpreadsheet aria-hidden className="size-4" /><span>导入批次</span><span>/</span><span className="font-mono">{id.slice(0, 8).toUpperCase()}</span></div><DrawerTitle className="break-words text-xl font-semibold leading-7">{verified && b ? b.name : '批次详情'}</DrawerTitle><DrawerDescription className="mt-1.5 text-xs">{verified && b ? `${b.scope_clipped ? '当前授权部分' : `${importFileType(b)} · ${importFileSize(b.size_bytes)}`} · 导入于 ${importDate(b.created_at, true)}` : '查看导入状态、校验问题、文件映射和处理记录。'}</DrawerDescription><Button variant="ghost" size="icon" className="absolute right-3 top-3 size-10" aria-label="关闭批次详情" disabled={busy} onClick={close}><X aria-hidden /></Button></DrawerHeader>
     {result.isPending && <p role="status" className="p-6 text-sm">正在读取批次详情…</p>}{result.error && <div className="p-6"><MonitoringError error={result.error} retry={() => void result.refetch()} /></div>}{!m.available && <p role="alert" className="p-6 text-sm">当前工作空间暂不可用，输入已保留；恢复后可继续核对。</p>}
     {b && <div className={verified ? "flex min-h-0 flex-1 flex-col" : "hidden"}>{search.job ? <BatchExecution batch={b} job={search.job} generation={search.execution} openBatch={() => void navigate({ to: m.paths.batch(id), search: { ...importFilter(search), tab: 'overview' } })} /> : <BatchContent batch={b} tab={tab} setTab={setTab} busy={busy} setBusy={setBusy} done={done} close={close} />}</div>}

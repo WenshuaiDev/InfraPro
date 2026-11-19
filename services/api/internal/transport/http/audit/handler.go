@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/WenshuaiDev/InfraPro/services/api/internal/routes"
 	"io"
 	"mime"
 	"net/http"
@@ -143,7 +144,7 @@ func decode(c *gin.Context, out *audit.ExportInput) error {
 	}
 	return nil
 }
-func Register(r *gin.Engine, i *identity.Service, s *audit.Service) {
+func Register(r routes.Registrar, i *identity.Service, s *audit.Service) {
 	for _, policy := range access.Policies() {
 		parts := strings.SplitN(string(policy.Operation), ":", 3)
 		if len(parts) != 3 || parts[0] != "Audit" {

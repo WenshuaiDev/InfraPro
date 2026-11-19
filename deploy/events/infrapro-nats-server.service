@@ -1,0 +1,25 @@
+[Unit]
+Description=InfraPro NATS JetStream
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=infrapro-nats
+Group=infrapro-nats
+ExecStart=/opt/infrapro/current/bin/nats-server -c /etc/infrapro/broker/nats.conf
+StateDirectory=infrapro/jetstream
+UMask=0077
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+TasksMax=128
+MemoryMax=512M
+CPUQuota=100%
+TimeoutStopSec=60
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

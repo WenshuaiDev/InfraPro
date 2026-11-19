@@ -2,7 +2,11 @@ package ingestion
 
 import (
 	"context"
+	_ "embed"
 	"encoding/base64"
+	"strings"
+	"time"
+
 	i "github.com/WenshuaiDev/InfraPro/packages/go/foundation/ingestioncontract"
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
@@ -11,10 +15,14 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+//go:embed candidates/parse.sql
+var parseCandidates string
+
 type parseClaim struct {
 	Plan        Plan
 	Input       object
 	ExecutionID string
+	MachineID   string
 }
 
 func (s *Service) planAllowed(ctx context.Context, tx pgx.Tx, p Plan) error {
@@ -26,26 +34,45 @@ func (s *Service) planAllowed(ctx context.Context, tx pgx.Tx, p Plan) error {
 	if !s.options.Enabled {
 		return c.Fail("ingestion_disabled")
 	}
-	src, e := sourceTx(ctx, tx, k.Tenant(p.TenantID), p.Snapshot.Source.IngressID)
+	// The tenant and catalog locks remain held across this choice and the
+	// operation. Resolve the active route and both fixed grant revisions in a
+	// single statement, preserving the original failure order.
+	var blocked, paused, active bool
+	var deviceGrant *string
+	var grantChecks []*bool
+	sourceIDs := []string{p.Snapshot.SourceGrant.SourceID, p.Snapshot.Grant.SourceID}
+	terminals := []string{"", ""}
+	for n, g := range []Grant{p.Snapshot.SourceGrant, p.Snapshot.Grant} {
+		if g.TerminalID != nil {
+			terminals[n] = *g.TerminalID
+		}
+	}
+	e := tx.QueryRow(ctx, `SELECT s.blocked,s.planning_paused,`+activeRoutingProject+`,`+routingDeviceGrant+`,
+		ARRAY(SELECT g.enabled AND g.id::text=ref.id AND g.generation::text=ref.generation
+			AND CASE WHEN ref.terminal='' THEN g.identify ELSE g.measure END
+			FROM unnest($4::text[],$5::text[],$6::text[],$7::text[]) WITH ORDINALITY AS ref(source,terminal,id,generation,ord)
+			LEFT JOIN ingestion_execution_grants g ON g.source_id=ref.source::uuid AND g.terminal_id IS NOT DISTINCT FROM NULLIF(ref.terminal,'')::uuid
+			ORDER BY ref.ord)
+		FROM ingestion_sources s WHERE s.id=$1 AND s.tenant_id=$3`, p.Snapshot.Source.IngressID, p.DeviceID, p.TenantID,
+		sourceIDs, terminals, []string{p.Snapshot.SourceGrant.ID, p.Snapshot.Grant.ID}, []string{p.Snapshot.SourceGrant.Generation, p.Snapshot.Grant.Generation}).
+		Scan(&blocked, &paused, &active, &deviceGrant, &grantChecks)
+	if e == pgx.ErrNoRows {
+		return k.NotFound("ingestion")
+	}
 	if e != nil {
 		return e
 	}
-	if src.Blocked || src.PlanningPaused && p.Snapshot.RecoveryID == "" {
+	if blocked || paused && p.Snapshot.RecoveryID == "" {
 		return c.Fail("execution_paused")
 	}
-	if _, e = businessTx(ctx, tx, src, p.DeviceID); e != nil {
+	if _, e = checkedRoute(active, p.DeviceID, deviceGrant); e != nil {
 		return e
 	}
-	for _, saved := range []Grant{p.Snapshot.SourceGrant, p.Snapshot.Grant} {
-		var terminal string
-		if saved.TerminalID != nil {
-			terminal = *saved.TerminalID
+	for _, allowed := range grantChecks {
+		if allowed == nil {
+			return k.NotFound("ingestion")
 		}
-		current, e := grantTx(ctx, tx, saved.SourceID, terminal)
-		if e != nil {
-			return e
-		}
-		if !current.Enabled || current.ID != saved.ID || current.Generation != saved.Generation || terminal == "" && !current.Identify || terminal != "" && !current.Measure {
+		if !*allowed {
 			return c.Fail("authorization_revoked")
 		}
 	}
@@ -67,47 +94,56 @@ func (s *Service) planAllowed(ctx context.Context, tx pgx.Tx, p Plan) error {
 	}
 	return s.parser.ValidateProductionTx(ctx, tx, p.TenantID, p.Snapshot.Parsing)
 }
-func (s *Service) claimParse(ctx context.Context) (*parseClaim, error) {
+func (s *Service) claimParse(ctx context.Context, key *workKey) (*parseClaim, error) {
 	var candidates []Plan
-	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
-		rows, e := tx.Query(ctx, `WITH busy AS MATERIALIZED (
- SELECT tenant_id,count(*) n FROM ingestion_parse_plans WHERE state='parsing' AND lease_until>clock_timestamp() GROUP BY tenant_id
-), eligible AS MATERIALIZED (
- SELECT src.id,src.planning_paused FROM ingestion_sources src LEFT JOIN busy ON busy.tenant_id=src.tenant_id WHERE NOT src.blocked AND COALESCE(busy.n,0)<2
-)
-SELECT candidate.id::text,candidate.tenant_id::text FROM eligible src CROSS JOIN LATERAL (
- SELECT p.id,p.tenant_id,p.available_at FROM ingestion_parse_plans p
- WHERE (p.snapshot->'source'->>'ingress_id')::uuid=src.id
- AND p.state IN ('queued','retry_wait','parsing')
- AND (NOT src.planning_paused OR COALESCE(p.snapshot->>'recovery_id','')<>'')
- AND ((p.state IN ('queued','retry_wait') AND p.available_at<=clock_timestamp()) OR (p.state='parsing' AND p.lease_until<clock_timestamp()))
- ORDER BY p.available_at LIMIT 16
-) candidate ORDER BY candidate.available_at LIMIT 16`)
-		if e != nil {
-			return e
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var p Plan
-			if e := rows.Scan(&p.ID, &p.TenantID); e != nil {
+	var e error
+	if key != nil {
+		candidates = []Plan{{ID: key.id, TenantID: key.scope}}
+	} else {
+		e = s.access.Transact(ctx, func(tx pgx.Tx) error {
+			unrecorded := s.unrecorded("parsing-dispatch-worker", "ingestion.plan.ready", "parse", "p.id", "(SELECT generation FROM ingestion_identity_decisions WHERE id=p.decision_id)")
+			query := strings.ReplaceAll(parseCandidates, "/* split event ownership */", unrecorded)
+			s.recordCandidateScan()
+			rows, e := tx.Query(ctx, query)
+			if e != nil {
 				return e
 			}
-			candidates = append(candidates, p)
+			defer rows.Close()
+			for rows.Next() {
+				var p Plan
+				if e := rows.Scan(&p.ID, &p.TenantID); e != nil {
+					return e
+				}
+				candidates = append(candidates, p)
+			}
+			return rows.Err()
+		})
+		if e != nil {
+			return nil, e
 		}
-		return rows.Err()
-	})
-	if e != nil {
-		return nil, e
 	}
 	for _, candidate := range candidates {
 		var picked *parseClaim
 		e = s.machineTx(ctx, candidate.TenantID, false, func(tx pgx.Tx) error {
+			var p Plan
 			var live bool
-			if e := tx.QueryRow(ctx, `SELECT state IN ('queued','retry_wait') AND available_at<=clock_timestamp() OR state='parsing' AND lease_until<clock_timestamp() FROM ingestion_parse_plans WHERE id=$1 FOR UPDATE`, candidate.ID).Scan(&live); e != nil || !live {
-				return e
+			var e error
+			if key != nil {
+				e = tx.QueryRow(ctx, `SELECT `+planJSON+` FROM ingestion_parse_plans p
+					JOIN ingestion_sources src ON src.id=(p.snapshot->'source'->>'ingress_id')::uuid
+					JOIN ingestion_identity_decisions d ON d.id=p.decision_id WHERE p.id=$1 AND p.tenant_id=$2 AND d.generation=$3
+					AND NOT src.blocked AND (NOT src.planning_paused OR COALESCE(p.snapshot->>'recovery_id','')<>'')
+					AND (p.state IN ('queued','retry_wait') AND p.available_at<=clock_timestamp() OR p.state='parsing' AND p.lease_until<clock_timestamp())
+					FOR UPDATE OF p`, key.id, key.scope, key.generation).Scan(&p)
+				if e == pgx.ErrNoRows {
+					return nil
+				}
+				live = true
+			} else {
+				e = tx.QueryRow(ctx, `SELECT `+planJSON+`,state IN ('queued','retry_wait') AND available_at<=clock_timestamp() OR state='parsing' AND lease_until<clock_timestamp()
+					FROM ingestion_parse_plans p WHERE id=$1 FOR UPDATE`, candidate.ID).Scan(&p, &live)
 			}
-			p, e := read[Plan](tx.QueryRow(ctx, `SELECT `+planJSON+` FROM ingestion_parse_plans p WHERE id=$1`, candidate.ID))
-			if e != nil {
+			if e != nil || !live {
 				return e
 			}
 			if e = s.planAllowed(ctx, tx, p); e != nil {
@@ -131,19 +167,27 @@ SELECT candidate.id::text,candidate.tenant_id::text FROM eligible src CROSS JOIN
 			if e = tx.QueryRow(ctx, `UPDATE ingestion_parse_plans SET state='parsing',fence=fence+1,attempts=attempts+1,lease_until=clock_timestamp()+interval '45 seconds' WHERE id=$1 RETURNING fence,attempts`, p.ID).Scan(&p.Fence, &p.Attempts); e != nil {
 				return e
 			}
-			receipt, e := receiptTx(ctx, tx, p.Snapshot.ReceiptID)
-			if e != nil {
-				return e
+			var obj object
+			e = tx.QueryRow(ctx, `SELECT o.id::text,o.object_key,o.sha256,o.byte_length
+				FROM ingestion_receipts r JOIN ingestion_objects o ON o.id=r.object_id AND o.state='available'
+				WHERE r.id=$1`, p.Snapshot.ReceiptID).Scan(&obj.ID, &obj.Key, &obj.Hash, &obj.Size)
+			if e == pgx.ErrNoRows {
+				// Distinguish a stale receipt reference from a missing available
+				// object exactly as the original two lookups did.
+				_, receiptErr := receiptTx(ctx, tx, p.Snapshot.ReceiptID)
+				if receiptErr != nil {
+					return receiptErr
+				}
 			}
-			obj, e := objectTx(ctx, tx, receipt.ObjectID)
 			if e != nil {
 				return e
 			}
 			execution := uuid.NewString()
-			if _, e = tx.Exec(ctx, `INSERT INTO ingestion_attempts(execution_id,stage,target_id,fence,attempt) VALUES($1,'parse',$2,$3,$4)`, execution, p.ID, p.Fence, p.Attempts); e != nil {
+			machineID, e := recordAttempt(ctx, tx, "parse", p.ID, execution, p.Fence, p.Attempts)
+			if e != nil {
 				return e
 			}
-			picked = &parseClaim{Plan: p, Input: obj, ExecutionID: execution}
+			picked = &parseClaim{Plan: p, Input: obj, ExecutionID: execution, MachineID: machineID}
 			return nil
 		})
 		if e != nil {
@@ -155,11 +199,12 @@ SELECT candidate.id::text,candidate.tenant_id::text FROM eligible src CROSS JOIN
 	}
 	return nil, nil
 }
-func (s *Service) ParseOne(ctx context.Context) (bool, error) {
+func (s *Service) ParseOne(ctx context.Context) (bool, error) { return s.parse(ctx, nil) }
+func (s *Service) parse(ctx context.Context, key *workKey) (bool, error) {
 	if !s.options.Enabled {
 		return false, nil
 	}
-	job, e := s.claimParse(ctx)
+	job, e := s.claimParse(ctx, key)
 	if e != nil || job == nil {
 		return false, e
 	}
@@ -174,8 +219,10 @@ func (s *Service) ParseOne(ctx context.Context) (bool, error) {
 	var body []byte
 	var response c.Response
 	if callErr == nil {
-		req := c.Request{ContractVersion: 1, ExecutionID: job.ExecutionID, Method: p.Snapshot.Parsing.Entry.Method(), Input: c.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: c.Digest(raw), ByteLength: len(raw)}, Context: c.Context{ReceivedAt: p.Snapshot.ReceivedAt, Transport: p.Snapshot.Input.ParseTransport}, TraceID: p.Snapshot.TraceID}
-		body, response, callErr = s.parser.ExecuteProduction(ctx, req, p.Snapshot.Parsing.Entry)
+		req := c.Request{ContractVersion: 1, ExecutionID: job.MachineID, Method: p.Snapshot.Parsing.Entry.Method(), Input: c.Input{BytesBase64: base64.StdEncoding.EncodeToString(raw), SHA256: c.Digest(raw), ByteLength: len(raw)}, Context: c.Context{ReceivedAt: p.Snapshot.ReceivedAt, Transport: p.Snapshot.Input.ParseTransport}, TraceID: p.Snapshot.TraceID}
+		started := time.Now()
+		body, response, callErr = s.parser.ExecuteProduction(parsing.MachineWork(ctx, "tenant:"+p.TenantID, job.ExecutionID, true), req, p.Snapshot.Parsing.Entry)
+		s.parserDuration(started)
 		observeDependency(ctx, "parser", callErr)
 		if callErr == nil {
 			for _, id := range response.Identities {
@@ -190,7 +237,7 @@ func (s *Service) ParseOne(ctx context.Context) (bool, error) {
 	}
 	var stored *object
 	if len(body) > 0 {
-		obj, err := s.saveObject(ctx, body)
+		obj, err := s.stageResponse(ctx, body)
 		if err != nil {
 			callErr = err
 		} else {
@@ -206,7 +253,7 @@ func (s *Service) ParseOne(ctx context.Context) (bool, error) {
 		if callErr != nil {
 			attemptState = "failed"
 		}
-		if _, e := tx.Exec(ctx, `UPDATE ingestion_attempts SET state=$2,error_code=$3,response_object_id=$4,finished_at=clock_timestamp() WHERE execution_id=$1`, job.ExecutionID, attemptState, code(callErr), objectID); e != nil {
+		if e := finishAttemptTx(ctx, tx, job.ExecutionID, attemptState, code(callErr), objectID); e != nil {
 			return e
 		}
 		var live bool
@@ -219,7 +266,7 @@ func (s *Service) ParseOne(ctx context.Context) (bool, error) {
 		state, errorCode := response.Status, code(callErr)
 		if callErr != nil {
 			state = "rejected"
-			if parsing.Retryable(callErr) && p.Attempts < 5 {
+			if retryableAttempt(callErr) && p.Attempts < 5 {
 				state = "retry_wait"
 			} else if errorCode == "authorization_revoked" || errorCode == "routing_scope_mismatch" || errorCode == "execution_paused" || errorCode == "method_blocked" {
 				state = "blocked"
@@ -237,7 +284,7 @@ func (s *Service) ParseOne(ctx context.Context) (bool, error) {
 			return e
 		}
 		_, e := tx.Exec(ctx, `UPDATE ingestion_units SET state=$2,error_code=$3 WHERE id=$1`, p.UnitID, state, errorCode)
-		return e
+		return key.terminalWrite(e, state != "retry_wait")
 	})
 	return true, e
 }

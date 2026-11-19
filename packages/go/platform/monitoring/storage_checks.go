@@ -7,6 +7,7 @@ import (
 	"unicode"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/minio/minio-go/v7"
 )
 
 // A small local ledger records the explicitly initialized layout on each
@@ -117,12 +118,17 @@ func (s *Storage) checkLayout(ctx context.Context) error {
 			return fmt.Errorf("monitoring online volume must include an S3 disk with a bounded filesystem cache")
 		}
 	}
-	exists, e := s.objects.BucketExists(ctx, s.config.Bucket)
-	if e != nil {
-		return e
+	// A service login can list a tenant source prefix. HeadBucket requires
+	// unrestricted ListBucket and would reject the intended IAM profile.
+	listCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	for entry := range s.objects.ListObjects(listCtx, s.config.Bucket, minio.ListObjectsOptions{
+		Prefix: "00000000-0000-0000-0000-000000000000/sources/", Recursive: true, MaxKeys: 1,
+	}) {
+		if minio.ToErrorResponse(entry.Err).Code == "NoSuchBucket" {
+			return fmt.Errorf("monitoring source bucket is missing")
+		}
+		return entry.Err
 	}
-	if !exists {
-		return fmt.Errorf("monitoring source bucket is missing")
-	}
-	return nil
+	return ctx.Err()
 }

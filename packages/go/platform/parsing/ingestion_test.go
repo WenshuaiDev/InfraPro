@@ -48,7 +48,7 @@ func setupIngestion(t *testing.T) ingestionFixture {
 	s := f.b.Ingestion
 	opts, e := ig.LoadOptions(os.Getenv("INFRAPRO_INGESTION_FILE"))
 	must(t, e)
-	store, e := blobstore.Open("http://127.0.0.1:58333", "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
+	store, e := blobstore.Open(fixtureObjectEndpoint(), "contract-admin", "contract-admin-test-only", f.bucket, "ingestion")
 	must(t, e)
 	s.WithStorage(store).WithOptions(opts)
 	_, e = f.ps.SyncIngestion(ctx, f.actor(), f.meta(t))
@@ -288,13 +288,12 @@ func TestIngestionEndToEnd(t *testing.T) {
 
 // TestIngestionSustainedLoad uses a second tenant/project and the same external
 // terminal numbers. No mocked storage, transport, identification or parse calls.
-func TestIngestionSustainedLoad(t *testing.T) {
-	if os.Getenv("INFRAPRO_INGESTION_LOAD") != "1" {
-		t.Skip("explicit 30-minute load run")
-	}
-	f := setupIngestion(t)
+// setupLoadTenant installs the same independent HTTPS source for legacy and
+// architecture load trials. Terminals and adoption versions are scope-local.
+func setupLoadTenant(t *testing.T, f ingestionFixture) (port int, actor access.Actor, tenant, sourceID string) {
+	t.Helper()
 	other := f.member(t, "LoadOwner")
-	actor := f.env.Service.AccessActor(other)
+	actor = f.env.Service.AccessActor(other)
 	tid, e := tenancy.New(f.env.Service.Access()).Create(ctx, f.actor(), tenancy.CreateInput{Fields: tenancy.Fields{Name: "负载隔离租户", Code: "load"}, AdministratorID: other.Account.ID, RequestID: f.meta(t).RequestID, Reason: "模拟负载"}, access.Meta{})
 	must(t, e)
 	scope := c.TenantScope(tid.TenantID)
@@ -317,7 +316,7 @@ func TestIngestionSustainedLoad(t *testing.T) {
 	must(t, e)
 	ln, e := net.Listen("tcp", "127.0.0.1:0")
 	must(t, e)
-	port := ln.Addr().(*net.TCPAddr).Port
+	port = ln.Addr().(*net.TCPAddr).Port
 	ln.Close()
 	source, e := f.s.SaveSource(ctx, f.actor(), "", ig.SourceInput{Meta: f.meta(t), Revision: "0", Name: "第二租户模拟 HTTP", TenantID: tid.TenantID, ProjectID: project.ProjectID, ManufacturerID: maker, ManufacturerScope: "public", RelayID: f.opts.Relays[0].ID, ProtocolID: "example.vendor.ddp-batch", ProtocolVersion: "1.0.0", Address: "127.0.0.1", Port: port, SourceCode: "load-batch", ProducerIDs: []string{"lab-producer"}, Segregated: true, Synthetic: true, IdleSeconds: 30, Budget: "1073741824"})
 	must(t, e)
@@ -341,6 +340,15 @@ func TestIngestionSustainedLoad(t *testing.T) {
 		_, e = f.s.SaveGrant(ctx, actor, scope, ig.GrantInput{Meta: f.meta(t), Revision: "0", SourceID: source.ID, TerminalID: term.ID, Measure: true, Enabled: true, Budget: 100000})
 		must(t, e)
 	}
+	return port, actor, tid.TenantID, source.ID
+}
+
+func TestIngestionSustainedLoad(t *testing.T) {
+	if os.Getenv("INFRAPRO_INGESTION_LOAD") != "1" {
+		t.Skip("explicit 30-minute load run")
+	}
+	f := setupIngestion(t)
+	port, _, _, sourceID := setupLoadTenant(t, f)
 	frame, e := os.ReadFile("../../../../samples/parsing/measurement.bin")
 	must(t, e)
 	batch, e := os.ReadFile("../../../../samples/ingestion/vendor-batch.json")
@@ -423,7 +431,7 @@ func TestIngestionSustainedLoad(t *testing.T) {
 				finished <- e
 				return
 			}
-			req.Header.Set("Idempotency-Key", fmt.Sprintf("load-%s-%d", source.ID, n))
+			req.Header.Set("Idempotency-Key", fmt.Sprintf("load-%s-%d", sourceID, n))
 			res, e := client.Do(req)
 			if e != nil {
 				finished <- e

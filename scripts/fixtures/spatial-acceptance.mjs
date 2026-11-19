@@ -6,13 +6,13 @@ import { join } from "node:path";
 import { request } from "@playwright/test";
 // All business objects, original uploads, publications and grants use production HTTP APIs.
 export async function seedSpatialAcceptance(directory, origin, options = {}) {
-  if (!["http://127.0.0.1:15473","http://127.0.0.1:15573","http://127.0.0.1:15773","http://127.0.0.1:15576"].includes(origin))
+  if (!(options.paired?.origin===origin && new URL(origin).hostname==='127.0.0.1') && !["http://127.0.0.1:15473","http://127.0.0.1:15573","http://127.0.0.1:15773","http://127.0.0.1:15576"].includes(origin))
     throw Error("Spatial samples require their isolated loopback laboratory.");
   const prior = JSON.parse(
       readFileSync(join(directory, "acceptance.json"), "utf8"),
     ),
     login = JSON.parse(readFileSync(join(directory, "login.json"), "utf8")),
-    client = await request.newContext(),
+    client = options.paired ? await options.paired.client() : await request.newContext(),
     api = origin + "/api/v1";
   const wm = (revision = "0") => ({
       request_id: randomUUID(),
@@ -55,6 +55,7 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
     return r.status() === 204 ? undefined : r.json();
   };
   const wait = async (path, pick, want) => {
+    if(options.paired) return client.wait(api+path,headers,pick,want);
     const end = Date.now() + 120000;
     while (Date.now() < end) {
       const value = await call(path),
@@ -152,190 +153,7 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
     });
     state.slope_point = slopePoint.id;
     await seedSpatialConnections({call,wait,base,prior,state,component:component.id,save});
-    const createAsset = async (key, kind, fid, name) => {
-      const a = await call(spatial + "/assets", {
-        request_id: randomUUID(),
-        kind,
-        facility_id: fid,
-        code: key,
-        name,
-        category: kind === "layout" ? "plan" : "general",
-        source_note:
-          "InfraPro 自制合成验收资料，CC0；不是实际工程、测绘或安全评价依据。",
-      });
-      state.assets[key] = { id: a.id, versions: [], name };
-      save();
-      return a.id;
-    };
-    const publish = async (key, filename, fid, point, baseVersion) => {
-      const a = state.assets[key],
-        asset = await call(spatial + "/assets/" + a.id),
-        created = await call(spatial + "/assets/" + a.id + "/versions", {
-          ...wm(asset.revision),
-          base_version_id: baseVersion,
-          new_source: true,
-          change_note: filename + " · synthetic CC0",
-        }),
-        vid = created.version_id || created.id;
-      const bytes = readFileSync(
-          new URL("../../samples/spatial/" + filename, import.meta.url),
-        ),
-        hash = createHash("sha256").update(bytes).digest("hex");
-      let v = await call(spatial + "/versions/" + vid + "/manifest");
-      const started = await call(spatial + "/uploads", {
-          ...wm(v.revision),
-          version_id: vid,
-          filename,
-          size: bytes.length,
-          sha256: hash,
-        }),
-        upload = await call(spatial + "/uploads/" + started.id);
-      for (
-        let offset = 0, part = 1;
-        offset < bytes.length;
-        offset += upload.part_size, part++
-      ) {
-        const data = bytes.subarray(offset, offset + upload.part_size),
-          r = await client.put(
-            api + spatial + `/uploads/${upload.id}/parts/${part}`,
-            {
-              headers: {
-                ...headers,
-                "Content-Type": "application/octet-stream",
-                "X-Content-SHA256": createHash("sha256")
-                  .update(data)
-                  .digest("hex"),
-              },
-              data,
-            },
-          );
-        if (r.status() !== 200)
-          throw Error("Spatial multipart failed: " + (await r.text()));
-      }
-      const uploaded = await call(spatial + "/uploads/" + upload.id);
-      await call(
-        spatial + "/uploads/" + upload.id + "/complete",
-        wm(uploaded.revision),
-      );
-      v = await call(spatial + "/versions/" + vid + "/manifest");
-      const job = await call(
-        spatial + "/versions/" + vid + "/process",
-        wm(v.revision),
-      );
-      await wait(spatial + "/jobs/" + job.id, (v) => v.state, "succeeded");
-      const draft = await call(spatial + "/versions/" + vid + "/draft"),
-        manifest = draft.version.manifest;
-      const placements = [],
-        links = [];
-      if (point && manifest.pages.length) {
-        for (const page of manifest.pages) {
-          placements.push({
-            id: "",
-            point_id: point,
-            page_id: page.id,
-            anchor: [0.52, 0.45],
-            element_key: "",
-            label_offset: [12, -18],
-            basis_hash: "",
-            basis_changed: false,
-          });
-        }
-        if (fid === prior.facility) {
-          placements.push({
-            id: "",
-            point_id: prior.second_point,
-            page_id: manifest.pages[0].id,
-            anchor: [0.3, 0.54],
-            element_key: "",
-            label_offset: [12, 16],
-            basis_hash: "",
-            basis_changed: false,
-          });
-          links.push({
-            id: "",
-            component_id: component.id,
-            page_id: manifest.pages[0].id,
-            element_key: "",
-            region: [
-              [0.18, 0.34],
-              [0.82, 0.34],
-              [0.82, 0.55],
-              [0.18, 0.55],
-              [0.18, 0.34],
-            ],
-            basis_hash: "",
-            basis_changed: false,
-          });
-        }
-      }
-      if (point && manifest.elements.length) {
-        const beam =
-          manifest.elements.find(
-            (e) =>
-              e.fragments.length &&
-              (/beam/i.test(e.name) || e.type === "IfcBeam"),
-          ) ?? manifest.elements.find((e) => e.fragments.length);
-        placements.push({
-          id: "",
-          point_id: point,
-          page_id: "",
-          anchor: fid === slope.id ? [8, 3, 0] : [18, 5, 0],
-          element_key: beam.key,
-          label_offset: [12, -18],
-          basis_hash: "",
-          basis_changed: false,
-        });
-        if (fid === prior.facility)
-          links.push({
-            id: "",
-            component_id: component.id,
-            element_key: beam.key,
-            page_id: "",
-            region: [],
-            basis_hash: "",
-            basis_changed: false,
-          });
-      }
-      const edit = {
-        ...wm(draft.version.revision),
-        placements,
-        component_links: links,
-        feature_links: manifest.features.map((f) => ({
-          feature_key: f.id,
-          facility_id: f.id.includes("slope") ? slope.id : prior.facility,
-        })),
-        settings: {
-          source_properties: true,
-          main_channels: fid===prior.facility?{['point:'+prior.point]:prior.channels.A.id,['facility:'+prior.facility]:prior.channels.A_MINUS_B.id,['component:'+component.id]:prior.channels.COMPONENT_DIFF.id}:{},
-          page_id: manifest.pages[0]?.id,
-          basemap: "local",
-        },
-        clear_candidates: !baseVersion,
-      };
-      await call(spatial + "/versions/" + vid + "/draft", edit, "PATCH");
-      v = await call(spatial + "/versions/" + vid + "/manifest");
-      const input = wm(v.revision),
-        preview = await call(
-          spatial + "/versions/" + vid + "/publish-preview",
-          input,
-        );
-      await call(spatial + "/versions/" + vid + "/publish", {
-        ...input,
-        preview_hash: preview.preview_hash,
-      });
-      a.versions.push({
-        id: vid,
-        file: filename,
-        sha256: hash,
-        pages: manifest.pages.length,
-        elements: manifest.elements.length,
-        features: manifest.features.length,
-        url: `${origin}/t/${prior.tenant}/spatial?asset=${a.id}&version=${vid}&owner=${point ?? fid ?? prior.facility}&owner_kind=${point ? "point" : "facility"}`,
-      });
-      save();
-      console.log(`空间样本已发布：${filename}`);
-      return vid;
-    };
+    const {createAsset,publish}=spatialAssetWriter({state,prior,component,slope,spatial,call,wait,wm,client,api,headers,origin,save});
     for (const [key, kind, fid, name, files, point] of [
       [
         "BRIDGE-PDF",
@@ -618,4 +436,195 @@ export async function seedSpatialAcceptance(directory, origin, options = {}) {
   } finally {
     await client.dispose();
   }
+}
+
+// Share the normal multipart, real converter, association and publication
+// workflow between browser acceptance and isolated architecture comparisons.
+export function spatialAssetWriter({state,prior,component,slope,spatial,call,wait,wm,client,api,headers,origin,save,mainChannels,processVersion,beforePublish}){
+  const createAsset = async (key, kind, fid, name) => {
+    const a = await call(spatial + "/assets", {
+      request_id: randomUUID(),
+      kind,
+      facility_id: fid,
+      code: key,
+      name,
+      category: kind === "layout" ? "plan" : "general",
+      source_note:
+        "InfraPro 自制合成验收资料，CC0；不是实际工程、测绘或安全评价依据。",
+    });
+    state.assets[key] = { id: a.id, versions: [], name };
+    save();
+    return a.id;
+  };
+  const publish = async (key, filename, fid, point, baseVersion) => {
+    const a = state.assets[key],
+      asset = await call(spatial + "/assets/" + a.id),
+      created = await call(spatial + "/assets/" + a.id + "/versions", {
+        ...wm(asset.revision),
+        base_version_id: baseVersion,
+        new_source: true,
+        change_note: filename + " · synthetic CC0",
+      }),
+      vid = created.version_id || created.id;
+    const bytes = readFileSync(
+        new URL("../../samples/spatial/" + filename, import.meta.url),
+      ),
+      hash = createHash("sha256").update(bytes).digest("hex");
+    let v = await call(spatial + "/versions/" + vid + "/manifest");
+    const started = await call(spatial + "/uploads", {
+        ...wm(v.revision),
+        version_id: vid,
+        filename,
+        size: bytes.length,
+        sha256: hash,
+      }),
+      upload = await call(spatial + "/uploads/" + started.id);
+    for (
+      let offset = 0, part = 1;
+      offset < bytes.length;
+      offset += upload.part_size, part++
+    ) {
+      const data = bytes.subarray(offset, offset + upload.part_size),
+        r = await client.put(
+          api + spatial + `/uploads/${upload.id}/parts/${part}`,
+          {
+            headers: {
+              ...headers,
+              "Content-Type": "application/octet-stream",
+              "X-Content-SHA256": createHash("sha256")
+                .update(data)
+                .digest("hex"),
+            },
+            data,
+          },
+        );
+      if (r.status() !== 200)
+        throw Error("Spatial multipart failed: " + (await r.text()));
+    }
+    const uploaded = await call(spatial + "/uploads/" + upload.id);
+    await call(
+      spatial + "/uploads/" + upload.id + "/complete",
+      wm(uploaded.revision),
+    );
+    v = await call(spatial + "/versions/" + vid + "/manifest");
+    const job = processVersion ? await processVersion(vid,v) : await call(
+      spatial + "/versions/" + vid + "/process",
+      wm(v.revision),
+    );
+    await wait(spatial + "/jobs/" + job.id, (v) => v.state, "succeeded");
+    const draft = await call(spatial + "/versions/" + vid + "/draft"),
+      manifest = draft.version.manifest;
+    const placements = [],
+      links = [];
+    if (point && manifest.pages.length) {
+      for (const page of manifest.pages) {
+        placements.push({
+          id: "",
+          point_id: point,
+          page_id: page.id,
+          anchor: [0.52, 0.45],
+          element_key: "",
+          label_offset: [12, -18],
+          basis_hash: "",
+          basis_changed: false,
+        });
+      }
+      if (fid === prior.facility) {
+        placements.push({
+          id: "",
+          point_id: prior.second_point,
+          page_id: manifest.pages[0].id,
+          anchor: [0.3, 0.54],
+          element_key: "",
+          label_offset: [12, 16],
+          basis_hash: "",
+          basis_changed: false,
+        });
+        links.push({
+          id: "",
+          component_id: component.id,
+          page_id: manifest.pages[0].id,
+          element_key: "",
+          region: [
+            [0.18, 0.34],
+            [0.82, 0.34],
+            [0.82, 0.55],
+            [0.18, 0.55],
+            [0.18, 0.34],
+          ],
+          basis_hash: "",
+          basis_changed: false,
+        });
+      }
+    }
+    if (point && manifest.elements.length) {
+      const beam =
+        manifest.elements.find(
+          (e) =>
+            e.fragments.length &&
+            (/beam/i.test(e.name) || e.type === "IfcBeam"),
+        ) ?? manifest.elements.find((e) => e.fragments.length);
+      placements.push({
+        id: "",
+        point_id: point,
+        page_id: "",
+        anchor: fid === slope.id ? [8, 3, 0] : [18, 5, 0],
+        element_key: beam.key,
+        label_offset: [12, -18],
+        basis_hash: "",
+        basis_changed: false,
+      });
+      if (fid === prior.facility)
+        links.push({
+          id: "",
+          component_id: component.id,
+          element_key: beam.key,
+          page_id: "",
+          region: [],
+          basis_hash: "",
+          basis_changed: false,
+        });
+    }
+    const edit = {
+      ...wm(draft.version.revision),
+      placements,
+      component_links: links,
+      feature_links: manifest.features.map((f) => ({
+        feature_key: f.id,
+        facility_id: f.id.includes("slope") ? slope.id : prior.facility,
+      })),
+      settings: {
+        source_properties: true,
+        main_channels: fid===prior.facility?mainChannels??{['point:'+prior.point]:prior.channels.A.id,['facility:'+prior.facility]:prior.channels.A_MINUS_B.id,['component:'+component.id]:prior.channels.COMPONENT_DIFF.id}:{},
+        page_id: manifest.pages[0]?.id,
+        basemap: "local",
+      },
+      clear_candidates: !baseVersion,
+    };
+    await call(spatial + "/versions/" + vid + "/draft", edit, "PATCH");
+    v = await call(spatial + "/versions/" + vid + "/manifest");
+    await beforePublish?.(vid,v);
+    const input = wm(v.revision),
+      preview = await call(
+        spatial + "/versions/" + vid + "/publish-preview",
+        input,
+      );
+    await call(spatial + "/versions/" + vid + "/publish", {
+      ...input,
+      preview_hash: preview.preview_hash,
+    });
+    a.versions.push({
+      id: vid,
+      file: filename,
+      sha256: hash,
+      pages: manifest.pages.length,
+      elements: manifest.elements.length,
+      features: manifest.features.length,
+      url: `${origin}/t/${prior.tenant}/spatial?asset=${a.id}&version=${vid}&owner=${point ?? fid ?? prior.facility}&owner_kind=${point ? "point" : "facility"}`,
+    });
+    save();
+    console.log(`空间样本已发布：${filename}`);
+    return vid;
+  };
+  return {createAsset,publish};
 }

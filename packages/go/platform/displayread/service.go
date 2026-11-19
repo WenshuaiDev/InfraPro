@@ -29,6 +29,7 @@ type Handler func(context.Context, pgx.Tx, Plan) (Materialized, error)
 type Executor func(context.Context, Plan, json.RawMessage) (Materialized, error)
 type Validator func(context.Context, pgx.Tx, Plan, json.RawMessage) error
 type Service struct {
+	workerLimit      int
 	access           *access.Service
 	handlers         map[string]Handler
 	executors        map[string]Executor

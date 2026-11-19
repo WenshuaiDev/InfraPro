@@ -19,7 +19,8 @@ import { DataTable } from '@infrapro/ui/patterns/data-table';
 import { ErrorState, FormNotice, LoadingState } from '@infrapro/ui/patterns/feedback';
 import { InvitationEmpty } from '../account/invitation-ui';
 import { useTenant } from './context';
-import { CreateMemberInvitation, InvitationActions } from './invitation-actions';
+import { CreateMemberInvitation, InvitationActions, InvitationMenu } from './invitation-actions';
+import { useDirectoryAction } from './directory-action';
 import { TenantInvitationDetails } from './invitation-details';
 import { InvitationLink } from './membership-shared';
 import { TenantInvitationStatus } from './membership-ui';
@@ -37,7 +38,10 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
   useEffect(() => { const timer = setTimeout(() => setQ(search.trim()), 250); return () => clearTimeout(timer); }, [search]);
   const allowed = ctx.permissions.includes(P.TenantInvitationRead);
   const rangeError = from && to && from > to ? '创建开始时间不能晚于结束时间。' : '';
-  const list = usePagedQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'invitations', q, status, from, to], enabled: allowed && ctx.available && !rangeError, refetchInterval: 30_000, queryFn: ({ cursor, signal }) => client.tenantInvitations(ctx.tenant.id, { q, status: status === 'all' ? '' : status, from: from ? new Date(`${from}+08:00`).toISOString() : '', to: to ? new Date(`${to}+08:00`).toISOString() : '', cursor }, signal) });
+  const list = usePagedQuery({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id, 'invitations', q, status, from, to], enabled: allowed && !rangeError, paused: !ctx.available, staleTime: 0, refetchInterval: 30_000, queryFn: ({ cursor, signal }) => client.tenantInvitations(ctx.tenant.id, { q, status: status === 'all' ? '' : status, from: from ? new Date(`${from}+08:00`).toISOString() : '', to: to ? new Date(`${to}+08:00`).toISOString() : '', cursor }, signal) });
+  const items = list.data?.items ?? [];
+  const action = useDirectoryAction(items, ctx.available, list);
+  const selectAction = action.select;
   const done = useCallback((value: TenantInvitationCreated) => { setLink(value); void cache.invalidateQueries({ queryKey: ['tenant', account?.id, ctx.tenant.id, ctx.membership_id] }); }, [account?.id, cache, ctx.tenant.id, ctx.membership_id]);
   const open = useCallback((id: string, trigger: HTMLElement | null) => { returnFocus.current = trigger; setSelection(id); }, []);
   const close = () => { setSelection(undefined); if (invitationId) void navigate({ to: '/t/$tenantId/invitations', params: { tenantId: ctx.tenant.id } }); };
@@ -49,10 +53,9 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
     { id: 'inviter', size: 160, header: '发起人', cell: ({ row }) => <div className="space-y-1"><p>{row.original.inviter.display_name}</p><p className="break-all text-xs text-muted-foreground">{row.original.inviter.username}</p></div> },
     { id: 'created', size: 184, header: () => <span className="inline-flex items-center gap-1">创建时间<ArrowDown className="size-3" aria-hidden="true" /></span>, cell: ({ row }) => <time className="text-muted-foreground tabular-nums" dateTime={row.original.created_at}>{membershipDate(row.original.created_at)}</time> },
     { id: 'expires', size: 184, header: '有效期至', cell: ({ row }) => <time className="text-muted-foreground tabular-nums" dateTime={row.original.expires_at}>{membershipDate(row.original.expires_at)}</time> },
-    { id: 'actions', size: 64, header: '操作', cell: ({ row }) => <InvitationActions item={row.original} done={done} details={(trigger) => open(row.original.id, trigger)} /> },
-  ], [done, open]);
+    { id: 'actions', size: 64, header: '操作', cell: ({ row }) => <InvitationMenu item={row.original} select={selectAction} details={(trigger) => open(row.original.id, trigger)} /> },
+  ], [open, selectAction]);
   if (!allowed) return <FormNotice error>无权查看本租户成员邀请。</FormNotice>;
-  const items = list.data?.items ?? [];
   const filtered = !!search.trim() || status !== 'all' || !!from || !!to;
   return <>
     <PageHeader title="成员邀请" description={`${ctx.tenant.name} · 邀请已有账号加入，并管理本租户的邀请。`} actions={ctx.permissions.includes(P.TenantInvitationCreate) ? <CreateMemberInvitation done={done} /> : undefined} />
@@ -71,6 +74,7 @@ export function TenantInvitationsPage({ invitationId }: { invitationId?: string 
       </TabsContent>
     </Tabs>
     {selected && <Sheet open onOpenChange={(open) => { if (!open) close(); }}><SheetContent className="w-full overflow-y-auto sm:max-w-[480px]" onCloseAutoFocus={(event) => { const target = returnFocus.current?.isConnected ? returnFocus.current : document.querySelector<HTMLElement>('[data-invitation-search]'); if (target) { event.preventDefault(); target.focus(); } }}><SheetHeader className="border-b px-6 pb-5 pt-7"><SheetTitle>成员邀请详情</SheetTitle><SheetDescription>{ctx.tenant.name} · 查看邀请状态与可用操作。</SheetDescription></SheetHeader><div className="px-6 pb-8 pt-2"><TenantInvitationDetails key={selected} id={selected} /></div></SheetContent></Sheet>}
+    {action.item && action.dialog && <InvitationActions key={action.item.id + action.dialog.command} item={action.item} dialog={action.dialog} done={done} />}
     <InvitationLink value={link} close={() => setLink(undefined)} />
   </>;
 }

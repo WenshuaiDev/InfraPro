@@ -1,26 +1,32 @@
 #!/usr/bin/python3
 """Dedicated SSH forced command. No arbitrary paths, shells or commands."""
 import datetime,hashlib,json,os,pathlib,re,shutil,subprocess,sys,tarfile,tempfile
+from checkpoint_roles import Checkpoint
 os.umask(0o077);os.nice(10);subprocess.run(['ionice','-c','3','-p',str(os.getpid())],check=True);base=pathlib.Path.home()/'env/infrapro';host=json.loads((base/'config/environment.json').read_text())['ip'];parts=os.environ.get('SSH_ORIGINAL_COMMAND','').split();action=parts[0] if parts else '';ident=parts[1] if len(parts)==2 else ''
-if action in ['relay-stop','relay-start'] and len(parts)==1 and host=='10.23.52.151':
- subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl',action.split('-')[1],'infrapro-ingest-relay.service'],check=True);print(json.dumps({'state':action}));sys.exit()
-if not re.fullmatch(r'checkpoint-\d{8}T\d{6}Z',ident):raise SystemExit('Invalid checkpoint id')
+if len(parts) not in (2,3) or not re.fullmatch(r'checkpoint-\d{8}T\d{6}Z',parts[1]):raise SystemExit('Invalid checkpoint command')
+ident=parts[1]
+if action.startswith('checkpoint-'):
+ checkpoint=Checkpoint(base,ident)
+ if action=='checkpoint-prepare' and len(parts)==2:result=checkpoint.prepare()
+ elif action in ('checkpoint-frozen','checkpoint-business-frozen') and len(parts)==2:result=checkpoint.frozen(allow_brokers=action=='checkpoint-business-frozen')
+ elif action in ('checkpoint-stop','checkpoint-start') and len(parts)==3:result=checkpoint.change(parts[2],action=='checkpoint-start')
+ else:raise SystemExit('Invalid checkpoint operation')
+ print(json.dumps(result));sys.exit()
+if len(parts)!=2:raise SystemExit('Invalid checkpoint command')
 if action=='export':
  with tempfile.TemporaryDirectory(dir=base/'data/backups',prefix='export-') as td:
   d=pathlib.Path(td)
-  if host=='10.23.52.151':
+  checkpoint=Checkpoint(base,ident);units=checkpoint.frozen()['units']
+  if any(u['role']=='ingest-relay' for u in units.values()):
    with (d/'relay.dump').open('wb') as f:subprocess.run([str(base/'bin/pg_dump'),'-h',str(base/'run/pg'),'-p','55432','-d','infrapro_relay','-Fc','--no-owner','--no-acl'],stdout=f,check=True)
    release=json.loads((base/'config/release.json').read_text())['release']
    with (d/'relay-manifest.json').open('wb') as f:subprocess.run([str(base/'releases'/release/'bin/ingest-relay'),'manifest',str(base/'config/ingestion/relay.json')],stdout=f,check=True,env={**os.environ,'SSL_CERT_FILE':str(base/'config/tls/ca.pem')})
-  diagnostics=host=='10.23.56.38'
-  if diagnostics:subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl','stop','infrapro-diagnostics.service'],check=True)
-  try:
-   with tarfile.open(fileobj=sys.stdout.buffer,mode='w|gz',compresslevel=1) as tar:
-    for name in ['config','units','ops']:tar.add(base/name,arcname=name)
-    if diagnostics:tar.add(base/'data/diagnostics',arcname='diagnostics-state')
-    for p in d.iterdir():tar.add(p,arcname=p.name)
-  finally:
-   if diagnostics:subprocess.run(['/usr/bin/sudo','-n','/usr/bin/systemctl','start','infrapro-diagnostics.service'],check=True)
+  with tarfile.open(fileobj=sys.stdout.buffer,mode='w|gz',compresslevel=1) as tar:
+   checkpoint.add_node_data(tar)
+   for name in ['config','units','ops']:tar.add(base/name,arcname=name)
+   if any(u['role']=='diagnostics' for u in units.values()):tar.add(base/'data/diagnostics',arcname='diagnostics-state')
+   if any(u['role']=='parser' for u in units.values()):tar.add(base/'releases',arcname='releases')
+   for p in d.iterdir():tar.add(p,arcname=p.name)
 
  sys.exit()
 if host!='10.23.56.38':raise SystemExit('Not a repository host')

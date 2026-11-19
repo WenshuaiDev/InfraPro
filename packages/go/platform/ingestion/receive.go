@@ -4,13 +4,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
+	"io/fs"
+	"net"
+	"strings"
+	"time"
+
 	c "github.com/WenshuaiDev/InfraPro/packages/go/foundation/parsingcontract"
 	r "github.com/WenshuaiDev/InfraPro/packages/go/foundation/relaycontract"
+	"github.com/WenshuaiDev/InfraPro/packages/go/platform/auditrecord"
 	k "github.com/WenshuaiDev/InfraPro/packages/go/platform/internal/devicekit"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"io"
-	"time"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type object struct {
@@ -20,23 +27,34 @@ type object struct {
 	Size int64
 }
 
+const availableObject = `SELECT id::text,object_key,sha256,byte_length FROM ingestion_objects WHERE id=$1 AND state='available'`
+
 func objectTx(ctx context.Context, tx pgx.Tx, id string) (object, error) {
 	var out object
-	e := tx.QueryRow(ctx, `SELECT id::text,object_key,sha256,byte_length FROM ingestion_objects WHERE id=$1 AND state='available'`, id).Scan(&out.ID, &out.Key, &out.Hash, &out.Size)
+	e := tx.QueryRow(ctx, availableObject, id).Scan(&out.ID, &out.Key, &out.Hash, &out.Size)
 	return out, e
 }
 func (s *Service) readObject(ctx context.Context, o object) (content []byte, failure error) {
 	defer func() { observeDependency(ctx, "s3", failure) }()
-	if s.objects == nil || o.Size < 1 || o.Size > c.MaxResponse {
+	if s.objects == nil {
 		return nil, c.Fail("storage_unavailable")
+	}
+	if o.Size < 1 || o.Size > c.MaxResponse {
+		return nil, c.Fail("integrity_failed")
 	}
 	reader, e := s.objects.Get(ctx, o.Key)
 	if e != nil {
-		return nil, c.Fail("integrity_failed")
+		if errors.Is(e, fs.ErrNotExist) {
+			return nil, c.Fail("integrity_failed")
+		}
+		return nil, c.Fail("storage_unavailable")
 	}
 	defer reader.Close()
 	b, e := io.ReadAll(io.LimitReader(reader, o.Size+1))
-	if e != nil || int64(len(b)) != o.Size || c.Digest(b) != o.Hash {
+	if e != nil {
+		return nil, c.Fail("storage_unavailable")
+	}
+	if int64(len(b)) != o.Size || c.Digest(b) != o.Hash {
 		return nil, c.Fail("integrity_failed")
 	}
 	return b, nil
@@ -56,6 +74,9 @@ func (s *Service) put(ctx context.Context, o object, b []byte) error {
 		if e != nil {
 			return c.Fail("storage_unavailable")
 		}
+		if check != nil {
+			return check
+		}
 		return c.Fail("integrity_failed")
 	}
 	return nil
@@ -63,34 +84,70 @@ func (s *Service) put(ctx context.Context, o object, b []byte) error {
 func (s *Service) reserveTx(ctx context.Context, tx pgx.Tx, b []byte) (object, error) {
 	out := object{ID: uuid.NewString(), Hash: c.Digest(b), Size: int64(len(b))}
 	out.Key = "ingestion/v1/" + out.ID
-	if _, e := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(754042)`); e != nil {
-		return out, e
-	}
-	var used int64
-	if e := tx.QueryRow(ctx, `SELECT used_bytes FROM ingestion_storage_state WHERE id=1 FOR UPDATE`).Scan(&used); e != nil {
-		return out, e
-	}
-	if used+out.Size > s.options.StorageBudget*9/10 {
+	// The storage counter is updated by the object-insert trigger in this same
+	// transaction. Its row lock serializes concurrent reservations and releases.
+	tag, e := tx.Exec(ctx, `WITH budget AS MATERIALIZED(
+		SELECT used_bytes FROM ingestion_storage_state WHERE id=1 FOR UPDATE)
+		INSERT INTO ingestion_objects(id,object_key,sha256,byte_length)
+		SELECT $1,$2,$3,$4 FROM budget WHERE used_bytes <= $5::bigint-$4::bigint`, out.ID, out.Key, out.Hash, out.Size, s.options.StorageBudget*9/10)
+	if e == nil && tag.RowsAffected() != 1 {
 		return out, c.Fail("capacity_exceeded")
 	}
-	_, e := tx.Exec(ctx, `INSERT INTO ingestion_objects(id,object_key,sha256,byte_length) VALUES($1,$2,$3,$4)`, out.ID, out.Key, out.Hash, out.Size)
 	return out, e
 }
-func (s *Service) saveObject(ctx context.Context, b []byte) (object, error) {
+
+// Reserve the finite object budget before S3 I/O. The caller publishes the
+// verified object and its attempt evidence atomically in its final transaction.
+func (s *Service) stageResponse(ctx context.Context, b []byte) (object, error) {
 	var out object
-	e := s.access.Transact(ctx, func(tx pgx.Tx) error { var e error; out, e = s.reserveTx(ctx, tx, b); return e })
-	if e != nil {
-		return out, e
+	err := s.access.Transact(ctx, func(tx pgx.Tx) error { var e error; out, e = s.reserveTx(ctx, tx, b); return e })
+	if err == nil {
+		err = s.put(ctx, out, b)
 	}
-	if e = s.put(ctx, out, b); e != nil {
-		return out, e
-	}
-	e = s.access.Transact(ctx, func(tx pgx.Tx) error {
-		_, e := tx.Exec(ctx, `UPDATE ingestion_objects SET state='available' WHERE id=$1`, out.ID)
-		return e
-	})
-	return out, e
+	return out, responseStagingError(err)
 }
+
+// The machine may have returned a valid response even when the evidence could
+// not be staged. A repeat uses the same machine identity and a new fenced attempt.
+func responseStagingError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var domain *c.Error
+	if errors.As(err, &domain) {
+		return err
+	}
+	var db *pgconn.PgError
+	if errors.As(err, &db) {
+		switch db.Code {
+		case "40001", "40P01", "55P03", "57014", "57P01", "57P02", "57P03", "53300":
+			return errors.Join(c.Fail("storage_unavailable"), err)
+		}
+		if strings.HasPrefix(db.Code, "08") {
+			return errors.Join(c.Fail("storage_unavailable"), err)
+		}
+	} else {
+		var uncertain *auditrecord.CommitUnknown
+		var network net.Error
+		if errors.As(err, &uncertain) || errors.As(err, &network) || pgconn.SafeToRetry(err) ||
+			errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, context.DeadlineExceeded) {
+			return errors.Join(c.Fail("storage_unavailable"), err)
+		}
+	}
+	return errors.Join(c.Fail("dependency_unavailable"), err)
+}
+
+func finishAttemptTx(ctx context.Context, tx pgx.Tx, id, state, reason string, response any) error {
+	tag, err := tx.Exec(ctx, `WITH available AS (
+		UPDATE ingestion_objects SET state='available' WHERE id=$4::uuid AND state IN ('intent','available') RETURNING id)
+		UPDATE ingestion_attempts SET state=$2,error_code=$3,response_object_id=$4,finished_at=clock_timestamp()
+		WHERE execution_id=$1 AND ($4::uuid IS NULL OR EXISTS(SELECT FROM available))`, id, state, reason, response)
+	if err == nil && tag.RowsAffected() != 1 {
+		return c.Fail("integrity_failed")
+	}
+	return err
+}
+
 func (s *Service) Accept(ctx context.Context, envelope r.Envelope) (accepted string, failure error) {
 	defer func() {
 		if failure == nil {
@@ -238,14 +295,15 @@ func (s *Service) Pull(ctx context.Context, cfg RelayConfig) (bool, error) {
 		return false, nil
 	}
 	var capacity bool
+	var pullLimit int
 	e := s.access.Transact(ctx, func(tx pgx.Tx) error {
-		return tx.QueryRow(ctx, `SELECT (SELECT used_bytes FROM ingestion_storage_state WHERE id=1)+$1<$2 AND (SELECT count(*) FROM ingestion_receipts WHERE state IN ('stored','identifying'))<$3`, r.MaxPullBytes, s.options.StorageBudget*9/10, s.options.QueueBudget).Scan(&capacity)
+		return tx.QueryRow(ctx, `SELECT (SELECT used_bytes FROM ingestion_storage_state WHERE id=1)+$1<$2 AND (SELECT count(*) FROM ingestion_receipts WHERE state IN ('stored','identifying'))<$3, CASE WHEN NOT p.enabled THEN 100 WHEN p.frozen OR pressure.pending>=p.hard_limit OR pressure.storage_level='hard' THEN 0 WHEN pressure.pending>=p.soft_limit OR pressure.storage_level='soft' THEN 10 ELSE 100 END FROM event_protocol p CROSS JOIN event_pressure pressure WHERE p.id=1 AND pressure.family='ingestion'`, r.MaxPullBytes, s.options.StorageBudget*9/10, s.options.QueueBudget).Scan(&capacity, &pullLimit)
 	})
-	if e != nil || !capacity {
+	if e != nil || !capacity || pullLimit == 0 {
 		return false, e
 	}
 	var batch r.Delivery
-	e = relayCall(ctx, cfg, false, "/v1/consumers/"+cfg.ConsumerID+"/pull", r.Pull{RequestID: uuid.NewString(), Limit: 100, MaxBytes: r.MaxPullBytes, WaitSeconds: 0}, &batch)
+	e = relayCall(ctx, cfg, false, "/v1/consumers/"+cfg.ConsumerID+"/pull", r.Pull{RequestID: uuid.NewString(), Limit: pullLimit, MaxBytes: r.MaxPullBytes, WaitSeconds: 0}, &batch)
 	if e != nil {
 		return false, e
 	}

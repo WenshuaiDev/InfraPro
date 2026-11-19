@@ -156,7 +156,7 @@ func (s *Service) analysisArtifactIdentityTx(ctx context.Context, tx pgx.Tx, a a
 		return out, e
 	}
 	out.WholeRange = runRule.Clock.Kind == "whole_range"
-	if _, e = s.analysisBindingsTx(ctx, tx, a, scope, out.Detail.Config.Body); e != nil {
+	if e = s.checkAnalysisBindingsTx(ctx, tx, a, scope, out.Detail.Config.Body); e != nil {
 		return out, e
 	}
 	if e = requireResultAvailableTx(ctx, tx, scope.Tenant, "analysis_artifact_versions", out.Version.ID); e != nil {
@@ -205,7 +205,7 @@ func (s *Service) analysisArtifactSelectedTx(ctx context.Context, tx pgx.Tx, a a
 		if selection != nil && !slices.Contains(selection.Baselines, key) {
 			continue
 		}
-		fixed, found, e := loadBaselineTx(ctx, tx, scope.Tenant, out.Detail.Config.ID, key)
+		fixed, found, e := loadBaselineMetadataTx(ctx, tx, scope.Tenant, out.Detail.Config.ID, key, nil)
 		if e != nil {
 			return out, e
 		}

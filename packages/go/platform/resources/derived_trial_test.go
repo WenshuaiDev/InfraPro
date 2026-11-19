@@ -49,6 +49,60 @@ func (e *deadlineTrialExecutor) ExecuteTask(ctx context.Context, lease md.TaskLe
 	return e.Service.ExecuteTask(ctx, lease)
 }
 
+func TestArchitectureTrialFinishesWithExistingClaim(t *testing.T) {
+	f := monitoringSetup(t)
+	service, channel, cfg := derivedChannelSetup(t, f)
+	service.WithOptions(config.DefaultDerived())
+	// Pause the ordinary worker after its FOR UPDATE selection but before its
+	// state transition commits. The RPC must observe precisely the same job.
+	_, err := f.env.Pool.Exec(ctx, `CREATE FUNCTION delay_trial_claim() RETURNS trigger LANGUAGE plpgsql AS $$
+		BEGIN PERFORM pg_advisory_xact_lock(4291,hashtext(current_schema())); RETURN NEW; END $$;
+		CREATE TRIGGER delay_trial_claim BEFORE UPDATE OF state ON monitoring_jobs
+		FOR EACH ROW WHEN (NEW.state='running' AND OLD.state='queued') EXECUTE FUNCTION delay_trial_claim()`)
+	must(t, err)
+	barrier, err := f.env.Pool.Begin(ctx)
+	must(t, err)
+	defer barrier.Rollback(ctx)
+	_, err = barrier.Exec(ctx, `SELECT pg_advisory_xact_lock(4291,hashtext(current_schema()))`)
+	must(t, err)
+	done := make(chan error, 1)
+	service.WithTrialAttempt(func(c context.Context, tenant, id string, budget time.Duration) (bool, error) {
+		go func() {
+			_, err := f.service.RunTask(c, "ordinary-incremental", tenant, id)
+			done <- err
+		}()
+		until := time.Now().Add(budget)
+		for {
+			var waiting bool
+			must(t, f.env.Pool.QueryRow(c, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE $1=ANY(pg_blocking_pids(pid)))`, int32(barrier.Conn().PgConn().PID())).Scan(&waiting))
+			if waiting {
+				break
+			}
+			if time.Now().After(until) {
+				t.Fatal("ordinary worker did not reach the claim barrier")
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		claimed, err := service.AttemptTrial(c, tenant, id, budget)
+		must(t, err)
+		if claimed {
+			t.Fatal("interactive call took a job already locked by the ordinary worker")
+		}
+		time.AfterFunc(100*time.Millisecond, func() { _ = barrier.Rollback(c) })
+		return false, nil
+	})
+	end := "1704067260000000000"
+	run, err := service.ChannelTrial(ctx, f.actor, dm.TenantScope(f.tenant), channel.Resource.ID, dm.TrialInput{
+		WriteMeta: dm.WriteMeta{RequestID: uuid.NewString(), Revision: channel.ConfigRevision, Reason: "短试算已由同一作业的普通 worker 领取"},
+		ConfigID:  cfg.ID, ConfigHash: cfg.ConfigHash, OutputRange: dm.NanosecondRange{From: "1704067200000000000", To: &end},
+	}, access.Meta{})
+	must(t, err)
+	must(t, <-done)
+	if run.Job.State != "succeeded" || run.Job.Attempts != 1 || run.Trial == nil || run.Trial.OutputCount != "0" {
+		t.Fatalf("completed short trial was handed to the background: %+v", run.Job)
+	}
+}
+
 func TestDerivedInteractiveBudgetHandsOffWithoutFailure(t *testing.T) {
 	for _, authorization := range []bool{false, true} {
 		t.Run(fmt.Sprintf("authorization_%t", authorization), func(t *testing.T) {

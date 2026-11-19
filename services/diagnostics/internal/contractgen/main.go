@@ -169,6 +169,19 @@ func constrain(owner, key string, s schema) {
 			enum(s, "password", "bearer", "s3")
 		}
 	}
+	if owner == "ProcessMetric" {
+		switch key {
+		case "key":
+			enum(s, diagnosticreport.MetricKeys()...)
+		case "value":
+			s["minimum"] = 0
+		case "dimension_id":
+			s["pattern"] = `^tenant-[0-9a-f]{24}$`
+		}
+	}
+	if owner == "Report" && key == "metrics" {
+		s["maxItems"] = diagnosticreport.MaxProcessMetrics
+	}
 	if owner == "Metric" && key == "key" {
 		keys := []string{}
 		for key := range model.MetricUnits {
@@ -198,7 +211,7 @@ func bindingSchema() schema {
 	}
 	sort.Strings(names)
 	branches := []any{}
-	required := map[string][]string{"native_process": {"allowed_root", "expected_executable", "expected_uid"}, "self_report": {"report_file", "allowed_root", "expected_replica_id", "expected_executable", "expected_uid", "pid_namespace"}, "host_resources": {"scope"}, "systemd_unit": {"unit_name"}, "docker_container": {"socket_path", "selector_labels", "expected_replica_id"}, "http_live": {"url", "expected_status"}, "http_ready": {"url", "expected_status"}, "tcp": {"host", "port"}, "postgres": {"host", "port", "database", "username", "tls_mode"}, "redis": {"address", "database"}, "clickhouse": {"address", "database", "username"}, "s3": {"endpoint", "bucket"}, "keeper_live": {"host", "port"}}
+	required := map[string][]string{"native_process": {"allowed_root", "expected_executable", "expected_uid"}, "self_report": {"report_file", "allowed_root", "expected_replica_id", "expected_executable", "expected_uid", "pid_namespace"}, "host_resources": {"scope"}, "systemd_unit": {"unit_name"}, "docker_container": {"socket_path", "selector_labels", "expected_replica_id"}, "http_live": {"url", "expected_status"}, "http_ready": {"url", "expected_status"}, "tcp": {"host", "port"}, "postgres": {"host", "port", "database", "username", "tls_mode"}, "redis": {"address", "database"}, "clickhouse": {"address", "database", "username"}, "s3": {"endpoint", "bucket"}, "keeper_live": {"host", "port"}, "jetstream_health": {"host", "port"}}
 	for _, name := range names {
 		p := schema{"id": schema{"type": "string", "pattern": `^[a-z][a-z0-9_.-]{0,63}$`}, "adapter": schema{"type": "string", "const": name}}
 		for _, key := range settings.BindingFields[name] {

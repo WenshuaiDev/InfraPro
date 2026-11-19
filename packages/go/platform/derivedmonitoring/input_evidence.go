@@ -83,7 +83,7 @@ func (s *Service) evidenceGroups(ctx context.Context, auth inputAccess, root evi
 					return problem("result_integrity_unavailable", "固定基准依据不一致。", 503)
 				}
 				fixed = v
-				_, e = s.checkFixedBaselineHistoryTx(ctx, tx, auth, fixed)
+				_, e = s.checkFixedBaselineHistoryTx(ctx, tx, auth, baselineMetadata{Snapshot: fixed.Snapshot, Needs: fixed.Needs})
 				return e
 			})
 			if e != nil {

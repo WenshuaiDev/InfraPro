@@ -1,3 +1,6 @@
+import { processEnvironment } from './architecture-process-resources.mjs';
+import { deploymentDirectory, roleEnvironment, enabledSplitRoles, serviceInstances,localReplicaProxy,writeRuntimeJSON } from './architecture-runtime.mjs';
+import { boundedRelayConfig } from './architecture-machines.mjs';
 import { createMFAKeyring } from './mfa-keyring.mjs';
 import { execFileSync, spawn } from 'node:child_process';
 import { randomBytes, createHash, createHmac } from 'node:crypto';
@@ -111,40 +114,62 @@ async function start() {
   compose(['up', '-d', '--wait']);
   const state = existsSync(join(directory, 'processes.json')) ? readJSON('processes.json') : {};
   const env = environment();
+  const architecture = deploymentDirectory(process.env) ?? deploymentDirectory(env);
   // A successful TCP/SELECT health check can precede Keeper session recovery.
   // Wait for the actual storage contract before starting its consumers.
   let storageReady = false;
-  for (let attempt = 0; attempt < 120; attempt++) {
+  for (let attempt = 0; attempt < (architecture ? 1 : 120); attempt++) {
     try {
       execFileSync(binary('infrapro'), ['monitoring', 'storage', 'check'], { cwd: root, env, stdio: 'ignore', timeout: 10000 });
       storageReady = true; break;
     } catch { await pause(1000); }
   }
-  if (!storageReady) throw Error('Monitoring storage did not become ready; run pnpm local:cli monitoring storage check.');
+  if (!storageReady && !architecture) throw Error('Monitoring storage did not become ready; run pnpm local:cli monitoring storage check.');
   // Independent parser and relay processes receive only their own credentials.
   const independentEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('INFRAPRO_') && !key.startsWith('VITE_')));
   const commands = [];
+  const parserSettings=env.INFRAPRO_PARSING_ENABLED==='true'&&existsSync(join(directory,'parsing/service.json'))?readJSON('parsing/service.json'):{};
+  const proxy=localReplicaProxy(architecture,{...env,...parserSettings});
+  if(proxy)commands.push(['replica-proxy','python3',[join(root,'deploy/architecture/replica-proxy.py'),proxy],independentEnv]);
   if (env.INFRAPRO_PARSING_ENABLED === 'true' && existsSync(join(directory, 'parsing/service.json'))) {
-    commands.push(['parser', binary('parser'), [], { ...independentEnv, ...readJSON('parsing/service.json') }]);
+    for(const i of serviceInstances('parser',architecture))commands.push([i.label,binary('parser'),[],processEnvironment(i,{...independentEnv,...parserSettings,
+      ...(i.public_address&&{INFRAPRO_PARSER_ADDR:i.public_address}),...(i.maxInflight&&{INFRAPRO_PARSER_CONCURRENCY:String(i.maxInflight)})}),i.id,i.diagnostic_node]);
   }
   if (env.INFRAPRO_INGESTION_FILE && existsSync(join(directory, 'ingestion/relay.json'))) {
-    commands.push(['ingest-relay', binary('ingest-relay'), ['serve', join(directory, 'ingestion/relay.json')], independentEnv]);
+    for(const i of serviceInstances('ingest-relay',architecture)){
+      let file=architecture&&join(architecture,i.directory,'relay.json');
+      if(!file||!existsSync(file)){
+        file=join(directory,'ingestion/relay.json');
+        if(architecture&&i.maxInflight){
+          const bounded=boundedRelayConfig(readJSON('ingestion/relay.json'),i);
+          file=join(architecture,i.directory,'relay.local.json');
+          writeRuntimeJSON(file,bounded);
+        }
+      }
+      commands.push([i.label,binary('ingest-relay'),['serve',file],processEnvironment(i,independentEnv),i.id,i.diagnostic_node]);
+    }
   }
-  commands.push(...['files-checker', 'api', 'monitoring-worker', 'spatial-worker', 'display-package-worker', 'display-runtime', 'notification-worker', 'task-index-worker', 'files-worker', 'audit-worker', ...(env.INFRAPRO_INGESTION_FILE ? ['ingest-worker'] : [])].map(name => [name, binary(name), name === 'files-checker' ? ['--directory', env.INFRAPRO_FILES_TEMP_DIRECTORY, '--socket', env.INFRAPRO_FILES_CHECKER_SOCKET] : []]));
+  const roles = ['files-checker', 'api', 'spatial-worker', 'display-package-worker', 'notification-worker', 'task-index-worker', 'files-worker', 'audit-worker'];
+  if (architecture) roles.push(...enabledSplitRoles(env,architecture));
+  else roles.push('monitoring-worker','display-runtime',...(env.INFRAPRO_INGESTION_FILE ? ['ingest-worker'] : []));
+  for (const name of roles) {
+    const args = name==='files-checker' ? ['--directory',env.INFRAPRO_FILES_TEMP_DIRECTORY,'--socket',env.INFRAPRO_FILES_CHECKER_SOCKET] : [];
+    for(const i of serviceInstances(name,architecture))commands.push([i.label,binary(name),args,processEnvironment(i,name==='files-checker'?independentEnv:roleEnvironment(name,env,architecture,i)),i.id,i.diagnostic_node]);
+  }
   commands.push(['web', process.execPath, [join(root, 'apps/console/node_modules/vite/bin/vite.js'), 'preview', '--host', '127.0.0.1']], ['diagnostics', binary('infrapro-diagnostics'), ['server', '--config', join(directory, 'diagnostics/server.json')]]);
   if (existsSync(join(directory, 'diagnostics/observer.json'))) commands.push(['diagnostics-observer', binary('infrapro-diagnostics'), ['observer', '--config', join(directory, 'diagnostics/observer.json')]]);
-  for (const [name, cmd, args, serviceEnv] of commands) {
+  for (const [name, cmd, args, serviceEnv, replicaID, nodeID] of commands) {
     if (name === 'diagnostics' && !existsSync(join(directory, 'diagnostics/server.json'))) continue;
     if (state[name] && alive(state[name])) continue;
     const fd = openSync(join(directory, 'logs', name + '.log'), 'a', 0o600);
-    const extra = { INFRAPRO_DIAGNOSTICS_INSTANCE_ID: 'infrapro-local', INFRAPRO_DIAGNOSTICS_NODE_ID: 'local', INFRAPRO_DIAGNOSTICS_REPLICA_ID: name + '-1', INFRAPRO_DIAGNOSTICS_REPORT_FILE: join(directory, 'reports', name + '.json') };
+    const extra = { INFRAPRO_DIAGNOSTICS_INSTANCE_ID: 'infrapro-local', INFRAPRO_DIAGNOSTICS_NODE_ID: nodeID??serviceEnv?.INFRAPRO_DIAGNOSTICS_NODE_ID??'local', INFRAPRO_DIAGNOSTICS_REPLICA_ID: replicaID??name+'-1', INFRAPRO_DIAGNOSTICS_REPORT_FILE: join(directory, 'reports', name + '.json') };
     const child = spawn(cmd, args, { cwd: name === 'web' ? join(root, 'apps/console') : root, env: { ...(serviceEnv ?? env), ...extra }, detached: true, stdio: ['ignore', fd, fd] }); closeSync(fd);
     await new Promise((ok, no) => { child.once('spawn', ok); child.once('error', no); }); child.unref(); await pause(200);
     state[name] = { pid: child.pid, started: execFileSync('ps', ['-p', String(child.pid), '-o', 'lstart='], { encoding: 'utf8' }).trim() }; privateJSON('processes.json', state);
     if (name === 'web') writeFileSync(join(directory, 'reports/web.pid'), String(child.pid) + '\n', { mode: 0o600 });
   }
   const endpoints = [origin + '/api/v1/public/account-help', 'http://127.0.0.1:28080/readyz'].map(url => ({ url }));
-  if (state.parser) {
+  if (serviceInstances('parser',architecture).some(i=>state[i.label])) {
     const parser = readJSON('parsing/service.json');
     endpoints.push({ url: `http://${parser.INFRAPRO_PARSER_ADDR}/readyz`, headers: { Authorization: 'Bearer ' + readFileSync(parser.INFRAPRO_PARSER_TOKEN_FILE, 'utf8').trim() } });
   }
@@ -163,7 +188,7 @@ async function start() {
 async function stop() {
   const state = existsSync(join(directory, 'processes.json')) ? readJSON('processes.json') : {};
   for (const p of Object.values(state).reverse()) if (alive(p)) process.kill(-p.pid, 'SIGTERM');
-  await pause(1500);
+  for (let waits=0; waits<240 && Object.values(state).some(alive); waits++) await pause(500);
   for (const p of Object.values(state)) if (alive(p)) throw Error('A runtime process has not stopped; inspect before restarting.');
   privateJSON('processes.json', {});
 }

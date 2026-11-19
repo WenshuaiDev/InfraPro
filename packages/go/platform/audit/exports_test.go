@@ -3,6 +3,8 @@ package audit_test
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
+	"github.com/jackc/pgx/v5"
 	"io"
 	"strconv"
 	"strings"
@@ -233,5 +235,49 @@ func TestAuditEmptyExportCancelRetryAndOwnerIsolation(t *testing.T) {
 	must(t, f.env.Pool.QueryRow(ctx, `SELECT outcome FROM audit_transfer_receipts WHERE request_id='head-only'`).Scan(&outcome))
 	if outcome != "headers_only" {
 		t.Fatal("HEAD described as completed body transfer")
+	}
+}
+
+func TestKeyedExportChecksScopeAndGeneration(t *testing.T) {
+	f := setup(t)
+	exportStorage(t, f)
+	s := f.business.Audit
+	scope := audit.Scope{Kind: "platform"}
+	in := exportInput(t, s, f.actor, scope, audit.Filter{})
+	first, err := s.CreateExport(ctx, f.actor, scope, uuid.NewString(), in)
+	must(t, err)
+	second, err := s.CreateExport(ctx, f.actor, scope, uuid.NewString(), in)
+	must(t, err)
+	for _, v := range []struct {
+		generation int64
+		scope      string
+	}{{2, "platform"}, {1, uuid.NewString()}} {
+		if _, err = s.RunExportGeneration(ctx, first.ID, v.generation, v.scope); !errors.Is(err, pgx.ErrNoRows) {
+			t.Fatal("bad audit fact accepted", err)
+		}
+	}
+	for range 2 {
+		pending, err := s.RunExportGeneration(ctx, second.ID, 1, "platform")
+		must(t, err)
+		if pending {
+			t.Fatal("finished audit export still pending")
+		}
+	}
+	preserved, e := s.Export(ctx, f.actor, scope, first.ID, "1")
+	must(t, e)
+	done, e := s.Export(ctx, f.actor, scope, second.ID, "1")
+	must(t, e)
+	if preserved.State != "queued" || done.State != "succeeded" {
+		t.Fatal("export generation or key mismatch", preserved.State, done.State)
+	}
+	var n int
+	must(t, f.env.Pool.QueryRow(ctx, `SELECT count(*) FROM audit_export_objects WHERE export_id=$1 AND state='available'`, second.ID).Scan(&n))
+	if n != 1 {
+		t.Fatal("duplicate audit objects", n)
+	}
+	ok, e := s.RunExportOnce(ctx)
+	must(t, e)
+	if !ok {
+		t.Fatal("missing PG fallback")
 	}
 }

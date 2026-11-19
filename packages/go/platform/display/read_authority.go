@@ -38,39 +38,46 @@ func (s *Service) readEvidenceTx(ctx context.Context, tx pgx.Tx, v Session) (dis
 	if e != nil {
 		return displayread.Evidence{}, e
 	}
-	for name, q := range map[string]string{
-		"classification": `SELECT revision::text FROM device_classification_state WHERE id=1 AND $1::uuid IS NOT NULL AND $2::uuid IS NOT NULL`,
-		"derived":        `SELECT COALESCE(md5(string_agg(channel_id::text||':'||head_revision::text,',' ORDER BY channel_id)),'0') FROM derived_channel_heads WHERE tenant_id=$1 AND $2::uuid IS NOT NULL`,
-		"device_grants":  `SELECT COALESCE((SELECT revision::text FROM project_device_access_states WHERE tenant_id=$1 AND project_id=$2),'0')`,
-		"spatial_grants": `SELECT COALESCE((SELECT revision::text FROM project_spatial_states WHERE tenant_id=$1 AND project_id=$2),'0')`,
-	} {
-		var rev string
-		if e = tx.QueryRow(ctx, q, v.Tenant, v.Project).Scan(&rev); e != nil {
-			return displayread.Evidence{}, e
-		}
-		vector[name] = rev
-	}
-	rows, e := tx.Query(ctx, `SELECT domain,revision::text,safety_revision::text FROM display_read_revisions WHERE tenant_id=$1 ORDER BY domain`, v.Tenant)
+	var classification, derived, deviceGrants, spatialGrants string
+	e = tx.QueryRow(ctx, `SELECT classification.revision::text,
+        (SELECT coalesce(md5(string_agg(channel_id::text||':'||head_revision::text, ',' ORDER BY channel_id)), '0')
+           FROM derived_channel_heads WHERE tenant_id=$1),
+        coalesce((SELECT revision::text FROM project_device_access_states WHERE tenant_id=$1 AND project_id=$2), '0'),
+        coalesce((SELECT revision::text FROM project_spatial_states WHERE tenant_id=$1 AND project_id=$2), '0')
+      FROM device_classification_state classification WHERE classification.id=1`, current.Tenant, current.Project).
+		Scan(&classification, &derived, &deviceGrants, &spatialGrants)
 	if e != nil {
 		return displayread.Evidence{}, e
 	}
+	vector["classification"], vector["derived"] = classification, derived
+	vector["device_grants"], vector["spatial_grants"] = deviceGrants, spatialGrants
+	authority, safety, e := readAuthorityStateTx(ctx, tx, current, g, vector)
+	return displayread.Evidence{Authorization: authority, Vector: vector, Safety: safety, LeaseUntil: current.LeaseUntil}, e
+}
+
+// A saved read and every peer trust boundary use the same authority hash and
+// the same safety revisions. The owner also retains the full source vector for
+// query consistency and invalidation.
+func readAuthorityStateTx(ctx context.Context, tx pgx.Tx, current Session, g Grant, vector map[string]string) (string, string, error) {
+	rows, e := tx.Query(ctx, `SELECT domain,revision::text,safety_revision::text FROM display_read_revisions WHERE tenant_id=$1 ORDER BY domain`, current.Tenant)
+	if e != nil {
+		return "", "", e
+	}
+	defer rows.Close()
 	safety := map[string]string{}
 	for rows.Next() {
 		var domain, revision, revoked string
 		if e = rows.Scan(&domain, &revision, &revoked); e != nil {
-			rows.Close()
-			return displayread.Evidence{}, e
+			return "", "", e
 		}
 		vector[domain] = revision
 		safety[domain] = revoked
 	}
-	e = rows.Err()
-	rows.Close()
-	if e != nil {
-		return displayread.Evidence{}, e
+	if e = rows.Err(); e != nil {
+		return "", "", e
 	}
 	authority := hash([]any{current.SubjectID, current.Environment, current.ConfigID, scopeFingerprint(g), vector["authorization"], vector["data_grants"], vector["resource_grants"], vector["device_grants"]})
-	return displayread.Evidence{Authorization: authority, Vector: vector, Safety: hash(safety), LeaseUntil: current.LeaseUntil}, nil
+	return authority, hash(safety), nil
 }
 func (s *Service) ReadAuthority(v Session) displayread.Authority {
 	a := displayread.Authority{Owner: displayread.Owner{Tenant: v.Tenant, Project: v.Project, Instance: v.InstanceID, Subject: v.SubjectID, Session: v.ID, Config: v.ConfigID, Environment: v.Environment}, Subject: s.subject(v)}

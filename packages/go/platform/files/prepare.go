@@ -616,17 +616,19 @@ func (s *Service) RunWorker(ctx context.Context, worker string, reporters ...dia
 				}
 			case <-cleanup.C:
 				reporter.Begin("cleanup", diagnosticreport.Deadline(workCtx))
-				e := func() error {
-					if e := s.Sweep(workCtx); e != nil {
-						return e
-					}
-					plan, e := s.CleanupPlan(workCtx, worker, "定期文件生命周期维护")
-					if e != nil {
-						return e
-					}
-					_, e = s.CleanupApply(workCtx, plan.ID, "定期执行已核对文件清理计划")
-					return e
-				}()
+				// Local temp reservations must be swept on their own node.
+				// The object cleanup cursor and planning audit are instance-wide.
+				e := s.access.RunScheduled(workCtx, "file-sweep/"+s.options.NodeID, s.options.CleanupInterval, s.Sweep)
+				if e == nil {
+					e = s.access.RunScheduled(workCtx, "file-object-cleanup", s.options.CleanupInterval, func(ctx context.Context) error {
+						plan, err := s.CleanupPlan(ctx, worker, "定期文件生命周期维护")
+						if err != nil {
+							return err
+						}
+						_, err = s.CleanupApply(ctx, plan.ID, "定期执行已核对文件清理计划")
+						return err
+					})
+				}
 				reporter.End("cleanup", diagnosticreport.Result(e), time.Now().Add(s.options.CleanupInterval))
 				var fe *Error
 				if errors.As(e, &fe) && fe.Code == "file_protocol_unavailable" {

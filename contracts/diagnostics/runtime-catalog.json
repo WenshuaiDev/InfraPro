@@ -2,6 +2,198 @@
   "schema_version": 1,
   "entries": [
     {
+      "id": "replica-proxy",
+      "display_name": "副本 TCP 转发",
+      "kind": "gateway",
+      "entry_point": "deploy/architecture/replica-proxy.py",
+      "lanes": [],
+      "default_expectation": "disabled",
+      "reason": "原生或混合发布使用固定监听转发至已登记的多个业务副本"
+    },
+    {
+      "id": "identity-api",
+      "display_name": "身份与空间治理",
+      "kind": "application",
+      "entry_point": "services/api/cmd/identity-api/main.go",
+      "lanes": [
+        "http"
+      ],
+      "default_expectation": "continuous",
+      "reason": "会话验证、身份维护及工作空间治理"
+    },
+    {
+      "id": "control-api",
+      "display_name": "工程与业务控制",
+      "kind": "application",
+      "entry_point": "services/api/cmd/control-api/main.go",
+      "lanes": [
+        "http"
+      ],
+      "default_expectation": "continuous",
+      "reason": "原授权和命令事务"
+    },
+    {
+      "id": "monitoring-query-api",
+      "display_name": "监测查询",
+      "kind": "application",
+      "entry_point": "services/api/cmd/monitoring-query-api/main.go",
+      "lanes": [
+        "http"
+      ],
+      "default_expectation": "continuous",
+      "reason": "有界监测和大屏读取"
+    },
+    {
+      "id": "transfer-api",
+      "display_name": "受控传输",
+      "kind": "application",
+      "entry_point": "services/api/cmd/transfer-api/main.go",
+      "lanes": [
+        "http"
+      ],
+      "default_expectation": "continuous",
+      "reason": "已授权文件的字节流及完成操作"
+    },
+    {
+      "id": "compat-api",
+      "display_name": "兼容业务 API",
+      "kind": "application",
+      "entry_point": "services/api/cmd/compat-api/main.go",
+      "lanes": [
+        "http"
+      ],
+      "default_expectation": "disabled",
+      "reason": "升级后同 schema 回退和分组切流"
+    },
+    {
+      "id": "ingest-custody-worker",
+      "display_name": "原文接管",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/ingest-custody-worker/main.go",
+      "lanes": [
+        "pull",
+        "relay-status",
+        "object-maintenance",
+        "confirmation",
+        "source-publication",
+        "association-watermark"
+      ],
+      "default_expectation": "continuous",
+      "reason": "持久接管、核实对象与交接确认"
+    },
+    {
+      "id": "parsing-dispatch-worker",
+      "display_name": "解析调度",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/parsing-dispatch-worker/main.go",
+      "lanes": [
+        "identify",
+        "planning",
+        "parse",
+        "recovery",
+        "parsing",
+        "parsing-maintenance",
+        "events-identify",
+        "events-plan",
+        "events-parse"
+      ],
+      "default_expectation": "continuous",
+      "reason": "识别、方法计划、人工与自动试解析"
+    },
+    {
+      "id": "monitoring-publish-worker",
+      "display_name": "正式监测发布",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/monitoring-publish-worker/main.go",
+      "lanes": [
+        "scheduler",
+        "foreground",
+        "historical"
+      ],
+      "default_expectation": "continuous",
+      "reason": "导入校验、正式采用、核验与搬迁"
+    },
+    {
+      "id": "monitoring-incremental-worker",
+      "display_name": "监测增量计算",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/monitoring-incremental-worker/main.go",
+      "lanes": [
+        "scheduler",
+        "foreground",
+        "historical",
+        "trial-http",
+        "events-derived",
+        "events-summary"
+      ],
+      "default_expectation": "continuous",
+      "reason": "变更位置消费、派生计算与试算"
+    },
+    {
+      "id": "monitoring-history-worker",
+      "display_name": "历史分析",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/monitoring-history-worker/main.go",
+      "lanes": [
+        "historical"
+      ],
+      "default_expectation": "continuous",
+      "reason": "历史回算、比较、重放和导出"
+    },
+    {
+      "id": "monitoring-read-worker",
+      "display_name": "后台读取",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/monitoring-read-worker/main.go",
+      "lanes": [
+        "historical",
+        "display-reads",
+        "events-display-cache",
+        "events-query-cache"
+      ],
+      "default_expectation": "continuous",
+      "reason": "后台查询与大屏持久读取"
+    },
+    {
+      "id": "event-relay",
+      "display_name": "内部事件转发",
+      "kind": "worker",
+      "entry_point": "services/api/cmd/event-relay/main.go",
+      "lanes": [
+        "publish"
+      ],
+      "default_expectation": "continuous",
+      "reason": "将已提交事实交给 JetStream 并记录确认"
+    },
+    {
+      "id": "nats-server",
+      "display_name": "内部消息存储",
+      "kind": "gateway",
+      "lanes": [],
+      "default_expectation": "continuous",
+      "reason": "JetStream 文件流与副本健康"
+    },
+    {
+      "id": "display-assets",
+      "display_name": "大屏包资产",
+      "kind": "application",
+      "entry_point": "services/api/cmd/display-assets/main.go",
+      "lanes": [
+        "assets-http"
+      ],
+      "default_expectation": "continuous",
+      "reason": "permit、会话与固定版本资产检查"
+    },
+    {
+      "id": "parser-runner",
+      "display_name": "方法执行子进程",
+      "kind": "tool",
+      "entry_point": "services/parser/cmd/parser-runner/main.go",
+      "lanes": [],
+      "default_expectation": "on_demand",
+      "reason": "由 parser 按版本与预算启动"
+    },
+    {
       "id": "ingest-worker",
       "display_name": "设备接入流水",
       "kind": "worker",
@@ -63,7 +255,7 @@
         "http"
       ],
       "default_expectation": "continuous",
-      "reason": "人员及业务接口进程"
+      "reason": "同源路由网关，兼容拓扑可承接原操作"
     },
     {
       "id": "monitoring-worker",
@@ -86,7 +278,8 @@
       "kind": "worker",
       "entry_point": "services/api/cmd/notification-worker/main.go",
       "lanes": [
-        "delivery"
+        "delivery",
+        "events-notification"
       ],
       "default_expectation": "continuous",
       "reason": "实际投递循环，本地报告独立于数据库心跳"
@@ -98,7 +291,8 @@
       "entry_point": "services/api/cmd/task-index-worker/main.go",
       "lanes": [
         "reconcile",
-        "backfill"
+        "backfill",
+        "events-task-index"
       ],
       "default_expectation": "continuous",
       "reason": "任务索引回填与对账"
@@ -137,7 +331,7 @@
         "assets-http"
       ],
       "default_expectation": "continuous",
-      "reason": "一个进程、两个独立端点"
+      "reason": "可信壳与 SDK 运行入口，兼容拓扑也承接资产监听"
     },
     {
       "id": "files-worker",
@@ -170,7 +364,8 @@
       "entry_point": "services/api/cmd/audit-worker/main.go",
       "lanes": [
         "reconcile",
-        "export"
+        "export",
+        "events-audit"
       ],
       "default_expectation": "continuous",
       "reason": "沿用独立审计方案，不读取审计正文"

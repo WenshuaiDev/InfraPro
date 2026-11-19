@@ -50,22 +50,43 @@ func analysisVersionTx(ctx context.Context, tx pgx.Tx, scope Scope, id string) (
 	}
 	return scanAnalysisVersion(tx.QueryRow(ctx, analysisVersionSelect+` WHERE v.tenant_id=$1 AND c.scope_key=$2 AND v.id=$3`, scope.Tenant, scope.key(), id))
 }
-func (s *Service) analysisBindingsTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, body AnalysisBody) (map[string]resources.CalculationTarget, error) {
-	targets := []resources.Target{}
+func analysisBindingChannelIDs(body AnalysisBody) ([]string, error) {
 	if len(body.InputBindings) > 16 {
 		return nil, invalid("/body/input_bindings", "输入最多16个。")
 	}
+	ids := make([]string, 0, len(body.InputBindings))
 	for _, binding := range body.InputBindings {
 		if !access.ValidID(binding.ChannelID) {
 			return nil, invalid("/body/input_bindings", "输入通道编号无效。")
 		}
-		targets = append(targets, resources.Target{Kind: resources.Channel, ID: binding.ChannelID})
+		ids = append(ids, binding.ChannelID)
 	}
-	if len(targets) == 0 {
+	return ids, nil
+}
+
+func (s *Service) analysisBindingsTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, body AnalysisBody) (map[string]resources.CalculationTarget, error) {
+	ids, err := analysisBindingChannelIDs(body)
+	if err != nil {
+		return nil, err
+	}
+	if len(ids) == 0 {
 		return map[string]resources.CalculationTarget{}, nil
+	}
+	targets := make([]resources.Target, 0, len(ids))
+	for _, id := range ids {
+		targets = append(targets, resources.Target{Kind: resources.Channel, ID: id})
 	}
 	return s.resources.CalculationTargetsTx(ctx, tx, a, resourceScope(scope), targets, false)
 }
+
+func (s *Service) checkAnalysisBindingsTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, body AnalysisBody) error {
+	ids, err := analysisBindingChannelIDs(body)
+	if err != nil || len(ids) == 0 {
+		return err
+	}
+	return s.resources.CheckCalculationInputChannelsTx(ctx, tx, a, resourceScope(scope), ids)
+}
+
 func (s *Service) qualifyAnalysisConfigTx(ctx context.Context, tx pgx.Tx, a access.Actor, scope Scope, c *AnalysisConfig) error {
 	if c.Draft == nil {
 		return nil

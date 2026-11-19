@@ -1,0 +1,16 @@
+{
+  "bin_directory": "/opt/infrapro/current/bin",
+  "work_directory": "/var/lib/infrapro-recovery/new-checkpoint",
+  "business_config": "/etc/infrapro-recovery/maintenance.json",
+  "relay_config": "/etc/infrapro-recovery/relay.json",
+  "audit_content_config": "/etc/infrapro-recovery/audit-content.json",
+  "events_config": "/etc/infrapro-recovery/event-admin.json",
+  "parser_package": "/opt/infrapro/current/parser-package",
+  "ca_file": "/etc/infrapro-recovery/ca.pem",
+  "diagnostics": {"37": {"state_directory":"/srv/restore-diagnostics/state","server_config":"/etc/infrapro-recovery/diagnostics-server.json"}},
+  "ssh_config": "/etc/infrapro-recovery/ssh_config",
+  "writer_hosts": [
+    {"base": "/srv/infrapro-recovery", "checkpoint": "checkpoint-20000101T000000Z"},
+    {"ssh_alias": "recovery-edge", "checkpoint": "checkpoint-20000101T000000Z"}
+  ]
+}

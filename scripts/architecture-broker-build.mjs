@@ -1,0 +1,22 @@
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { createReadStream, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+
+const modulePath='github.com/nats-io/nats-server/v2';
+const version='v2.14.6';
+const goos=process.argv[2]??execFileSync('go',['env','GOOS'],{encoding:'utf8'}).trim();
+const goarch=process.argv[3]??execFileSync('go',['env','GOARCH'],{encoding:'utf8'}).trim();
+if(!['linux','darwin'].includes(goos)||!['amd64','arm64'].includes(goarch))throw Error('Supported broker release targets are Linux/macOS on amd64/arm64');
+const dir=resolve('build','events',goos+'-'+goarch);mkdirSync(dir,{recursive:true});
+const mod=JSON.parse(execFileSync('go',['mod','download','-json',modulePath+'@'+version],{encoding:'utf8'}));
+const pins=JSON.parse(readFileSync('deploy/events/versions.json','utf8'));
+if(mod.Sum!==pins.server.h1 || mod.GoModSum!==pins.server.goModH1)throw Error('Broker module integrity mismatch');
+const output=join(dir,'nats-server');
+execFileSync('go',['build','-trimpath','-mod=readonly','-o',output,'.'],{cwd:mod.Dir,stdio:'inherit',env:{...process.env,GOWORK:'off',CGO_ENABLED:'0',GOOS:goos,GOARCH:goarch}});
+const digest=createHash('sha256');
+for await (const chunk of createReadStream(output))digest.update(chunk);
+const sha=digest.digest('hex');
+writeFileSync(join(dir,'SHA256SUMS'),sha+'  nats-server\n');
+writeFileSync(join(dir,'broker.json'),JSON.stringify({module:modulePath,version,goos,goarch,sha256:sha,sourceH1:mod.Sum},null,2)+'\n');
+console.log(output);
