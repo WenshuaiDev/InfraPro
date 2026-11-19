@@ -1,0 +1,299 @@
+{
+  "release": "20261119-b09feb944c39",
+  "gitTag": "production-2026-11-19",
+  "branch": "develop",
+  "applicationCommit": "ade7d4f90f9ce7551b03783e1fd736437c74c37c",
+  "buildBaseCommit": "220aee11790d900af823b05b70796da1a4733c79",
+  "buildWorkingTreeModified": true,
+  "target": "linux/amd64",
+  "schema": 59,
+  "topology": "compat",
+  "jetStreamActive": false,
+  "application": {
+    "files": 1981,
+    "sourceSha256": "b09feb944c39eabe1ed8ad3de850812bffaa9a646bfdaa693f3dfdd00c43252b",
+    "manifest": "application-files.sha256",
+    "manifestSha256": "f89fe6ee202d27464abe07d57bf5a0061d050ddd1b92be37144de2750942c297"
+  },
+  "distribution": {
+    "files": 791,
+    "manifest": "release.json",
+    "manifestSha256": "51d8b19e27859333ab71d2a8838c090263f321c800ce7c37cd01d0826be30f24",
+    "buildSourceTreeSha256": "eeadb24032767374c6a925c398909bdf2d5b71af4f575567d2cd696cfc084647",
+    "releaseId": "20261119-b09feb944c39"
+  },
+  "site": {
+    "manifest": "site-files.sha256",
+    "manifestSha256": "c594eaf07135c3a8dbf8c6a8c3f1d55fc9285ca424158c4862d89161aa5ee0b8",
+    "files": 569,
+    "consoleBase": "/console/",
+    "consoleFiles": 554,
+    "consoleSha256": "f5dec74e3f1c0417ba28778f9f7f684270ea6730505113c5f3b731f31e7943e1",
+    "parserFiles": 12,
+    "parserFileManifestSha256": "59557dc74d8c3049e9be298b1aea61971e8f6c113d2500bf555b016569de012d",
+    "backupToolsArchiveSha256": "7e2564af4b5b29f48409129c196d32fd3c587b1c2ebe267d5d3467b37608cc37",
+    "backupToolsManifestSha256": "8ce942cef0e5222ef73d48c214d6f73915418af8f32fe27235ff9d6dd296b7cc",
+    "productionRoleAdapterSha256": "08c7ea2920cc48b6d8aa5640e67ec0edba1b603893e087ff4b477d98bf6b9800",
+    "productionRoleBundleManifestSha256": "5e786e1806be0629fa4816383f51fcfcfa66877c8b113cde56f900433743b736"
+  },
+  "cutover": {
+    "fromRelease": "20261117-802a92f81b63",
+    "schemaFrom": 55,
+    "schemaTo": 59,
+    "migrationCompletedAt": "2026-11-19T06:50:59.225289+00:00",
+    "grantFiles": {
+      "deploy/architecture/restore-base-grants.sql": "d9c29ea2b07dd32a0020f98a97c2dcb6a7db4605c9624672d4ea26fac6d78371",
+      "deploy/display/package-worker-role.sql": "46b6af2e0d4c18130802d998fb2795fd16fb83c085951e9e3b750c6f13781456",
+      "deploy/architecture/postgres-roles.sql": "325049556d899fb7c3836f26499891c51284b0416cdc59584af0bdd9dc2a226e",
+      "deploy/events/postgres-grants.sql": "cbc5044966c586e55aef5087339a58be74d6836f10695b8d11ce4ba4a9cfcab2"
+    },
+    "accessCatalogChecked": true,
+    "backup": {
+      "id": "checkpoint-20261119T063945Z",
+      "archiveVerified": true,
+      "bytes": 353082112,
+      "sha256": "b1fe9d546873e14d6a714385bc7ff3a7c8295f9c6eb4efb604b89d6bc80e07c7",
+      "frozenSeconds": 21.83
+    },
+    "mfaRecoveryCopyMatched": true
+  },
+  "applicationData": {
+    "oldTables": 328,
+    "newTableCount": 349,
+    "originalRows": 9723,
+    "originalKeysPreserved": 9723,
+    "originalRowsWithAllOldColumnsVerifiedUnchangedAtLeast": 9421,
+    "unchangedBusinessTableCounts": {
+      "account_passwords": 2,
+      "account_roles": 3,
+      "account_sessions": 41,
+      "accounts": 2,
+      "devices": 0,
+      "engineering_definitions": 356,
+      "engineering_dependencies": 800,
+      "engineering_drafts": 2,
+      "engineering_facilities": 0,
+      "engineering_versions": 354,
+      "ingestion_receipts": 0,
+      "parsing_identification_versions": 5,
+      "parsing_method_versions": 4,
+      "project_memberships": 1,
+      "projects": 1,
+      "tenants": 1
+    },
+    "relayTablesVerified": 10,
+    "clickHouseTablesVerified": 4,
+    "changedClickHouseTables": 0,
+    "objectBucketsVerified": 7,
+    "changedObjectBuckets": 3
+  },
+  "cutoverLogin": {
+    "checkedAt": "2026-11-19T06:54:19.839Z",
+    "consoleStatus": 200,
+    "indexSha256": "21752043fec5732d32146291ead9b9852cb2789f0b2cb9def80c3dcf89bddc29",
+    "authenticatedAccountHome": true,
+    "loginStatus": 200,
+    "meStatus": 200,
+    "accountMatched": true,
+    "logoutStatus": 204,
+    "subsequentMeStatus": 401,
+    "pageErrors": 0
+  },
+  "tagVerification": {
+    "hosts": [
+      {
+        "node": 37,
+        "release": "20261119-b09feb944c39",
+        "releaseManifestSha256": "51d8b19e27859333ab71d2a8838c090263f321c800ce7c37cd01d0826be30f24",
+        "stockFilesVerified": 791,
+        "executables": {
+          "infrapro-observer.service": {
+            "path": "bin/infrapro-diagnostics",
+            "sha256": "3ffc26063e0497b1452c9963cdd58deb55f45871c5d995ecf0c8bae2cafaeb05"
+          }
+        },
+        "backupToolsManifestSha256": "8ce942cef0e5222ef73d48c214d6f73915418af8f32fe27235ff9d6dd296b7cc",
+        "runningServiceCount": 7,
+        "siteGrantsManifestSha256": "5e786e1806be0629fa4816383f51fcfcfa66877c8b113cde56f900433743b736",
+        "database": {
+          "schema": 59,
+          "capture": false,
+          "owns": {
+            "ingest-custody-worker": "compat",
+            "parsing-dispatch-worker": "compat",
+            "monitoring-publish-worker": "compat",
+            "monitoring-incremental-worker": "compat",
+            "monitoring-history-worker": "compat",
+            "monitoring-read-worker": "compat"
+          }
+        },
+        "checkedAt": "2026-11-19T07:15:26.840436+00:00"
+      },
+      {
+        "node": 38,
+        "release": "20261119-b09feb944c39",
+        "releaseManifestSha256": "51d8b19e27859333ab71d2a8838c090263f321c800ce7c37cd01d0826be30f24",
+        "stockFilesVerified": 791,
+        "executables": {
+          "infrapro-diagnostics.service": {
+            "path": "bin/infrapro-diagnostics",
+            "sha256": "3ffc26063e0497b1452c9963cdd58deb55f45871c5d995ecf0c8bae2cafaeb05"
+          },
+          "infrapro-observer.service": {
+            "path": "bin/infrapro-diagnostics",
+            "sha256": "3ffc26063e0497b1452c9963cdd58deb55f45871c5d995ecf0c8bae2cafaeb05"
+          }
+        },
+        "backupToolsManifestSha256": "8ce942cef0e5222ef73d48c214d6f73915418af8f32fe27235ff9d6dd296b7cc",
+        "runningServiceCount": 6,
+        "checkedAt": "2026-11-19T07:15:25.913002+00:00"
+      },
+      {
+        "node": 151,
+        "release": "20261119-b09feb944c39",
+        "releaseManifestSha256": "51d8b19e27859333ab71d2a8838c090263f321c800ce7c37cd01d0826be30f24",
+        "stockFilesVerified": 791,
+        "executables": {
+          "infrapro-ingest-relay.service": {
+            "path": "bin/ingest-relay",
+            "sha256": "b3236c7d49a780b905027e5d5bb4856bf5d763d5ab530c2016755d68d28c74bd"
+          },
+          "infrapro-observer.service": {
+            "path": "bin/infrapro-diagnostics",
+            "sha256": "3ffc26063e0497b1452c9963cdd58deb55f45871c5d995ecf0c8bae2cafaeb05"
+          }
+        },
+        "backupToolsManifestSha256": "8ce942cef0e5222ef73d48c214d6f73915418af8f32fe27235ff9d6dd296b7cc",
+        "runningServiceCount": 9,
+        "checkedAt": "2026-11-19T07:15:26.277825+00:00"
+      },
+      {
+        "node": 152,
+        "release": "20261119-b09feb944c39",
+        "releaseManifestSha256": "51d8b19e27859333ab71d2a8838c090263f321c800ce7c37cd01d0826be30f24",
+        "stockFilesVerified": 791,
+        "executables": {
+          "infrapro-api.service": {
+            "path": "bin/api",
+            "sha256": "5560782657b8b450e3e6a99eba091abc697238cae23375fa1339cf1fd0b57a0e"
+          },
+          "infrapro-audit-worker.service": {
+            "path": "bin/audit-worker",
+            "sha256": "0c3ac21fa54de2340482a63165726f528454f54c23671a8d0373ec9fe69fdb0a"
+          },
+          "infrapro-display-package-worker.service": {
+            "path": "bin/display-package-worker",
+            "sha256": "a3c5ee00dbf26d187eb63fd25acf27fd9f03964ea2c949d51ad3e8049dcd6ade"
+          },
+          "infrapro-display-runtime.service": {
+            "path": "bin/display-runtime",
+            "sha256": "553a3f99af3b3414176284df33e72afaef70ef2abd9dd2df4c99eb12b47c46dd"
+          },
+          "infrapro-files-checker.service": {
+            "path": "bin/files-checker",
+            "sha256": "22b94e8fbd751b88d2dd9dc4c322164caef219c7abcf5c34308593ba281d90a1"
+          },
+          "infrapro-files-worker.service": {
+            "path": "bin/files-worker",
+            "sha256": "d83c6b0fd96db8641a8d3d4d6dbbf924ca04a75bebfbe8452635ca87aaf4358c"
+          },
+          "infrapro-ingest-worker.service": {
+            "path": "bin/ingest-worker",
+            "sha256": "9e5dc1354fe37c4aaafeeb6a649d90d851b83cad6c65c02b44f7ee83789286a7"
+          },
+          "infrapro-monitoring-worker.service": {
+            "path": "bin/monitoring-worker",
+            "sha256": "e8ac918cdc486029f953dfc46f0eda31e58a898bda501b6270f72adde7e86a92"
+          },
+          "infrapro-notification-worker.service": {
+            "path": "bin/notification-worker",
+            "sha256": "b81da4d660dd6d9bbf93315e28d8807c45020925e40a98e42f2167b45160032a"
+          },
+          "infrapro-observer.service": {
+            "path": "bin/infrapro-diagnostics",
+            "sha256": "3ffc26063e0497b1452c9963cdd58deb55f45871c5d995ecf0c8bae2cafaeb05"
+          },
+          "infrapro-parser.service": {
+            "path": "bin/parser",
+            "sha256": "bf11f787ba67fd3946b332a2016dd92918414ff231514ca0fc8cc976552c8e4e"
+          },
+          "infrapro-spatial-worker.service": {
+            "path": "bin/spatial-worker",
+            "sha256": "5368542ef1b60e74c9cd417f0002d34741ffcf01e3fe0573481ac3c9f96a3fbd"
+          },
+          "infrapro-task-index-worker.service": {
+            "path": "bin/task-index-worker",
+            "sha256": "10d01b62789df7ee2de58af09acc82130c264f26d11ed0a3cd518ab74cf9aa77"
+          }
+        },
+        "backupToolsManifestSha256": "8ce942cef0e5222ef73d48c214d6f73915418af8f32fe27235ff9d6dd296b7cc",
+        "runningServiceCount": 14,
+        "siteGrantsManifestSha256": "5e786e1806be0629fa4816383f51fcfcfa66877c8b113cde56f900433743b736",
+        "console": {
+          "files": 554,
+          "sha256": "f5dec74e3f1c0417ba28778f9f7f684270ea6730505113c5f3b731f31e7943e1"
+        },
+        "displayRuntime": {
+          "files": 3,
+          "sha256": "8a322cb72bb22ef9693041ba084d869b69237511e06aa1cb5c2d10615d92d80d"
+        },
+        "parser": {
+          "files": 12,
+          "sha256sums": "59557dc74d8c3049e9be298b1aea61971e8f6c113d2500bf555b016569de012d"
+        },
+        "checkedAt": "2026-11-19T07:15:27.839722+00:00"
+      }
+    ],
+    "runningServices": 36,
+    "releaseBackedProcesses": 18
+  },
+  "acceptance": {
+    "status": "awaiting_manual_acceptance",
+    "functionalChecks": 37,
+    "functionalPassed": 20,
+    "functionalFailed": 11,
+    "functionalIncomplete": 6,
+    "performanceExcluded": 2,
+    "checkStatusAtCloseout": {
+      "ARC-001": "passed",
+      "ARC-002": "incomplete",
+      "ARC-003": "passed",
+      "ARC-004": "passed",
+      "ARC-005": "incomplete",
+      "ARC-006": "passed",
+      "ARC-007": "incomplete",
+      "ARC-008": "incomplete",
+      "ARC-009": "failed",
+      "ARC-010": "failed",
+      "ARC-011": "failed",
+      "ARC-012": "passed",
+      "ARC-013": "passed",
+      "ARC-014": "failed",
+      "ARC-015": "passed",
+      "ARC-016": "incomplete",
+      "ARC-017": "incomplete",
+      "ARC-018": "failed",
+      "ARC-019": "failed",
+      "ARC-020": "failed",
+      "ARC-021": "failed",
+      "ARC-022": "passed",
+      "ARC-023": "passed",
+      "ARC-024": "passed",
+      "ARC-025": "passed",
+      "ARC-026": "failed",
+      "ARC-027": "passed",
+      "ARC-028": "failed",
+      "ARC-029": "passed",
+      "ARC-030": "passed",
+      "ARC-031": "passed",
+      "ARC-032": "passed",
+      "ARC-033": "passed",
+      "ARC-034": "passed",
+      "ARC-035": "passed",
+      "ARC-036": "passed",
+      "ARC-037": "skipped",
+      "ARC-038": "skipped",
+      "ARC-039": "failed"
+    }
+  }
+}

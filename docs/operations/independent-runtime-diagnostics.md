@@ -123,3 +123,34 @@ CPU 首样本、计数回绕和无法获取的值为 null；容器 unlimited 不
 PG 执行固定 `SELECT 1`，Redis 只 PING，CH 固定 `SELECT 1`，S3 只对指定 bucket 发一次 HEAD，Keeper 只发 ruok。S3 HEAD 的部分实现把错误凭据和缺少权限都返回无 body 的 403，因此显示拒绝访问，不凭空判别根因。CH 固定常量查询不证明业务表授权；权限拒绝契约另以真实用户的固定设置约束检查。依赖网络视角成功不能替代源进程实际调用证据。
 
 L1–L4 自验覆盖本机原生、真实容器、三个观察器 TLS 上报和 Linux 私有 D-Bus 契约。真实独立服务器、真实 systemd unit、其他 Linux 发行版与供应商版本组合、负载和长时间稳定性单列为未验证；私有 D-Bus fixture 不等于真实 systemd 部署。
+
+
+## 业务架构拆分后的部署
+
+业务角色、可执行文件、部署模式和系统账号以 `deploy/architecture/roles.json` 为准。standalone 继续只启用诊断本身。按实际工作负载启用 split 时，用发布包同版本的维护程序生成清单和绑定。下例将容器内报告目录绑定到宿主机的私有卷。
+
+```sh
+infrapro diagnostics config init --directory /srv/diag/split --instance-id infrapro-architecture \
+  --topology split --profile docker --container-report-directory /var/lib/infrapro-architecture/reports \
+  --runtime-uid 10001 --broker-replicas 3
+```
+
+| 环境 | 报告与探针 |
+| --- | --- |
+| native | 默认一个 broker，原生程序以 `/opt/infrapro/current/bin/<role>` 定位。报告默认在 `/run/infrapro-<role>/process.json`。可选 `--bin-directory`、`--report-directory`、`--role-uids <JSON文件>`。如部署了三个 broker，使用 `--broker-replicas 3` 映射至三个不同观察节点 |
+| docker | 默认登记三个 `nats-server-1/2/3` 副本，最低健康数为 2。容器观察器按部署和副本两个标签匹配，并校验 PID 命名空间、挂载、UID 和实际程序路径。parser 镜像的入口为 `/parser`。独立边缘 relay 由 `edge` 的原生观察器检查 systemd 程序报告 |
+| mixed | 部署默认将 `monitoring-history-worker`、`monitoring-read-worker` 放在容器内，其余程序按原生方式检查，原生 broker 默认为一个。自定义混合部署可传 `--container-roles` 逗号分隔名单。使用 `--container-report-directory` 单独设置容器的宿主挂载根目录，原生 unit 继续使用实际的运行目录 |
+
+`--replica-nodes <JSON文件>` 接受副本 ID 到观察节点 ID 的映射，例如 `{"ingest-relay-1":"edge","nats-server-1":"msg-a","nats-server-2":"msg-b","nats-server-3":"msg-c"}`。不同宿主上的原生 broker 分别检查本机 systemd unit 和 loopback 的 JetStream 健康端点。容器模板可在单机演练时观察三个容器，实际三故障域需要分别配置节点映射并完成资源验收。兼容 API 已启动时加入 `--compat-api`。兼容旧 worker 由原部署 profile 登记，各自只在实际启用时计入连续服务分母。
+
+有多个业务副本时向 `config init` 传入部署生成器使用的 `--replicas <JSON文件>`。每个角色包含有序的副本 ID 或声明，例如 `{"id":"control-api-2","host":"10.24.8.2","diagnostic_node":"app-b"}`。省略 `diagnostic_node` 时，生成器使用合法宿主名或为该地址计算固定节点 ID，并记录在 `layout.json`。诊断 CLI、systemd unit 和应用报告使用同一节点 ID。实际报告节点另有配置时，用 `--replica-nodes` 显式映射。每个副本分别登记进程、报告及源依赖探针。多副本角色按 `/run/infrapro-<副本ID>/process.json` 或指定报告根目录的 `<副本ID>/process.json` 定位。单副本按角色名定位。UID 映射支持角色名和副本 ID，后者优先。回退启用原 `ingest-worker` 和 `monitoring-worker` 后，用 `--compat-workers` 登记两个实际进程。
+
+生成目录中 `bindings.json` 给 server 自有的本机 observer，`observer-bindings.json` 给默认 Docker observer，`observer-<node>-bindings.json` 给其他分配节点。每个 observer 单独签发凭据并绑定 node 和 assignment_revision，沿用既有 TLS 流程。应用的 `INFRAPRO_DIAGNOSTICS_INSTANCE_ID`、`INFRAPRO_DIAGNOSTICS_NODE_ID` 和 `INFRAPRO_DIAGNOSTICS_REPLICA_ID`必须匹配 manifest。容器设置 `INFRAPRO_DIAGNOSTICS_PID_NAMESPACE=container`，应用报告写入 `/run/infrapro-report/process.json`，daemon observer 以只读方式在与宿主一致的绝对路径挂载报告目录。以共享组访问报告时，在业务进程设置 `INFRAPRO_DIAGNOSTICS_REPORT_SHARED_GROUP=true` 并按文件属主和观察者组设置目录访问权。
+
+也可直接将发布生成的 `layout.json` 传给 `--replicas`。使用本机启动器时，选择 `--profile native --local-reports --report-directory "$INFRAPRO_LOCAL_DIRECTORY/reports"`。这会读取启动器的 `<角色或多副本ID>.json`。将 `--runtime-uid` 和 `--bin-directory` 分别设为运行账号 UID 和实际发布二进制目录。
+
+本机单个 broker 通过 `nats-server -P <私有PID文件>` 启动时，可向 `config init` 传 `--broker-pid-file`、`--broker-executable` 和 `--broker-monitor-port`。PID 文件设置为 0600，观察器分别核对实际进程身份和本机 JetStream 健康端点。原生 systemd 单元可直接使用模板默认绑定。
+
+`layout.json` 登记了 `tcp_proxies` 时，诊断会显示 `replica-proxy` 和各个监听。原生／混合部署由 systemd 提供活跃状态、主 PID 和启动时刻。本机启动器使用受保护的 PID 记录、实际程序路径和 UID 匹配 Python 进程。若监听使用本机启动时的端口覆盖，传入已生效的 `--proxy-listeners <文件>`。Python 路径可通过 `--proxy-executable <绝对路径>` 设置。每个 TCP 探针报告该监听能否建立连接，后端业务的就绪由其专属探针核实。
+
+打开每个启用角色的副本与检查。进程存在、报告身份一致和真实循环是两个独立的必需检查。依赖状态来自实际业务调用。MQ 延迟、隔离与 PG 回补见相应事件循环和报告指标；低频兜底继续运行时仍能观察 MQ 故障。事件发布、重复消息、过时代号和定向回补的演练步骤见[消息运维说明](architecture-events.md)。

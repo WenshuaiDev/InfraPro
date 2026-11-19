@@ -4,7 +4,7 @@
 
 当前包含原始监测导入、查询与统计、派生计算与历史分析、图纸／三维／BIM／GIS、项目大屏 SDK 与独立运行壳、文件附件、任务中心、站内通知、审计追踪和独立运行诊断。
 
-当前生产应用版本固定为 Git 标签 **`production-2026-11-17`**，对应服务器发行包 **`20261117-802a92f81b63`**、数据库 schema **55**。代码与实机文件的核对依据、访问入口及验收边界见[生产版本基线](docs/operations/production-version-2026-11-17.md)。
+四机生产标签 **`production-2026-11-19`** 对应发行版 **`20261119-b09feb944c39`** 和业务数据库 **schema 59**。HTTP 与六组后台作业运行在兼容模式。生产入口、逐文件摘要及版本对照方法见[11 月 19 日生产版本记录](docs/operations/production-version-2026-11-19.md)，各项验收结果见[架构重构交付记录](docs/verification/system-architecture-refactor-closeout.md)。
 
 ## 本机完整环境
 
